@@ -15,9 +15,19 @@ MonoBehaviour:
   folderDatas_byGuid:
     keys:
     - a49fe80de687a9c4fa0e578d3aed436a
+    - df05a0beec9d4c043a47898140b1a6ce
+    - 9c5007bb3dc5dc7408f94ab3c611f02c
     values:
     - iconNameOrGuid: Texture Icon
-      colorIndex: 5
+      colorIndex: 6
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 1
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 4
       isIconRecursive: 0
       isColorRecursive: 0
   bookmarks: []
