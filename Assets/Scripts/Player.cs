@@ -3,15 +3,13 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    [Header("Settings")]
-    [SerializeField] private float moveSpeed = 5f; // 이동속도
-
     [Header("Components")]
     [SerializeField] private Rigidbody2D rigid;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private PlayerInput inputActions;
 
     [Header("Var")]
+    [SerializeField] private float moveSpeed = 5f; // 이동속도
     [SerializeField] private Vector2 moveInput;
 
     private void Awake()
@@ -37,7 +35,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>(); // 기초 이동 관련
-        Flip();
+        LookAtMouse();
     }
 
     private void FixedUpdate()
@@ -58,15 +56,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Flip() // 캐릭터 좌우 반전
+    private void LookAtMouse() // 마우스 쳐다보기
     {
-        if (moveInput.x > 0)
+        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+
+        if (mousePos.x < transform.position.x)
+        {
+            spriteRenderer.flipX = true;
+        }
+        else
         {
             spriteRenderer.flipX = false;
-        }
-        else if (moveInput.x < 0)
-        {
-            spriteRenderer.flipX = true; 
         }
     }
 }
