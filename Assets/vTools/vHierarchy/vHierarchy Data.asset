@@ -23,6 +23,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-187089419-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-2031720040-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-843584024-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1299400497-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -44,6 +45,10 @@ MonoBehaviour:
           iconNameOrGuid: sv_icon_dot14_pix16_gizmo
           isIconRecursive: 0
           isColorRecursive: 1
+        - colorIndex: 8
+          iconNameOrGuid: 
+          isIconRecursive: 0
+          isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity
