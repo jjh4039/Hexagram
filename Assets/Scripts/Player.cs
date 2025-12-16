@@ -1,5 +1,5 @@
 using UnityEngine;
-//using UnityEngine.InputSystem;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
@@ -19,14 +19,15 @@ public class Player : MonoBehaviour
         rigid.interpolation = RigidbodyInterpolation2D.Interpolate; // ÇÁ·¹ÀÓ ²÷±è ¹æÁö
     }   
 
-    //public void OnMove(InputValue value)
-    //{
-    //    moveInput = value.Get<Vector2>();
-    //}
+    public void OnMove(InputValue value)
+    {
+        moveInput = value.Get<Vector2>();
+    }
 
     private void FixedUpdate()
     {
         Move();
+      
     }
 
     private void Move()
@@ -34,11 +35,12 @@ public class Player : MonoBehaviour
         if (moveInput.magnitude > 0)
         {
             Vector2 moveDirection = moveInput.normalized;
-           // rb.linearVelocity = moveDirection * moveSpeed;
+            rigid.linearVelocity = moveDirection * moveSpeed;
         }
         else
         {
            // rb.linearVelocity = Vector2.zero;
+
         }
     }
 }
