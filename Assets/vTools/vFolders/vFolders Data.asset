@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: vFolders Data
   m_EditorClassIdentifier: VFolders::VFolders.VFoldersData
   folderDatas_byGuid:
-    keys: []
-    values: []
+    keys:
+    - a49fe80de687a9c4fa0e578d3aed436a
+    values:
+    - iconNameOrGuid: Texture Icon
+      colorIndex: 5
+      isIconRecursive: 0
+      isColorRecursive: 0
   bookmarks: []
