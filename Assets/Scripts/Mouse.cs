@@ -9,8 +9,8 @@ public class VirtualCursor : MonoBehaviour
     {
         inputActions = new PlayerInput();
 
-        // 실제 마우스 커서는 숨기기
-        Cursor.visible = false;
+        // Cursor.visible = false; 마우스 커서 숨기기
+
     }
 
     private void OnEnable()

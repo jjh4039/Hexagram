@@ -4,13 +4,14 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private Rigidbody2D rigid;
+    [SerializeField] public Rigidbody2D rigid;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private PlayerInput inputActions;
 
     [Header("Var")]
     [SerializeField] private float moveSpeed = 5f; // 이동속도
     [SerializeField] private Vector2 moveInput;
+    [SerializeField] public bool isAttacking = false;
 
     private void Awake()
     {
@@ -40,7 +41,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Move(); // 기초 이동
+        if (!isAttacking) Move(); // 기초 이동
     }
 
     private void Move() // 기초 이동

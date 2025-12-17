@@ -6,12 +6,19 @@ public class Sword : MonoBehaviour
 
     [Header("Components")]
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Animator anim;
+
+    [Header("Var")]
+    private Vector2 mouseScreenPos;
+    private Vector2 mouseWorldPos;
 
     private void Awake()
     {
-        // 1단계에서 만든 것과 동일하게 초기화
         inputActions = new PlayerInput();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        inputActions.Player.Attack.performed += ctx => Attack(); // 공격 버튼 이벤트 연결
+
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        anim = GetComponentInChildren<Animator>();
     }
 
     private void OnEnable()
@@ -27,54 +34,62 @@ public class Sword : MonoBehaviour
     private void Update()
     {
         RotateWeapon();
+
+        mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+        mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+    }
+
+    private void Attack()
+    {
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Sword_Attack")) return; // 이미 공격 중이면 무시
+
+        anim.SetTrigger("Attack");
+
+        GameManager.instance.player.isAttacking = true; // 플레이어 공격 설정 (이동 제한 및 공격 전진 로직)
+        GameManager.instance.player.rigid.linearVelocity = Vector2.zero; // 공격 시 기존 속도 제거
+
+        float attackDashForce = 7f;
+
+        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        Vector2 pushDir = (mouseWorldPos - (Vector2)GameManager.instance.player.transform.position).normalized;
+
+        GameManager.instance.player.rigid.AddForce(pushDir * attackDashForce, ForceMode2D.Impulse);
+
+        Invoke("ResetAttackStatus", 0.2f);
     }
 
     private void RotateWeapon()
     {
-        float offset = 1.2f; // 플레이어와 검 사이의 간격
+        float offset = 0f;
 
-        // New Input System 방식으로 마우스 스크린 좌표 읽기
-        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
-
-        // 월드 좌표로 변환
-        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-
-        // 피벗에서 마우스를 향하는 방향 벡터
+        // 1. 방향 및 각도 계산
         Vector2 lookDir = mouseWorldPos - (Vector2)transform.position;
-
-        // 각도 계산 (Atan2는 라디안을 반환하므로 Deg로 변환)
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
 
-        // 360도 회전 적용
+        // 2. 부모(Pivot) 회전 적용
         transform.rotation = Quaternion.Euler(0, 0, angle);
 
-       
+        // 3. 방향에 따른 반전 및 위치 조정
+        Vector3 pivotScale = Vector3.one;
+        if (angle > 90 || angle < -90) // 왼쪽
+        {
+            pivotScale.y = 1f; // 자식의 애니메이션 궤적까지 반전시키기 위해 부모 스케일 조절
+            spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0);
+        }
+        else // 오른쪽
+        {
+            pivotScale.y = -1f;
+            spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0);
+        }
 
-        // 디테일: 검이 뒤집혔을 때 스프라이트 반전 처리 (가독성 유지)
-        Vector3 localScale = Vector3.one;
-        if (angle > 90 || angle < -90)
-        {
-            localScale.y = -0.8f; // 검의 위아래를 뒤집어줌
-            spriteRenderer.transform.localPosition = new Vector3(offset, -2f, 0);
-        }
-        else
-        {
-            localScale.y = 0.8f;
-            spriteRenderer.transform.localPosition = new Vector3(-offset, -2f, 0);
-        }
-        transform.localScale = localScale;
+        // 부모나 중간 루트의 스케일을 조절하여 궤적 반전
+        transform.localScale = pivotScale;
+    }
 
-        // 유니티 각도 기준: 0도(오른쪽), 90도(위), 180도(왼쪽), 270도(아래)
-        // 0도 ~ 180도 사이일 때는 캐릭터의 '뒤(위쪽)'에 있는 셈입니다.
-        if (angle > 0 && angle < 180)
-        {
-            spriteRenderer.sortingOrder = -1;
-        }
-        // 그 외(180~360도)는 캐릭터의 '앞(아래쪽)'에 있는 셈입니다.
-        else
-        {
-            spriteRenderer.sortingOrder = 1;
-        }
+    private void ResetAttackStatus()
+    {
+        GameManager.instance.player.isAttacking = false;
     }
 }
 
