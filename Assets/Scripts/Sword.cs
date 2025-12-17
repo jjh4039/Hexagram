@@ -7,6 +7,7 @@ public class Sword : MonoBehaviour
     [Header("Components")]
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Animator anim;
+    [SerializeField] private GameObject[] slashEffects;
 
     [Header("Var")]
     private Vector2 mouseScreenPos;
@@ -87,6 +88,29 @@ public class Sword : MonoBehaviour
         // 공격 상태 리셋 (애니메이션 길이에 맞춰 조정)
         CancelInvoke("ResetAttackStatus");
         Invoke("ResetAttackStatus", 0.2f);
+
+        // 검기 생성
+        GameObject currentEffect = slashEffects[comboStep - 1];
+
+        currentEffect.transform.position = (Vector2)transform.position + (pushDir * (4f + comboStep * 2.5f));
+        float angle = Mathf.Atan2(pushDir.y, pushDir.x) * Mathf.Rad2Deg;
+
+        if (transform.localScale.y < 0)
+        {
+            currentEffect.transform.rotation = Quaternion.Euler(0, 0, angle + 95f);
+        }
+        else
+        {
+            currentEffect.transform.rotation = Quaternion.Euler(0, 0, angle - 95f);
+        }
+
+        Vector3 effectScale = currentEffect.transform.localScale;
+        effectScale.x = 1.5f;
+        effectScale.y = transform.localScale.y * 1.5f;
+        currentEffect.transform.localScale = effectScale;
+
+        currentEffect.SetActive(false);
+        currentEffect.SetActive(true);
     }
 
     private void RotateWeapon()
