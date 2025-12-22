@@ -22,8 +22,7 @@ public class Dice : MonoBehaviour
     [SerializeField] private TextMeshProUGUI diceDesTitle;
     [SerializeField] private TextMeshProUGUI diceDesSubtitle;
     [SerializeField] private Image diceDesImage;
-    [SerializeField] private ParticleSystem[] diceDesEffetParticles;
-    [SerializeField] private ParticleSystemRenderer[] diceDesEffetParticleRenderers;
+    [SerializeField] private ParticleSystemRenderer[] diceDesEffets;
 
     [Header("Dice Module")]
     [SerializeField] private Sprite[] diceSprites;
@@ -89,42 +88,44 @@ public class Dice : MonoBehaviour
 
     IEnumerator DiceDes(int diceValue)
     {
-        diceDesEffetParticleRenderers[0].material = diceMaterials[diceValue];
-        diceDesEffetParticleRenderers[1].material = diceMaterials[diceValue];
-        
+        diceDesEffets[0].material = diceMaterials[diceValue];
+        diceDesEffets[1].material = diceMaterials[diceValue];
+
+        var uiPart1 = diceDesEffets[0].GetComponent<Coffee.UIExtensions.UIParticle>();
+        var uiPart2 = diceDesEffets[1].GetComponent<Coffee.UIExtensions.UIParticle>();
+
+        if (uiPart1 != null)
+        {
+            uiPart1.enabled = false;
+            uiPart1.enabled = true;
+        }
+        if (uiPart2 != null)
+        {
+            uiPart2.enabled = false;
+            uiPart2.enabled = true;
+        }
+
+        diceDesEffets[0].gameObject.GetComponent<ParticleSystem>().Clear();
+        diceDesEffets[0].gameObject.GetComponent<ParticleSystem>().Play();
+        diceDesEffets[1].gameObject.GetComponent<ParticleSystem>().Clear();
+        diceDesEffets[1].gameObject.GetComponent<ParticleSystem>().Play();
+
         diceDesTitle.color = diceColors[diceValue];
 
         for (int i = 0; i <= 100; i++)
         {
-            diceDesAlpha.alpha = i * 0.01f;
-
-            Color pColor = Color.white;
-            pColor.a = i * 0.01f; // 루프 내의 알파값 적용
-
-            var main = diceDesEffetParticles[0].main;
-            var main2 = diceDesEffetParticles[1].main;
-
-            main.startColor = new ParticleSystem.MinMaxGradient(pColor);
-            main2.startColor = new ParticleSystem.MinMaxGradient(pColor);
+            float alphaVal = i * 0.02f;
+            diceDesAlpha.alpha = alphaVal;
 
             yield return new WaitForSeconds(0.01f);
         }
 
         yield return new WaitForSeconds(2f);
 
-
         for (int i = 100; i >= 0; i--)
         {
-            diceDesAlpha.alpha = i * 0.01f;
-
-            Color pColor = Color.white;
-            pColor.a = i * 0.01f; // 루프 내의 알파값 적용
-
-            var main = diceDesEffetParticles[0].main;
-            var main2 = diceDesEffetParticles[1].main;
-
-            main.startColor = new ParticleSystem.MinMaxGradient(pColor);
-            main2.startColor = new ParticleSystem.MinMaxGradient(pColor);
+            float alphaVal = i * 0.01f;
+            diceDesAlpha.alpha = alphaVal;
 
             yield return new WaitForSeconds(0.01f);
         }
