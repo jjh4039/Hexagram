@@ -90,5 +90,9 @@ MonoBehaviour:
     customIcons: []
     enabled: 1
   - builtinIcons: []
+    customIcons:
+    - BuildSettings.Metro
+    enabled: 1
+  - builtinIcons: []
     customIcons: []
     enabled: 1
