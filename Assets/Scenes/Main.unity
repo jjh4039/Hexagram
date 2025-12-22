@@ -2374,8 +2374,8 @@ MonoBehaviour:
   - {fileID: 2100000, guid: fd8f249640bc42a47942e0c495feff11, type: 2}
   - {fileID: 2100000, guid: 886cbcc584df6a747b913e802b10ed50, type: 2}
   - {fileID: 2100000, guid: 87973b6488cf91141a808ba8374e5134, type: 2}
-  diceTime: 5
-  rollTime: 1
+  diceTime: 10
+  rollTime: 2
   diceDesAlpha: {fileID: 1686669236}
   diceDesTitle: {fileID: 483511278}
   diceDesSubtitle: {fileID: 1635065202}
