@@ -1424,8 +1424,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1010605625, guid: d71a3dc7aa20fad4f9a99fc76a9254ba, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 7587475913461477366, guid: ff6477571e932ca4499a16fe9d25cab1, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -12577,6 +12577,6 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 843584026}
   - {fileID: 1299400500}
-  - {fileID: 295288418}
   - {fileID: 1965841834}
   - {fileID: 720504699}
+  - {fileID: 295288418}
