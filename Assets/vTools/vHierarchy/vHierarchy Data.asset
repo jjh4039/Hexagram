@@ -29,6 +29,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1295558016-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1686669234-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-2052389715-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-3248457421047741274-835785196
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -73,6 +74,10 @@ MonoBehaviour:
         - colorIndex: 0
           iconNameOrGuid: BuildSettings.Metro
           isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: sv_icon_dot14_pix16_gizmo
+          isIconRecursive: 1
           isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:

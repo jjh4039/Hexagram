@@ -3,10 +3,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Collections;
 using UnityEditor.Build;
+using System.Runtime.InteropServices;
+using System.Collections;
 
 public class Dice : MonoBehaviour
 {
     [SerializeField] private Color32[] diceColors;
+    [SerializeField] private Material[] diceMaterials;
 
     [Header("Var")]
     private bool isNextRoll;
@@ -15,10 +18,12 @@ public class Dice : MonoBehaviour
     [SerializeField] private float rollTime;
 
     [Header("Dice Des")]
+    [SerializeField] private CanvasGroup diceDesAlpha;
     [SerializeField] private TextMeshProUGUI diceDesTitle;
     [SerializeField] private TextMeshProUGUI diceDesSubtitle;
     [SerializeField] private Image diceDesImage;
-    [SerializeField] private TextMeshProUGUI diceDesText;
+    [SerializeField] private ParticleSystem[] diceDesEffetParticles;
+    [SerializeField] private ParticleSystemRenderer[] diceDesEffetParticleRenderers;
 
     [Header("Dice Module")]
     [SerializeField] private Sprite[] diceSprites;
@@ -29,7 +34,9 @@ public class Dice : MonoBehaviour
 
     private void Awake()
     {
+        diceDesAlpha.alpha = 0f;
         isNextRoll = false;
+
         diceModuleSlider.value = 0;
         diceModuleSlider.maxValue = rollTime;
         diceModuleText.text = "주사위 값 재설정 중...";
@@ -74,8 +81,52 @@ public class Dice : MonoBehaviour
             diceModuleImage.sprite = diceSprites[diceValue];
             diceModuleImage.color = new Color(diceModuleImage.color.r, diceModuleImage.color.g, diceModuleImage.color.b, 1f);
             diceModuleBackGround.color = diceColors[diceValue];
+            StartCoroutine("DiceDes", diceValue);
         }
 
         isNextRoll = !isNextRoll; // 상태 전환
+    }
+
+    IEnumerator DiceDes(int diceValue)
+    {
+        diceDesEffetParticleRenderers[0].material = diceMaterials[diceValue];
+        diceDesEffetParticleRenderers[1].material = diceMaterials[diceValue];
+        
+        diceDesTitle.color = diceColors[diceValue];
+
+        for (int i = 0; i <= 100; i++)
+        {
+            diceDesAlpha.alpha = i * 0.01f;
+
+            Color pColor = Color.white;
+            pColor.a = i * 0.01f; // 루프 내의 알파값 적용
+
+            var main = diceDesEffetParticles[0].main;
+            var main2 = diceDesEffetParticles[1].main;
+
+            main.startColor = new ParticleSystem.MinMaxGradient(pColor);
+            main2.startColor = new ParticleSystem.MinMaxGradient(pColor);
+
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        yield return new WaitForSeconds(2f);
+
+
+        for (int i = 100; i >= 0; i--)
+        {
+            diceDesAlpha.alpha = i * 0.01f;
+
+            Color pColor = Color.white;
+            pColor.a = i * 0.01f; // 루프 내의 알파값 적용
+
+            var main = diceDesEffetParticles[0].main;
+            var main2 = diceDesEffetParticles[1].main;
+
+            main.startColor = new ParticleSystem.MinMaxGradient(pColor);
+            main2.startColor = new ParticleSystem.MinMaxGradient(pColor);
+
+            yield return new WaitForSeconds(0.01f);
+        }
     }
 }
