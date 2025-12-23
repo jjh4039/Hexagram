@@ -14,14 +14,17 @@ public class Dice : MonoBehaviour
     [Header("Var")]
     private bool isNextRoll;
     private int diceValue;
+    private string hexColor;
     [SerializeField] private float diceTime;
     [SerializeField] private float rollTime;
 
     [Header("Dice Des")]
+    [SerializeField] private GameObject diceDes;
+    [SerializeField] private Sprite[] diceDesSkillSprites;
     [SerializeField] private CanvasGroup diceDesAlpha;
     [SerializeField] private TextMeshProUGUI diceDesTitle;
     [SerializeField] private TextMeshProUGUI diceDesSubtitle;
-    [SerializeField] private Image diceDesImage;
+    [SerializeField] private Image diceDesSkillImage;
     [SerializeField] private ParticleSystemRenderer[] diceDesEffets;
 
     [Header("Dice Module")]
@@ -49,7 +52,7 @@ public class Dice : MonoBehaviour
 
         if (isNextRoll)
         {
-            string hexColor = ColorUtility.ToHtmlStringRGB(diceColors[diceValue]);
+            hexColor = ColorUtility.ToHtmlStringRGB(diceColors[diceValue]);
             diceModuleText.text = $"<color=#{hexColor}>[ {diceValue + 1} ] 모듈 발현 중</color> - {(diceTime - (int)diceModuleSlider.value)}s";
         }
 
@@ -90,6 +93,8 @@ public class Dice : MonoBehaviour
     {
         diceDesEffets[0].material = diceMaterials[diceValue];
         diceDesEffets[1].material = diceMaterials[diceValue];
+        diceDesSkillImage.sprite = diceDesSkillSprites[diceValue];
+        DesTextSetting();
 
         var uiPart1 = diceDesEffets[0].GetComponent<Coffee.UIExtensions.UIParticle>();
         var uiPart2 = diceDesEffets[1].GetComponent<Coffee.UIExtensions.UIParticle>();
@@ -112,8 +117,9 @@ public class Dice : MonoBehaviour
 
         diceDesTitle.color = diceColors[diceValue];
 
-        for (int i = 0; i <= 100; i++)
+        for (int i = 0; i <= 50; i++)
         {
+            diceDes.transform.localPosition = new Vector3(0f, i * 0.05f, 0f);
             float alphaVal = i * 0.02f;
             diceDesAlpha.alpha = alphaVal;
 
@@ -122,12 +128,41 @@ public class Dice : MonoBehaviour
 
         yield return new WaitForSeconds(2f);
 
-        for (int i = 100; i >= 0; i--)
+        for (int i = 50; i >= 0; i--)
         {
-            float alphaVal = i * 0.01f;
+            diceDes.transform.localPosition = new Vector3(0f, i * 0.05f, 0f);
+            float alphaVal = i * 0.02f;
             diceDesAlpha.alpha = alphaVal;
 
             yield return new WaitForSeconds(0.01f);
         }
+    }
+
+    // 주사위 설명 구체화
+    void DesTextSetting()
+    {
+        hexColor = ColorUtility.ToHtmlStringRGB(diceColors[diceValue]);
+
+        diceDesTitle.text = diceValue switch
+        {
+            0 => "Blood - Rush",
+            1 => "Twin - Strike",
+            2 => "Solar - Resonance",
+            3 => "Life - Shell",
+            4 => "Slip - Stream",
+            5 => "Overdrive : 6",
+            _ => "알 수 없는 모듈",
+        };
+
+        diceDesSubtitle.text = diceValue switch
+        {
+            0 => $"체력을 <color=#{hexColor}>1</color> 잃습니다\n공격력이 <color=#{hexColor}>10%</color> 상승합니다",
+            1 => $"다음 <color=#{hexColor}>2</color> 번의 공격이\n<color=#{hexColor}>2</color> 배의 피해를 입힙니다",
+            2 => $"이번 판이 끝날 때까지\n공격력이 <color=#{hexColor}>3</color> % 상승합니다",
+            3 => $"체력을 <color=#{hexColor}>4</color> 회복합니다\n초과분은 방어도로 획득합니다",
+            4 => $"공격속도, 이동속도가\n<color=#{hexColor}>50</color> % 상승합니다",
+            5 => $"총알의 충전 속도가\n<color=#{hexColor}>6</color> 배 빠르게 충전됩니다!",
+            _ => $"모듈 효과를 알 수 없습니다.",
+        };
     }
 }
