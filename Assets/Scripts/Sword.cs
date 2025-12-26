@@ -1,71 +1,61 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Sword : MonoBehaviour
 {
-    [SerializeField] private PlayerInput inputActions; // 직접 만든 에셋 클래스
+    private WeaponManager weaponManager;
+    private SpriteRenderer spriteRenderer;
+    private Animator anim;
 
-    [Header("Components")]
-    [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Animator anim;
     [SerializeField] private GameObject[] slashEffects;
 
-    [Header("Var")]
-    private Vector2 mouseScreenPos;
     private Vector2 mouseWorldPos;
-
-    private int comboStep = 0;         // 현재 콤보 단계 (0~3)
-    private float lastClickTime;       // 마지막 클릭 시점
-    private readonly float comboWaitTime = 0.2f; // 콤보를 유지해주는 대기 시간
+    private int comboStep = 0;
+    private float lastClickTime;
+    private readonly float comboWaitTime = 0.2f;
 
     private void Awake()
     {
-        inputActions = new PlayerInput();
-        inputActions.Player.Attack.performed += ctx => Attack(); // 공격 버튼 이벤트 연결
-
+        weaponManager = GetComponentInParent<WeaponManager>(); // 부모 매니저 참조
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         anim = GetComponentInChildren<Animator>();
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        inputActions.Enable(); // 입력 활성화
-    }
-
-    private void OnDisable()
-    {
-        inputActions.Disable(); // 입력 비활성화
+        // [핵심] 공격 버튼 이벤트 연결 (여기서 한 번만 진행하거나 OnEnable/Disable 활용)
+        weaponManager.InputActions.Player.Attack.performed += ctx => Attack();
     }
 
     private void Update()
     {
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Sword_Idle")) // 마우스 검 회전 (비공격 상태에서만)
+        // 마우스 위치 갱신
+        Vector2 mouseScreenPos = weaponManager.InputActions.Player.Look.ReadValue<Vector2>();
+        mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+
+        // 비공격 상태에서만 회전
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Sword_Idle"))
         {
             RotateWeapon();
         }
-
-        mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
-        mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
     }
 
     private void Attack()
     {
-        // 1. 콤보 시간 만료 체크 (일정 시간 안 누르면 1타부터 다시)
-        if (Time.time - lastClickTime > comboWaitTime)
-        {
-            comboStep = 0;
-        }
+        // [주의] 스왑되어 비활성화된 상태일 때는 공격이 무시되어야 함
+        if (!gameObject.activeInHierarchy) return;
 
-        // 2. 현재 애니메이션이 재생 중일 때 너무 빠른 연타 방지 (선택 사항)
-        // 만약 3타가 끝난 직후라면 잠시 대기하게 할 수 있습니다.
+        if (Time.time - lastClickTime > comboWaitTime) comboStep = 0;
         if (anim.GetCurrentAnimatorStateInfo(0).IsName("Sword_Attack 3")) return;
 
-        // 3. 콤보 단계 상승
         comboStep++;
         RotateWeapon();
-        if (comboStep > 3) comboStep = 1; // 3타 후 다시 누르면 1타로
+        if (comboStep > 3) comboStep = 1;
 
         ExecuteAttack();
     }
+
+    // ... RotateWeapon 및 ExecuteAttack 로직은 동일 (인풋 생성 부분만 제거)
 
     private void ExecuteAttack()
     {

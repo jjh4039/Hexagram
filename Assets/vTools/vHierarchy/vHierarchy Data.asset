@@ -33,6 +33,9 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-774561184-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-693181340-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-915114980-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1523878797-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1427394565-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-175986302-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -67,7 +70,7 @@ MonoBehaviour:
           isIconRecursive: 1
           isColorRecursive: 1
         - colorIndex: 0
-          iconNameOrGuid: sv_icon_dot13_pix16_gizmo
+          iconNameOrGuid: sv_icon_dot10_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 0
         - colorIndex: 0
@@ -92,6 +95,18 @@ MonoBehaviour:
           isColorRecursive: 0
         - colorIndex: 0
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: ViewToolMove
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: ViewToolMove
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: sv_icon_dot15_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 0
   bookmarks: []

@@ -92,6 +92,7 @@ MonoBehaviour:
   - builtinIcons: []
     customIcons:
     - BuildSettings.Metro
+    - ViewToolMove
     enabled: 1
   - builtinIcons: []
     customIcons: []
