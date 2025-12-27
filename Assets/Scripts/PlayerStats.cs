@@ -21,15 +21,16 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
+        // 아래는 테스트 코드들
         testTimer += Time.deltaTime;
         testTimer2 += Time.deltaTime;
 
-        if (testTimer >= 1f)
+        if (testTimer >= 0.1f)
         {
             testTimer = 0f; 
 
-            currentHealth = Mathf.Min(currentHealth + 5, maxHealth);
-            currentMana = Mathf.Min(currentMana + 5, maxMana); 
+            currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
+            currentMana = Mathf.Min(currentMana + 1, maxMana); 
         }
 
         if (testTimer2 >= 0.02f) 

@@ -11,11 +11,11 @@ public class WeaponManager : MonoBehaviour
     [Header("Visual Settings")]
     [SerializeField] private SpriteRenderer swordRenderer;
     [SerializeField] private SpriteRenderer gunRenderer;
-    [SerializeField] private Transform gunSpriteTransform; // [중요] 움직일 총의 이미지 오브젝트 (Gun_Image)
+    [SerializeField] private Transform swordSpriteTransform;
+    [SerializeField] private Transform gunSpriteTransform;
 
     [Space]
     [SerializeField] private float swapDuration = 0.15f;   // 전환 속도
-    [SerializeField] private float gunForwardDist = 0.5f;  // 총이 앞으로 나가는 거리
 
     public PlayerInput InputActions { get; private set; }
 
@@ -23,6 +23,8 @@ public class WeaponManager : MonoBehaviour
     private bool isRangedMode = false;
     private Vector3 gunOriginPos; // 총의 원래 위치 (0,0,0)
     private Vector3 gunTargetPos; // 총이 나갔을 때 위치
+    private Vector3 swordOriginPos; // 총의 원래 위치 (0,0,0)
+    private Vector3 swordTargetPos;
 
     private void Awake()
     {
@@ -37,8 +39,14 @@ public class WeaponManager : MonoBehaviour
         // 위치 초기화 계산
         if (gunSpriteTransform != null)
         {
-            gunOriginPos = Vector3.zero; // 혹은 gunSpriteTransform.localPosition
-            gunTargetPos = new Vector3(gunForwardDist, 0, 0);
+            gunOriginPos = Vector3.zero; // 미장착, 빠지는 위치
+            gunTargetPos = new Vector3(0.5f, 0, 0); // 최종 장착 위치
+        }
+
+        if (swordSpriteTransform != null)
+        {
+            swordOriginPos = new Vector3(0, -1, 0);  // 미장착, 빠지는 위치
+            swordTargetPos = new Vector3(0, -2, 0);  // 최종 장착 위치
         }
 
         // 초기 상태 설정 (검 들기)
@@ -93,6 +101,12 @@ public class WeaponManager : MonoBehaviour
                 gunSpriteTransform.localPosition = Vector3.Lerp(gunOriginPos, gunTargetPos, t);
             }
 
+            if (swordSpriteTransform != null)
+            {
+                // swordStartPos(아래) -> swordOriginPos(제자리)
+                swordSpriteTransform.localPosition = Vector3.Lerp(swordTargetPos, swordOriginPos, t);
+            }
+
             yield return null;
         }
 
@@ -129,6 +143,12 @@ public class WeaponManager : MonoBehaviour
             {
                 // Lerp(도착점, 시작점, 진행도) -> 반대로 돌아옴
                 gunSpriteTransform.localPosition = Vector3.Lerp(gunTargetPos, gunOriginPos, t);
+            }
+
+            if (swordSpriteTransform != null)
+            {
+                // swordOriginPos(제자리) -> swordStartPos(아래)
+                swordSpriteTransform.localPosition = Vector3.Lerp(swordOriginPos, swordTargetPos, t);
             }
 
             yield return null;

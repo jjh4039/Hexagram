@@ -8,6 +8,7 @@ public class Sword : MonoBehaviour
     private Animator anim;
 
     [SerializeField] private GameObject[] slashEffects;
+    [SerializeField] private Transform swordImageTr;
 
     private Vector2 mouseWorldPos;
     private int comboStep = 0;
@@ -40,6 +41,18 @@ public class Sword : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        // 활성화 시 애니메이션 초기화 (위치, 회전 초기화)
+        if (anim != null)
+        {
+            anim.Rebind();
+            anim.Play("Sword_Idle", -1, 0f);
+
+            anim.Update(0f);
+        }
+    }
+
     private void Attack()
     {
         // [주의] 스왑되어 비활성화된 상태일 때는 공격이 무시되어야 함
@@ -54,8 +67,6 @@ public class Sword : MonoBehaviour
 
         ExecuteAttack();
     }
-
-    // ... RotateWeapon 및 ExecuteAttack 로직은 동일 (인풋 생성 부분만 제거)
 
     private void ExecuteAttack()
     {
