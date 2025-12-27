@@ -40,13 +40,13 @@ public class WeaponManager : MonoBehaviour
         if (gunSpriteTransform != null)
         {
             gunOriginPos = Vector3.zero; // 미장착, 빠지는 위치
-            gunTargetPos = new Vector3(0.5f, 0, 0); // 최종 장착 위치
+            gunTargetPos = new Vector3(0.05f, 0, 0); // 최종 장착 위치
         }
 
         if (swordSpriteTransform != null)
         {
-            swordOriginPos = new Vector3(0, -1, 0);  // 미장착, 빠지는 위치
-            swordTargetPos = new Vector3(0, -2, 0);  // 최종 장착 위치
+            swordOriginPos = new Vector3(0, -0.1f, 0);  // 미장착, 빠지는 위치
+            swordTargetPos = new Vector3(0, -0.2f, 0);  // 최종 장착 위치
         }
 
         // 초기 상태 설정 (검 들기)

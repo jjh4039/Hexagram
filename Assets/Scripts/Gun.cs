@@ -48,9 +48,10 @@ public class Gun : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0, 0, angle);
 
-        // 0.8 스케일 및 상하 반전 보정
-        Vector3 localScale = new Vector3(0.8f, 0.8f, 0.8f);
+        Vector3 localScale = Vector3.one * 0.8f;
         localScale.y = (angle > 90 || angle < -90) ? 0.8f : -0.8f;
+        localScale.z = 1f;
+
         transform.localScale = localScale;
     }
 

@@ -81,7 +81,7 @@ public class Sword : MonoBehaviour
         GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
 
         // 콤보 단계별로 다른 대시 힘 적용 (3타는 더 강력하게!)
-        float force = (comboStep == 3) ? 12f : 7f;
+        float force = (comboStep == 3) ? 3f : 1.5f;
 
         Vector2 pushDir = (mouseWorldPos - (Vector2)GameManager.instance.player.transform.position).normalized;
         GameManager.instance.player.rigid.AddForce(pushDir * force, ForceMode2D.Impulse);
@@ -93,7 +93,9 @@ public class Sword : MonoBehaviour
         // 검기 생성
         GameObject currentEffect = slashEffects[comboStep - 1];
 
-        currentEffect.transform.position = (Vector2)transform.position + (pushDir * (4f + comboStep * 2.5f));
+        float spawnOffset = 0.4f + (comboStep * 0.25f);
+        currentEffect.transform.position = (Vector2)transform.position + (pushDir * spawnOffset);
+
         float angle = Mathf.Atan2(pushDir.y, pushDir.x) * Mathf.Rad2Deg;
 
         if (transform.localScale.y < 0)
@@ -105,9 +107,10 @@ public class Sword : MonoBehaviour
             currentEffect.transform.rotation = Quaternion.Euler(0, 0, angle - 95f);
         }
 
-        Vector3 effectScale = currentEffect.transform.localScale;
-        effectScale.x = 1.5f;
-        effectScale.y = transform.localScale.y * 1.5f;
+        Vector3 effectScale = Vector3.one * 1.5f;
+
+        if (transform.localScale.y < 0) effectScale.y *= -1;
+
         currentEffect.transform.localScale = effectScale;
 
         currentEffect.SetActive(false);
