@@ -11,10 +11,10 @@ public class PlayerInfoUI : MonoBehaviour
 
     public void Update()
     {
-        healthSlider.value = GameManager.instance.Stats.currentHealth;
-        healthText.text = GameManager.instance.Stats.currentHealth + " / " + GameManager.instance.Stats.maxHealth;
+        healthSlider.value = GameManager.instance.stats.currentHealth;
+        healthText.text = GameManager.instance.stats.currentHealth + " / " + GameManager.instance.stats.maxHealth;
 
-        manaSlider.value = GameManager.instance.Stats.currentMana;
-        manaText.text = GameManager.instance.Stats.currentMana + " / " + GameManager.instance.Stats.maxMana;
+        manaSlider.value = GameManager.instance.stats.currentMana;
+        manaText.text = GameManager.instance.stats.currentMana + " / " + GameManager.instance.stats.maxMana;
     }
 }
