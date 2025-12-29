@@ -23,12 +23,21 @@ public class Bullet : MonoBehaviour
         Destroy(gameObject, lifeTime);
     }
 
-    // 어딘가에 닿았을 때 (나중에 몬스터 피격 로직 추가할 곳)
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Wall")) // 벽에 닿으면
+        // 적 감지
+        if (collision.CompareTag("Enemy"))
         {
-            Destroy(gameObject); // 즉시 삭제
+            // EnemyDummy가 아니라 부모인 Enemy를 찾음!
+            Enemy enemy = collision.GetComponent<Enemy>();
+
+            if (enemy != null)
+            {
+                enemy.TakeDamage((int)Random.Range(11,99f)); // 샌드백이든 보스든 다 똑같이 맞음, 테스트 데미지
+            }
+
+            // (관통 로직에 따라 Destroy 위치 결정)
+            Destroy(gameObject);
         }
     }
 }

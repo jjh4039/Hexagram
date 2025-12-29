@@ -37,7 +37,7 @@ public class PlayerStats : MonoBehaviour
         {
             testTimer2 = 0f; 
 
-            currentAmmo = Mathf.Min(currentAmmo + 1, maxAmmo);
+            currentAmmo = Mathf.Min(currentAmmo + 2, maxAmmo);
         }
     }
 }

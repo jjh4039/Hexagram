@@ -316,7 +316,7 @@ GameObject:
   - component: {fileID: 384598157}
   - component: {fileID: 384598159}
   - component: {fileID: 384598158}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gun_Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -431,7 +431,7 @@ GameObject:
   - component: {fileID: 410748260}
   - component: {fileID: 410748262}
   - component: {fileID: 410748261}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sword_Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 478634701}
   - component: {fileID: 478634703}
   - component: {fileID: 478634702}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MuzzleFlashVFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5724,7 +5724,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 488163701}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MuzzlePoint
   m_TagString: Untagged
   m_Icon: {fileID: 7422848464349959988, guid: 0000000000000000d000000000000000, type: 0}
@@ -5786,7 +5786,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0}
+  m_BackGroundColor: {r: 0.3241812, g: 0.3395638, b: 0.4433962, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -6588,12 +6588,13 @@ GameObject:
   - component: {fileID: 843584026}
   - component: {fileID: 843584025}
   - component: {fileID: 843584027}
+  - component: {fileID: 843584031}
   - component: {fileID: 843584029}
   - component: {fileID: 843584028}
   - component: {fileID: 843584030}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6758,6 +6759,43 @@ MonoBehaviour:
   currentHealth: 50
   currentMana: 25
   currentAmmo: 400
+--- !u!70 &843584031
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843584024}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.0012618285, y: -0.017216565}
+  m_Size: {x: 0.6134306, y: 0.4386047}
+  m_Direction: 1
 --- !u!1 &846716125
 GameObject:
   m_ObjectHideFlags: 0
@@ -7071,7 +7109,7 @@ GameObject:
   - component: {fileID: 915940259}
   - component: {fileID: 915940260}
   - component: {fileID: 915940261}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Gun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7164,7 +7202,7 @@ LineRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: -5
+  m_SortingOrder: -4
   m_MaskInteraction: 0
   m_Positions:
   - {x: -15.643661, y: 5.4986553, z: 0}
@@ -7277,7 +7315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.46226418, g: 0.46226418, b: 0.46226418, a: 0.6666667}
+  m_Color: {r: 0.46226418, g: 0.46226418, b: 0.46226418, a: 0.8627451}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12440,7 +12478,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.6666667}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.8627451}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12513,7 +12551,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1298790308}
   - component: {fileID: 1298790309}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12673,8 +12711,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 912855357614513927, guid: bca81c0340e7242469e76d4d4af5e97d, type: 3}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -12693,7 +12731,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 500, y: 500, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -12959,7 +12997,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1523878798}
   - component: {fileID: 1523878799}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WeaponManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13077,6 +13115,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1586063831}
   m_CullTransparentMesh: 1
+--- !u!1001 &1593264558
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 9.44
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 620136858067237252, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5503265938801314250, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: m_Name
+      value: Dummy
+      objectReference: {fileID: 0}
+    - target: {fileID: 6477280858139226314, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: maxHealth
+      value: 2000
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
 --- !u!1 &1635065200
 GameObject:
   m_ObjectHideFlags: 0
@@ -13225,7 +13324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1683763733}
   - component: {fileID: 1683763735}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14344,7 +14443,7 @@ Transform:
   m_GameObject: {fileID: 2031720040}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.48883, y: -6.01551, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21700,3 +21799,4 @@ SceneRoots:
   - {fileID: 720504699}
   - {fileID: 295288418}
   - {fileID: 1006607905}
+  - {fileID: 1593264558}
