@@ -9,9 +9,18 @@ public class Enemy : MonoBehaviour
     [Header("Effect")]
     [SerializeField] private GameObject damageTextPrefab;
 
+    [Header("HpBar")]
+    [SerializeField] private Transform hpBarFill;
+    private float initialScaleX;
+
     protected virtual void Start()
     {
         currentHealth = maxHealth;
+
+        if (hpBarFill != null)
+        {
+            initialScaleX = hpBarFill.localScale.x;
+        }
     }
 
     // 데미지 받는 함수 (모든 몬스터 공통)
@@ -19,6 +28,15 @@ public class Enemy : MonoBehaviour
     {
         currentHealth -= damage;
 
+        // ★ 체력바 계산
+        if (hpBarFill != null)
+        {
+            float ratio = currentHealth / maxHealth;
+            if (ratio < 0) ratio = 0;
+            hpBarFill.localScale = new Vector3(initialScaleX * ratio, hpBarFill.localScale.y, hpBarFill.localScale.z);
+        }
+
+        // ★ 데미지 텍스트 띄우기
         if (damageTextPrefab != null)
         {
             // 1. 데미지 텍스트 생성 (위치는 내 머리 위쯤)
@@ -29,6 +47,7 @@ public class Enemy : MonoBehaviour
             hud.GetComponent<DamageText>().Setup(damage);
         }
 
+        // ★ 죽음 처리
         if (currentHealth <= 0)
         {
             Die();

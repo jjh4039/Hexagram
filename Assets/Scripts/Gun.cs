@@ -46,6 +46,10 @@ public class Gun : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
+        // 0. 스왑 중이거나 총이 아닐 때 무시
+        if (weaponManager.IsSwapping) return;
+        if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun) return;
+
         // 1. 쿨타임 체크 (아직 쏠 시간이 안 됐으면 무시)
         if (Time.time < nextFireTime) return;
 

@@ -19,8 +19,16 @@ public class WeaponManager : MonoBehaviour
 
     public PlayerInput InputActions { get; private set; }
 
+    public enum WeaponType
+    {
+        Sword,
+        Gun
+    }
+
+    public bool IsSwapping { get; private set; } // 교체 중인가?
+    public WeaponType CurrentWeapon { get; private set; } = WeaponType.Sword;
+
     private Coroutine swapCoroutine;
-    private bool isRangedMode = false;
     private Vector3 gunOriginPos; // 총의 원래 위치 (0,0,0)
     private Vector3 gunTargetPos; // 총이 나갔을 때 위치
     private Vector3 swordOriginPos; // 총의 원래 위치 (0,0,0)
@@ -63,13 +71,17 @@ public class WeaponManager : MonoBehaviour
     {
         bool isHolding = InputActions.Player.Swap.IsPressed();
 
-        // 상태 변경 감지 (애니메이션 버퍼링)
-        if (isHolding && !isRangedMode)
+        if (IsSwapping) return;
+
+        // ▼▼▼ [수정] 조건문을 직관적으로 변경 ▼▼▼
+        // (기존) if (isHolding && !IsRangedMode)
+        if (isHolding && CurrentWeapon == WeaponType.Sword)
         {
             if (swapCoroutine != null) StopCoroutine(swapCoroutine);
             swapCoroutine = StartCoroutine(SwapToGun());
         }
-        else if (!isHolding && isRangedMode)
+        // (기존) else if (!isHolding && IsRangedMode)
+        else if (!isHolding && CurrentWeapon == WeaponType.Gun)
         {
             if (swapCoroutine != null) StopCoroutine(swapCoroutine);
             swapCoroutine = StartCoroutine(SwapToSword());
@@ -78,7 +90,8 @@ public class WeaponManager : MonoBehaviour
 
     private IEnumerator SwapToGun()
     {
-        isRangedMode = true;
+        IsSwapping = true;
+        CurrentWeapon = WeaponType.Gun;
 
         gunObject.SetActive(true);
         swordObject.SetActive(true);
@@ -113,6 +126,7 @@ public class WeaponManager : MonoBehaviour
         // 최종 상태 고정
         SetAlpha(swordRenderer, 0f);
         SetAlpha(gunRenderer, 1f);
+        IsSwapping = false;
         if (gunSpriteTransform != null) gunSpriteTransform.localPosition = gunTargetPos;
 
         GameManager.instance.weaponUI.gunPanel.SetActive(true);
@@ -122,7 +136,9 @@ public class WeaponManager : MonoBehaviour
 
     private IEnumerator SwapToSword()
     {
-        isRangedMode = false;
+        IsSwapping = true;
+
+        CurrentWeapon = WeaponType.Sword;
 
         swordObject.SetActive(true);
         gunObject.SetActive(true);
@@ -158,6 +174,7 @@ public class WeaponManager : MonoBehaviour
         SetAlpha(swordRenderer, 1f);
         SetAlpha(gunRenderer, 0f);
         if (gunSpriteTransform != null) gunSpriteTransform.localPosition = gunOriginPos;
+        IsSwapping = false;
 
         gunObject.SetActive(false);
 
