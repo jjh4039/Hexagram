@@ -6013,6 +6013,7 @@ GameObject:
   - component: {fileID: 593698559}
   - component: {fileID: 593698558}
   - component: {fileID: 593698560}
+  - component: {fileID: 593698561}
   m_Layer: 0
   m_Name: Effect2
   m_TagString: Untagged
@@ -6129,6 +6130,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sword_Effect
   duration: 0.5
+  damageMultiplier: 1
+  ammoGain: 10
+  hitCount: 1
+  hitInterval: 0.05
+--- !u!70 &593698561
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 593698556}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.019166669, y: 0.17546487}
+  m_Size: {x: 1.0767367, y: 1.1742419}
+  m_Direction: 0
 --- !u!1 &627105139
 GameObject:
   m_ObjectHideFlags: 0
@@ -6759,6 +6801,10 @@ MonoBehaviour:
   currentHealth: 50
   currentMana: 25
   currentAmmo: 400
+  meleeAttackPower: 10
+  rangeAttackPower: 8
+  meleeDamageVariance: 0.2
+  rangedDamageVariance: 0.1
 --- !u!70 &843584031
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -13175,6 +13221,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -0.606
       objectReference: {fileID: 0}
+    - target: {fileID: 6477280858139226314, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: maxHealth
+      value: 1000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13854,6 +13904,7 @@ GameObject:
   - component: {fileID: 1826355013}
   - component: {fileID: 1826355012}
   - component: {fileID: 1826355015}
+  - component: {fileID: 1826355016}
   m_Layer: 0
   m_Name: Effect1
   m_TagString: Untagged
@@ -13932,7 +13983,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5789085037301328018, guid: 54956efd15cbdef47ac780f7e2a6fa88, type: 3}
+  m_Sprite: {fileID: -6667258916164746562, guid: 54956efd15cbdef47ac780f7e2a6fa88, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -13951,7 +14002,7 @@ Transform:
   m_GameObject: {fileID: 1826355011}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.000000029802322, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1.558, y: 0, z: 0}
   m_LocalScale: {x: 1.4999999, y: 1.4999999, z: 1.4999999}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -13970,6 +14021,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sword_Effect
   duration: 0.5
+  damageMultiplier: 1
+  ammoGain: 10
+  hitCount: 1
+  hitInterval: 0.05
+--- !u!70 &1826355016
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1826355011}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.019166669, y: 0.17546487}
+  m_Size: {x: 1.0767367, y: 1.1742419}
+  m_Direction: 0
 --- !u!1 &1834417349
 GameObject:
   m_ObjectHideFlags: 0
@@ -16526,6 +16618,7 @@ GameObject:
   - component: {fileID: 2122407934}
   - component: {fileID: 2122407933}
   - component: {fileID: 2122407932}
+  - component: {fileID: 2122407935}
   m_Layer: 0
   m_Name: Effect3
   m_TagString: Untagged
@@ -16542,7 +16635,7 @@ Transform:
   m_GameObject: {fileID: 2122407930}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.000000029802322, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.552, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -16561,6 +16654,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sword_Effect
   duration: 0.5
+  damageMultiplier: 1
+  ammoGain: 10
+  hitCount: 3
+  hitInterval: 0.05
 --- !u!95 &2122407933
 Animator:
   serializedVersion: 7
@@ -16632,7 +16729,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5789085037301328018, guid: 54956efd15cbdef47ac780f7e2a6fa88, type: 3}
+  m_Sprite: {fileID: -8729242535918000122, guid: f18af31dc4a073a43b4457f91a89db4b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -16642,6 +16739,43 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!70 &2122407935
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2122407930}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.019167623, y: 0.35918513}
+  m_Size: {x: 1.076734, y: 1.5834398}
+  m_Direction: 0
 --- !u!1 &2142452852
 GameObject:
   m_ObjectHideFlags: 0

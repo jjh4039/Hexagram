@@ -15,8 +15,8 @@ public class EnemyDummy : Enemy
     // 부모의 TakeDamage를 가져와서 기능 추가 (오버라이드)
     public override void TakeDamage(float damage)
     {
-        base.TakeDamage(damage); // 부모 함수 실행 (체력 깎기)
+        base.TakeDamage(damage); // 체력 깎기
 
-        anim.SetTrigger("Hit");
+        anim.Play("Enemy_Hit", -1, 0f);
     }
 }

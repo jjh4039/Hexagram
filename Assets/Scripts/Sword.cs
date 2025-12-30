@@ -10,14 +10,11 @@ public class Sword : MonoBehaviour
     [SerializeField] private GameObject[] slashEffects;
 
     [Header("Timing Settings")]
-    [Tooltip("A구간: 이 시간이 지나야 선입력 및 다음 공격 발동 (0.25초 추천)")]
     [SerializeField] private float activeDuration = 0.25f;
-
-    [Tooltip("선입력 기억 시간")]
     [SerializeField] private float inputBufferTime = 0.5f;
 
     [Header("Stats")]
-    [SerializeField] private float attackSpeed = 1.0f;
+    [SerializeField] private float attackSpeed = 1.0f; // 공속 배율
 
     private float nextAttackUnlockTime = 0f;
     private float lastInputTime = -10f;
@@ -133,12 +130,11 @@ public class Sword : MonoBehaviour
         SpawnSlashEffect();
     }
 
-    // ... (ApplyPhysics, SpawnSlashEffect, RotateWeapon, ResetAttackStatus 기존 유지) ...
     private void ApplyPhysics()
     {
         GameManager.instance.player.isAttacking = true;
         GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
-        float force = (comboStep == 3) ? 3f : 1.5f;
+        float force = (comboStep == 3) ? 1.5f : 0.75f;
         Vector2 pushDir = (mouseWorldPos - (Vector2)GameManager.instance.player.transform.position).normalized;
         GameManager.instance.player.rigid.AddForce(pushDir * force, ForceMode2D.Impulse);
         CancelInvoke("ResetAttackStatus");
