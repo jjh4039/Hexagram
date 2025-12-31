@@ -11,7 +11,18 @@ public class Enemy : MonoBehaviour
 
     [Header("HpBar")]
     [SerializeField] private Transform hpBarFill;
+    [SerializeField] private GameObject hpBarObject;
     private float initialScaleX;
+
+    protected Animator anim;
+    protected Collider2D col;
+    protected bool isDead = false;
+
+    protected virtual void Awake()
+    {
+        anim = GetComponent<Animator>();
+        col = GetComponent<Collider2D>();
+    }
 
     protected virtual void Start()
     {
@@ -47,17 +58,33 @@ public class Enemy : MonoBehaviour
             hud.GetComponent<DamageText>().Setup(damage);
         }
 
-        // ★ 죽음 처리
         if (currentHealth <= 0)
         {
             Die();
         }
+        else
+        {
+            OnHit();
+        }
+    }
+
+    protected virtual void OnHit()
+    {
+        if (anim != null) anim.SetTrigger("Hit");
     }
 
     protected virtual void Die()
     {
-        // 죽었을 때 공통 처리 (아이템 드랍 등)
-        Destroy(gameObject);
+        isDead = true;
+
+        // 2. 체력바, 피격 끄기
+        if (col != null) col.enabled = false;
+        if (hpBarObject != null) hpBarObject.SetActive(false);
+
+        // 3. 사망 애니메이션
+        if (anim != null) anim.SetTrigger("Die");
+
+        Destroy(gameObject, 0.9f);
     }
 }
 

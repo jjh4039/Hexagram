@@ -469,7 +469,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 937d2613e09d5c742a3622d33aaf6944, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDummy
-  maxHealth: 3000
+  maxHealth: 200
   currentHealth: 0
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   hpBarFill: {fileID: 977601780673209554}
+  hpBarObject: {fileID: 4042334888964422964}

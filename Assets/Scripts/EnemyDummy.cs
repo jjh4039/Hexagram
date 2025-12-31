@@ -3,20 +3,18 @@ using UnityEngine;
 
 public class EnemyDummy : Enemy
 {
-    [Header("visual")]
-    private Animator anim;
-
     protected override void Start()
     {
         base.Start(); // Enmey - Start() : 체력 초기화
         anim = GetComponent<Animator>();
     }
 
-    // 부모의 TakeDamage를 가져와서 기능 추가 (오버라이드)
-    public override void TakeDamage(float damage)
+    protected override void OnHit()
     {
-        base.TakeDamage(damage); // 체력 깎기
-
-        anim.Play("Enemy_Hit", -1, 0f);
+        // 부모의 SetTrigger 무시하고, 내 방식(Play)으로 재생
+        if (anim != null)
+        {
+            anim.Play("Enemy_Hit", -1, 0f); // 딜레이 없이 즉시 재생
+        }
     }
 }
