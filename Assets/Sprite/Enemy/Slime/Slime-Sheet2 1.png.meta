@@ -1,34 +1,28 @@
 fileFormatVersion: 2
-guid: 59dcaa23f7f50a545ae227042310de77
+guid: 5309a27c4711cde459d5fb1334b3bdb1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7970909259963184619
-    second: Slime-Sheet_0
+      213: -2603051627596545969
+    second: Slime-Sheet2 1_0
   - first:
-      213: 364558614396161899
-    second: Slime-Sheet_1
+      213: 8956686082903611276
+    second: Slime-Sheet2 1_1
   - first:
-      213: 5765889574378607175
-    second: Slime-Sheet_2
+      213: -3468866152889401229
+    second: Slime-Sheet2 1_2
   - first:
-      213: 1934026264422326969
-    second: Slime-Sheet_3
+      213: -1792884926917986310
+    second: Slime-Sheet2 1_3
   - first:
-      213: -3448268118887821929
-    second: Slime-Sheet_4
+      213: 1937537788823818721
+    second: Slime-Sheet2 1_4
   - first:
-      213: -1814283235909507114
-    second: Slime-Sheet_5
+      213: 3828947648416818656
+    second: Slime-Sheet2 1_5
   - first:
-      213: -7106344829748609378
-    second: Slime-Sheet_6
-  - first:
-      213: -2498532192715216201
-    second: Slime-Sheet_7
-  - first:
-      213: 5488710179900461066
-    second: Slime-Sheet_8
+      213: 251669803363599796
+    second: Slime-Sheet2 1_6
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -137,7 +131,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Slime-Sheet_0
+      name: Slime-Sheet2 1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -152,14 +146,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: be53af08dbb5e9e60800000000000000
-      internalID: 7970909259963184619
+      spriteID: f400b15165a10ebd0800000000000000
+      internalID: -2603051627596545969
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime-Sheet_1
+      name: Slime-Sheet2 1_1
       rect:
         serializedVersion: 2
         x: 32
@@ -172,16 +166,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b6f44e6d02c2f0500800000000000000
-      internalID: 364558614396161899
+      spriteID: 790942b2ab23d054587331fd391899f2
+      internalID: 8956686082903611276
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime-Sheet_2
+      name: Slime-Sheet2 1_2
       rect:
         serializedVersion: 2
         x: 64
@@ -194,16 +188,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 74217f6d40e840050800000000000000
-      internalID: 5765889574378607175
+      spriteID: 6c0a528225238a04eb44067a6227d64d
+      internalID: -3468866152889401229
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime-Sheet_3
+      name: Slime-Sheet2 1_3
       rect:
         serializedVersion: 2
         x: 0
@@ -216,16 +210,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 9b22b2df3aa07da10800000000000000
-      internalID: 1934026264422326969
+      spriteID: b47e24566697ee14995e2168698c5099
+      internalID: -1792884926917986310
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime-Sheet_4
+      name: Slime-Sheet2 1_4
       rect:
         serializedVersion: 2
         x: 32
@@ -238,16 +232,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 79d03636a6a4520d0800000000000000
-      internalID: -3448268118887821929
+      spriteID: d69b26028e1253c4d8373d84bffd5a48
+      internalID: 1937537788823818721
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime-Sheet_5
+      name: Slime-Sheet2 1_5
       rect:
         serializedVersion: 2
         x: 64
@@ -260,16 +254,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6d7eaa9620f52d6e0800000000000000
-      internalID: -1814283235909507114
+      spriteID: fcdc68ae22cdba64f98d0f98353f372a
+      internalID: 3828947648416818656
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Slime-Sheet_6
+      name: Slime-Sheet2 1_6
       rect:
         serializedVersion: 2
         x: 0
@@ -282,54 +276,10 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e9e76634701316d90800000000000000
-      internalID: -7106344829748609378
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Slime-Sheet_7
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 32
-        height: 32
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7bae451653e635dd0800000000000000
-      internalID: -2498532192715216201
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Slime-Sheet_8
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 0
-        width: 32
-        height: 32
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a00990404d0db2c40800000000000000
-      internalID: 5488710179900461066
+      spriteID: 99c91521a7ac17645b99a0f5dc594b5b
+      internalID: 251669803363599796
       vertices: []
       indices: 
       edges: []
@@ -338,7 +288,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: aaa7f545b973a8441b0d63343ea0d9f8
+    spriteID: 3cadc2a716a83d547a90b65f1ef141e9
     internalID: 0
     vertices: []
     indices: 
@@ -350,15 +300,13 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":32.0,"y":32.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Slime-Sheet_0: 7970909259963184619
-      Slime-Sheet_1: 364558614396161899
-      Slime-Sheet_2: 5765889574378607175
-      Slime-Sheet_3: 1934026264422326969
-      Slime-Sheet_4: -3448268118887821929
-      Slime-Sheet_5: -1814283235909507114
-      Slime-Sheet_6: -7106344829748609378
-      Slime-Sheet_7: -2498532192715216201
-      Slime-Sheet_8: 5488710179900461066
+      Slime-Sheet2 1_0: -2603051627596545969
+      Slime-Sheet2 1_1: 8956686082903611276
+      Slime-Sheet2 1_2: -3468866152889401229
+      Slime-Sheet2 1_3: -1792884926917986310
+      Slime-Sheet2 1_4: 1937537788823818721
+      Slime-Sheet2 1_5: 3828947648416818656
+      Slime-Sheet2 1_6: 251669803363599796
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

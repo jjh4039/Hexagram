@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour
 
     [Header("Effect")]
     [SerializeField] private GameObject damageTextPrefab;
+    [SerializeField] private GameObject shadowObject;
 
     [Header("HpBar")]
     [SerializeField] private Transform hpBarFill;
@@ -83,6 +84,7 @@ public class Enemy : MonoBehaviour
 
         // 3. 사망 애니메이션
         if (anim != null) anim.SetTrigger("Die");
+        if (shadowObject != null) shadowObject.SetActive(false);
 
         Destroy(gameObject, 0.9f);
     }

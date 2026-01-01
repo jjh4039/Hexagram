@@ -23,9 +23,30 @@ public class PlayerStats : MonoBehaviour
     float testTimer = 0f;
     float testTimer2 = 0f;
 
-    private void Awake()
+    private void Start()
     {
+        // 시작할 때 체력 꽉 채우기
+        currentHealth = maxHealth;
+        currentMana = maxMana;
+        currentAmmo = maxAmmo;
+    }
 
+    public void TakeDamage(int amount)
+    {
+        currentHealth -= amount;
+        Debug.Log($"플레이어 체력 감소: {currentHealth}/{maxHealth}");
+
+        if (currentHealth <= 0)
+        {
+            currentHealth = 0;
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("플레이어 사망!");
+        // 여기에 게임 오버 로직 추가 예정
     }
 
     private void Update()
@@ -34,7 +55,7 @@ public class PlayerStats : MonoBehaviour
         testTimer += Time.deltaTime;
         testTimer2 += Time.deltaTime;
 
-        if (testTimer >= 0.1f)
+        if (testTimer >= 2f)
         {
             testTimer = 0f; 
 
