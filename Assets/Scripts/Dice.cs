@@ -1,168 +1,138 @@
-using TMPro;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Collections;
-using UnityEditor.Build;
-using System.Runtime.InteropServices;
-using System.Collections;
+using TMPro;
+using ChocDino.UIFX.Editor;
 
 public class Dice : MonoBehaviour
 {
-    [SerializeField] private Color32[] diceColors;
-    [SerializeField] private Material[] diceMaterials;
+    [Header("Color Palette")]
+    [SerializeField] private Color32[] diceColors; // 0~5: 각 주사위 색상, 6: 대기 색상
 
-    [Header("Var")]
-    private bool isNextRoll;
-    private int diceValue;
-    private string hexColor;
-    [SerializeField] private float diceTime;
-    [SerializeField] private float rollTime;
+    [Header("Timers")]
+    [SerializeField] private float diceDuration = 10f; // 주사위 효과 유지 시간
+    [SerializeField] private float rollWaitTime = 5f;  // 다음 굴림까지 대기 시간
+    private float currentTimer;
+    private bool isEffectActive;
 
-    [Header("Dice Des")]
-    [SerializeField] private GameObject diceDes;
-    [SerializeField] private Sprite[] diceDesSkillSprites;
-    [SerializeField] private CanvasGroup diceDesAlpha;
-    [SerializeField] private TextMeshProUGUI diceDesTitle;
-    [SerializeField] private TextMeshProUGUI diceDesSubtitle;
-    [SerializeField] private Image diceDesSkillImage;
-    [SerializeField] private ParticleSystemRenderer[] diceDesEffets;
+    [Header("UI - Dice Module (Left-Top)")]
+    [SerializeField] private Image diceIcon;          // 주사위 눈금 이미지 (1~6)
+    [SerializeField] private Image diceGaugeFill;     // Radial Fill (시계방향 게이지)
+    [SerializeField] private UIFXGlow moduleGlow;     // 구매하신 Glow Filter 에셋
+    [SerializeField] private TextMeshProUGUI diceStatText; // "ATK +10%" 등 짧은 수치
 
-    [Header("Dice Module")]
-    [SerializeField] private Sprite[] diceSprites;
-    [SerializeField] private Image diceModuleImage;
-    [SerializeField] private Image diceModuleBackGround;
-    [SerializeField] private Slider diceModuleSlider;
-    [SerializeField] private TextMeshProUGUI diceModuleText;
+    [Header("UI - Head 연출 (World Space)")]
+    [SerializeField] private GameObject headDiceObj;  // 캐릭터 머리 위 UI 부모
+    [SerializeField] private Image headDiceIcon;      // 머리 위 주사위 아이콘
+    [SerializeField] private Animator headDiceAnim;   // 굴림 애니메이션 (회색 주사위 뱅글뱅글)
+
+    private int currentDiceValue;
 
     private void Awake()
     {
-        diceDesAlpha.alpha = 0f;
-        isNextRoll = false;
-
-        diceModuleSlider.value = 0;
-        diceModuleSlider.maxValue = rollTime;
-        diceModuleText.text = "주사위 값 재설정 중...";
-        diceModuleBackGround.color = diceColors[6];
-        diceModuleText.color = diceColors[6];
+        ResetUI();
     }
 
     private void Update()
     {
-        diceModuleSlider.value += Time.deltaTime;
+        UpdateTimer();
+    }
 
-        if (isNextRoll)
+    private void UpdateTimer()
+    {
+        currentTimer += Time.deltaTime;
+        float targetTime = isEffectActive ? diceDuration : rollWaitTime;
+
+        // Radial Fill 게이지 업데이트 (1 -> 0으로 줄어듬)
+        if (diceGaugeFill != null)
         {
-            hexColor = ColorUtility.ToHtmlStringRGB(diceColors[diceValue]);
-            diceModuleText.text = $"<color=#{hexColor}>[ {diceValue + 1} ] 모듈 발현 중</color> - {(diceTime - (int)diceModuleSlider.value)}s";
+            diceGaugeFill.fillAmount = 1f - (currentTimer / targetTime);
         }
 
-        if (diceModuleSlider.value >= diceModuleSlider.maxValue)
+        // 타이머 종료 시 상태 전환
+        if (currentTimer >= targetTime)
         {
-            RollDice(isNextRoll);
+            if (isEffectActive) StartCoroutine(PrepareNextRoll());
+            else RollDice();
         }
     }
 
-    private void RollDice(bool isRolling)
+    private void RollDice()
     {
-        diceModuleSlider.value = 0;
+        currentTimer = 0;
+        isEffectActive = true;
+        currentDiceValue = Random.Range(0, 6);
 
-        if (isRolling) // 모듈 굴리기
-        {
-            diceModuleSlider.maxValue = rollTime;
-            diceModuleText.text = "주사위 값 재설정 중...";
+        // 1. 좌상단 UI 업데이트
+        diceIcon.sprite = GetDiceSprite(currentDiceValue); // 스프라이트 교체 로직 필요
+        diceStatText.text = GetStatShortText(currentDiceValue);
 
-            diceModuleImage.color = new Color(diceModuleImage.color.r, diceModuleImage.color.g, diceModuleImage.color.b, 0f);
-            diceModuleBackGround.color = diceColors[6];
-            diceModuleText.color = diceColors[6];
-        }
-        else  // 효과 받기
-        { 
-            diceValue = Random.Range(0, 6); // 주사위 값
+        // 2. UIFX - Glow 적용 (주사위 색상에 맞춰 빛나기)
+        moduleGlow.glowColor = diceColors[currentDiceValue];
+        moduleGlow.enabled = true;
 
-            diceModuleSlider.maxValue = diceTime;
-            diceModuleImage.sprite = diceSprites[diceValue];
-            diceModuleImage.color = new Color(diceModuleImage.color.r, diceModuleImage.color.g, diceModuleImage.color.b, 1f);
-            diceModuleBackGround.color = diceColors[diceValue];
-            StartCoroutine("DiceDes", diceValue);
-        }
-
-        isNextRoll = !isNextRoll; // 상태 전환
+        // 3. 머리 위 연출 (당첨!)
+        StartCoroutine(ShowHeadResult());
     }
 
-    IEnumerator DiceDes(int diceValue)
+    private IEnumerator PrepareNextRoll()
     {
-        diceDesEffets[0].material = diceMaterials[diceValue];
-        diceDesEffets[1].material = diceMaterials[diceValue];
-        diceDesSkillImage.sprite = diceDesSkillSprites[diceValue];
-        DesTextSetting();
+        isEffectActive = false;
+        currentTimer = 0;
+        moduleGlow.enabled = false;
+        diceStatText.text = ""; // 텍스트 비우기
 
-        var uiPart1 = diceDesEffets[0].GetComponent<Coffee.UIExtensions.UIParticle>();
-        var uiPart2 = diceDesEffets[1].GetComponent<Coffee.UIExtensions.UIParticle>();
-
-        if (uiPart1 != null)
-        {
-            uiPart1.enabled = false;
-            uiPart1.enabled = true;
-        }
-        if (uiPart2 != null)
-        {
-            uiPart2.enabled = false;
-            uiPart2.enabled = true;
-        }
-
-        diceDesEffets[0].gameObject.GetComponent<ParticleSystem>().Clear();
-        diceDesEffets[0].gameObject.GetComponent<ParticleSystem>().Play();
-        diceDesEffets[1].gameObject.GetComponent<ParticleSystem>().Clear();
-        diceDesEffets[1].gameObject.GetComponent<ParticleSystem>().Play();
-
-        diceDesTitle.color = diceColors[diceValue];
-
-        for (int i = 0; i <= 50; i++)
-        {
-            diceDes.transform.localPosition = new Vector3(0f, i * 0.05f, 0f);
-            float alphaVal = i * 0.02f;
-            diceDesAlpha.alpha = alphaVal;
-
-            yield return new WaitForSeconds(0.01f);
-        }
-
-        yield return new WaitForSeconds(2f);
-
-        for (int i = 50; i >= 0; i--)
-        {
-            diceDes.transform.localPosition = new Vector3(0f, i * 0.05f, 0f);
-            float alphaVal = i * 0.02f;
-            diceDesAlpha.alpha = alphaVal;
-
-            yield return new WaitForSeconds(0.01f);
-        }
+        // 대시 상태나 기본 대기 색상으로 변경
+        diceIcon.color = diceColors[6];
+        yield return null;
     }
 
-    // 주사위 설명 구체화
-    void DesTextSetting()
+    private IEnumerator ShowHeadResult()
     {
-        hexColor = ColorUtility.ToHtmlStringRGB(diceColors[diceValue]);
+        headDiceObj.SetActive(true);
+        headDiceAnim.SetTrigger("OnRoll"); // 회색 주사위 뱅글뱅글
+        yield return new WaitForSeconds(0.5f); // 0.5초간 굴림 연출
 
-        diceDesTitle.text = diceValue switch
+        headDiceAnim.enabled = false; // 애니 멈추고 결과 출력
+        headDiceIcon.sprite = GetDiceSprite(currentDiceValue);
+        headDiceIcon.color = diceColors[currentDiceValue];
+
+        // 쫀득한 스케일 연출 (Pop!)
+        headDiceIcon.transform.localScale = Vector3.one * 1.5f;
+        float t = 0;
+        while (t < 1f)
         {
-            0 => "Blood - Rush",
-            1 => "Twin - Strike",
-            2 => "Solar - Resonance",
-            3 => "Life - Shell",
-            4 => "Slip - Stream",
-            5 => "Overdrive : 6",
-            _ => "알 수 없는 모듈",
+            t += Time.deltaTime * 5f;
+            headDiceIcon.transform.localScale = Vector3.Lerp(Vector3.one * 1.5f, Vector3.one, t);
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(1.5f);
+        headDiceObj.SetActive(false);
+    }
+
+    // 헬퍼 함수: 주사위 결과에 따른 짧은 텍스트 반환
+    private string GetStatShortText(int val)
+    {
+        return val switch
+        {
+            0 => "ATK +10%",   // Blood-Rush
+            1 => "DMG x2",     // Twin-Strike
+            2 => "PERM ATK",   // Solar
+            3 => "HEAL/SHIELD",// Life-Shell
+            4 => "SPD +50%",   // Slip-Stream
+            5 => "AMMO x6",    // Overdrive
+            _ => ""
         };
+    }
 
-        diceDesSubtitle.text = diceValue switch
-        {
-            0 => $"체력을 <color=#{hexColor}>1</color> 잃습니다\n공격력이 <color=#{hexColor}>10%</color> 상승합니다",
-            1 => $"다음 <color=#{hexColor}>2</color> 번의 공격이\n<color=#{hexColor}>2</color> 배의 피해를 입힙니다",
-            2 => $"이번 판이 끝날 때까지\n공격력이 <color=#{hexColor}>3</color> % 상승합니다",
-            3 => $"체력을 <color=#{hexColor}>4</color> 회복합니다\n초과분은 방어도로 획득합니다",
-            4 => $"공격속도, 이동속도가\n<color=#{hexColor}>50</color> % 상승합니다",
-            5 => $"총알의 충전 속도가\n<color=#{hexColor}>6</color> 배 빠르게 충전됩니다!",
-            _ => $"모듈 효과를 알 수 없습니다.",
-        };
+    private Sprite GetDiceSprite(int val) { /* 주사위 스프라이트 배열에서 가져오는 로직 */ return null; }
+
+    private void ResetUI()
+    {
+        isEffectActive = false;
+        currentTimer = 0;
+        moduleGlow.enabled = false;
+        headDiceObj.SetActive(false);
     }
 }
