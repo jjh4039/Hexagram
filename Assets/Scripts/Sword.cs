@@ -14,13 +14,15 @@ public class Sword : MonoBehaviour
     [SerializeField] private float inputBufferTime = 0.5f;
 
     [Header("Stats")]
-    [SerializeField] private float attackSpeed = 1.0f; // 공속 배율
+    [SerializeField] private float attackSpeed = 1.0f;
+
+    // ★ [추가] 투명화 속도
+    [SerializeField] private float fadeSpeed = 10f;
 
     private float nextAttackUnlockTime = 0f;
     private float lastInputTime = -10f;
     private float lastAttackStartTime = 0f;
     private int comboStep = 0;
-
     private Vector2 mouseWorldPos;
 
     private void Awake()
@@ -54,15 +56,12 @@ public class Sword : MonoBehaviour
         Vector2 mouseScreenPos = weaponManager.InputActions.Player.Look.ReadValue<Vector2>();
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
 
-        // ▼▼▼ [IDLE 복귀 시 리셋] ▼▼▼
+        // IDLE 복귀 로직 (기존 유지)
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         bool isIdle = stateInfo.IsName("Base Layer.Sword_Idle") || stateInfo.IsName("Sword_Idle");
 
-        // 1. IDLE 상태이고
-        // 2. 트랜지션(0.1초 섞이는 구간)이 완전히 끝났을 때만! (꼬임 방지 핵심)
         if (isIdle && !anim.IsInTransition(0))
         {
-            // 방금 공격(0.1초 내)한 게 아닐 때만 안전하게 리셋
             if (Time.time - lastAttackStartTime > 0.1f)
             {
                 comboStep = 0;
@@ -73,57 +72,54 @@ public class Sword : MonoBehaviour
         }
 
         TryAttack();
+
+        // ★ [추가] 충전 중이면 투명해지기 로직
+        HandleChargingVisuals();
+    }
+
+    private void HandleChargingVisuals()
+    {
+        if (GameManager.instance.player == null) return;
+
+        bool isCharging = GameManager.instance.player.isCharging;
+
+        // 투명도 조절 (충전 중이면 0, 아니면 1)
+        float targetAlpha = isCharging ? 0f : 1f;
+        Color currentColor = spriteRenderer.color;
+
+        // 부드럽게 변환 (Lerp)
+        float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * fadeSpeed);
+        spriteRenderer.color = new Color(currentColor.r, currentColor.g, currentColor.b, newAlpha);
     }
 
     private void TryAttack()
     {
+        // ★ [추가] 충전 중이면 공격 불가!
+        if (GameManager.instance.player.isCharging) return;
+
         if (Time.time - lastInputTime > inputBufferTime) return;
         if (weaponManager.IsSwapping) return;
         if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Sword) return;
-
-        // [요청하신 수정] 3타까지 쳤으면 더 이상 공격 불가 (IDLE 복귀 대기)
         if (comboStep >= 3) return;
-
-        // A구간(공격 중) 체크
         if (Time.time < nextAttackUnlockTime) return;
 
         ExecuteAttack();
     }
 
+    // ... (ExecuteAttack, ApplyPhysics 등 나머지 코드는 기존 유지) ...
     private void ExecuteAttack()
     {
-        lastInputTime = -10f; // 입력 소모
-
+        lastInputTime = -10f;
         float resetThreshold = 0.33f / attackSpeed;
-
-        if (Time.time - lastAttackStartTime > resetThreshold)
-        {
-            comboStep = 0;
-        }
-
-        // 3타 넘어가면 0으로
+        if (Time.time - lastAttackStartTime > resetThreshold) comboStep = 0;
         if (comboStep >= 3) comboStep = 0;
-
         comboStep++;
-
-        // 시간 기록
         lastAttackStartTime = Time.time;
-
         anim.speed = attackSpeed;
         nextAttackUnlockTime = Time.time + (activeDuration / attackSpeed);
 
-        // 1타 강제 실행 (씹힘 방지)
-        if (comboStep == 1)
-        {
-            anim.Play("Sword_Attack", -1, 0f); // 1타 강제 재생
-            anim.ResetTrigger("Attack");
-        }
-        else
-        {
-            anim.ResetTrigger("Attack");
-            anim.SetInteger("comboStep", comboStep);
-            anim.SetTrigger("Attack");
-        }
+        if (comboStep == 1) { anim.Play("Sword_Attack", -1, 0f); anim.ResetTrigger("Attack"); }
+        else { anim.ResetTrigger("Attack"); anim.SetInteger("comboStep", comboStep); anim.SetTrigger("Attack"); }
 
         RotateWeapon();
         ApplyPhysics();

@@ -8,12 +8,20 @@ public class Player : MonoBehaviour
     [SerializeField] public Rigidbody2D rigid;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private PlayerInput inputActions;
+    [SerializeField] private Animator anim;
     [SerializeField] private PlayerStats stats;
 
     [Header("Movement")]
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private Vector2 moveInput;
-    [SerializeField] public bool isAttacking = false;
+    [SerializeField] private float defaultMoveSpeed = 5f;
+    [SerializeField] private float minMoveSpeed = 1f;
+    [SerializeField] private float speedChangeRate = 5f;
+
+    private float currentMoveSpeed;
+    private Vector2 moveInput;
+
+    [Header("State")]
+    public bool isAttacking = false;
+    public bool isCharging = false; // ★ 핵심 변수 (무기들이 이걸 쳐다봄)
 
     [Header("Hit & Invincibility")]
     [SerializeField] private bool isInvincible = false;
@@ -26,9 +34,12 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         inputActions = new PlayerInput();
         stats = GetComponent<PlayerStats>();
+        anim = GetComponentInChildren<Animator>();
+
+        currentMoveSpeed = defaultMoveSpeed;
 
         rigid.gravityScale = 0;
         rigid.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -41,6 +52,7 @@ public class Player : MonoBehaviour
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
         LookAtMouse();
+        HandleSpeedInterpolation();
     }
 
     private void FixedUpdate()
@@ -48,57 +60,51 @@ public class Player : MonoBehaviour
         if (!isAttacking) Move();
     }
 
+    private void HandleSpeedInterpolation()
+    {
+        float targetSpeed = isCharging ? minMoveSpeed : defaultMoveSpeed;
+        currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
+    }
+
+    // ★ 주사위(Dice)가 호출하는 함수
+    public void SetChargingState(bool _isCharging)
+    {
+        isCharging = _isCharging;
+
+        if (anim != null)
+        {
+            anim.SetBool("IsCharging", isCharging);
+        }
+    }
+
     public void OnDamage(float damage)
     {
         if (isInvincible) return;
-
         if (stats != null) stats.TakeDamage((int)damage);
         StartCoroutine(Co_OnHit());
     }
 
-    // ★ 1. 물리 충돌 (Is Trigger 꺼져있을 때)
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        CheckContactDamage(collision.gameObject);
-    }
-
-    // ★ 2. 트리거 충돌 (Is Trigger 켜져있을 때) - 이거 추가하면 100% 됩니다.
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        CheckContactDamage(collision.gameObject);
-    }
-
-    // 충돌 로직 통합 함수
+    // ... (충돌 및 이동 로직은 기존 유지) ...
+    private void OnCollisionStay2D(Collision2D collision) { CheckContactDamage(collision.gameObject); }
+    private void OnTriggerStay2D(Collider2D collision) { CheckContactDamage(collision.gameObject); }
     private void CheckContactDamage(GameObject target)
     {
         if (isInvincible) return;
-
-        if (target.CompareTag("Enemy"))
-        {
-            Debug.Log("몬스터와 접촉!");
-            OnDamage(bodyContactDamage);
-        }
+        if (target.CompareTag("Enemy")) OnDamage(bodyContactDamage);
     }
 
-    // ★ 투명도 유지 + 연한 빨강 깜빡임
     IEnumerator Co_OnHit()
     {
         isInvincible = true;
-
         float timer = 0f;
         bool isRed = false;
-
         while (timer < invincibleTime)
         {
-            // 투명도(Alpha)는 건드리지 않고 색상만 교체
             spriteRenderer.color = isRed ? Color.white : paleRed;
             isRed = !isRed;
-
             yield return new WaitForSeconds(blinkSpeed);
             timer += blinkSpeed;
         }
-
-        // 끝난 후 원래대로 복귀
         spriteRenderer.color = Color.white;
         isInvincible = false;
     }
@@ -106,22 +112,15 @@ public class Player : MonoBehaviour
     private void Move()
     {
         if (moveInput.magnitude > 0)
-        {
-            Vector2 moveDirection = moveInput.normalized;
-            rigid.linearVelocity = moveDirection * moveSpeed;
-        }
+            rigid.linearVelocity = moveInput.normalized * currentMoveSpeed;
         else
-        {
             rigid.linearVelocity = Vector2.zero;
-        }
     }
 
     private void LookAtMouse()
     {
         Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-
-        if (mousePos.x < transform.position.x) spriteRenderer.flipX = true;
-        else spriteRenderer.flipX = false;
+        spriteRenderer.flipX = mousePos.x < transform.position.x;
     }
 }

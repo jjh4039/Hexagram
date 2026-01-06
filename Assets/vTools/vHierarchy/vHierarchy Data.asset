@@ -36,6 +36,8 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1523878797-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1427394565-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-175986302-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-693199141-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1006607903-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -108,6 +110,14 @@ MonoBehaviour:
         - colorIndex: 0
           iconNameOrGuid: sv_icon_dot15_pix16_gizmo
           isIconRecursive: 1
+          isColorRecursive: 0
+        - colorIndex: 9
+          iconNameOrGuid: 
+          isIconRecursive: 0
+          isColorRecursive: 1
+        - colorIndex: 8
+          iconNameOrGuid: 
+          isIconRecursive: 0
           isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:

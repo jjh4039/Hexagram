@@ -15,7 +15,7 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private Transform gunSpriteTransform;
 
     [Space]
-    [SerializeField] private float swapDuration = 0.15f;   // 전환 속도
+    [SerializeField] private float swapDuration = 0.15f;    // 전환 속도
 
     public PlayerInput InputActions { get; private set; }
 
@@ -29,9 +29,9 @@ public class WeaponManager : MonoBehaviour
     public WeaponType CurrentWeapon { get; private set; } = WeaponType.Sword;
 
     private Coroutine swapCoroutine;
-    private Vector3 gunOriginPos; // 총의 원래 위치 (0,0,0)
-    private Vector3 gunTargetPos; // 총이 나갔을 때 위치
-    private Vector3 swordOriginPos; // 총의 원래 위치 (0,0,0)
+    private Vector3 gunOriginPos;
+    private Vector3 gunTargetPos;
+    private Vector3 swordOriginPos;
     private Vector3 swordTargetPos;
 
     private void Awake()
@@ -47,21 +47,19 @@ public class WeaponManager : MonoBehaviour
         // 위치 초기화 계산
         if (gunSpriteTransform != null)
         {
-            gunOriginPos = Vector3.zero; // 미장착, 빠지는 위치
-            gunTargetPos = new Vector3(0.05f, 0, 0); // 최종 장착 위치
+            gunOriginPos = Vector3.zero;
+            gunTargetPos = new Vector3(0.05f, 0, 0);
         }
 
         if (swordSpriteTransform != null)
         {
-            swordOriginPos = new Vector3(0, -0.1f, 0);  // 미장착, 빠지는 위치
-            swordTargetPos = new Vector3(0, -0.2f, 0);  // 최종 장착 위치
+            swordOriginPos = new Vector3(0, -0.1f, 0);
+            swordTargetPos = new Vector3(0, -0.2f, 0);
         }
 
-        // 초기 상태 설정 (검 들기)
         InitializeWeapon(swordObject, swordRenderer, 1f);
         InitializeWeapon(gunObject, gunRenderer, 0f);
 
-        // 시작할 때 총 이미지는 원점에 둠
         if (gunSpriteTransform != null) gunSpriteTransform.localPosition = gunOriginPos;
 
         gunObject.SetActive(false);
@@ -69,18 +67,18 @@ public class WeaponManager : MonoBehaviour
 
     private void Update()
     {
+        // ★ [추가] 차징 중이면 스왑 로직 접근 불가 (제일 먼저 체크)
+        if (GameManager.instance.player != null && GameManager.instance.player.isCharging) return;
+
         bool isHolding = InputActions.Player.Swap.IsPressed();
 
         if (IsSwapping) return;
 
-        // ▼▼▼ [수정] 조건문을 직관적으로 변경 ▼▼▼
-        // (기존) if (isHolding && !IsRangedMode)
         if (isHolding && CurrentWeapon == WeaponType.Sword)
         {
             if (swapCoroutine != null) StopCoroutine(swapCoroutine);
             swapCoroutine = StartCoroutine(SwapToGun());
         }
-        // (기존) else if (!isHolding && IsRangedMode)
         else if (!isHolding && CurrentWeapon == WeaponType.Gun)
         {
             if (swapCoroutine != null) StopCoroutine(swapCoroutine);
@@ -103,41 +101,38 @@ public class WeaponManager : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / swapDuration;
 
-            // 1. 투명도 교차 (Cross-Fade)
-            SetAlpha(swordRenderer, 1f - t); // 검: 1 -> 0
-            SetAlpha(gunRenderer, t);        // 총: 0 -> 1
+            SetAlpha(swordRenderer, 1f - t);
+            SetAlpha(gunRenderer, t);
 
-            // 2. 위치 이동 (Slide Out) - 총이 앞으로 나감
             if (gunSpriteTransform != null)
             {
-                // Lerp(시작점, 도착점, 진행도)
                 gunSpriteTransform.localPosition = Vector3.Lerp(gunOriginPos, gunTargetPos, t);
             }
 
             if (swordSpriteTransform != null)
             {
-                // swordStartPos(아래) -> swordOriginPos(제자리)
                 swordSpriteTransform.localPosition = Vector3.Lerp(swordTargetPos, swordOriginPos, t);
             }
 
             yield return null;
         }
 
-        // 최종 상태 고정
         SetAlpha(swordRenderer, 0f);
         SetAlpha(gunRenderer, 1f);
         IsSwapping = false;
         if (gunSpriteTransform != null) gunSpriteTransform.localPosition = gunTargetPos;
 
-        GameManager.instance.weaponUI.gunPanel.SetActive(true);
-        GameManager.instance.weaponUI.swordPanel.SetActive(false);
+        if (GameManager.instance.weaponUI != null)
+        {
+            GameManager.instance.weaponUI.gunPanel.SetActive(true);
+            GameManager.instance.weaponUI.swordPanel.SetActive(false);
+        }
         swordObject.SetActive(false);
     }
 
     private IEnumerator SwapToSword()
     {
         IsSwapping = true;
-
         CurrentWeapon = WeaponType.Sword;
 
         swordObject.SetActive(true);
@@ -150,27 +145,22 @@ public class WeaponManager : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / swapDuration;
 
-            // 1. 투명도 교차
-            SetAlpha(swordRenderer, t);      // 검: 0 -> 1
-            SetAlpha(gunRenderer, 1f - t);   // 총: 1 -> 0
+            SetAlpha(swordRenderer, t);
+            SetAlpha(gunRenderer, 1f - t);
 
-            // 2. 위치 이동 (Slide In) - 총이 뒤로 빠짐 [핵심 요청사항]
             if (gunSpriteTransform != null)
             {
-                // Lerp(도착점, 시작점, 진행도) -> 반대로 돌아옴
                 gunSpriteTransform.localPosition = Vector3.Lerp(gunTargetPos, gunOriginPos, t);
             }
 
             if (swordSpriteTransform != null)
             {
-                // swordOriginPos(제자리) -> swordStartPos(아래)
                 swordSpriteTransform.localPosition = Vector3.Lerp(swordOriginPos, swordTargetPos, t);
             }
 
             yield return null;
         }
 
-        // 최종 상태 고정
         SetAlpha(swordRenderer, 1f);
         SetAlpha(gunRenderer, 0f);
         if (gunSpriteTransform != null) gunSpriteTransform.localPosition = gunOriginPos;
@@ -178,8 +168,11 @@ public class WeaponManager : MonoBehaviour
 
         gunObject.SetActive(false);
 
-        GameManager.instance.weaponUI.gunPanel.SetActive(false);
-        GameManager.instance.weaponUI.swordPanel.SetActive(true);
+        if (GameManager.instance.weaponUI != null)
+        {
+            GameManager.instance.weaponUI.gunPanel.SetActive(false);
+            GameManager.instance.weaponUI.swordPanel.SetActive(true);
+        }
     }
 
     private void SetAlpha(SpriteRenderer sr, float alpha)
@@ -196,5 +189,3 @@ public class WeaponManager : MonoBehaviour
         SetAlpha(sr, alpha);
     }
 }
-
-
