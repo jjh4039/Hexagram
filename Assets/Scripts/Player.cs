@@ -77,6 +77,15 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void SetDiceAnimation(int diceIndex)
+    {
+        if (anim != null)
+        {
+            // Blend Tree의 파라미터 값 변경 (0 ~ 5)
+            anim.SetFloat("DiceType", (float)diceIndex);
+        }
+    }
+
     public void OnDamage(float damage)
     {
         if (isInvincible) return;

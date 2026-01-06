@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: bc4eec647e831214c8b68a3226664ec7
+guid: 9c3b023a780cc1a4bbb1dc430aab8623
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6640000983144515736
-    second: Count 1_0
+      213: 7751102592055945071
+    second: Count2_0
   - first:
-      213: 1504773928935941458
-    second: Count 1_1
+      213: -3363830626019594704
+    second: Count2_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -116,7 +116,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Count 1_0
+      name: Count2_0
       rect:
         serializedVersion: 2
         x: 0
@@ -131,14 +131,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8673d6b394af9d3a0800000000000000
-      internalID: -6640000983144515736
+      spriteID: f67aa198db2719b60800000000000000
+      internalID: 7751102592055945071
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Count 1_1
+      name: Count2_1
       rect:
         serializedVersion: 2
         x: 12
@@ -153,14 +153,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 255ee7d6ae702e410800000000000000
-      internalID: 1504773928935941458
+      spriteID: 03ea5833ed54151d0800000000000000
+      internalID: -3363830626019594704
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Count 1_2
+      name: Count2_2
       rect:
         serializedVersion: 2
         x: 24
@@ -175,8 +175,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fa647aff292e742469d6de6d1d56958a
-      internalID: 1076192894
+      spriteID: 961aa973a7fecf544a22fbdd2c00404a
+      internalID: -151560871
       vertices: []
       indices: 
       edges: []
@@ -185,7 +185,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 28bcaa3de07f4554ba7f1c96dfae981f
+    spriteID: 02288771b05c79a469b44a22e3358a5b
     internalID: 0
     vertices: []
     indices: 
@@ -197,9 +197,9 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":12.0,"y":18.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Count 1_0: -6640000983144515736
-      Count 1_1: 1504773928935941458
-      Count 1_2: 1076192894
+      Count2_0: 7751102592055945071
+      Count2_1: -3363830626019594704
+      Count2_2: -151560871
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
