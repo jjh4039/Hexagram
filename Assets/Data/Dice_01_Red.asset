@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d46fd65e523aa0244bbbd6229a64ce00, type: 3}
+  m_Name: Dice_01_Red
+  m_EditorClassIdentifier: Assembly-CSharp::DiceData
+  diceName: "\uBE68\uAC04\uC0C9"
+  description: "\uCCB4\uB825\uC774 1 \uAC10\uC18C\uD558\uACE0, \uACF5\uACA9\uB825\uC774
+    10% \uC0C1\uC2B9\uD569\uB2C8\uB2E4."
+  icon: {fileID: 428028097, guid: 65b962f3566eda74f8050782f0268e80, type: 3}
+  particleColor:
+    serializedVersion: 2
+    rgba: 4280300009
+  uiGlowColor:
+    serializedVersion: 2
+    rgba: 4278190120
+  effectType: 0
+  effectValue: 10
+  duration: 10
+  muzzleFlashMaterial: {fileID: 2100000, guid: 9dc2eaab7a39a114ca8cbe850693ba9e, type: 2}

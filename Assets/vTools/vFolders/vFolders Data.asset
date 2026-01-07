@@ -23,6 +23,8 @@ MonoBehaviour:
     - be5066ae14df6e54ba76a9710c0234e0
     - 9b0a857c6a55f154c9ee681d47bc59e8
     - 79bac91de8b284e43a2864856c940d76
+    - 0f83915844331a7429093d1d16ef1584
+    - ec123f38957a3ea4fa229ee58d05ee1b
     values:
     - iconNameOrGuid: Texture Icon
       colorIndex: 6
@@ -58,6 +60,14 @@ MonoBehaviour:
       isColorRecursive: 0
     - iconNameOrGuid: 
       colorIndex: 2
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 4
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: BoxCollider Icon
+      colorIndex: 10
       isIconRecursive: 0
       isColorRecursive: 0
   bookmarks: []

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d46fd65e523aa0244bbbd6229a64ce00, type: 3}
+  m_Name: Dice_04_Green
+  m_EditorClassIdentifier: Assembly-CSharp::DiceData
+  diceName: "\uCD08\uB85D\uC0C9"
+  description: "\uCCB4\uB825\uC744 4 \uD68C\uBCF5\uD569\uB2C8\uB2E4. (\uCD08\uACFC\uC2DC
+    \uBCF4\uD638\uB9C9)"
+  icon: {fileID: 1999408589, guid: 65b962f3566eda74f8050782f0268e80, type: 3}
+  particleColor:
+    serializedVersion: 2
+    rgba: 4284861596
+  uiGlowColor:
+    serializedVersion: 2
+    rgba: 4278196490
+  effectType: 3
+  effectValue: 4
+  duration: 10
+  muzzleFlashMaterial: {fileID: 2100000, guid: 9dc2eaab7a39a114ca8cbe850693ba9e, type: 2}

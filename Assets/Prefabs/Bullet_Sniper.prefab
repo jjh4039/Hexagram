@@ -155,7 +155,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.022351295, y: 0}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -165,7 +165,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.45747203, y: 1}
+  m_Size: {x: 0.35332763, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &3112823426160615821
 MonoBehaviour:
@@ -181,4 +181,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Bullet
   speed: 50
   lifeTime: 2
-  damage: 10
+  hitEffectPrefab: {fileID: 7757028540236576826, guid: 0033ac8e664fc73479f29d8d0f3d365a, type: 3}
+  damageMultiplier: 1
