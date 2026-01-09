@@ -13,7 +13,6 @@ public class Sword_Effect : MonoBehaviour
     [SerializeField] private float hitInterval = 0.05f;
 
     private SpriteRenderer spriteRenderer;
-    private bool isFading = false;
 
     private void Awake()
     {
@@ -22,8 +21,6 @@ public class Sword_Effect : MonoBehaviour
 
     private void OnEnable()
     {
-        isFading = false;
-
         // 색상 초기화 (투명해진 걸 다시 원상복구)
         if (spriteRenderer != null)
         {

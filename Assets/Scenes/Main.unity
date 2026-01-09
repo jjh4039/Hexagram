@@ -1841,6 +1841,15 @@ MonoBehaviour:
   attackSpeedMultiplier: 1
   chargeSpeedMultiplier: 1
   weaponManager: {fileID: 1523878799}
+  dashSpeed: 15
+  dashDuration: 0.1
+  dashCooldown: 0.2
+  ghostInterval: 0.03
+  ghostFadeTime: 0.4
+  ghostColor: {r: 1, g: 1, b: 1, a: 0.3529412}
+  dashDustPrefab: {fileID: 1933968925968223398, guid: 608a931a078dc09488fb087538f82d1d, type: 3}
+  shakeDuration: 0.05
+  shakeMagnitude: 0.02
   remainingStrongAttacks: 0
 --- !u!114 &843584030
 MonoBehaviour:
@@ -12897,7 +12906,7 @@ MonoBehaviour:
   rollCooldown: 2.5
   fadeInDuration: 0.5
   countdownStartSeconds: 3
-  preResultDelay: 0.5
+  preAnimTime: 0.5
   uiCanvasGroup: {fileID: 224847981152021326}
   moduleIcon: {fileID: 8358382240434420188}
   moduleCooldownOverlay: {fileID: 977473842}

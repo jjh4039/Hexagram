@@ -30,16 +30,34 @@ public class Player : MonoBehaviour
     [SerializeField] private float bodyContactDamage = 5f;
 
     [Header("--- Dice Buff Status (New!) ---")]
-    // 주사위 효과로 변하는 배율들 (기본값 1.0)
-    public float damageMultiplier = 1.0f;     // 공격력 배율 (빨강)
-    public float moveSpeedMultiplier = 1.0f;  // 이동 속도 배율 (파랑)
-    public float attackSpeedMultiplier = 1.0f;// 공격 속도 배율 (파랑)
-    public float chargeSpeedMultiplier = 1.0f;// 충전 속도 배율 (보라)
+    public float damageMultiplier = 1.0f;
+    public float moveSpeedMultiplier = 1.0f;
+    public float attackSpeedMultiplier = 1.0f;
+    public float chargeSpeedMultiplier = 1.0f;
 
     [Header("Weapon Link")]
     [SerializeField] private WeaponManager weaponManager;
 
-    // 다음 2회 강한 공격 (주황)
+    [Header("Dash Settings")]
+    [SerializeField] private float dashSpeed = 25f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 0.8f;
+
+    [Header("Dash Visuals")]
+    [SerializeField] private float ghostInterval = 0.01f;
+    [SerializeField] private float ghostFadeTime = 0.4f;
+    [SerializeField] private Color ghostColor = new Color(0.6f, 0.6f, 1f, 0.4f);
+
+    [Header("Effects")]
+    [SerializeField] private GameObject dashDustPrefab;
+    [SerializeField] private float shakeDuration = 0.1f;
+    [SerializeField] private float shakeMagnitude = 0.1f;
+
+    private bool isDashing = false;
+    private float lastDashTime = -99f;
+    private Color currentDiceColor = Color.white;
+
+    [Header("Strong")]
     public int remainingStrongAttacks = 0;
 
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
@@ -53,15 +71,22 @@ public class Player : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
 
         currentMoveSpeed = defaultMoveSpeed;
-
         rigid.gravityScale = 0;
         rigid.interpolation = RigidbodyInterpolation2D.Interpolate;
-
         rigid.sleepMode = RigidbodySleepMode2D.NeverSleep;
     }
 
-    private void OnEnable() { inputActions.Enable(); }
-    private void OnDisable() { inputActions.Disable(); }
+    private void OnEnable()
+    {
+        inputActions.Enable();
+        inputActions.Player.Dash.performed += OnDash;
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Disable();
+        inputActions.Player.Dash.performed -= OnDash;
+    }
 
     private void Update()
     {
@@ -72,78 +97,147 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isDashing) return;
         if (!isAttacking) Move();
     }
 
-    // ★ [핵심] 주사위 효과 적용 로직
     public void ApplyDiceBuff(DiceData data)
     {
-        // 1. 기존 일시적 버프 초기화 (중첩 방지)
         RemoveDiceBuff();
-
-        Debug.Log($"[Dice Effect] 타입: {data.effectType} / 수치: {data.effectValue}");
-
-        // ★ [수정] 매니저에게 색상 변경 요청 (총이 꺼져 있어도 작동함)
-        if (weaponManager != null)
-        {
-            weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
-        }
+        if (weaponManager != null) weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
+        currentDiceColor = data.particleColor;
 
         switch (data.effectType)
         {
-            case DiceEffectType.AttackBuff: // 1. (빨강) 체력 1 감소, 공격력 10% 증가
-                if (stats != null) stats.TakeDamage(1); // 체력 감소
-                damageMultiplier = 1.0f + (data.effectValue / 100f); // 10 -> 1.1배
+            case DiceEffectType.AttackBuff:
+                if (stats != null) stats.TakeDamage(1);
+                damageMultiplier = 1.0f + (data.effectValue / 100f);
                 break;
-
-            case DiceEffectType.CriticalBuff: // 2. (주황) 다음 N회 강한 공격
-                remainingStrongAttacks = (int)data.effectValue; // 2회
+            case DiceEffectType.CriticalBuff:
+                remainingStrongAttacks = (int)data.effectValue;
                 break;
-
-            case DiceEffectType.GrowthBuff: // 3. (노랑) 영구 공격력 상승
+            case DiceEffectType.GrowthBuff:
                 if (stats != null)
                 {
-                    float growthFactor = 1.0f + (data.effectValue / 100f); // 3 -> 1.03배
+                    float growthFactor = 1.0f + (data.effectValue / 100f);
                     stats.meleeAttackPower *= growthFactor;
                     stats.rangeAttackPower *= growthFactor;
-                    Debug.Log($"영구 성장! 근거리: {stats.meleeAttackPower}, 원거리: {stats.rangeAttackPower}");
                 }
                 break;
-
-            case DiceEffectType.Heal: // 4. (초록) 체력 회복
-                if (stats != null)
-                {
-                    // 최대 체력을 넘지 않도록 회복
-                    stats.currentHealth = Mathf.Min(stats.currentHealth + (int)data.effectValue, stats.maxHealth);
-                    Debug.Log($"체력 회복: 현재 {stats.currentHealth}");
-                }
+            case DiceEffectType.Heal:
+                if (stats != null) stats.currentHealth = Mathf.Min(stats.currentHealth + (int)data.effectValue, stats.maxHealth);
                 break;
-
-            case DiceEffectType.SpeedBuff: // 5. (파랑) 이속, 공속 증가
+            case DiceEffectType.SpeedBuff:
                 moveSpeedMultiplier = 1.0f + (data.effectValue / 100f);
                 attackSpeedMultiplier = 1.0f + (data.effectValue / 100f);
                 break;
-
-            case DiceEffectType.ChargingBuff: // 6. (보라) 충전 속도 증가
-                chargeSpeedMultiplier = data.effectValue; // 6 입력 시 6배
+            case DiceEffectType.ChargingBuff:
+                chargeSpeedMultiplier = data.effectValue;
                 break;
         }
     }
 
-    // ★ 버프 해제 (지속 시간이 끝나면 호출됨)
     public void RemoveDiceBuff()
     {
         damageMultiplier = 1.0f;
         moveSpeedMultiplier = 1.0f;
         attackSpeedMultiplier = 1.0f;
         chargeSpeedMultiplier = 1.0f;
-        // remainingStrongAttacks는 횟수제라 여기서 초기화하지 않음 (전략적 선택)
+        if (weaponManager != null) weaponManager.UpdateWeaponVisuals(Color.white, null);
+    }
 
-        if (weaponManager != null)
+    private void OnDash(InputAction.CallbackContext context)
+    {
+        if (isAttacking || isCharging || isDashing) return;
+        if (Time.time < lastDashTime + dashCooldown) return;
+
+        StartCoroutine(DashRoutine());
+    }
+
+    private IEnumerator DashRoutine()
+    {
+        isDashing = true;
+        isInvincible = true;
+        lastDashTime = Time.time;
+
+        Vector2 dashDir;
+        if (moveInput.magnitude > 0)
+            dashDir = moveInput.normalized;
+        else
         {
-            // 일단 null을 보내면 재질은 안 바꿈 (색상만 빨강 복구)
-            weaponManager.UpdateWeaponVisuals(Color.white, null);
+            Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+            dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
         }
+
+        if (dashDustPrefab != null)
+        {
+            // 1. 파티클 생성
+            GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity);
+
+            // 2. 파티클 시스템의 Main 모듈 가져오기
+            var mainModule = dust.GetComponent<ParticleSystem>().main;
+
+            // 3. 저장해둔 주사위 색상 적용!
+            mainModule.startColor = currentDiceColor;
+
+            // 4. (옵션) 1초 뒤 자동 삭제 스크립트가 없다면 여기서 처리
+            Destroy(dust, 1.0f);
+        }
+
+        if (CameraFollow.instance != null)
+            CameraFollow.instance.Shake(shakeDuration, shakeMagnitude);
+
+        rigid.linearVelocity = dashDir * dashSpeed;
+
+        StartCoroutine(DashGhostRoutine());
+
+        yield return new WaitForSeconds(dashDuration);
+
+        rigid.linearVelocity = Vector2.zero;
+        isDashing = false;
+        isInvincible = false;
+    }
+
+    private IEnumerator DashGhostRoutine()
+    {
+        while (isDashing)
+        {
+            CreateGhost();
+            yield return new WaitForSeconds(ghostInterval);
+        }
+    }
+
+    private void CreateGhost()
+    {
+        GameObject ghostObj = new GameObject("DashGhost");
+        ghostObj.transform.position = transform.position;
+        ghostObj.transform.localScale = transform.localScale;
+
+        SpriteRenderer sr = ghostObj.AddComponent<SpriteRenderer>();
+        sr.sprite = spriteRenderer.sprite;
+        sr.color = ghostColor;
+        sr.flipX = spriteRenderer.flipX;
+        sr.sortingLayerID = spriteRenderer.sortingLayerID;
+        sr.sortingOrder = spriteRenderer.sortingOrder - 1;
+
+        StartCoroutine(FadeOutAndDestroy(ghostObj, sr));
+    }
+
+    private IEnumerator FadeOutAndDestroy(GameObject obj, SpriteRenderer sr)
+    {
+        float timer = 0f;
+        Color startColor = sr.color;
+
+        while (timer < ghostFadeTime)
+        {
+            timer += Time.deltaTime;
+            float alpha = Mathf.Lerp(startColor.a, 0f, timer / ghostFadeTime);
+            sr.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            yield return null;
+        }
+
+        Destroy(obj);
     }
 
     private void HandleSpeedInterpolation()
@@ -152,10 +246,18 @@ public class Player : MonoBehaviour
         currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
     }
 
+    // ★ [기존] 상태와 애니메이션 동시 변경
     public void SetChargingState(bool _isCharging)
     {
-        isCharging = _isCharging;
-        if (anim != null) anim.SetBool("IsCharging", isCharging);
+        isCharging = _isCharging; // 실제 논리적 상태 (공격 불가 여부)
+        if (anim != null) anim.SetBool("IsCharging", isCharging); // 애니메이션
+    }
+
+    // ★ [신규] 애니메이션만 먼저 깨우는 함수 (공격은 여전히 불가)
+    public void PlayWakeUpAnimation()
+    {
+        if (anim != null) anim.SetBool("IsCharging", false);
+        // 주의: isCharging 변수는 건드리지 않음!
     }
 
     public void SetDiceAnimation(int diceIndex)
@@ -196,7 +298,6 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        // ★ 이동 속도에 배율(moveSpeedMultiplier) 적용
         if (moveInput.magnitude > 0)
         {
             float finalSpeed = currentMoveSpeed * moveSpeedMultiplier;

@@ -429,6 +429,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 8
+  slamEffectPrefab: {fileID: 1417880547492103059, guid: 4d32e48b0dfff154f9a4df7eb4187681, type: 3}
   rangeBackground: {fileID: 4549265805919899004}
   attackIndicator: {fileID: 2496647999509877825}
   indicatorScale: 0.45

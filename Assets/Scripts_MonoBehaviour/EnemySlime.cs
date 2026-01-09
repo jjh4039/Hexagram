@@ -18,6 +18,9 @@ public class EnemySlime : Enemy
     [SerializeField] private float attackRadius = 1.15f;   // 공격 판정 반지름
     [SerializeField] private LayerMask targetLayer; // ★ 필수 추가: 플레이어 레이어 선택용
 
+    [Header("Attack FX")] // ★ 헤더 추가
+    [SerializeField] private GameObject slamEffectPrefab;
+
     [Header("Attack Effect")]
     [SerializeField] private GameObject rangeBackground;
     [SerializeField] private GameObject attackIndicator;
@@ -235,28 +238,39 @@ public class EnemySlime : Enemy
 
         if (anim != null) anim.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(attackDelay);
+        yield return new WaitForSeconds(attackDelay); // 딜레이 대기
 
         if (isDead) { DisableIndicators(); yield break; }
 
-        // --- [Step 2: 공격 발동 (OverlapCircle 물리 판정)] ---
+        // ====================================================
+        // ★ [여기가 타격 순간!] 이펙트 생성 로직 추가
+        // ====================================================
 
-        // 1. 판정 중심점 결정 (장판 위치)
-        Vector2 attackCenter = transform.position;
-        if (attackIndicator != null) attackCenter = attackIndicator.transform.position;
+        // 1. 이펙트 생성 위치 결정 (장판 중심)
+        Vector2 impactPos = transform.position;
+        if (attackIndicator != null) impactPos = attackIndicator.transform.position;
 
-        // 2. 물리 연산으로 충돌 체크 (거리 계산 X)
-        // 해당 위치(attackCenter)에 반지름(attackRadius)만큼 원을 그려서, targetLayer에 닿은 놈을 가져옴
-        Collider2D hit = Physics2D.OverlapCircle(attackCenter, attackRadius, targetLayer);
+        // 2. 파티클 생성
+        if (slamEffectPrefab != null)
+        {
+            GameObject vfx = Instantiate(slamEffectPrefab, impactPos, Quaternion.identity);
+
+            // (옵션) 공격 범위(AttackRadius)에 맞춰 이펙트 크기를 키우고 싶다면?
+            // vfx.transform.localScale = Vector3.one * attackRadius; 
+
+            Destroy(vfx, 1.5f); // 찌꺼기 청소
+        }
+
+        // --- [Step 2: 공격 발동 (기존 로직)] ---
+        Collider2D hit = Physics2D.OverlapCircle(impactPos, attackRadius, targetLayer); // impactPos 재활용
 
         if (hit != null)
         {
-            // ★ 수정됨: 실제 플레이어 스크립트 가져오기
             Player player = hit.GetComponent<Player>();
             if (player != null)
             {
-                Debug.Log($"<color=red>펑! 플레이어 피격! (데미지: {damage})</color>");
-                player.OnDamage(damage); // 플레이어의 OnDamage 함수 호출!
+                Debug.Log($"<color=red>펑! 플레이어 피격!</color>");
+                player.OnDamage(damage);
             }
         }
 
