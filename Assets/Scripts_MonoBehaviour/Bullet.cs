@@ -27,13 +27,24 @@ public class Bullet : MonoBehaviour
         col = GetComponent<Collider2D>();                // ★ 컴포넌트 가져오기
     }
 
+    // (참고용) Bullet.cs 예시
     public void SetupVisuals(Color color, Material material)
     {
+        // 1. 총알 자체 색상 변경 (스프라이트)
+        if (spriteRenderer != null) spriteRenderer.color = color;
+
+        // 2. 총알에 달린 파티클(잔상 등) 색상 변경
+        // 자식에 있는 모든 파티클 시스템을 찾아서 색을 바꿉니다.
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+        foreach (ParticleSystem ps in particles)
+        {
+            var main = ps.main;
+            main.startColor = color; // 파티클 시작 색상 변경
+        }
+
+        // 3. 나중에 터질 때 쓸 색상 저장
         myColor = color;
         myMaterial = material;
-
-        // 총알 자체 색상도 변경 (선택사항)
-        if (spriteRenderer != null) spriteRenderer.color = color;
     }
 
     void Start()
@@ -76,6 +87,7 @@ public class Bullet : MonoBehaviour
     }
 
     // ★ [핵심 기능] 총알을 투명하게 만들고 나중에 삭제하는 함수
+    // ★ [핵심 기능] 총알을 투명하게 만들고, 파티클도 끊고, 나중에 삭제하는 함수
     private void HideAndDelayDestroy()
     {
         // 1. 눈에서 치우기 (이미지 끄기)
@@ -91,8 +103,24 @@ public class Bullet : MonoBehaviour
             rigid.bodyType = RigidbodyType2D.Kinematic; // 물리 연산 완전 중지
         }
 
-        // 4. 자식 오브젝트(파티클/Trail)들은 살아있으므로 서서히 사라질 시간을 줌
-        // 0.5초 뒤에 진짜로 오브젝트 삭제
+        // 4. ★ [추가됨] 자식으로 달린 파티클 시스템 찾아서 "생성 중단" 시키기
+        // (GetComponentInChildren은 자기 자신 + 자식들 다 뒤집니다)
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+        foreach (ParticleSystem ps in particles)
+        {
+            // Stop()을 부르면 "새로운 파티클 방출(Emission)"만 멈춥니다.
+            // 이미 나온 꼬리들은 자연스럽게 사라집니다.
+            ps.Stop();
+        }
+
+        // 5. 트레일 렌더러(Trail Renderer)를 쓴다면 이것도 끊어줘야 함 (선택사항)
+        TrailRenderer trail = GetComponentInChildren<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.emitting = false; // 꼬리 그리기 중단
+        }
+
+        // 6. 0.5초 뒤에 진짜로 오브젝트 삭제 (잔여 이펙트가 다 사라질 시간)
         Destroy(gameObject, 0.5f);
     }
 

@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemySlime : Enemy
+public class EnemySlime : Enemy // ★ 부모 상속
 {
     [Header("AI Movement")]
     [SerializeField] private float moveSpeed = 1f;
@@ -9,26 +9,22 @@ public class EnemySlime : Enemy
     [SerializeField] private float moveTime = 2.0f;
     [SerializeField] private float spriteScale = 1.4f;
 
-    [Header("AI Attack Condition")]
-    [SerializeField] private float attackRange = 2f;    // AI가 멈추는 거리
+    [Header("AI Attack")]
+    [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackCooldown = 2.0f;
-
-    [Header("Attack Damage & Range")]
     [SerializeField] private float damage = 10f;
-    [SerializeField] private float attackRadius = 1.15f;   // 공격 판정 반지름
-    [SerializeField] private LayerMask targetLayer; // ★ 필수 추가: 플레이어 레이어 선택용
+    [SerializeField] private float attackRadius = 1.15f;
+    [SerializeField] private LayerMask targetLayer;
 
-    [Header("Attack FX")] // ★ 헤더 추가
+    [Header("Attack VFX")]
     [SerializeField] private GameObject slamEffectPrefab;
-
-    [Header("Attack Effect")]
     [SerializeField] private GameObject rangeBackground;
     [SerializeField] private GameObject attackIndicator;
     [SerializeField] private float indicatorScale = 0.45f;
     [SerializeField] private float chargeTime = 1.0f;
     [SerializeField] private float attackDelay = 0.1f;
 
-    [Header("Hit & Knockback")]
+    [Header("Hit Reaction")]
     [SerializeField] private float knockbackForce = 5.0f;
     [SerializeField] private float stunTime = 0.5f;
 
@@ -42,13 +38,13 @@ public class EnemySlime : Enemy
 
     protected override void Awake()
     {
-        base.Awake();
+        base.Awake(); // ★ 부모 Awake 실행 필수
         rigid = GetComponent<Rigidbody2D>();
     }
 
     protected override void Start()
     {
-        base.Start();
+        base.Start(); // ★ 부모 Start 실행 필수 (매테리얼 저장, HP바 숨기기 등)
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) target = playerObj.transform;
@@ -59,6 +55,34 @@ public class EnemySlime : Enemy
         StartCoroutine(Co_SlimeAI());
     }
 
+    // 부모의 OnHit를 덮어쓰기 (슬라임만의 반응 추가)
+    protected override void OnHit()
+    {
+        if (isDead) return;
+
+        // 1. 애니메이션 (★ 주의: 애니메이션 클립에서 Color 변경 키프레임 삭제했는지 확인!)
+        if (anim != null) anim.Play("Enemy_Hit", -1, 0f);
+
+        // 2. 넉백
+        if (rigid != null && target != null)
+        {
+            Vector2 knockbackDir = (transform.position - target.position).normalized;
+            rigid.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
+        }
+
+        // 3. 스턴 (잠깐 멈춤)
+        if (!isStunned)
+            StartCoroutine(Co_HitRecovery());
+    }
+
+    IEnumerator Co_HitRecovery()
+    {
+        isStunned = true;
+        yield return new WaitForSeconds(stunTime);
+        isStunned = false;
+        // 스턴 끝나면 움직임 재개는 Update/AI에서 처리됨
+    }
+
     private void Update()
     {
         if (isDead)
@@ -66,18 +90,16 @@ public class EnemySlime : Enemy
             if (rigid != null) rigid.linearVelocity = Vector2.zero;
             return;
         }
-
         if (target == null) return;
+
         LookAtTarget();
     }
 
     private void LookAtTarget()
     {
-        // 기준점: 장판이 있으면 장판 위치, 없으면 몸통 위치
         Vector3 centerPos = transform.position;
         if (attackIndicator != null) centerPos = attackIndicator.transform.position;
 
-        // 장판보다 플레이어가 오른쪽에 있나? 왼쪽에 있나?
         float dirX = target.position.x - centerPos.x;
 
         if (dirX > 0)
@@ -88,38 +110,9 @@ public class EnemySlime : Enemy
         // 체력바 반전 보정
         if (hpBarRoot != null)
         {
-            if (transform.localScale.x < 0)
-                hpBarRoot.localScale = new Vector3(-1, 1, 1);
-            else
-                hpBarRoot.localScale = new Vector3(1, 1, 1);
+            if (transform.localScale.x < 0) hpBarRoot.localScale = new Vector3(-1, 1, 1);
+            else hpBarRoot.localScale = new Vector3(1, 1, 1);
         }
-    }
-
-    protected override void OnHit()
-    {
-        if (isDead) return;
-
-        if (anim != null) anim.Play("Enemy_Hit", -1, 0f);
-
-        if (rigid != null && target != null)
-        {
-            Vector2 knockbackDir = (transform.position - target.position).normalized;
-            rigid.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
-        }
-
-        if (!isStunned)
-        {
-            StartCoroutine(Co_HitRecovery());
-        }
-    }
-
-    IEnumerator Co_HitRecovery()
-    {
-        isStunned = true;
-        yield return new WaitForSeconds(stunTime);
-        isStunned = false;
-
-        if (isDead) yield break;
     }
 
     IEnumerator Co_SlimeAI()
@@ -130,32 +123,29 @@ public class EnemySlime : Enemy
             if (isStunned) { yield return null; continue; }
             if (isAttacking) { yield return null; continue; }
 
+            // 대기 -> 거리 체크 -> 공격 or 이동
             yield return StartCoroutine(Co_IdleState());
 
             if (isDead) break;
             if (isStunned) continue;
 
-            // ★ 수정됨: AI 판단 기준도 '장판 위치'로 변경
-            Vector3 checkPos = transform.position; // 기본값 (장판 없으면 몸통 기준)
+            Vector3 checkPos = transform.position;
             if (attackIndicator != null) checkPos = attackIndicator.transform.position;
-
             float dist = Vector2.Distance(checkPos, target.position);
 
             if (target != null && dist <= attackRange)
-            {
                 yield return StartCoroutine(Co_AttackSequence());
-            }
             else
-            {
                 yield return StartCoroutine(Co_MoveState());
-            }
         }
     }
+
+    // ... (Co_IdleState, Co_MoveState, Co_AttackSequence는 기존 로직 그대로 유지) ...
+    // 내용이 길어서 생략했지만, 기존에 작성하신 완벽한 로직 그대로 두시면 됩니다!
 
     IEnumerator Co_IdleState()
     {
         if (anim != null) anim.SetBool("isMoving", false);
-
         float timer = 0f;
         while (timer < idleTime)
         {
@@ -174,28 +164,21 @@ public class EnemySlime : Enemy
         while (timer < moveTime)
         {
             if (isDead || target == null) yield break;
-
             while (isStunned)
             {
                 if (anim != null) anim.SetBool("isMoving", false);
                 yield return null;
             }
-
             if (anim != null) anim.SetBool("isMoving", true);
 
-            // ★ 핵심 수정: 이동의 기준점도 '장판(AttackIndicator)'으로 변경
-            Vector3 moveCenter = transform.position; // 기본값
+            Vector3 moveCenter = transform.position;
             if (attackIndicator != null) moveCenter = attackIndicator.transform.position;
-
-            // "장판이 플레이어 쪽으로 가려면 어느 쪽으로 가야 하지?"를 계산
             Vector2 dir = (target.position - moveCenter).normalized;
-
             transform.Translate(dir * moveSpeed * Time.deltaTime);
 
             timer += Time.deltaTime;
             yield return null;
         }
-
         if (anim != null) anim.SetBool("isMoving", false);
     }
 
@@ -204,7 +187,6 @@ public class EnemySlime : Enemy
         isAttacking = true;
         if (anim != null) anim.SetBool("isMoving", false);
 
-        // --- [Step 1: 차징] ---
         if (rangeBackground != null)
         {
             rangeBackground.SetActive(true);
@@ -215,12 +197,10 @@ public class EnemySlime : Enemy
         {
             attackIndicator.SetActive(true);
             attackIndicator.transform.localScale = Vector3.zero;
-
             float chargeTimer = 0f;
             while (chargeTimer < chargeTime)
             {
                 if (isDead) { DisableIndicators(); yield break; }
-
                 chargeTimer += Time.deltaTime;
                 float progress = chargeTimer / chargeTime;
                 float currentScale = Mathf.Lerp(0f, indicatorScale, progress);
@@ -229,56 +209,33 @@ public class EnemySlime : Enemy
             }
             attackIndicator.transform.localScale = new Vector3(indicatorScale, indicatorScale, 1f);
         }
-        else
-        {
-            yield return new WaitForSeconds(chargeTime);
-        }
+        else yield return new WaitForSeconds(chargeTime);
 
         if (isDead) { DisableIndicators(); yield break; }
-
         if (anim != null) anim.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(attackDelay); // 딜레이 대기
+        yield return new WaitForSeconds(attackDelay);
 
         if (isDead) { DisableIndicators(); yield break; }
 
-        // ====================================================
-        // ★ [여기가 타격 순간!] 이펙트 생성 로직 추가
-        // ====================================================
-
-        // 1. 이펙트 생성 위치 결정 (장판 중심)
         Vector2 impactPos = transform.position;
         if (attackIndicator != null) impactPos = attackIndicator.transform.position;
 
-        // 2. 파티클 생성
         if (slamEffectPrefab != null)
         {
             GameObject vfx = Instantiate(slamEffectPrefab, impactPos, Quaternion.identity);
-
-            // (옵션) 공격 범위(AttackRadius)에 맞춰 이펙트 크기를 키우고 싶다면?
-            // vfx.transform.localScale = Vector3.one * attackRadius; 
-
-            Destroy(vfx, 1.5f); // 찌꺼기 청소
+            Destroy(vfx, 1.5f);
         }
 
-        // --- [Step 2: 공격 발동 (기존 로직)] ---
-        Collider2D hit = Physics2D.OverlapCircle(impactPos, attackRadius, targetLayer); // impactPos 재활용
-
+        Collider2D hit = Physics2D.OverlapCircle(impactPos, attackRadius, targetLayer);
         if (hit != null)
         {
             Player player = hit.GetComponent<Player>();
-            if (player != null)
-            {
-                Debug.Log($"<color=red>펑! 플레이어 피격!</color>");
-                player.OnDamage(damage);
-            }
+            if (player != null) player.OnDamage(damage);
         }
 
-        // --- [Step 3: 정리] ---
         DisableIndicators();
-
         yield return new WaitForSeconds(attackCooldown);
-
         isAttacking = false;
     }
 
@@ -288,19 +245,15 @@ public class EnemySlime : Enemy
         if (attackIndicator != null) attackIndicator.SetActive(false);
     }
 
-    // ★ 기즈모: 이제 빨간 원(타격), 노란 원(감지) 모두 장판 중심으로 그려짐
     private void OnDrawGizmos()
     {
         Vector3 center = transform.position;
         if (attackIndicator != null) center = attackIndicator.transform.position;
 
-        // 1. 타격 범위 (빨강)
         Gizmos.color = new Color(1, 0, 0, 0.3f);
         Gizmos.DrawSphere(center, attackRadius);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(center, attackRadius);
-
-        // 2. 감지 범위 (노랑) - 이제 얘도 장판 기준!
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(center, attackRange);
     }

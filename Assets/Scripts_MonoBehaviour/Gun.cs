@@ -12,6 +12,10 @@ public class Gun : MonoBehaviour
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private float laserLength = 50f;
 
+    // ★ [추가] 레이저가 막힐 장애물 레이어 (벽, 땅 등)
+    // Inspector에서 'Wall' 레이어를 체크해주시면 됩니다.
+    [SerializeField] private LayerMask obstacleLayer;
+
     [Header("Shooting Settings")]
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private float fireRate = 0.125f;
@@ -23,13 +27,11 @@ public class Gun : MonoBehaviour
     [SerializeField] private float gunRecoilDuration = 0.1f;
 
     [Header("VFX Settings")]
-    // ★ [삭제됨] muzzleFlashEffect 변수 삭제! 
     [SerializeField] private float shakeDuration = 0.1f;
     [SerializeField] private float shakeMagnitude = 0.2f;
 
     [SerializeField] private float fadeSpeed = 10f;
 
-    // ★ [추가] 현재 적용된 색상과 재질을 기억할 변수
     private Color currentBulletColor = Color.white;
     private Material currentBulletMaterial;
 
@@ -40,7 +42,6 @@ public class Gun : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
     }
 
-    // ... (OnEnable, OnDisable, Update 등은 기존 로직 유지) ...
     private void OnEnable()
     {
         if (lineRenderer != null) lineRenderer.enabled = false;
@@ -61,32 +62,55 @@ public class Gun : MonoBehaviour
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         RotateWeapon();
 
-        if (!GameManager.instance.player.isCharging && !weaponManager.IsSwapping) DrawLaser();
-        else if (lineRenderer != null) lineRenderer.enabled = false;
+        if (!GameManager.instance.player.isCharging && !weaponManager.IsSwapping)
+            DrawLaser(); // 레이저 그리기
+        else if (lineRenderer != null)
+            lineRenderer.enabled = false;
 
         HandleChargingVisuals();
     }
-    // ... (여기까지 기존 유지) ...
 
+    // ★ [수정됨] 레이캐스트를 쏴서 벽에 닿으면 거기까지만 그리기
+    private void DrawLaser()
+    {
+        if (lineRenderer == null || muzzlePoint == null) return;
 
-    // ★ [수정] 외부에서 색상 받을 때, 기억만 해둠 (파티클 재생 X)
+        lineRenderer.enabled = true;
+        lineRenderer.SetPosition(0, muzzlePoint.position); // 시작점 (총구)
+
+        // 총이 바라보는 방향 (오른쪽)
+        Vector2 direction = transform.right;
+
+        // 1. 레이저 발사! (총구 위치에서, 방향으로, 길이만큼, 장애물 레이어만 감지)
+        RaycastHit2D hit = Physics2D.Raycast(muzzlePoint.position, direction, laserLength, obstacleLayer);
+
+        if (hit.collider != null)
+        {
+            // 2. 무언가(벽)에 닿았다면? -> 닿은 위치(hit.point)까지만 그립니다.
+            // (Tag 확인이 필요하면 if (hit.collider.CompareTag("Wall")) 등을 쓸 수 있지만,
+            // LayerMask로 거르는 게 성능상 훨씬 좋습니다.)
+            lineRenderer.SetPosition(1, hit.point);
+        }
+        else
+        {
+            // 3. 아무것도 안 닿았으면? -> 최대 길이까지 쭉 그립니다.
+            Vector2 endPoint = (Vector2)muzzlePoint.position + (direction * laserLength);
+            lineRenderer.SetPosition(1, endPoint);
+        }
+    }
+
+    // ... (이하 함수들은 기존과 동일하게 유지) ...
     public void UpdateVisuals(Color color, Material newMaterial)
     {
-        // 1. 레이저는 바로 변경
         if (lineRenderer != null)
         {
             lineRenderer.startColor = color;
             lineRenderer.endColor = color;
         }
-
-        // 2. 총알에 넘겨줄 정보 저장 (나중에 쏠 때 씀)
         currentBulletColor = color;
         currentBulletMaterial = newMaterial;
-
-        // ★ [삭제됨] 여기서 파티클 Renderer 접근해서 색 바꾸던 로직 삭제
     }
 
-    // ... (OnAttack 등 유지) ...
     private void OnAttack(InputAction.CallbackContext context)
     {
         if (weaponManager.IsSwapping) return;
@@ -107,24 +131,18 @@ public class Gun : MonoBehaviour
     {
         if (bulletPrefab == null || muzzlePoint == null) return;
 
-        // ★ [수정] 총알 생성 후 색상 전달
         GameObject bulletObj = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
         Bullet bulletScript = bulletObj.GetComponent<Bullet>();
 
         if (bulletScript != null)
         {
-            // 아까 기억해둔 색상을 총알에게 전달!
             bulletScript.SetupVisuals(currentBulletColor, currentBulletMaterial);
         }
 
         Recoil();
-
-        // ★ [삭제됨] muzzleFlashEffect.Play() 삭제!
-
         if (CameraFollow.instance != null) CameraFollow.instance.Shake(shakeDuration, shakeMagnitude);
     }
 
-    // ... (Recoil, RotateWeapon 등 나머지 유지) ...
     private void Recoil()
     {
         StopCoroutine("VisualRecoilRoutine"); StartCoroutine("VisualRecoilRoutine");
@@ -178,14 +196,5 @@ public class Gun : MonoBehaviour
         Color currentColor = spriteRenderer.color;
         float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * fadeSpeed);
         spriteRenderer.color = new Color(currentColor.r, currentColor.g, currentColor.b, newAlpha);
-    }
-
-    private void DrawLaser()
-    {
-        if (lineRenderer == null || muzzlePoint == null) return;
-        lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, muzzlePoint.position);
-        Vector2 endPoint = (Vector2)muzzlePoint.position + ((Vector2)transform.right * laserLength);
-        lineRenderer.SetPosition(1, endPoint);
     }
 }
