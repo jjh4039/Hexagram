@@ -63,7 +63,7 @@ public class PlayerStats : MonoBehaviour
             currentMana = Mathf.Min(currentMana + 1, maxMana); 
         }
 
-       if (testTimer2 >= 0.1f) 
+       if (testTimer2 >= 0.01f) 
 {
             testTimer2 = 0f; 
 
