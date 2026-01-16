@@ -45,8 +45,16 @@ public class PlayerStats : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("플레이어 사망!");
-        // 여기에 게임 오버 로직 추가 예정
+        Debug.Log("!!! GAME OVER !!!");
+
+        Player player = GameManager.instance.player;
+
+        if (player != null)
+        {
+            player.OnDie();
+        }
+
+        // (나중에 여기에 GameManager.instance.ShowGameOverUI() 같은 거 넣을 예정)
     }
 
     private void Update()

@@ -206,6 +206,30 @@ public class Player : MonoBehaviour
         isInvincible = false;
     }
 
+    public void OnDie()
+    {
+        // 1. 모든 상태 초기화
+        isAttacking = false;
+        isDashing = false;
+        isCharging = false;
+
+        // 2. 더 이상 데미지 안 입게 무적 처리 (선택 사항)
+        isInvincible = true;
+
+        // 3. 물리 엔진 정지 (미끄러짐 방지)
+        rigid.linearVelocity = Vector2.zero;
+        rigid.simulated = false; // 다른 애들이랑 충돌 안 하게 (시체 위로 지나가게)
+
+        // 4. 입력 시스템 끄기 (더 이상 조작 불가!)
+        inputActions.Disable();
+
+        // 5. 비주얼 변경 (회색으로) & 애니메이션 멈춤
+        spriteRenderer.color = Color.gray;
+        if (anim != null) anim.enabled = false; // 애니메이션 멈춰서 죽은 척
+
+        Debug.Log("Player: 으악 죽었다... (조작 불능 상태)");
+    }
+
     private IEnumerator DashGhostRoutine()
     {
         while (isDashing)

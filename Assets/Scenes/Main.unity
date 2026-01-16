@@ -15298,9 +15298,13 @@ PrefabInstance:
       propertyPath: bgmSource
       value: 
       objectReference: {fileID: 1841778095}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: masterVolume
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: m_Volume
-      value: 0.8
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: m_Resource
