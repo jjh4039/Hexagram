@@ -29,8 +29,10 @@ public class Gun : MonoBehaviour
     [Header("VFX Settings")]
     [SerializeField] private float shakeDuration = 0.1f;
     [SerializeField] private float shakeMagnitude = 0.2f;
-
     [SerializeField] private float fadeSpeed = 10f;
+
+    [Header("Sound")]
+    [SerializeField] private AudioClip sfxShoot;
 
     private Color currentBulletColor = Color.white;
     private Material currentBulletMaterial;
@@ -138,6 +140,10 @@ public class Gun : MonoBehaviour
         {
             bulletScript.SetupVisuals(currentBulletColor, currentBulletMaterial);
         }
+
+        // 사운드 재생
+        if (sfxShoot != null)
+            SoundManager.instance.PlaySFX(sfxShoot, 0.2f);
 
         Recoil();
         if (CameraFollow.instance != null) CameraFollow.instance.Shake(shakeDuration, shakeMagnitude);

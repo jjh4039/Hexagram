@@ -23,6 +23,9 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer sr;
     private Coroutine flashRoutine;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip sfxHit;
+
     protected Animator anim;
     protected Collider2D col;
     protected bool isDead = false;
@@ -73,6 +76,9 @@ public class Enemy : MonoBehaviour
             if (ratio < 0) ratio = 0;
             hpBarFill.localScale = new Vector3(initialScaleX * ratio, hpBarFill.localScale.y, hpBarFill.localScale.z);
         }
+
+        if (sfxHit != null)
+            SoundManager.instance.PlaySFX(sfxHit, 0.3f, 0.1f);
 
         // 데미지 텍스트
         if (damageTextPrefab != null)

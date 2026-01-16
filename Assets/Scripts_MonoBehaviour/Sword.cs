@@ -16,14 +16,20 @@ public class Sword : MonoBehaviour
     [Header("Stats")]
     [SerializeField] private float attackSpeed = 1.0f;
 
-    // ★ [추가] 투명화 속도
     [SerializeField] private float fadeSpeed = 10f;
+
+    // ★ [추가] 검 휘두르는 소리 파일
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxSlash;
 
     private float nextAttackUnlockTime = 0f;
     private float lastInputTime = -10f;
     private float lastAttackStartTime = 0f;
     private int comboStep = 0;
     private Vector2 mouseWorldPos;
+
+    // ... (Awake, OnEnable, OnDisable, OnAttackInput, Update, HandleChargingVisuals, TryAttack 등 기존 로직 유지) ...
+    // (위쪽 코드는 바뀐 게 없어서 생략합니다. ExecuteAttack만 보시면 됩니다!)
 
     private void Awake()
     {
@@ -56,7 +62,6 @@ public class Sword : MonoBehaviour
         Vector2 mouseScreenPos = weaponManager.InputActions.Player.Look.ReadValue<Vector2>();
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
 
-        // IDLE 복귀 로직 (기존 유지)
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         bool isIdle = stateInfo.IsName("Base Layer.Sword_Idle") || stateInfo.IsName("Sword_Idle");
 
@@ -72,31 +77,22 @@ public class Sword : MonoBehaviour
         }
 
         TryAttack();
-
-        // ★ [추가] 충전 중이면 투명해지기 로직
         HandleChargingVisuals();
     }
 
     private void HandleChargingVisuals()
     {
         if (GameManager.instance.player == null) return;
-
         bool isCharging = GameManager.instance.player.isCharging;
-
-        // 투명도 조절 (충전 중이면 0, 아니면 1)
         float targetAlpha = isCharging ? 0f : 1f;
         Color currentColor = spriteRenderer.color;
-
-        // 부드럽게 변환 (Lerp)
         float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * fadeSpeed);
         spriteRenderer.color = new Color(currentColor.r, currentColor.g, currentColor.b, newAlpha);
     }
 
     private void TryAttack()
     {
-        // ★ [추가] 충전 중이면 공격 불가!
         if (GameManager.instance.player.isCharging) return;
-
         if (Time.time - lastInputTime > inputBufferTime) return;
         if (weaponManager.IsSwapping) return;
         if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Sword) return;
@@ -106,7 +102,6 @@ public class Sword : MonoBehaviour
         ExecuteAttack();
     }
 
-    // ... (ExecuteAttack, ApplyPhysics 등 나머지 코드는 기존 유지) ...
     private void ExecuteAttack()
     {
         lastInputTime = -10f;
@@ -118,14 +113,19 @@ public class Sword : MonoBehaviour
         anim.speed = attackSpeed;
         nextAttackUnlockTime = Time.time + (activeDuration / attackSpeed);
 
-        float currentDmgMultiplier = GameManager.instance.player.damageMultiplier; // 기본 버프 배율
+        float currentDmgMultiplier = GameManager.instance.player.damageMultiplier;
 
         if (GameManager.instance.player.remainingStrongAttacks > 0)
         {
-            currentDmgMultiplier *= 2.0f; // ★ 강한 피해 (2배 뻥튀기)
-            GameManager.instance.player.remainingStrongAttacks--; // 횟수 차감
-            Debug.Log("강화 공격 발동! 남은 횟수: " + GameManager.instance.player.remainingStrongAttacks);
+            currentDmgMultiplier *= 2.0f;
+            GameManager.instance.player.remainingStrongAttacks--;
+            Debug.Log("강화 공격 발동!");
         }
+
+        // ★ [핵심] 검 휘두르는 소리 재생!
+        // 콤보마다 피치를 조금씩 다르게 줘도 좋지만, SoundManager가 알아서 랜덤 피치를 섞어주니 그냥 재생하면 됩니다.
+        if (sfxSlash != null)
+            SoundManager.instance.PlaySFX(sfxSlash, 0.8f, 0.2f);
 
         if (comboStep == 1) { anim.Play("Sword_Attack", -1, 0f); anim.ResetTrigger("Attack"); }
         else { anim.ResetTrigger("Attack"); anim.SetInteger("comboStep", comboStep); anim.SetTrigger("Attack"); }
@@ -135,6 +135,7 @@ public class Sword : MonoBehaviour
         SpawnSlashEffect();
     }
 
+    // ... (ApplyPhysics, SpawnSlashEffect, RotateWeapon, ResetAttackStatus 등 나머지 기존 유지) ...
     private void ApplyPhysics()
     {
         GameManager.instance.player.isAttacking = true;

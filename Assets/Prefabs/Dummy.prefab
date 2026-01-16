@@ -384,6 +384,7 @@ MonoBehaviour:
   hpBarFill: {fileID: 7943057417735269897}
   hpBarObject: {fileID: 8794176841949738511}
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
+  sfxHit: {fileID: 8300000, guid: c2e7d4595958225459c1c95130d50c7b, type: 3}
   hpBarRoot: {fileID: 3577555172247904613}
 --- !u!1 &7228991817162864692
 GameObject:

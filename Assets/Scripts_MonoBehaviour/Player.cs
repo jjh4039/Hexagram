@@ -60,6 +60,9 @@ public class Player : MonoBehaviour
     [Header("Strong")]
     public int remainingStrongAttacks = 0;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip sfxDash;
+
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
 
     private void Awake()
@@ -184,6 +187,10 @@ public class Player : MonoBehaviour
             // 4. (옵션) 1초 뒤 자동 삭제 스크립트가 없다면 여기서 처리
             Destroy(dust, 1.0f);
         }
+
+        // 사운드 재생   
+        if (sfxDash != null)
+            SoundManager.instance.PlaySFX(sfxDash, 0.4f);
 
         if (CameraFollow.instance != null)
             CameraFollow.instance.Shake(shakeDuration, shakeMagnitude);
