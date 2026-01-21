@@ -12,7 +12,7 @@ public enum DiceEffectType
 }
 
 // [CreateAssetMenu] : 이 코드가 있으면 유니티 우클릭 메뉴에 'Dice Data'가 생깁니다!
-[CreateAssetMenu(fileName = "New Dice Data", menuName = "Hexagram/Dice Data")]
+[CreateAssetMenu(fileName = "New Dice Data", menuName = "Hexagram/DiceData")]
 public class DiceData : ScriptableObject
 {
     [Header("--- 기본 정보 ---")]
