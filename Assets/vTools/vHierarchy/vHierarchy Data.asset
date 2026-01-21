@@ -39,6 +39,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-693199141-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1006607903-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1901667503-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1466253466-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -124,6 +125,10 @@ MonoBehaviour:
           iconNameOrGuid: AudioClip On Icon
           isIconRecursive: 0
           isColorRecursive: 0
+        - colorIndex: 4
+          iconNameOrGuid: PreMatQuad
+          isIconRecursive: 1
+          isColorRecursive: 1
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity
