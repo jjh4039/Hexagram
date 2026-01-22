@@ -3,9 +3,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewStageData", menuName = "Hexagram/StageData")]
 public class StageData : ScriptableObject
 {
-    public string stageName;       // 예: 엘리트, 상점
-    [TextArea]
-    public string description;     // 노드 설명 (강력한 적과 마주합니다... 등)
-    public GameObject stagePrefab; // 실제 생성될 방 프리팹
-    public Color themeColor;       // UI 발광 및 텍스트에 쓸 퍼스널 컬러
+    public string stageName;
+    [TextArea] public string description;
+    public GameObject[] stagePrefabs;
+
+    // ★ [수정] 고정값 대신 범위로 변경
+    [Header("Percentage Settings")]
+    public int minRise;  // 최소 증가량
+    public int maxRise;  // 최대 증가량
+
+    public Color themeColor;
 }
