@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemySlime : Enemy // ★ 부모 상속
+public class EnemySlime : Enemy
 {
     [Header("AI Movement")]
     [SerializeField] private float moveSpeed = 1f;
@@ -28,8 +28,8 @@ public class EnemySlime : Enemy // ★ 부모 상속
     [SerializeField] private float knockbackForce = 5.0f;
     [SerializeField] private float stunTime = 0.5f;
 
-    [Header("UI Fix")]
-    [SerializeField] private Transform hpBarRoot;
+    // ★ [삭제됨] hpBarRoot 변수 선언은 부모(Enemy)로 이동했습니다.
+    // 하지만 아래 코드에서 hpBarRoot를 쓰는데 문제없습니다 (상속받았으니까요!)
 
     private Transform target;
     private bool isAttacking = false;
@@ -38,13 +38,13 @@ public class EnemySlime : Enemy // ★ 부모 상속
 
     protected override void Awake()
     {
-        base.Awake(); // ★ 부모 Awake 실행 필수
+        base.Awake();
         rigid = GetComponent<Rigidbody2D>();
     }
 
     protected override void Start()
     {
-        base.Start(); // ★ 부모 Start 실행 필수 (매테리얼 저장, HP바 숨기기 등)
+        base.Start(); // ★ 부모 Start를 호출해야 고철을 받아옵니다!
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) target = playerObj.transform;
@@ -55,24 +55,18 @@ public class EnemySlime : Enemy // ★ 부모 상속
         StartCoroutine(Co_SlimeAI());
     }
 
-    // 부모의 OnHit를 덮어쓰기 (슬라임만의 반응 추가)
     protected override void OnHit()
     {
         if (isDead) return;
-
-        // 1. 애니메이션 (★ 주의: 애니메이션 클립에서 Color 변경 키프레임 삭제했는지 확인!)
         if (anim != null) anim.Play("Enemy_Hit", -1, 0f);
 
-        // 2. 넉백
         if (rigid != null && target != null)
         {
             Vector2 knockbackDir = (transform.position - target.position).normalized;
             rigid.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
         }
 
-        // 3. 스턴 (잠깐 멈춤)
-        if (!isStunned)
-            StartCoroutine(Co_HitRecovery());
+        if (!isStunned) StartCoroutine(Co_HitRecovery());
     }
 
     IEnumerator Co_HitRecovery()
@@ -80,7 +74,6 @@ public class EnemySlime : Enemy // ★ 부모 상속
         isStunned = true;
         yield return new WaitForSeconds(stunTime);
         isStunned = false;
-        // 스턴 끝나면 움직임 재개는 Update/AI에서 처리됨
     }
 
     private void Update()
@@ -91,7 +84,6 @@ public class EnemySlime : Enemy // ★ 부모 상속
             return;
         }
         if (target == null) return;
-
         LookAtTarget();
     }
 
@@ -99,15 +91,13 @@ public class EnemySlime : Enemy // ★ 부모 상속
     {
         Vector3 centerPos = transform.position;
         if (attackIndicator != null) centerPos = attackIndicator.transform.position;
-
         float dirX = target.position.x - centerPos.x;
 
-        if (dirX > 0)
-            transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
-        else
-            transform.localScale = new Vector3(spriteScale, spriteScale, 1);
+        // ★ 스프라이트 반전
+        if (dirX > 0) transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
+        else transform.localScale = new Vector3(spriteScale, spriteScale, 1);
 
-        // 체력바 반전 보정
+        // ★ 체력바 반전 보정 (부모의 hpBarRoot 사용)
         if (hpBarRoot != null)
         {
             if (transform.localScale.x < 0) hpBarRoot.localScale = new Vector3(-1, 1, 1);
@@ -123,7 +113,6 @@ public class EnemySlime : Enemy // ★ 부모 상속
             if (isStunned) { yield return null; continue; }
             if (isAttacking) { yield return null; continue; }
 
-            // 대기 -> 거리 체크 -> 공격 or 이동
             yield return StartCoroutine(Co_IdleState());
 
             if (isDead) break;
@@ -139,9 +128,6 @@ public class EnemySlime : Enemy // ★ 부모 상속
                 yield return StartCoroutine(Co_MoveState());
         }
     }
-
-    // ... (Co_IdleState, Co_MoveState, Co_AttackSequence는 기존 로직 그대로 유지) ...
-    // 내용이 길어서 생략했지만, 기존에 작성하신 완벽한 로직 그대로 두시면 됩니다!
 
     IEnumerator Co_IdleState()
     {
@@ -243,18 +229,5 @@ public class EnemySlime : Enemy // ★ 부모 상속
     {
         if (rangeBackground != null) rangeBackground.SetActive(false);
         if (attackIndicator != null) attackIndicator.SetActive(false);
-    }
-
-    private void OnDrawGizmos()
-    {
-        Vector3 center = transform.position;
-        if (attackIndicator != null) center = attackIndicator.transform.position;
-
-        Gizmos.color = new Color(1, 0, 0, 0.3f);
-        Gizmos.DrawSphere(center, attackRadius);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(center, attackRadius);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(center, attackRange);
     }
 }

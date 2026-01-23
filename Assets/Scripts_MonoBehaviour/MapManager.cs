@@ -40,8 +40,9 @@ public class MapManager : MonoBehaviour
     [SerializeField] private float scanInterval = 0.12f;
 
     [Header("Sound")]
-    [SerializeField] private AudioClip sfxSelect; // ★ 선택 이동 사운드
+    [SerializeField] private AudioClip sfxSelect;
     [SerializeField] private AudioClip sfxScan;
+    [SerializeField] private AudioClip sfxCount; // ★ [추가] 카운팅 사운드 (틱! 소리)
 
     private int[] currentRandomPers = new int[3];
 
@@ -149,7 +150,6 @@ public class MapManager : MonoBehaviour
             if (currentNodes.Length > i && currentNodes[i] != null)
             {
                 StageData data = currentNodes[i];
-                // Random.Range(min, max + 1) 해야 max 값도 포함됨
                 currentRandomPers[i] = Random.Range(data.minRise, data.maxRise + 1);
             }
         }
@@ -235,7 +235,6 @@ public class MapManager : MonoBehaviour
 
     private void OnNavigate(Vector2 direction) { if (mapVisualRoot == null || !mapVisualRoot.activeSelf || isScanning) return; if (direction.x < -0.5f) ChangeSelection(-1); else if (direction.x > 0.5f) ChangeSelection(1); }
 
-    // ★ [핵심 수정] 선택 변경 시 사운드 출력 로직 보완
     private void ChangeSelection(int dir)
     {
         int prevIndex = selectedIndex;
@@ -244,7 +243,6 @@ public class MapManager : MonoBehaviour
         if (prevIndex != selectedIndex)
         {
             UpdateUI();
-            // 선택이 실제로 바뀌었을 때만 사운드 재생
             if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
         }
     }
@@ -263,8 +261,9 @@ public class MapManager : MonoBehaviour
 
         if (descriptionText != null) descriptionText.text = data.description;
 
-        if (titleTextGlow != null) { 
-            titleTextGlow.enabled = true; 
+        if (titleTextGlow != null)
+        {
+            titleTextGlow.enabled = true;
             perTextGlow.enabled = true;
             titleTextGlow.Color = data.themeColor;
             perTextGlow.Color = data.themeColor;
@@ -289,62 +288,67 @@ public class MapManager : MonoBehaviour
     {
         if (mapVisualRoot == null || !mapVisualRoot.activeSelf || fadeCoroutine != null || isScanning) return;
         if (currentNodes.Length == 0) return;
-
-        // ★ [수정] 바로 이동하지 않고 연출 시작!
         StartCoroutine(ProcessSelectSequence());
     }
 
     private IEnumerator ProcessSelectSequence()
     {
-        // 1. 선택된 데이터와 퍼센트 가져오기
         StageData selectedData = currentNodes[selectedIndex];
-        int gainPer = currentRandomPers[selectedIndex]; // 아까 주사위 굴린 값
-
+        int gainPer = currentRandomPers[selectedIndex];
         int startTotalPer = GameManager.instance.currentProgress;
         int targetTotalPer = Mathf.Clamp(startTotalPer + gainPer, 0, 100);
 
-        // 2. 선택 사운드 재생
         if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
 
-        // 3. 숫자 카운팅 연출 (0.5초 동안)
+        // 2. 숫자 카운팅 연출 (0.5초)
         float duration = 0.5f;
         float elapsed = 0f;
 
+        // ★ [추가] 사운드 재생 타이머
+        float soundTimer = 0f;
+        float soundInterval = 0.07f; // 0.07초마다 틱 소리
+
         while (elapsed < duration)
         {
-            elapsed += Time.deltaTime;
+            float dt = Time.deltaTime;
+            elapsed += dt;
+            soundTimer += dt;
+
+            // ★ 일정 간격마다 카운팅 소리 재생
+            if (soundTimer >= soundInterval)
+            {
+                soundTimer = 0f;
+                if (sfxCount != null) SoundManager.instance.PlaySFX(sfxCount, 0.9f, 0.1f);
+            }
+
             float t = elapsed / duration;
 
-            // 노드의 숫자는 줄어들고 (5 -> 0)
             int currentNodeVal = (int)Mathf.Lerp(gainPer, 0, t);
             if (stagePerText != null) stagePerText.text = $"+ {currentNodeVal}%";
 
-            // 위의 전체 숫자는 늘어남 (25 -> 30)
             int currentTotalVal = (int)Mathf.Lerp(startTotalPer, targetTotalPer, t);
-            totalProgressText.text = $"진행도 : 봄_{currentTotalVal}%";
-
+            if (totalProgressText != null) totalProgressText.text = $"진행도 : <color=#80FF80>봄_{currentTotalVal}%</color>";
 
             yield return null;
         }
 
-        // 4. 값 확정 (깔끔하게)
-        if (stagePerText != null) stagePerText.text = "+ 0%";
-        GameManager.instance.currentProgress = targetTotalPer; // 실제 데이터 반영
+        if (stagePerText != null) stagePerText.text = "";
+        GameManager.instance.currentProgress = targetTotalPer;
 
-        // 5. 잠시 대기 (여운)
         yield return new WaitForSeconds(0.2f);
 
-        // 6. 페이드 아웃 및 스테이지 이동 (기존 MapFadeRoutine 활용 대신 직접 처리)
-        // 맵 닫기 연출을 여기서 수동으로 하거나, GameManager에 위임
-        ToggleMap(); // 맵 닫기 (페이드 아웃 포함됨)
+        yield return StartCoroutine(FadeOverlay(0f, 1f, 0.5f));
 
-        // ToggleMap의 페이드 아웃 시간을 기다림 (fadeDuration)
-        yield return new WaitForSeconds(fadeDuration);
+        mapVisualRoot.SetActive(false);
+        isScanning = false;
 
-        // 7. 진짜 이동
         if (GameManager.instance != null)
         {
             GameManager.instance.LoadStage(selectedData);
         }
+
+        yield return new WaitForSeconds(0.1f);
+
+        yield return StartCoroutine(FadeOverlay(1f, 0f, 0.5f));
     }
 }

@@ -17,6 +17,6 @@ MonoBehaviour:
     \uACE0\uCCA0\uC744 \uD68D\uB4DD\uD569\uB2C8\uB2E4."
   stagePrefabs:
   - {fileID: 4874768350431733968, guid: 8550a865b22ddf643ac7f1409197353e, type: 3}
-  minRise: 5
+  minRise: 7
   maxRise: 10
   themeColor: {r: 0.15686275, g: 0.078431375, b: 0, a: 1}

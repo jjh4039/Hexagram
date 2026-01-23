@@ -29,6 +29,7 @@ MonoBehaviour:
     - a031d7d56df61b34195b4187b5c7dff4
     - 92e55e2f08ef85e4c87fd6f085fbb0b9
     - a4c8564715c208842938f6763126c345
+    - 3abb1384c40dbb64f9fb6022bd009713
     values:
     - iconNameOrGuid: Texture Icon
       colorIndex: 6
@@ -88,6 +89,10 @@ MonoBehaviour:
       isColorRecursive: 0
     - iconNameOrGuid: LightmapParameters Icon
       colorIndex: 0
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 6
       isIconRecursive: 0
       isColorRecursive: 0
   bookmarks: []

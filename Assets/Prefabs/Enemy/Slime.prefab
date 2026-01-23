@@ -504,14 +504,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 625a028028ccc014ab8a4004eccd9186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySlime
-  maxHealth: 150
-  currentHealth: 150
+  maxHealth: 80
+  currentHealth: 80
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 8371458529271725179}
+  hpBarRoot: {fileID: 6640949269554436846}
   hpBarFill: {fileID: 8158179810042366790}
   hpBarObject: {fileID: 1960633402960459782}
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
   sfxHit: {fileID: 8300000, guid: c2e7d4595958225459c1c95130d50c7b, type: 3}
+  scrapPrefab: {fileID: 0}
+  dropChance: 100
   moveSpeed: 1
   idleTime: 1
   moveTime: 2
@@ -531,7 +534,6 @@ MonoBehaviour:
   attackDelay: 0.15
   knockbackForce: 2
   stunTime: 0.5
-  hpBarRoot: {fileID: 6640949269554436846}
 --- !u!1 &4549265805919899004
 GameObject:
   m_ObjectHideFlags: 0

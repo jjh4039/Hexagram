@@ -12,13 +12,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] private GameObject shadowObject;
 
     [Header("HpBar")]
+    [SerializeField] protected Transform hpBarRoot;
     [SerializeField] private Transform hpBarFill;
     [SerializeField] private GameObject hpBarObject;
     private float initialScaleX;
-    private SpriteRenderer[] hpBarSprites; // 체력바 페이드아웃용
+    private SpriteRenderer[] hpBarSprites;
 
     [Header("Hit Flash")]
-    [SerializeField] private Material flashMaterial; // ★ 하얀색 매테리얼 연결
+    [SerializeField] private Material flashMaterial;
     private Material originalMaterial;
     private SpriteRenderer sr;
     private Coroutine flashRoutine;
@@ -26,35 +27,41 @@ public class Enemy : MonoBehaviour
     [Header("Sound")]
     [SerializeField] private AudioClip sfxHit;
 
+    [Header("Drop Settings")]
+    [SerializeField] private GameObject scrapPrefab;
+    [SerializeField][Range(0, 100)] private int dropChance = 100;
+
     protected Animator anim;
     protected Collider2D col;
     protected bool isDead = false;
+
+    public bool IsDead => isDead; // 외부 확인용 프로퍼티
 
     protected virtual void Awake()
     {
         anim = GetComponent<Animator>();
         col = GetComponent<Collider2D>();
-        sr = GetComponent<SpriteRenderer>(); // 스프라이트 렌더러 가져오기
+        sr = GetComponent<SpriteRenderer>();
     }
 
     protected virtual void Start()
     {
         currentHealth = maxHealth;
 
-        // 1. 체력바 초기화
-        if (hpBarFill != null)
-            initialScaleX = hpBarFill.localScale.x;
+        if (scrapPrefab == null && GameManager.instance != null)
+        {
+            scrapPrefab = GameManager.instance.commonScrapPrefab;
+        }
 
-        // 2. 체력바 숨기기 및 스프라이트 캐싱
+        if (hpBarFill != null) initialScaleX = hpBarFill.localScale.x;
+
         if (hpBarObject != null)
         {
             hpBarSprites = hpBarObject.GetComponentsInChildren<SpriteRenderer>();
-            hpBarObject.SetActive(false); // 시작할 땐 숨김
+            hpBarObject.SetActive(false);
         }
 
-        // 3. 원래 매테리얼 저장 (플래시 효과 복구용)
-        if (sr != null)
-            originalMaterial = sr.material;
+        if (sr != null) originalMaterial = sr.material;
     }
 
     public virtual void TakeDamage(float damage, bool isCritical = false)
@@ -63,13 +70,8 @@ public class Enemy : MonoBehaviour
 
         currentHealth -= damage;
 
-        // ★ 맞았을 때 체력바 켜기
-        if (hpBarObject != null && !hpBarObject.activeSelf)
-        {
-            hpBarObject.SetActive(true);
-        }
+        if (hpBarObject != null && !hpBarObject.activeSelf) hpBarObject.SetActive(true);
 
-        // 체력바 갱신
         if (hpBarFill != null)
         {
             float ratio = currentHealth / maxHealth;
@@ -77,10 +79,8 @@ public class Enemy : MonoBehaviour
             hpBarFill.localScale = new Vector3(initialScaleX * ratio, hpBarFill.localScale.y, hpBarFill.localScale.z);
         }
 
-        if (sfxHit != null)
-            SoundManager.instance.PlaySFX(sfxHit, 0.3f, 0.1f);
+        if (sfxHit != null) SoundManager.instance.PlaySFX(sfxHit, 0.3f, 0.1f);
 
-        // 데미지 텍스트
         if (damageTextPrefab != null)
         {
             Vector3 randomOffset = new Vector3(Random.Range(-0.2f, 0.2f), 0.7f, 0);
@@ -88,7 +88,6 @@ public class Enemy : MonoBehaviour
             hud.GetComponent<DamageText>().Setup(damage, isCritical);
         }
 
-        // ★ 하얀색 플래시 효과 실행
         if (gameObject.activeInHierarchy && sr != null && flashMaterial != null)
         {
             if (flashRoutine != null) StopCoroutine(flashRoutine);
@@ -99,7 +98,6 @@ public class Enemy : MonoBehaviour
         else OnHit();
     }
 
-    // 0.1초 동안 하얀색 매테리얼 입히기
     private IEnumerator FlashRoutine()
     {
         sr.material = flashMaterial;
@@ -110,7 +108,6 @@ public class Enemy : MonoBehaviour
 
     protected virtual void OnHit()
     {
-        // 자식에서 오버라이드해서 씀 (애니메이션 등)
         if (anim != null) anim.SetTrigger("Hit");
     }
 
@@ -122,18 +119,20 @@ public class Enemy : MonoBehaviour
         if (shadowObject != null) shadowObject.SetActive(false);
         if (anim != null) anim.SetTrigger("Die");
 
-        // ★ 체력바 서서히 사라지게 하기
-        if (hpBarObject != null && gameObject.activeInHierarchy)
+        if (scrapPrefab != null && Random.Range(0, 100) < dropChance)
         {
-            StartCoroutine(FadeOutHpBar());
+            Instantiate(scrapPrefab, transform.position, Quaternion.identity);
         }
+
+        if (hpBarObject != null && gameObject.activeInHierarchy)
+            StartCoroutine(FadeOutHpBar());
 
         Destroy(gameObject, 0.9f);
     }
 
     private IEnumerator FadeOutHpBar()
     {
-        float duration = 0.5f; // 사라지는 시간
+        float duration = 0.5f;
         float elapsed = 0f;
 
         if (hpBarSprites == null || hpBarSprites.Length == 0)
@@ -143,7 +142,6 @@ public class Enemy : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
-
             foreach (SpriteRenderer s in hpBarSprites)
             {
                 if (s != null)
@@ -154,7 +152,6 @@ public class Enemy : MonoBehaviour
             }
             yield return null;
         }
-
         hpBarObject.SetActive(false);
     }
 }

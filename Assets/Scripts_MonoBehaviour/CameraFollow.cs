@@ -80,4 +80,17 @@ public class CameraFollow : MonoBehaviour
         // 부드럽게 이동한 위치(smoothedPos)에다가 + 흔들림(shakeOffset)을 더함!
         transform.position = smoothedPos + shakeOffset;
     }
+
+    public void SnapToTarget()
+    {
+        if (player == null) return;
+
+        // 마우스 영향력 등은 무시하고, 딱 플레이어 기준으로 잡은 오프셋 위치로 강제 이동
+        // (LateUpdate가 돌기 전에 위치를 잡아버림)
+        Vector3 targetPos = player.position + offset;
+        transform.position = targetPos;
+
+        // 흔들림 효과도 초기화
+        shakeOffset = Vector3.zero;
+    }
 }

@@ -1,4 +1,6 @@
 using UnityEngine;
+using TMPro;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,9 +9,19 @@ public class GameManager : MonoBehaviour
     public PlayerStats stats;
     public WeaponUI weaponUI;
     public Dice dice;
-    public MapManager mapManager;  // 맵 매니저 (맵 끄고 켤 때 필요)
+    public MapManager mapManager;
 
-    public GameObject currentStageObj; // 현재 소환된 스테이지 (지울 때 필요)
+    public GameObject currentStageObj;
+
+    [Header("--- Global Resources ---")]
+    public GameObject commonScrapPrefab;
+
+    [Header("--- Scrap Data & UI ---")]
+    public int currentScrap = 0;
+    public TextMeshProUGUI scrapText;
+
+    private Coroutine scrapPunchRoutine;
+    private Vector3 scrapTextOriginScale;
 
     public int currentProgress = 0;
     public int maxProgress = 100;
@@ -19,40 +31,82 @@ public class GameManager : MonoBehaviour
         instance = this;
     }
 
+    void Start()
+    {
+        if (scrapText != null)
+        {
+            scrapTextOriginScale = scrapText.transform.localScale;
+            UpdateScrapUI();
+        }
+    }
+
     public void LoadStage(StageData stageData)
     {
-        // 1. 기존 스테이지 청소
-        if (currentStageObj != null)
-        {
-            Destroy(currentStageObj);
-        }
-
-        // 2. 맵 UI 닫기 (MapManager가 있다면)
+        if (currentStageObj != null) Destroy(currentStageObj);
         if (mapManager != null) mapManager.mapVisualRoot.SetActive(false);
 
-        // ★ [핵심 수정] 랜덤 뽑기 로직
         if (stageData.stagePrefabs != null && stageData.stagePrefabs.Length > 0)
         {
-            // 0번부터 개수-1 사이의 랜덤한 번호를 하나 뽑음
             int randomIndex = Random.Range(0, stageData.stagePrefabs.Length);
-
-            // 그 번호에 해당하는 프리펩을 선택
             GameObject selectedPrefab = stageData.stagePrefabs[randomIndex];
-
-            // 선택된 프리펩 소환
             currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity);
 
-            // 스테이지 초기화 (플레이어 이동 등)
             StageController controller = currentStageObj.GetComponent<StageController>();
-            if (controller != null)
+            if (controller != null) controller.InitStage();
+
+            if (CameraFollow.instance != null) CameraFollow.instance.SnapToTarget();
+
+            // ★ [수정] 이름 변경 (StageEntryUI -> StageMessageUI)
+            if (StageMessageUI.instance != null)
             {
-                controller.InitStage();
+                StageMessageUI.instance.ShowEntryMessage("모듈 : " + stageData.stageName, stageData.description);
             }
         }
         else
         {
-            Debug.LogError($"오류: {stageData.stageName} 데이터에 연결된 프리펩이 하나도 없습니다!");
+            Debug.LogError($"오류: {stageData.stageName} 데이터 프리펩 없음!");
         }
     }
+
+    public void AddScrap(int amount)
+    {
+        currentScrap += amount;
+        UpdateScrapUI();
+
+        if (scrapText != null)
+        {
+            if (scrapPunchRoutine != null) StopCoroutine(scrapPunchRoutine);
+            scrapPunchRoutine = StartCoroutine(ScrapTextPunch());
+        }
+    }
+
+    private void UpdateScrapUI()
+    {
+        if (scrapText != null)
+        {
+            scrapText.text = $"{currentScrap}";
+        }
+    }
+
+    // ★ [수정] 텍스트 펀치 연출 (약하게!)
+    private IEnumerator ScrapTextPunch()
+    {
+        // 시간도 아주 살짝 짧게 (0.15 -> 0.12)
+        float duration = 0.12f;
+        float elapsed = 0f;
+
+        // ★ [핵심 수정] 1.3배 -> 1.1배 (아주 살짝만 커짐)
+        Vector3 targetScale = scrapTextOriginScale * 1.1f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+
+            float scale = Mathf.Sin(t * Mathf.PI);
+            scrapText.transform.localScale = Vector3.Lerp(scrapTextOriginScale, targetScale, scale);
+            yield return null;
+        }
+        scrapText.transform.localScale = scrapTextOriginScale;
+    }
 }
-    
