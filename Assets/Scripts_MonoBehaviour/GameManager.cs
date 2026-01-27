@@ -26,6 +26,9 @@ public class GameManager : MonoBehaviour
     public int currentProgress = 0;
     public int maxProgress = 100;
 
+    // ★ [추가] 힛스탑 중인지 체크하는 변수
+    private bool isHitStopping = false;
+
     void Awake()
     {
         instance = this;
@@ -56,10 +59,9 @@ public class GameManager : MonoBehaviour
 
             if (CameraFollow.instance != null) CameraFollow.instance.SnapToTarget();
 
-            // ★ [수정] 이름 변경 (StageEntryUI -> StageMessageUI)
             if (StageMessageUI.instance != null)
             {
-                StageMessageUI.instance.ShowEntryMessage("모듈 : " + stageData.stageName, stageData.description);
+                StageMessageUI.instance.ShowEntryMessage(stageData.stageName, stageData.description);
             }
         }
         else
@@ -88,14 +90,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ★ [수정] 텍스트 펀치 연출 (약하게!)
     private IEnumerator ScrapTextPunch()
     {
-        // 시간도 아주 살짝 짧게 (0.15 -> 0.12)
         float duration = 0.12f;
         float elapsed = 0f;
-
-        // ★ [핵심 수정] 1.3배 -> 1.1배 (아주 살짝만 커짐)
         Vector3 targetScale = scrapTextOriginScale * 1.1f;
 
         while (elapsed < duration)
@@ -108,5 +106,33 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
         scrapText.transform.localScale = scrapTextOriginScale;
+    }
+
+    // =========================================================
+    // ★ [추가] 타격 정지 (Hit Stop) 기능
+    // duration: 멈출 시간 (보통 0.05 ~ 0.1초 사용)
+    // =========================================================
+    public void HitStop(float duration)
+    {
+        // 이미 멈춰있다면 중복 실행 방지 (여러 마리 때릴 때 렉 걸리는 느낌 방지)
+        if (isHitStopping) return;
+
+        StartCoroutine(HitStopRoutine(duration));
+    }
+
+    private IEnumerator HitStopRoutine(float duration)
+    {
+        isHitStopping = true;
+
+        // 1. 시간을 멈춤
+        Time.timeScale = 0.0f;
+
+        // 2. 실제 시간(Realtime)으로 대기 (timeScale이 0이라 WaitForSeconds는 안 먹힘)
+        yield return new WaitForSecondsRealtime(duration);
+
+        // 3. 시간 원상복구
+        Time.timeScale = 1.0f;
+
+        isHitStopping = false;
     }
 }

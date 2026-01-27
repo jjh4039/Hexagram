@@ -4,13 +4,16 @@ using UnityEngine;
 public class Sword_Effect : MonoBehaviour
 {
     [Header("Settings")]
-    [SerializeField] private float duration = 0.5f; // 이펙트 지속 시간
-    [SerializeField] private float damageMultiplier = 1.0f; // 스킬 자체 배율
-    [SerializeField] private int ammoGain = 12; // 탄약 수급량
+    [SerializeField] private float duration = 0.5f;
+    [SerializeField] private float damageMultiplier = 1.0f;
+    [SerializeField] private int ammoGain = 12;
 
     [Header("Multi Hit Settings")]
     [SerializeField] private int hitCount = 1;
     [SerializeField] private float hitInterval = 0.05f;
+
+    [Header("Game Feel")]
+    [SerializeField] private float hitStopDuration = 0.07f; // ★ [추가] 멈출 시간 설정 (0.05 ~ 0.1 추천)
 
     private SpriteRenderer spriteRenderer;
 
@@ -21,7 +24,6 @@ public class Sword_Effect : MonoBehaviour
 
     private void OnEnable()
     {
-        // 색상 초기화 (투명해진 걸 다시 원상복구)
         if (spriteRenderer != null)
         {
             Color c = spriteRenderer.color;
@@ -29,7 +31,6 @@ public class Sword_Effect : MonoBehaviour
             spriteRenderer.color = c;
         }
 
-        // 기존 Invoke 대신 페이드 아웃 코루틴 준비
         StopAllCoroutines();
         StartCoroutine(FadeOutRoutine());
     }
@@ -41,7 +42,13 @@ public class Sword_Effect : MonoBehaviour
             Enemy enemy = other.GetComponent<Enemy>();
             if (enemy != null)
             {
-                // 코루틴으로 다단 히트 처리
+                // ★ [추가] 적을 때리는 순간! 시간을 멈춰라!
+                // 카메라 흔들림(Camera Shake)도 같이 넣으면 금상첨화지만, 일단 정지부터.
+                if (GameManager.instance != null)
+                {
+                    GameManager.instance.HitStop(hitStopDuration);
+                }
+
                 StartCoroutine(ProcessMultiHit(enemy));
             }
         }
@@ -49,19 +56,15 @@ public class Sword_Effect : MonoBehaviour
 
     private IEnumerator ProcessMultiHit(Enemy enemy)
     {
-        // ★ [핵심] 주사위 버프 가져오기
         Player player = GameManager.instance.player;
         PlayerStats stats = GameManager.instance.stats;
 
-        // 1. 기본 데미지 (스탯 * 스킬배율 * 주사위 빨강 버프)
         float currentDmg = stats.meleeAttackPower * damageMultiplier * player.damageMultiplier;
 
-        // 2. 주사위 주황 버프 (강한 공격) 체크
-        // 다단히트 전체에 적용할지, 첫 타만 적용할지 결정해야 함 (여기선 전체 적용)
         if (player.remainingStrongAttacks > 0)
         {
-            currentDmg *= 2.0f; // 2배 뻥튀기
-            player.remainingStrongAttacks--; // 횟수 차감
+            currentDmg *= 2.0f;
+            player.remainingStrongAttacks--;
             Debug.Log("강화된 검격 적중!");
         }
 
@@ -71,15 +74,12 @@ public class Sword_Effect : MonoBehaviour
         {
             if (enemy == null || !enemy.gameObject.activeSelf) yield break;
 
-            // 랜덤 오차 적용
             float randomMult = Random.Range(1.1f - variance, 1.1f);
             int finalDamage = Mathf.RoundToInt(currentDmg * randomMult);
             if (finalDamage < 1) finalDamage = 1;
 
-            // 데미지 전달
             enemy.TakeDamage(finalDamage);
 
-            // 탄약 충전 (최대치 초과 방지)
             if (stats.currentAmmo < stats.maxAmmo)
             {
                 stats.currentAmmo = Mathf.Min(stats.currentAmmo + ammoGain, stats.maxAmmo);
@@ -89,10 +89,8 @@ public class Sword_Effect : MonoBehaviour
         }
     }
 
-    // ★ [추가] 서서히 사라지는 페이드 아웃
     private IEnumerator FadeOutRoutine()
     {
-        // 지속 시간의 70%는 선명하게 유지
         yield return new WaitForSeconds(duration * 0.7f);
 
         float fadeTime = duration * 0.3f;
