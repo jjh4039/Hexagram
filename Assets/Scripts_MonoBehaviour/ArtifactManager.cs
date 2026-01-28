@@ -59,9 +59,9 @@ public class ArtifactManager : MonoBehaviour
         Debug.Log($"æ∆∆º∆—∆Æ »πµÊ: {data.artifactName}");
 
         // 3. UI ∞ªΩ≈ ø‰√ª
-        if (InventoryUI.instance != null && InventoryUI.instance.isOpen)
+        if (DashboardUI.instance != null && DashboardUI.instance.isOpen)
         {
-            InventoryUI.instance.RefreshUI();
+            DashboardUI.instance.RefreshArtifacts();
         }
     }
 }

@@ -29,13 +29,13 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if (_data != null)
         {
-            InventoryUI.instance.ShowTooltip(_data);
+            DashboardUI.instance.ShowTooltip(_data);
         }
     }
 
     // ∏∂øÏΩ∫ ≥ª∏≤ -> ≤®¡‡!
     public void OnPointerExit(PointerEventData eventData)
     {
-        InventoryUI.instance.HideTooltip();
+        DashboardUI.instance.HideTooltip();
     }
 }
