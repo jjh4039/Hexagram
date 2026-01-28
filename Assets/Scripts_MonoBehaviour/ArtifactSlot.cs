@@ -5,13 +5,14 @@ using UnityEngine.EventSystems;
 public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image iconImage;
-    [SerializeField] private Image frameImage;
+    [SerializeField] private GameObject outlineObj; // ★ [추가] 아웃라인 오브젝트
 
     private ArtifactData _data;
 
     public void Setup(ArtifactData data)
     {
         _data = data;
+        if (outlineObj != null) outlineObj.SetActive(false); // 시작할 땐 끄기
 
         if (_data != null)
         {
@@ -24,18 +25,22 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    // 마우스 올림 -> 켜줘!
     public void OnPointerEnter(PointerEventData eventData)
     {
+        // ★ 마우스 들어오면 아웃라인 켜기
+        if (outlineObj != null) outlineObj.SetActive(true);
+
         if (_data != null)
         {
             DashboardUI.instance.ShowTooltip(_data);
         }
     }
 
-    // 마우스 내림 -> 꺼줘!
     public void OnPointerExit(PointerEventData eventData)
     {
+        // ★ 마우스 나가면 아웃라인 끄기
+        if (outlineObj != null) outlineObj.SetActive(false);
+
         DashboardUI.instance.HideTooltip();
     }
 }
