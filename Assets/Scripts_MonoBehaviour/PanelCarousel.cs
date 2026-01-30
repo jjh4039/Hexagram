@@ -1,39 +1,75 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
+using ChocDino.UIFX; // ★ GlowFilter 사용을 위해 필수
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PanelCarousel : MonoBehaviour
 {
-    // ... (기존 변수들 유지) ...
     [Header("패널 목록 (순서: 스탯 - 아티팩트 - 밸런스)")]
     public List<RectTransform> panels;
 
     [Header("UI 연결")]
     public TextMeshProUGUI titleText;
+    public TextMeshProUGUI titleDesText;
+
+    // ★ [복구 완료] GlowFilter 연결 변수
+    public GlowFilter titleTextGlow;
+    public GlowFilter titleDesTextGlow;
+
     public HangingUI hangingPhysics;
 
-    [Header("Sound Effects")] // ★ [추가] 사운드 변수
-    [SerializeField] private AudioClip sfxSwap; // 3. 패널 넘어갈 때 (휘익- 철컥)
+    [Header("Sound Effects")]
+    [SerializeField] private AudioClip sfxSwap;
 
     [Header("설정")]
-    // ... (기존 설정 변수들 유지) ...
     public float xOffset = 800f;
     public float sideScale = 0.6f;
     public float sideAlpha = 0.3f;
-    public float moveSpeed = 10f;
+
+    // ★ [최적화 1] Lerp 대신 SmoothDamp 시간 (0.15f 추천)
+    [Range(0.01f, 1f)] public float smoothTime = 0.15f;
+
+    // ★ [최적화 2] Sleep 모드 변수 (도착하면 연산 중지)
+    private bool isIdle = false;
+    private float snapThreshold = 0.1f;
 
     private int currentIndex = 1;
     private PlayerInput inputActions;
+    private CanvasGroup[] panelCanvasGroups; // 캐싱용
+
+    // SmoothDamp용 속도 변수들
+    private Vector2[] velPositions;
+    private Vector3[] velScales;
+    private float[] velAlphas;
+
     private struct PanelTarget { public Vector2 pos; public Vector3 scale; public float alpha; }
     private PanelTarget[] targets;
 
-    // ... Awake, OnEnable, OnDisable, OnMoveInput 등 기존 함수 유지 ...
+    // ★ 메모리 최적화를 위한 컬러 캐싱 (매번 new Color 하지 않음)
+    private readonly Color statusColor = new Color(0 / 255f, 20 / 255f, 20 / 255f);
+    private readonly Color artifactColor = new Color(40 / 255f, 15 / 255f, 0 / 255f);
+    private readonly Color balanceColor = new Color(30 / 255f, 0 / 255f, 25 / 255f);
 
     private void Awake()
     {
-        targets = new PanelTarget[panels.Count];
+        int count = panels.Count;
+        targets = new PanelTarget[count];
         inputActions = new PlayerInput();
+
+        // 배열 초기화
+        panelCanvasGroups = new CanvasGroup[count];
+        velPositions = new Vector2[count];
+        velScales = new Vector3[count];
+        velAlphas = new float[count];
+
+        // 컴포넌트 미리 찾아두기 (Update 성능 향상)
+        for (int i = 0; i < count; i++)
+        {
+            panelCanvasGroups[i] = panels[i].GetComponent<CanvasGroup>();
+            if (panelCanvasGroups[i] == null)
+                panelCanvasGroups[i] = panels[i].gameObject.AddComponent<CanvasGroup>();
+        }
     }
 
     private void OnEnable()
@@ -43,7 +79,7 @@ public class PanelCarousel : MonoBehaviour
 
         UpdateTargets();
         UpdateTitle();
-        SnapToTarget();
+        SnapToTarget(); // 켜질 땐 즉시 이동
     }
 
     private void OnDisable()
@@ -70,34 +106,86 @@ public class PanelCarousel : MonoBehaviour
         UpdateTitle();
 
         if (hangingPhysics != null) hangingPhysics.Push(direction * -20f);
-
-        // ★ [추가] 넘김 소리 재생
-        // 타임스케일이 0일 때도 들려야 하므로 SoundManager가 멈추지 않는지 확인 필요하지만,
-        // 보통 AudioSource는 TimeScale 영향 안 받음 (PlaySFX 그대로 사용)
         SoundManager.instance.PlaySFX(sfxSwap, 1f);
+
+        // 움직임 시작! (계산 재개)
+        isIdle = false;
     }
 
-    // ... Update, UpdateTargets, UpdateTitle, SnapToTarget 등 기존 함수 유지 ...
     private void UpdateTitle()
     {
         if (titleText == null) return;
+
         switch (currentIndex)
         {
-            case 0: titleText.text = "Status"; break;
-            case 1: titleText.text = "Artifact"; break;
-            case 2: titleText.text = "Balance"; break;
+            case 0: // Status
+                titleText.text = "Status";
+                if (titleDesText) titleDesText.text = "캐릭터의 스탯을 확인할 수 있습니다.";
+
+                // ★ [복구 완료] Glow 색상 변경
+                if (titleTextGlow) titleTextGlow.Color = statusColor;
+                if (titleDesTextGlow) titleDesTextGlow.Color = statusColor;
+                break;
+
+            case 1: // Artifact
+                titleText.text = "Artifact";
+                if (titleDesText) titleDesText.text = "보유한 아티팩트들의 효과를 확인할 수 있습니다.";
+
+                // ★ [복구 완료] Glow 색상 변경
+                if (titleTextGlow) titleTextGlow.Color = artifactColor;
+                if (titleDesTextGlow) titleDesTextGlow.Color = artifactColor;
+                break;
+
+            case 2: // Balance
+                titleText.text = "Balance";
+                if (titleDesText) titleDesText.text = "주사위 모듈에 관련된 정보들을 확인할 수 있습니다.";
+
+                // ★ [복구 완료] Glow 색상 변경
+                if (titleTextGlow) titleTextGlow.Color = balanceColor;
+                if (titleDesTextGlow) titleDesTextGlow.Color = balanceColor;
+                break;
         }
     }
 
     private void Update()
     {
-        float dt = Time.unscaledDeltaTime * moveSpeed;
+        // ★ [최적화] 이미 다 도착했으면 연산 중지
+        if (isIdle) return;
+
+        bool allSettled = true;
+
         for (int i = 0; i < panels.Count; i++)
         {
-            panels[i].anchoredPosition = Vector2.Lerp(panels[i].anchoredPosition, targets[i].pos, dt);
-            panels[i].localScale = Vector3.Lerp(panels[i].localScale, targets[i].scale, dt);
-            CanvasGroup cg = panels[i].GetComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = Mathf.Lerp(cg.alpha, targets[i].alpha, dt);
+            // 1. 위치 이동 (SmoothDamp)
+            panels[i].anchoredPosition = Vector2.SmoothDamp(
+                panels[i].anchoredPosition, targets[i].pos, ref velPositions[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
+            );
+
+            // 2. 크기 변경 (SmoothDamp)
+            panels[i].localScale = Vector3.SmoothDamp(
+                panels[i].localScale, targets[i].scale, ref velScales[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
+            );
+
+            // 3. 투명도 변경 (SmoothDamp + 캐싱된 컴포넌트 사용)
+            if (panelCanvasGroups[i] != null)
+            {
+                panelCanvasGroups[i].alpha = Mathf.SmoothDamp(
+                    panelCanvasGroups[i].alpha, targets[i].alpha, ref velAlphas[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
+                );
+            }
+
+            // 도착 체크
+            if (Vector2.Distance(panels[i].anchoredPosition, targets[i].pos) > snapThreshold)
+            {
+                allSettled = false;
+            }
+        }
+
+        // 모두 도착했으면 Sleep 모드 전환
+        if (allSettled)
+        {
+            isIdle = true;
+            SnapToTarget(); // 위치 딱 맞추기
         }
     }
 
@@ -130,8 +218,12 @@ public class PanelCarousel : MonoBehaviour
         {
             panels[i].anchoredPosition = targets[i].pos;
             panels[i].localScale = targets[i].scale;
-            CanvasGroup cg = panels[i].GetComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = targets[i].alpha;
+            if (panelCanvasGroups[i] != null) panelCanvasGroups[i].alpha = targets[i].alpha;
+
+            // 속도 초기화 (안 하면 다음에 튐)
+            velPositions[i] = Vector2.zero;
+            velScales[i] = Vector3.zero;
+                velAlphas[i] = 0f;
         }
     }
 }

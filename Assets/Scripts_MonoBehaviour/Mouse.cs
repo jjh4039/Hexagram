@@ -14,7 +14,7 @@ public class VirtualCursor : MonoBehaviour
 
         // 실제 시스템 마우스 커서 숨기기 (필요하면 주석 해제)
         Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Confined; // 화면 밖으로 못 나가게 가두기
+        // Cursor.lockState = CursorLockMode.Confined; // 화면 밖으로 못 나가게 가두기
     }
 
     private void OnEnable()
