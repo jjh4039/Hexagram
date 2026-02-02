@@ -5,6 +5,8 @@ public class Statue : MonoBehaviour
 {
     [Header("--- Settings ---")]
     public GameObject interactEffect; // 상호작용 가능할 때 띄울 표시 (예: 'F' 아이콘)
+    public Material[] outLineMaterial;   // 석상 외곽선 재질 (0은 기본, 1은 빛나는 재질)
+    public SpriteRenderer statueWomanRenderer; // 석상 스프라이트 렌더러 (필요시 사용)
 
     private bool isPlayerNearby = false; // 플레이어가 근처에 있나?
     private bool isActivated = false;    // 스테이지가 클리어되어 활성화되었나?
@@ -44,6 +46,7 @@ public class Statue : MonoBehaviour
         {
             isPlayerNearby = true;
             if (interactEffect != null) interactEffect.SetActive(true); // 'F' 표시 켜기
+            statueWomanRenderer.material = outLineMaterial[1]; // 빛나는 재질로 변경
         }
     }
 
@@ -54,6 +57,7 @@ public class Statue : MonoBehaviour
         {
             isPlayerNearby = false;
             if (interactEffect != null) interactEffect.SetActive(false); // 'F' 표시 끄기
+            statueWomanRenderer.material = outLineMaterial[0]; // 기본 재질로 변경
         }
     }
 }
