@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740 \uBA74\uC774 \uB098\uC654\uC744
     \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: 3267708370620931129, guid: 97fe76185ca4a7a4abce370b33425cb6, type: 3}
-  grade: 0
+  grade: 2
   basePrice: 100
   type: 1
   effectType: 2

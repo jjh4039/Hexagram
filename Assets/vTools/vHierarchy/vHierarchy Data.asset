@@ -44,6 +44,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-2015407903-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1126371348-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1299400497-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1797329878-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -142,13 +143,17 @@ MonoBehaviour:
           isIconRecursive: 1
           isColorRecursive: 0
         - colorIndex: 8
-          iconNameOrGuid: sv_icon_dot9_pix16_gizmo
+          iconNameOrGuid: sv_icon_dot15_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 1
         - colorIndex: 1
           iconNameOrGuid: ViewToolMove
           isIconRecursive: 0
           isColorRecursive: 0
+        - colorIndex: 6
+          iconNameOrGuid: sv_icon_dot9_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 1
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity

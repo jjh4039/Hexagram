@@ -51,7 +51,7 @@ public enum ConditionType
     On_Buff_End         // 버프가 끝날 때 (천칭)
 }
 
-[CreateAssetMenu(fileName = "New Artifact", menuName = "Hexagram/Artifact Data")]
+[CreateAssetMenu(fileName = "New Artifact", menuName = "Hexagram/ArtifactData")]
 public class ArtifactData : ScriptableObject
 {
     [Header("기본 정보")]

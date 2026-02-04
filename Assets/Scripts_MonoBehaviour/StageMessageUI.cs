@@ -23,6 +23,7 @@ public class StageMessageUI : MonoBehaviour
     [SerializeField] private RewardItem[] rewardItems;
     [SerializeField] private float rewardSlideDistance = 50f;
     [SerializeField] private float rewardInterval = 0.15f;
+    [SerializeField] private RewardData[] rewardDatas;
 
     [Header("Reward Juicy Settings")]
     [SerializeField] private AnimationCurve appearanceCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -42,9 +43,10 @@ public class StageMessageUI : MonoBehaviour
     public struct RewardItem
     {
         public RectTransform rect;
-        public Image backgroundImage;
         public CanvasGroup group;
         public GlowFilter glowEffect;
+        public TextMeshProUGUI titleText;
+        public TextMeshProUGUI valueText;
     }
 
     private Coroutine currentCoroutine;
@@ -123,12 +125,47 @@ public class StageMessageUI : MonoBehaviour
         if (rewardGroup != null)
         {
             rewardGroup.alpha = 1f;
+            SetRandomRewardTexts();
             for (int i = 0; i < rewardItems.Length; i++)
             {
                 StartCoroutine(AnimateRewardItem(rewardItems[i], i));
                 yield return new WaitForSeconds(rewardInterval);
             }
             canSelectReward = true;
+        }
+    }
+
+    private void SetRandomRewardTexts()
+    {
+        if (rewardDatas == null || rewardDatas.Length == 0) return;
+
+        // 중복 방지를 위한 인덱스 풀
+        int[] indices = new int[rewardDatas.Length];
+        for (int i = 0; i < indices.Length; i++)
+            indices[i] = i;
+
+        //
+        for (int i = indices.Length - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (indices[i], indices[j]) = (indices[j], indices[i]);
+        }
+
+        // 리워드 슬롯 수만큼만 할당
+        for (int i = 0; i < rewardItems.Length; i++)
+        {
+            if (i >= indices.Length) break;
+
+            RewardData data = rewardDatas[indices[i]];
+
+            if (rewardItems[i].titleText != null)
+                rewardItems[i].titleText.text = data.titleText;
+
+            if (rewardItems[i].valueText != null)
+                rewardItems[i].valueText.text = data.valueText;
+
+            if (rewardItems[i].valueText != null)
+                rewardItems[i].valueText.color = data.valueTextColor;
         }
     }
 
