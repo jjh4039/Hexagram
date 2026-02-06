@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public WeaponUI weaponUI;
     public Dice dice;
     public MapManager mapManager;
+    public BitManager bitManager;
 
     public GameObject currentStageObj;
 
