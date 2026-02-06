@@ -1,10 +1,11 @@
 using ChocDino.UIFX;
+using NUnit.Framework.Internal;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using System.Collections;
 
 public class BitManager : MonoBehaviour
 {
@@ -29,7 +30,12 @@ public class BitManager : MonoBehaviour
     [Header("Animation Settings")]
     [SerializeField] private float hoverYOffset = 40f;
     [SerializeField] private float animationSpeed = 8f;
-    [SerializeField] private float introDelay = 0.25f;
+    [SerializeField] private float introDelay = 0.15f;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxIntro;
+    [SerializeField] private AudioClip sfxSelect;
+    [SerializeField] private AudioClip sfxDecision;
 
     private HashSet<ArtifactData> usedArtifacts = new HashSet<ArtifactData>();
     private Coroutine[] hoverCoroutines;
@@ -42,23 +48,39 @@ public class BitManager : MonoBehaviour
         hoverCoroutines = new Coroutine[bitChoices.Length];
         isHovering = new bool[bitChoices.Length];
 
+        // 초기 상태 설정
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0;
-        foreach (var choice in bitChoices)
-        {
-            if (choice.group != null) choice.group.alpha = 0;
-        }
-    }
 
-    void Start()
-    {
-        SetupBitChoices();
         for (int i = 0; i < bitChoices.Length; i++)
         {
+            if (bitChoices[i].group != null) bitChoices[i].group.alpha = 0;
             if (bitChoices[i].rect != null)
                 bitChoices[i].initialAnchoredPos = bitChoices[i].rect.anchoredPosition;
         }
+    }
 
+    /// <summary>
+    /// Bit 오브젝트에서 F를 눌렀을 때 호출될 핵심 함수
+    /// </summary>
+    public void OpenBitUI()
+    {
+        // 1. 상태 초기화
+        isInitialized = false;
+        selectedIndex = -1;
+        usedArtifacts.Clear();
+        if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+
+        // 2. 데이터 세팅
+        SetupBitChoices();
+
+        // 3. 시간 정지 (UI 조작 중 게임 멈춤)
+        Time.timeScale = 0f;
+        if (sfxIntro != null) SoundManager.instance.PlaySFX(sfxIntro, 0.15f, 0.1f);
+
+        // 4. 연출 시작
+        StopAllCoroutines();
+        gameObject.SetActive(true); // 비활성화 되어있을 경우를 대비
         if (backgroundImage != null) StartCoroutine(LoopBackgroundAnimation());
         StartCoroutine(SequenceIntro());
     }
@@ -80,23 +102,24 @@ public class BitManager : MonoBehaviour
 
     private IEnumerator SequenceIntro()
     {
-        // 1. 전체 배경 페이드 인
+        // 전체 배경 페이드 인
         float elapsed = 0;
-        while (elapsed < 0.6f)
+
+        while (elapsed < 0.4f)
         {
             elapsed += Time.unscaledDeltaTime;
-            if (mainCanvasGroup != null) mainCanvasGroup.alpha = elapsed / 0.6f;
+            if (mainCanvasGroup != null) mainCanvasGroup.alpha = elapsed / 0.4f;
             yield return null;
         }
 
-        // 2. 카드 순차 등장
+        // 카드 순차 등장
         for (int i = 0; i < bitChoices.Length; i++)
         {
             StartCoroutine(IntroFlashCard(i));
             yield return new WaitForSecondsRealtime(introDelay);
         }
 
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.3f);
         isInitialized = true;
     }
 
@@ -108,7 +131,7 @@ public class BitManager : MonoBehaviour
         float t = 0;
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime * 0.8f;
+            t += Time.unscaledDeltaTime * 1.2f;
             if (group != null) group.alpha = Mathf.Clamp01(t);
             float curve = Mathf.Sin(t * Mathf.PI);
             rect.anchoredPosition = basePos + new Vector2(0, curve * hoverYOffset);
@@ -142,19 +165,25 @@ public class BitManager : MonoBehaviour
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
+
+            // 확인 버튼 클릭 체크
             if (confirmButtonImage != null && confirmButtonImage.gameObject.activeInHierarchy)
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(confirmButtonImage.rectTransform, mousePos, null))
                 {
                     OnConfirmButtonClick();
+                    if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.2f);
                     return;
                 }
             }
+
+            // 카드 클릭 체크
             for (int i = 0; i < bitChoices.Length; i++)
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(bitChoices[i].hoverSensor.rectTransform, mousePos, null))
                 {
                     SelectCard(i);
+                    if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.3f, 0.1f);
                     break;
                 }
             }
@@ -164,6 +193,7 @@ public class BitManager : MonoBehaviour
     private void SelectCard(int newIndex)
     {
         if (selectedIndex == newIndex) return;
+
         if (selectedIndex != -1)
         {
             int prev = selectedIndex;
@@ -171,6 +201,7 @@ public class BitManager : MonoBehaviour
             StartHoverAnimation(prev, false);
             if (bitChoices[prev].choiceEffect != null) bitChoices[prev].choiceEffect.enabled = false;
         }
+
         selectedIndex = newIndex;
         isHovering[selectedIndex] = true;
         StartHoverAnimation(selectedIndex, true);
@@ -183,13 +214,25 @@ public class BitManager : MonoBehaviour
         if (confirmButtonImage == null || selectedIndex == -1) return;
         confirmButtonImage.gameObject.SetActive(true);
         RectTransform btnRect = confirmButtonImage.rectTransform;
+
+        // 선택한 카드 위치에 맞춤
         btnRect.position = bitChoices[selectedIndex].hoverSensor.transform.position;
-        btnRect.anchoredPosition = new Vector2(btnRect.anchoredPosition.x, buttonYOffset);
+        Vector2 anchored = btnRect.anchoredPosition;
+        anchored.y = buttonYOffset;
+        btnRect.anchoredPosition = anchored;
     }
 
     public void OnConfirmButtonClick()
     {
         if (selectedIndex == -1) return;
+
+        // ★ [핵심] 선택된 아티팩트 매니저에 전달
+        ArtifactData selectedArtifact = bitChoices[selectedIndex].currentArtifact;
+        if (selectedArtifact != null && ArtifactManager.instance != null)
+        {
+            ArtifactManager.instance.AddArtifact(selectedArtifact);
+        }
+
         StartCoroutine(ExitSequence());
     }
 
@@ -197,37 +240,39 @@ public class BitManager : MonoBehaviour
     {
         isInitialized = false;
 
-        // 1. 선택 안된 카드들 & 버튼 즉시 부드럽게 퇴장
+        // 1. 선택 안된 카드들 & 버튼 퇴장
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         for (int i = 0; i < bitChoices.Length; i++)
         {
-            if (i != selectedIndex) StartCoroutine(FadeOutCanvasGroup(bitChoices[i].group, 0.25f));
+            if (i != selectedIndex) StartCoroutine(FadeOutCanvasGroup(bitChoices[i].group, 0.2f));
         }
 
-        // 2. 선택된 카드 강조 & 전체 페이드 아웃 연출
+        // 2. 선택된 카드 강조 및 전체 페이드 아웃
         RectTransform selectedRect = bitChoices[selectedIndex].rect;
         Vector3 startScale = selectedRect.localScale;
         Vector3 targetScale = startScale * 1.15f;
         float startAlpha = mainCanvasGroup.alpha;
 
         float elapsed = 0;
-        float duration = 0.5f; // 전체 종료 시간
+        float duration = 0.4f;
 
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
             float t = elapsed / duration;
-
-            // SmoothStep으로 더 쫀득하게 스케일 업
             float smoothT = t * t * (3f - 2f * t);
-            selectedRect.localScale = Vector3.Lerp(startScale, targetScale, smoothT);
 
-            // 전체 알파값 서서히 제거
+            selectedRect.localScale = Vector3.Lerp(startScale, targetScale, smoothT);
             if (mainCanvasGroup != null) mainCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0, t);
 
             yield return null;
         }
 
+        // 3. 시간 복구 및 UI 비활성화
+        Time.timeScale = 1.0f;
+
+        // 스케일 원복 (다음 오픈을 위해)
+        selectedRect.localScale = Vector3.one;
         gameObject.SetActive(false);
     }
 
@@ -266,11 +311,64 @@ public class BitManager : MonoBehaviour
     }
 
     // --- 데이터 로직 ---
-    public void SetupBitChoices() { usedArtifacts.Clear(); for (int i = 0; i < bitChoices.Length; i++) { ArtifactData artifact = GetRandomArtifactByProbability(); if (artifact != null) usedArtifacts.Add(artifact); ApplyArtifactToChoice(bitChoices[i], artifact); } }
-    private ArtifactData GetRandomArtifactByProbability() { float total = gradeProbability.common + gradeProbability.rare + gradeProbability.epic + gradeProbability.legendary; float rand = Random.value * total; if (rand < gradeProbability.common) return GetRandomArtifactByGrade(ArtifactGrade.Common); rand -= gradeProbability.common; if (rand < gradeProbability.rare) return GetRandomArtifactByGrade(ArtifactGrade.Rare); rand -= gradeProbability.rare; if (rand < gradeProbability.epic) return GetRandomArtifactByGrade(ArtifactGrade.Epic); return GetRandomArtifactByGrade(ArtifactGrade.Legendary); }
-    private ArtifactData GetRandomArtifactByGrade(ArtifactGrade grade) { List<ArtifactData> candidates = new List<ArtifactData>(); foreach (var artifact in allArtifacts) { if (artifact.grade == grade && !usedArtifacts.Contains(artifact)) candidates.Add(artifact); } return candidates.Count > 0 ? candidates[Random.Range(0, candidates.Count)] : null; }
-    private void ApplyArtifactToChoice(BitChoices choice, ArtifactData artifact) { if (artifact == null) return; choice.artifactImage.sprite = artifact.icon; choice.titleText.text = artifact.artifactName; choice.gradeText.text = "[ " + artifact.grade.ToString() + " ]"; choice.desText.text = artifact.description; foreach (var effect in choice.gradeEffects) effect.Color = GetColorByGrade(artifact.grade); }
-    private Color GetColorByGrade(ArtifactGrade grade) { switch (grade) { case ArtifactGrade.Common: return gradeColors.common; case ArtifactGrade.Rare: return gradeColors.rare; case ArtifactGrade.Epic: return gradeColors.epic; case ArtifactGrade.Legendary: return gradeColors.legendary; default: return Color.white; } }
+    public void SetupBitChoices()
+    {
+        usedArtifacts.Clear();
+        for (int i = 0; i < bitChoices.Length; i++)
+        {
+            ArtifactData artifact = GetRandomArtifactByProbability();
+            // ★ 슬롯에 데이터 할당
+            bitChoices[i].currentArtifact = artifact;
+
+            if (artifact != null) usedArtifacts.Add(artifact);
+            ApplyArtifactToChoice(bitChoices[i], artifact);
+        }
+    }
+
+    private ArtifactData GetRandomArtifactByProbability()
+    {
+        float total = gradeProbability.common + gradeProbability.rare + gradeProbability.epic + gradeProbability.legendary;
+        float rand = Random.value * total;
+        if (rand < gradeProbability.common) return GetRandomArtifactByGrade(ArtifactGrade.Common);
+        rand -= gradeProbability.common;
+        if (rand < gradeProbability.rare) return GetRandomArtifactByGrade(ArtifactGrade.Rare);
+        rand -= gradeProbability.rare;
+        if (rand < gradeProbability.epic) return GetRandomArtifactByGrade(ArtifactGrade.Epic);
+        return GetRandomArtifactByGrade(ArtifactGrade.Legendary);
+    }
+
+    private ArtifactData GetRandomArtifactByGrade(ArtifactGrade grade)
+    {
+        List<ArtifactData> candidates = new List<ArtifactData>();
+        foreach (var artifact in allArtifacts)
+        {
+            // 이미 이 화면(usedArtifacts)에 뽑힌 것은 제외
+            if (artifact.grade == grade && !usedArtifacts.Contains(artifact)) candidates.Add(artifact);
+        }
+        return candidates.Count > 0 ? candidates[Random.Range(0, candidates.Count)] : null;
+    }
+
+    private void ApplyArtifactToChoice(BitChoices choice, ArtifactData artifact)
+    {
+        if (artifact == null) return;
+        choice.artifactImage.sprite = artifact.icon;
+        choice.titleText.text = artifact.artifactName;
+        choice.gradeText.text = "[ " + artifact.grade.ToString() + " ]";
+        choice.desText.text = artifact.description;
+        foreach (var effect in choice.gradeEffects) effect.Color = GetColorByGrade(artifact.grade);
+    }
+
+    private Color GetColorByGrade(ArtifactGrade grade)
+    {
+        switch (grade)
+        {
+            case ArtifactGrade.Common: return gradeColors.common;
+            case ArtifactGrade.Rare: return gradeColors.rare;
+            case ArtifactGrade.Epic: return gradeColors.epic;
+            case ArtifactGrade.Legendary: return gradeColors.legendary;
+            default: return Color.white;
+        }
+    }
 
     [System.Serializable]
     public struct BitChoices
@@ -285,6 +383,8 @@ public class BitManager : MonoBehaviour
         public TextMeshProUGUI gradeText;
         public TextMeshProUGUI desText;
         [HideInInspector] public Vector2 initialAnchoredPos;
+        // ★ 현재 이 슬롯에 할당된 데이터 저장용
+        [HideInInspector] public ArtifactData currentArtifact;
     }
 
     [System.Serializable] public struct ArtifactGradeProbability { [Range(0f, 1f)] public float common, rare, epic, legendary; }

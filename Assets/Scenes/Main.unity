@@ -19138,7 +19138,7 @@ GameObject:
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1797329879
 RectTransform:
   m_ObjectHideFlags: 0
@@ -19203,6 +19203,7 @@ MonoBehaviour:
     gradeText: {fileID: 1592625962}
     desText: {fileID: 1974748721}
     initialAnchoredPos: {x: 0, y: 0}
+    currentArtifact: {fileID: 0}
   - rect: {fileID: 641352900}
     hoverSensor: {fileID: 1672811707}
     group: {fileID: 1770575199}
@@ -19216,6 +19217,7 @@ MonoBehaviour:
     gradeText: {fileID: 1633896243}
     desText: {fileID: 2129161717}
     initialAnchoredPos: {x: 0, y: 0}
+    currentArtifact: {fileID: 0}
   - rect: {fileID: 1925113241}
     hoverSensor: {fileID: 301947381}
     group: {fileID: 1596699148}
@@ -19229,6 +19231,7 @@ MonoBehaviour:
     gradeText: {fileID: 296657901}
     desText: {fileID: 91851392}
     initialAnchoredPos: {x: 0, y: 0}
+    currentArtifact: {fileID: 0}
   allArtifacts:
   - {fileID: 11400000, guid: 18fe3c002a77838478bc397f0e63473b, type: 2}
   - {fileID: 11400000, guid: 22fe68329362ed047a3d808e9c861878, type: 2}
@@ -19244,13 +19247,16 @@ MonoBehaviour:
     common: {r: 0.078431375, g: 0.078431375, b: 0.078431375, a: 1}
     rare: {r: 0, g: 0.078431375, b: 0.15686275, a: 1}
     epic: {r: 0.15686275, g: 0, b: 0.15686275, a: 1}
-    legendary: {r: 0.11764706, g: 0.10980392, b: 0, a: 1}
+    legendary: {r: 0.19607843, g: 0.19607843, b: 0, a: 1}
   mainCanvasGroup: {fileID: 2135816752}
   confirmButtonImage: {fileID: 960826297}
   buttonYOffset: -155
   hoverYOffset: 15
   animationSpeed: 10
   introDelay: 0.3
+  sfxIntro: {fileID: 8300000, guid: 1444973c3bb7c9f4294aaecfb3b75282, type: 3}
+  sfxSelect: {fileID: 8300000, guid: 8fb77581f079e7042a7a41a925d2f177, type: 3}
+  sfxDecision: {fileID: 8300000, guid: 9fdedbd64e69b6140abd24525d02c99f, type: 3}
 --- !u!1001 &1801235448
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -21615,7 +21621,7 @@ MonoBehaviour:
   waitTime: 2
   fadeOutTime: 0.5
   sfxClear: {fileID: 8300000, guid: b18778c6c2bf25b4baea5ec139440eba, type: 3}
-  sfxSelect: {fileID: 0}
+  sfxDecision: {fileID: 8300000, guid: 9fdedbd64e69b6140abd24525d02c99f, type: 3}
 --- !u!1 &2022933537
 GameObject:
   m_ObjectHideFlags: 0
@@ -30516,7 +30522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: m_Volume

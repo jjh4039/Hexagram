@@ -178,9 +178,10 @@ public class DashboardUI : MonoBehaviour
         tooltipGroup.SetActive(true);
         nameText.text = data.artifactName;
 
-        string colorHex = (data.grade == ArtifactGrade.Legendary) ? "#FF0000" :
-                          (data.grade == ArtifactGrade.Rare) ? "#FFFF00" : "#FFFFFF";
-        descText.text = $"<color={colorHex}>[{data.grade}]</color>\n\n{data.description}";
+        string colorHex = (data.grade == ArtifactGrade.Legendary) ? "#FFD000" :
+                          (data.grade == ArtifactGrade.Epic) ? "#B591D1" :
+                          (data.grade == ArtifactGrade.Rare) ? "#4AA8D8" : "#FFFFFF";
+        descText.text = $"<color={colorHex}>[ {data.grade} ]</color>\n\n{data.description}";
     }
 
     // ¹ü¿ë(¹ë·±½º/½ºÅÈ µî) ÅøÆÁ Ç¥½Ã

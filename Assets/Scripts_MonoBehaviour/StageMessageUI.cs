@@ -37,7 +37,7 @@ public class StageMessageUI : MonoBehaviour
 
     [Header("Sound")]
     [SerializeField] private AudioClip sfxClear;
-    [SerializeField] private AudioClip sfxSelect;
+    [SerializeField] private AudioClip sfxDecision;
 
     [System.Serializable]
     public struct RewardItem
@@ -63,7 +63,7 @@ public class StageMessageUI : MonoBehaviour
             if (rewardItems[i].rect != null) originalScales[i] = rewardItems[i].rect.localScale;
 
         ResetAllUI();
-        ShowClearMessage(); // 테스트용
+        // ShowClearMessage(); // 테스트용
     }
 
     private void ResetAllUI()
@@ -213,7 +213,7 @@ public class StageMessageUI : MonoBehaviour
         if (index >= rewardItems.Length) return;
         canSelectReward = false;
 
-        if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 1f, 0.1f);
+        if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.1f);
 
         // 글로우 효과 및 펀치 스케일
         if (rewardItems[index].glowEffect != null) rewardItems[index].glowEffect.enabled = true;
