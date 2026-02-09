@@ -1660,7 +1660,7 @@ MonoBehaviour:
   _falloffMode: 0
   _expFalloffEnergy: 16
   _expFalloffPower: 1
-  _expFalloffOffset: 0
+  _expFalloffOffset: 4
   _falloffCurve:
     serializedVersion: 2
     m_Curve:
@@ -4011,7 +4011,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4, z: -10}
+  m_LocalPosition: {x: -4.84624, y: 5.448718, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12589,7 +12589,7 @@ MonoBehaviour:
   _falloffMode: 0
   _expFalloffEnergy: 16
   _expFalloffPower: 1
-  _expFalloffOffset: 0
+  _expFalloffOffset: 4
   _falloffCurve:
     serializedVersion: 2
     m_Curve:
@@ -18697,7 +18697,7 @@ MonoBehaviour:
   _falloffMode: 0
   _expFalloffEnergy: 16
   _expFalloffPower: 1
-  _expFalloffOffset: 0
+  _expFalloffOffset: 4
   _falloffCurve:
     serializedVersion: 2
     m_Curve:
@@ -19193,6 +19193,7 @@ MonoBehaviour:
   - rect: {fileID: 598603706}
     hoverSensor: {fileID: 1224084218}
     group: {fileID: 1423228130}
+    outLineImage: {fileID: 1725083561}
     choiceEffect: {fileID: 1725083563}
     gradeEffects:
     - {fileID: 311878452}
@@ -19207,6 +19208,7 @@ MonoBehaviour:
   - rect: {fileID: 641352900}
     hoverSensor: {fileID: 1672811707}
     group: {fileID: 1770575199}
+    outLineImage: {fileID: 304718347}
     choiceEffect: {fileID: 304718346}
     gradeEffects:
     - {fileID: 766151093}
@@ -19221,6 +19223,7 @@ MonoBehaviour:
   - rect: {fileID: 1925113241}
     hoverSensor: {fileID: 301947381}
     group: {fileID: 1596699148}
+    outLineImage: {fileID: 998174570}
     choiceEffect: {fileID: 998174569}
     gradeEffects:
     - {fileID: 1914544436}
@@ -19238,16 +19241,22 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 47cd70d571720e74d9da152a7d4355eb, type: 2}
   - {fileID: 11400000, guid: 52417a7d15cf7bb4db6aa8b12a8d9f5d, type: 2}
   - {fileID: 11400000, guid: 0e7379d3941a1fa4b98e45407c065fd8, type: 2}
+  - {fileID: 11400000, guid: a0f649b95e7ae0046a214c07f9ff1d57, type: 2}
+  - {fileID: 11400000, guid: 80caeb48ffe54be43bc619de801e0058, type: 2}
+  - {fileID: 11400000, guid: bb5857a34b2f6f5499b579c11e66c00e, type: 2}
+  - {fileID: 11400000, guid: e3b623b36c8712f45bd28a893e3b9695, type: 2}
+  - {fileID: 11400000, guid: 85098ad3aee55cd41b1223c2d52cdb24, type: 2}
+  - {fileID: 11400000, guid: 620b94fe39f7b4e4c9514e0b649232e8, type: 2}
   gradeProbability:
     common: 0.5
     rare: 0.25
-    epic: 0.2
-    legendary: 0.05
+    epic: 0.3
+    legendary: 0
   gradeColors:
     common: {r: 0.078431375, g: 0.078431375, b: 0.078431375, a: 1}
-    rare: {r: 0, g: 0.078431375, b: 0.15686275, a: 1}
+    rare: {r: 0, g: 0.11764706, b: 0.19607843, a: 1}
     epic: {r: 0.15686275, g: 0, b: 0.15686275, a: 1}
-    legendary: {r: 0.19607843, g: 0.19607843, b: 0, a: 1}
+    legendary: {r: 0.39215687, g: 0.19607843, b: 0, a: 1}
   mainCanvasGroup: {fileID: 2135816752}
   confirmButtonImage: {fileID: 960826297}
   buttonYOffset: -155

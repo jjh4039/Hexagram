@@ -356,6 +356,19 @@ public class BitManager : MonoBehaviour
         choice.gradeText.text = "[ " + artifact.grade.ToString() + " ]";
         choice.desText.text = artifact.description;
         foreach (var effect in choice.gradeEffects) effect.Color = GetColorByGrade(artifact.grade);
+        choice.outLineImage.color = GetOutLineColor(artifact.grade);
+    }
+
+    private Color GetOutLineColor(ArtifactGrade grade)
+    {
+        switch (grade)
+        {
+            case ArtifactGrade.Common: return Color.white;
+            case ArtifactGrade.Rare: return new Color(0f,0.65f,1f);
+            case ArtifactGrade.Epic: return new Color(0.6f, 0f, 1f);
+            case ArtifactGrade.Legendary: return new Color(1f, 0.72f, 0f);
+            default: return Color.white;
+        }
     }
 
     private Color GetColorByGrade(ArtifactGrade grade)
@@ -368,6 +381,7 @@ public class BitManager : MonoBehaviour
             case ArtifactGrade.Legendary: return gradeColors.legendary;
             default: return Color.white;
         }
+
     }
 
     [System.Serializable]
@@ -376,6 +390,7 @@ public class BitManager : MonoBehaviour
         public RectTransform rect;
         public Image hoverSensor;
         public CanvasGroup group;
+        public Image outLineImage;
         public GlowFilter choiceEffect;
         public GlowFilter[] gradeEffects;
         public Image artifactImage;

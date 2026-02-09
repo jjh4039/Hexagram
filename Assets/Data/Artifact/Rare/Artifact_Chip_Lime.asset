@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72aa018b570d3964bad2e854c273b67f, type: 3}
-  m_Name: Artifact_Basic-Book
+  m_Name: Artifact_Chip_Lime
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
-  artifactName: "\uB85C\uBD07 : \uAE30\uCD08 \uAD50\uBCF8"
-  description: "\uACF5\uACA9\uB825\uC774 5% \uC0C1\uC2B9\uD55C\uB2E4\n"
-  icon: {fileID: -5413712603645610178, guid: 87bb3efee20138449b064ec7bc662ac7, type: 3}
-  grade: 0
+  artifactName: "\uAC15\uD654 \uCF54\uC5B4 : \uB77C\uC784"
+  description: "\uC8FC\uC0AC\uC704 [ 4 ] \uD6A8\uACFC\uAC00 \uBC1C\uB3D9 \uC911\uC77C
+    \uB54C\n\uBC29\uC5B4\uB825\uC774 30% \uC0C1\uC2B9\uD55C\uB2E4."
+  icon: {fileID: 3477142128203005732, guid: 68cc7df507e5ce048b0bb4c5a31bdf4f, type: 3}
+  grade: 1
   basePrice: 100
-  type: 0
-  effectType: 2
+  type: 2
+  effectType: 5
   condition: 0
-  value: 5
+  value: 10
   isPercent: 1

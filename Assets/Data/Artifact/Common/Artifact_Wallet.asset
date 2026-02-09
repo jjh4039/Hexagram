@@ -10,16 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72aa018b570d3964bad2e854c273b67f, type: 3}
-  m_Name: Artifact_Trump-Card
+  m_Name: Artifact_Wallet
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
-  artifactName: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
-  description: "\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740 \uBA74\uC774 \uB098\uC654\uC744
-    \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
-  icon: {fileID: 3267708370620931129, guid: 97fe76185ca4a7a4abce370b33425cb6, type: 3}
-  grade: 2
+  artifactName: "\uB0A1\uC740 \uC9C0\uAC11"
+  description: "\uACE0\uCCA0\uC758 \uD68D\uB4DD\uB7C9\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4"
+  icon: {fileID: -4007353394331183796, guid: fbded55bf9489ad40b5e72c383ffb26f, type: 3}
+  grade: 0
   basePrice: 100
-  type: 1
-  effectType: 2
-  condition: 6
+  type: 0
+  effectType: 5
+  condition: 0
   value: 10
   isPercent: 1
