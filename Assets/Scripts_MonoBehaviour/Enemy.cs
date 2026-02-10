@@ -117,7 +117,11 @@ public class Enemy : MonoBehaviour
 
         if (col != null) col.enabled = false;
         if (shadowObject != null) shadowObject.SetActive(false);
-        if (anim != null) anim.SetTrigger("Die");
+
+        if (anim != null)
+        {
+            anim.Play("Enemy_Die", 0, 0f); // ★ 무조건 0프레임
+        }
 
         if (scrapPrefab != null && Random.Range(0, 100) < dropChance)
         {
@@ -127,7 +131,7 @@ public class Enemy : MonoBehaviour
         if (hpBarObject != null && gameObject.activeInHierarchy)
             StartCoroutine(FadeOutHpBar());
 
-        Destroy(gameObject, 0.9f);
+        Destroy(gameObject, 1.0f); // (Die 클립 길이에 맞게 조절)
     }
 
     private IEnumerator FadeOutHpBar()

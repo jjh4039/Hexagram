@@ -513,7 +513,7 @@ MonoBehaviour:
   hpBarObject: {fileID: 1960633402960459782}
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
   sfxHit: {fileID: 8300000, guid: c2e7d4595958225459c1c95130d50c7b, type: 3}
-  scrapPrefab: {fileID: 0}
+  scrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
   dropChance: 100
   moveSpeed: 1
   idleTime: 1
