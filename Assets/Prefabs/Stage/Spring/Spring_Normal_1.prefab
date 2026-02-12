@@ -5945,7 +5945,7 @@ GameObject:
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8583377887772779856
 Transform:
   m_ObjectHideFlags: 0
@@ -6116,7 +6116,7 @@ GameObject:
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1401656437708249486
 Transform:
   m_ObjectHideFlags: 0
@@ -6144,7 +6144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c35e2dc293b13e241a14cd8e201bdcea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemyPrefab: {fileID: 3522918068342987818, guid: 7f33c4dd40d81af44ab0e51a6f8fd976, type: 3}
+  enemyPrefab: {fileID: 9204744948087488654, guid: d1792250110e7de41814bcbd90691696, type: 3}
 --- !u!1 &4874768350431733968
 GameObject:
   m_ObjectHideFlags: 0
@@ -6315,7 +6315,7 @@ GameObject:
   m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5248080676551392778
 Transform:
   m_ObjectHideFlags: 0
@@ -6343,7 +6343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c35e2dc293b13e241a14cd8e201bdcea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemyPrefab: {fileID: 3522918068342987818, guid: 7f33c4dd40d81af44ab0e51a6f8fd976, type: 3}
+  enemyPrefab: {fileID: 9204744948087488654, guid: d1792250110e7de41814bcbd90691696, type: 3}
 --- !u!1 &6721278417876587785
 GameObject:
   m_ObjectHideFlags: 0

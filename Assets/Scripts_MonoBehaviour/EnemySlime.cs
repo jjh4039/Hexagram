@@ -96,13 +96,6 @@ public class EnemySlime : Enemy
         // ★ 스프라이트 반전
         if (dirX > 0) transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
         else transform.localScale = new Vector3(spriteScale, spriteScale, 1);
-
-        // ★ 체력바 반전 보정 (부모의 hpBarRoot 사용)
-        if (hpBarRoot != null)
-        {
-            if (transform.localScale.x < 0) hpBarRoot.localScale = new Vector3(-1, 1, 1);
-            else hpBarRoot.localScale = new Vector3(1, 1, 1);
-        }
     }
 
     IEnumerator Co_SlimeAI()

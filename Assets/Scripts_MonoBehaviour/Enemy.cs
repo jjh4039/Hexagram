@@ -158,4 +158,21 @@ public class Enemy : MonoBehaviour
         }
         hpBarObject.SetActive(false);
     }
+
+    private void LateUpdate()
+    {
+        UpdateHpBarFlip();
+    }
+
+    private void UpdateHpBarFlip()
+    {
+        if (hpBarRoot == null) return;
+
+        float parentScaleX = transform.localScale.x;
+
+        if (parentScaleX < 0)
+            hpBarRoot.localScale = new Vector3(-1, 1, 1);
+        else
+            hpBarRoot.localScale = new Vector3(1, 1, 1);
+    }
 }
