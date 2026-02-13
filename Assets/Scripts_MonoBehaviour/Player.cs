@@ -29,6 +29,12 @@ public class Player : MonoBehaviour
     [SerializeField] private float blinkSpeed = 0.2f;
     [SerializeField] private float bodyContactDamage = 5f;
 
+    [Header("Contact Damage Settings")]
+    [SerializeField] private float contactCheckRadius = 0.6f;
+    [SerializeField] private LayerMask enemyLayer;
+    private ContactFilter2D contactFilter;
+    private readonly Collider2D[] contactResults = new Collider2D[8];
+
     [Header("--- Dice Buff Status (New!) ---")]
     public float damageMultiplier = 1.0f;
     public float moveSpeedMultiplier = 1.0f;
@@ -77,6 +83,11 @@ public class Player : MonoBehaviour
         rigid.gravityScale = 0;
         rigid.interpolation = RigidbodyInterpolation2D.Interpolate;
         rigid.sleepMode = RigidbodySleepMode2D.NeverSleep;
+
+        contactFilter = new ContactFilter2D();
+        contactFilter.SetLayerMask(enemyLayer);
+        contactFilter.useLayerMask = true;
+        contactFilter.useTriggers = true;
     }
 
     private void OnEnable()
@@ -101,13 +112,43 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         if (isDashing) return;
-        if (!isAttacking) Move();
+
+        if (!isAttacking)
+            Move();
+
+        CheckContactDamage();
+    }
+
+    // 새 충돌 처리
+    private void CheckContactDamage()
+    {
+        if (isInvincible) return;
+
+        int hitCount = Physics2D.OverlapCircle(
+            transform.position,
+            contactCheckRadius,
+            contactFilter,
+            contactResults
+        );
+
+        if (hitCount > 0)
+        {
+            OnDamage(bodyContactDamage);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, contactCheckRadius);
     }
 
     public void ApplyDiceBuff(DiceData data)
     {
         RemoveDiceBuff();
-        if (weaponManager != null) weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
+        if (weaponManager != null)
+            weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
+
         currentDiceColor = data.particleColor;
 
         switch (data.effectType)
@@ -116,9 +157,11 @@ public class Player : MonoBehaviour
                 if (stats != null) stats.TakeDamage(1);
                 damageMultiplier = 1.0f + (data.effectValue / 100f);
                 break;
+
             case DiceEffectType.CriticalBuff:
                 remainingStrongAttacks = (int)data.effectValue;
                 break;
+
             case DiceEffectType.GrowthBuff:
                 if (stats != null)
                 {
@@ -127,13 +170,20 @@ public class Player : MonoBehaviour
                     stats.rangeAttackPower *= growthFactor;
                 }
                 break;
+
             case DiceEffectType.Heal:
-                if (stats != null) stats.currentHealth = Mathf.Min(stats.currentHealth + (int)data.effectValue, stats.maxHealth);
+                if (stats != null)
+                    stats.currentHealth = Mathf.Min(
+                        stats.currentHealth + (int)data.effectValue,
+                        stats.maxHealth
+                    );
                 break;
+
             case DiceEffectType.SpeedBuff:
                 moveSpeedMultiplier = 1.0f + (data.effectValue / 100f);
                 attackSpeedMultiplier = 1.0f + (data.effectValue / 100f);
                 break;
+
             case DiceEffectType.ChargingBuff:
                 chargeSpeedMultiplier = data.effectValue;
                 break;
@@ -146,7 +196,9 @@ public class Player : MonoBehaviour
         moveSpeedMultiplier = 1.0f;
         attackSpeedMultiplier = 1.0f;
         chargeSpeedMultiplier = 1.0f;
-        if (weaponManager != null) weaponManager.UpdateWeaponVisuals(Color.white, null);
+
+        if (weaponManager != null)
+            weaponManager.UpdateWeaponVisuals(Color.white, null);
     }
 
     private void OnDash(InputAction.CallbackContext context)
@@ -164,6 +216,7 @@ public class Player : MonoBehaviour
         lastDashTime = Time.time;
 
         Vector2 dashDir;
+
         if (moveInput.magnitude > 0)
             dashDir = moveInput.normalized;
         else
@@ -175,20 +228,12 @@ public class Player : MonoBehaviour
 
         if (dashDustPrefab != null)
         {
-            // 1. 파티클 생성
             GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity);
-
-            // 2. 파티클 시스템의 Main 모듈 가져오기
             var mainModule = dust.GetComponent<ParticleSystem>().main;
-
-            // 3. 저장해둔 주사위 색상 적용!
             mainModule.startColor = currentDiceColor;
-
-            // 4. (옵션) 1초 뒤 자동 삭제 스크립트가 없다면 여기서 처리
             Destroy(dust, 1.0f);
         }
 
-        // 사운드 재생   
         if (sfxDash != null)
             SoundManager.instance.PlaySFX(sfxDash, 0.4f);
 
@@ -208,24 +253,19 @@ public class Player : MonoBehaviour
 
     public void OnDie()
     {
-        // 1. 모든 상태 초기화
         isAttacking = false;
         isDashing = false;
         isCharging = false;
 
-        // 2. 더 이상 데미지 안 입게 무적 처리 (선택 사항)
         isInvincible = true;
 
-        // 3. 물리 엔진 정지 (미끄러짐 방지)
         rigid.linearVelocity = Vector2.zero;
-        rigid.simulated = false; // 다른 애들이랑 충돌 안 하게 (시체 위로 지나가게)
+        rigid.simulated = false;
 
-        // 4. 입력 시스템 끄기 (더 이상 조작 불가!)
         inputActions.Disable();
 
-        // 5. 비주얼 변경 (회색으로) & 애니메이션 멈춤
         spriteRenderer.color = Color.gray;
-        if (anim != null) anim.enabled = false; // 애니메이션 멈춰서 죽은 척
+        if (anim != null) anim.enabled = false;
 
         Debug.Log("Player: 으악 죽었다... (조작 불능 상태)");
     }
@@ -277,18 +317,15 @@ public class Player : MonoBehaviour
         currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
     }
 
-    // ★ [기존] 상태와 애니메이션 동시 변경
     public void SetChargingState(bool _isCharging)
     {
-        isCharging = _isCharging; // 실제 논리적 상태 (공격 불가 여부)
-        if (anim != null) anim.SetBool("IsCharging", isCharging); // 애니메이션
+        isCharging = _isCharging;
+        if (anim != null) anim.SetBool("IsCharging", isCharging);
     }
 
-    // ★ [신규] 애니메이션만 먼저 깨우는 함수 (공격은 여전히 불가)
     public void PlayWakeUpAnimation()
     {
         if (anim != null) anim.SetBool("IsCharging", false);
-        // 주의: isCharging 변수는 건드리지 않음!
     }
 
     public void SetDiceAnimation(int diceIndex)
@@ -303,19 +340,12 @@ public class Player : MonoBehaviour
         StartCoroutine(Co_OnHit());
     }
 
-    private void OnCollisionStay2D(Collision2D collision) { CheckContactDamage(collision.gameObject); }
-    private void OnTriggerStay2D(Collider2D collision) { CheckContactDamage(collision.gameObject); }
-    private void CheckContactDamage(GameObject target)
-    {
-        if (isInvincible) return;
-        if (target.CompareTag("Enemy")) OnDamage(bodyContactDamage);
-    }
-
     IEnumerator Co_OnHit()
     {
         isInvincible = true;
         float timer = 0f;
         bool isRed = false;
+
         while (timer < invincibleTime)
         {
             spriteRenderer.color = isRed ? Color.white : paleRed;
@@ -323,6 +353,7 @@ public class Player : MonoBehaviour
             yield return new WaitForSeconds(blinkSpeed);
             timer += blinkSpeed;
         }
+
         spriteRenderer.color = Color.white;
         isInvincible = false;
     }

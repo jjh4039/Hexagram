@@ -11316,10 +11316,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f43a48203c00d6947ab50e790209e1c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
-  rigid: {fileID: 0}
-  spriteRenderer: {fileID: 0}
-  anim: {fileID: 0}
-  stats: {fileID: 0}
+  rigid: {fileID: 843584027}
+  spriteRenderer: {fileID: 110785381}
+  anim: {fileID: 110785380}
+  stats: {fileID: 843584030}
   defaultMoveSpeed: 4
   minMoveSpeed: 0.5
   speedChangeRate: 5
@@ -11329,6 +11329,10 @@ MonoBehaviour:
   invincibleTime: 0.8
   blinkSpeed: 0.2
   bodyContactDamage: 5
+  contactCheckRadius: 0.3
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
   damageMultiplier: 1
   moveSpeedMultiplier: 1
   attackSpeedMultiplier: 1

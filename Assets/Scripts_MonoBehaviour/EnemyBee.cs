@@ -103,12 +103,14 @@ public class EnemyBee : Enemy
     void MoveToTarget()
     {
         if (isStunned) return;
+        if (rigid == null) return;
 
         if (anim != null)
             anim.SetBool("isMoving", true);
 
         Vector2 dir = (target.position - transform.position).normalized;
-        transform.Translate(dir * moveSpeed * Time.deltaTime);
+
+        rigid.linearVelocity = dir * moveSpeed;
     }
 
     IEnumerator Co_AttackSequence()

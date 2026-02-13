@@ -331,7 +331,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -381,11 +381,14 @@ MonoBehaviour:
   currentHealth: 0
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 7257983606833017565}
+  hpBarRoot: {fileID: 3577555172247904613}
   hpBarFill: {fileID: 7943057417735269897}
   hpBarObject: {fileID: 8794176841949738511}
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
+  hitStopDuration: 0.05
   sfxHit: {fileID: 8300000, guid: c2e7d4595958225459c1c95130d50c7b, type: 3}
-  hpBarRoot: {fileID: 3577555172247904613}
+  scrapPrefab: {fileID: 0}
+  dropChance: 100
 --- !u!1 &7228991817162864692
 GameObject:
   m_ObjectHideFlags: 0

@@ -458,12 +458,12 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.023433141, y: 0.29485464}
-  m_Size: {x: 0.46595302, y: 0.56739897}
+  m_Offset: {x: -0.021423273, y: 0.25867712}
+  m_Size: {x: 0.46193328, y: 0.49504393}
   m_Direction: 0
 --- !u!50 &2319379490117599435
 Rigidbody2D:
@@ -533,8 +533,8 @@ MonoBehaviour:
   indicatorScale: 0.45
   chargeTime: 1
   attackDelay: 0.15
-  knockbackForce: 2
-  stunTime: 0.5
+  knockbackForce: 4
+  stunTime: 0.4
 --- !u!1 &4549265805919899004
 GameObject:
   m_ObjectHideFlags: 0
