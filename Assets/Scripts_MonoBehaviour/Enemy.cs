@@ -24,6 +24,8 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer sr;
     private Coroutine flashRoutine;
 
+    [SerializeField] private float hitStopDuration = 0.035f;
+
     [Header("Sound")]
     [SerializeField] private AudioClip sfxHit;
 
@@ -35,7 +37,7 @@ public class Enemy : MonoBehaviour
     protected Collider2D col;
     protected bool isDead = false;
 
-    public bool IsDead => isDead; // 외부 확인용 프로퍼티
+    public bool IsDead => isDead;
 
     protected virtual void Awake()
     {
@@ -49,11 +51,10 @@ public class Enemy : MonoBehaviour
         currentHealth = maxHealth;
 
         if (scrapPrefab == null && GameManager.instance != null)
-        {
             scrapPrefab = GameManager.instance.commonScrapPrefab;
-        }
 
-        if (hpBarFill != null) initialScaleX = hpBarFill.localScale.x;
+        if (hpBarFill != null)
+            initialScaleX = hpBarFill.localScale.x;
 
         if (hpBarObject != null)
         {
@@ -61,7 +62,8 @@ public class Enemy : MonoBehaviour
             hpBarObject.SetActive(false);
         }
 
-        if (sr != null) originalMaterial = sr.material;
+        if (sr != null)
+            originalMaterial = sr.material;
     }
 
     public virtual void TakeDamage(float damage, bool isCritical = false)
@@ -70,7 +72,14 @@ public class Enemy : MonoBehaviour
 
         currentHealth -= damage;
 
-        if (hpBarObject != null && !hpBarObject.activeSelf) hpBarObject.SetActive(true);
+        if (GameManager.instance != null)
+            GameManager.instance.HitStop(hitStopDuration);
+
+        if (CameraFollow.instance != null)
+            CameraFollow.instance.HitShake(0.03f, 0.02f);
+
+        if (hpBarObject != null && !hpBarObject.activeSelf)
+            hpBarObject.SetActive(true);
 
         if (hpBarFill != null)
         {
@@ -79,7 +88,8 @@ public class Enemy : MonoBehaviour
             hpBarFill.localScale = new Vector3(initialScaleX * ratio, hpBarFill.localScale.y, hpBarFill.localScale.z);
         }
 
-        if (sfxHit != null) SoundManager.instance.PlaySFX(sfxHit, 0.3f, 0.1f);
+        if (sfxHit != null)
+            SoundManager.instance.PlaySFX(sfxHit, 0.3f, 0.1f);
 
         if (damageTextPrefab != null)
         {
@@ -108,7 +118,8 @@ public class Enemy : MonoBehaviour
 
     protected virtual void OnHit()
     {
-        if (anim != null) anim.SetTrigger("Hit");
+        if (anim != null)
+            anim.SetTrigger("Hit");
     }
 
     protected virtual void Die()
@@ -119,19 +130,15 @@ public class Enemy : MonoBehaviour
         if (shadowObject != null) shadowObject.SetActive(false);
 
         if (anim != null)
-        {
-            anim.Play("Enemy_Die", 0, 0f); // ★ 무조건 0프레임
-        }
+            anim.Play("Enemy_Die", 0, 0f);
 
         if (scrapPrefab != null && Random.Range(0, 100) < dropChance)
-        {
             Instantiate(scrapPrefab, transform.position, Quaternion.identity);
-        }
 
         if (hpBarObject != null && gameObject.activeInHierarchy)
             StartCoroutine(FadeOutHpBar());
 
-        Destroy(gameObject, 1.0f); // (Die 클립 길이에 맞게 조절)
+        Destroy(gameObject, 1.0f);
     }
 
     private IEnumerator FadeOutHpBar()
@@ -146,6 +153,7 @@ public class Enemy : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+
             foreach (SpriteRenderer s in hpBarSprites)
             {
                 if (s != null)
@@ -154,8 +162,10 @@ public class Enemy : MonoBehaviour
                     s.color = new Color(c.r, c.g, c.b, alpha);
                 }
             }
+
             yield return null;
         }
+
         hpBarObject.SetActive(false);
     }
 

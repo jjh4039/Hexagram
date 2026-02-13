@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 505829285079625890}
   - component: {fileID: 4170140526945768580}
   - component: {fileID: 3112823426160615821}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Bullet_Sniper
-  m_TagString: Untagged
+  m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

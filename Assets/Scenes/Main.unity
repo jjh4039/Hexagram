@@ -4101,6 +4101,8 @@ MonoBehaviour:
   smoothSpeed: 5
   mouseInfluence: 0.05
   maxMouseOffset: 1
+  shakeDecaySpeed: 5
+  hitShakeCooldown: 0.05
 --- !u!1 &593698556
 GameObject:
   m_ObjectHideFlags: 0
@@ -4234,7 +4236,6 @@ MonoBehaviour:
   ammoGain: 10
   hitCount: 1
   hitInterval: 0.05
-  hitStopDuration: 0.03
 --- !u!70 &593698561
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -4269,8 +4270,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.019166669, y: 0.17546487}
-  m_Size: {x: 1.0767367, y: 1.1742419}
+  m_Offset: {x: 0.019166669, y: 0.2001075}
+  m_Size: {x: 1.0767367, y: 1.223527}
   m_Direction: 0
 --- !u!1 &594621083
 GameObject:
@@ -11890,10 +11891,10 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1876148070132325074, guid: fa3e55806af1f0a4982f90b76b7908ab, type: 3}
   fireRate: 0.125
   playerKnockbackForce: 3
-  gunRecoilDistance: 0.2
-  gunRecoilDuration: 0.1
+  gunRecoilDistance: 0.5
+  gunRecoilDuration: 0.2
   shakeDuration: 0.05
-  shakeMagnitude: 0.01
+  shakeMagnitude: 0.02
   fadeSpeed: 10
   sfxShoot: {fileID: 8300000, guid: f8f3a8347d84bbe4f8a46fda53926978, type: 3}
 --- !u!120 &915940261
@@ -19860,7 +19861,6 @@ MonoBehaviour:
   ammoGain: 10
   hitCount: 1
   hitInterval: 0.05
-  hitStopDuration: 0.03
 --- !u!70 &1826355016
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -19895,8 +19895,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.019166669, y: 0.17546487}
-  m_Size: {x: 1.0767367, y: 1.1742419}
+  m_Offset: {x: 0.01916679, y: 0.2052955}
+  m_Size: {x: 1.0974885, y: 1.2339032}
   m_Direction: 0
 --- !u!1 &1834417349
 GameObject:
@@ -22678,7 +22678,6 @@ MonoBehaviour:
   ammoGain: 10
   hitCount: 3
   hitInterval: 0.075
-  hitStopDuration: 0.02
 --- !u!95 &2122407933
 Animator:
   serializedVersion: 7
@@ -22794,8 +22793,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.019167623, y: 0.35918513}
-  m_Size: {x: 1.076734, y: 1.5834398}
+  m_Offset: {x: 0.019167623, y: 0.37269777}
+  m_Size: {x: 1.076734, y: 1.6104658}
   m_Direction: 0
 --- !u!1 &2128327788
 GameObject:

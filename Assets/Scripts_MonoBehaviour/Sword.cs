@@ -28,9 +28,6 @@ public class Sword : MonoBehaviour
     private int comboStep = 0;
     private Vector2 mouseWorldPos;
 
-    // ... (Awake, OnEnable, OnDisable, OnAttackInput, Update, HandleChargingVisuals, TryAttack 등 기존 로직 유지) ...
-    // (위쪽 코드는 바뀐 게 없어서 생략합니다. ExecuteAttack만 보시면 됩니다!)
-
     private void Awake()
     {
         weaponManager = GetComponentInParent<WeaponManager>();

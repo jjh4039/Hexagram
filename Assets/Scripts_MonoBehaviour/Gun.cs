@@ -12,8 +12,6 @@ public class Gun : MonoBehaviour
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private float laserLength = 50f;
 
-    // ★ [추가] 레이저가 막힐 장애물 레이어 (벽, 땅 등)
-    // Inspector에서 'Wall' 레이어를 체크해주시면 됩니다.
     [SerializeField] private LayerMask obstacleLayer;
 
     [Header("Shooting Settings")]
@@ -23,12 +21,12 @@ public class Gun : MonoBehaviour
 
     [Header("Recoil Settings")]
     [SerializeField] private float playerKnockbackForce = 3f;
-    [SerializeField] private float gunRecoilDistance = 0.2f;
-    [SerializeField] private float gunRecoilDuration = 0.1f;
+    [SerializeField] private float gunRecoilDistance = 0.5f;
+    [SerializeField] private float gunRecoilDuration = 0.2f;
 
     [Header("VFX Settings")]
-    [SerializeField] private float shakeDuration = 0.1f;
-    [SerializeField] private float shakeMagnitude = 0.2f;
+    [SerializeField] private float shakeDuration = 0.05f;
+    [SerializeField] private float shakeMagnitude = 0.02f;
     [SerializeField] private float fadeSpeed = 10f;
 
     [Header("Sound")]
@@ -146,7 +144,7 @@ public class Gun : MonoBehaviour
             SoundManager.instance.PlaySFX(sfxShoot, 0.2f);
 
         Recoil();
-        if (CameraFollow.instance != null) CameraFollow.instance.Shake(shakeDuration, shakeMagnitude);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
     }
 
     private void Recoil()

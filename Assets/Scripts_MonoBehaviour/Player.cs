@@ -193,7 +193,7 @@ public class Player : MonoBehaviour
             SoundManager.instance.PlaySFX(sfxDash, 0.4f);
 
         if (CameraFollow.instance != null)
-            CameraFollow.instance.Shake(shakeDuration, shakeMagnitude);
+            CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
 
         rigid.linearVelocity = dashDir * dashSpeed;
 

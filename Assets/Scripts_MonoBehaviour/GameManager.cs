@@ -5,6 +5,7 @@ using System.Collections;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
+
     public Player player;
     public PlayerStats stats;
     public WeaponUI weaponUI;
@@ -21,18 +22,25 @@ public class GameManager : MonoBehaviour
     public int currentScrap = 0;
     public TextMeshProUGUI scrapText;
 
+    private float hitStopTimer = 0f;
+    private bool isHitStopping = false;
+
     private Coroutine scrapPunchRoutine;
     private Vector3 scrapTextOriginScale;
 
     public int currentProgress = 0;
     public int maxProgress = 100;
 
-    // ★ [추가] 힛스탑 중인지 체크하는 변수
-    private bool isHitStopping = false;
+    // =========================
+    // ★ HitStop System
+    // =========================
+    private Coroutine hitStopCoroutine;
+    private float originalFixedDeltaTime;
 
     void Awake()
     {
         instance = this;
+        originalFixedDeltaTime = Time.fixedDeltaTime;
     }
 
     void Start()
@@ -44,26 +52,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // =========================================================
+    // Stage Load
+    // =========================================================
     public void LoadStage(StageData stageData)
     {
-        if (currentStageObj != null) Destroy(currentStageObj);
-        if (mapManager != null) mapManager.mapVisualRoot.SetActive(false);
+        if (currentStageObj != null)
+            Destroy(currentStageObj);
+
+        if (mapManager != null)
+            mapManager.mapVisualRoot.SetActive(false);
 
         if (stageData.stagePrefabs != null && stageData.stagePrefabs.Length > 0)
         {
             int randomIndex = Random.Range(0, stageData.stagePrefabs.Length);
             GameObject selectedPrefab = stageData.stagePrefabs[randomIndex];
+
             currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity);
 
             StageController controller = currentStageObj.GetComponent<StageController>();
-            if (controller != null) controller.InitStage();
+            if (controller != null)
+                controller.InitStage();
 
-            if (CameraFollow.instance != null) CameraFollow.instance.SnapToTarget();
+            if (CameraFollow.instance != null)
+                CameraFollow.instance.SnapToTarget();
 
             if (StageMessageUI.instance != null)
-            {
                 StageMessageUI.instance.ShowEntryMessage(stageData.stageName, stageData.description);
-            }
         }
         else
         {
@@ -71,6 +86,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // =========================================================
+    // Scrap
+    // =========================================================
     public void AddScrap(int amount)
     {
         currentScrap += amount;
@@ -78,7 +96,9 @@ public class GameManager : MonoBehaviour
 
         if (scrapText != null)
         {
-            if (scrapPunchRoutine != null) StopCoroutine(scrapPunchRoutine);
+            if (scrapPunchRoutine != null)
+                StopCoroutine(scrapPunchRoutine);
+
             scrapPunchRoutine = StartCoroutine(ScrapTextPunch());
         }
     }
@@ -86,9 +106,7 @@ public class GameManager : MonoBehaviour
     private void UpdateScrapUI()
     {
         if (scrapText != null)
-        {
             scrapText.text = $"{currentScrap}";
-        }
     }
 
     private IEnumerator ScrapTextPunch()
@@ -103,36 +121,42 @@ public class GameManager : MonoBehaviour
             float t = elapsed / duration;
 
             float scale = Mathf.Sin(t * Mathf.PI);
-            scrapText.transform.localScale = Vector3.Lerp(scrapTextOriginScale, targetScale, scale);
+            scrapText.transform.localScale =
+                Vector3.Lerp(scrapTextOriginScale, targetScale, scale);
+
             yield return null;
         }
+
         scrapText.transform.localScale = scrapTextOriginScale;
     }
 
     // =========================================================
-    // ★ [추가] 타격 정지 (Hit Stop) 기능
-    // duration: 멈출 시간 (보통 0.05 ~ 0.1초 사용)
+    // ★ Hit Stop (안정 버전)
     // =========================================================
     public void HitStop(float duration)
     {
-        // 이미 멈춰있다면 중복 실행 방지 (여러 마리 때릴 때 렉 걸리는 느낌 방지)
-        if (isHitStopping) return;
+        // 더 긴 히트스탑이 들어오면 연장
+        hitStopTimer = Mathf.Max(hitStopTimer, duration);
 
-        StartCoroutine(HitStopRoutine(duration));
+        if (!isHitStopping)
+            StartCoroutine(HitStopRoutine());
     }
 
-    private IEnumerator HitStopRoutine(float duration)
+    private IEnumerator HitStopRoutine()
     {
         isHitStopping = true;
 
-        // 1. 시간을 멈춤
-        Time.timeScale = 0.0f;
+        Time.timeScale = 0.2f;
+        Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale;
 
-        // 2. 실제 시간(Realtime)으로 대기 (timeScale이 0이라 WaitForSeconds는 안 먹힘)
-        yield return new WaitForSecondsRealtime(duration);
+        while (hitStopTimer > 0f)
+        {
+            hitStopTimer -= Time.unscaledDeltaTime;
+            yield return null;
+        }
 
-        // 3. 시간 원상복구
-        Time.timeScale = 1.0f;
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = originalFixedDeltaTime;
 
         isHitStopping = false;
     }

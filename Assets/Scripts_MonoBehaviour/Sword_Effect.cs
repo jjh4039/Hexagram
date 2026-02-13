@@ -12,14 +12,13 @@ public class Sword_Effect : MonoBehaviour
     [SerializeField] private int hitCount = 1;
     [SerializeField] private float hitInterval = 0.05f;
 
-    [Header("Game Feel")]
-    [SerializeField] private float hitStopDuration = 0.07f; // ★ [추가] 멈출 시간 설정 (0.05 ~ 0.1 추천)
-
     private SpriteRenderer spriteRenderer;
+    private CapsuleCollider2D capsule;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        capsule = GetComponent<CapsuleCollider2D>();
     }
 
     private void OnEnable()
@@ -33,24 +32,29 @@ public class Sword_Effect : MonoBehaviour
 
         StopAllCoroutines();
         StartCoroutine(FadeOutRoutine());
+        ProcessHit();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void ProcessHit()
     {
-        if (other.CompareTag("Enemy"))
-        {
-            Enemy enemy = other.GetComponent<Enemy>();
-            if (enemy != null)
-            {
-                // ★ [추가] 적을 때리는 순간! 시간을 멈춰라!
-                // 카메라 흔들림(Camera Shake)도 같이 넣으면 금상첨화지만, 일단 정지부터.
-                if (GameManager.instance != null)
-                {
-                    GameManager.instance.HitStop(hitStopDuration);
-                }
+        if (capsule == null) return;
 
+        Vector2 point = (Vector2)transform.position + capsule.offset;
+        Vector2 size = capsule.size;
+
+        Collider2D[] hits = Physics2D.OverlapCapsuleAll(
+            point,
+            size,
+            capsule.direction,
+            transform.eulerAngles.z,
+            LayerMask.GetMask("Enemy")
+        );
+
+        foreach (var hit in hits)
+        {
+            Enemy enemy = hit.GetComponent<Enemy>();
+            if (enemy != null)
                 StartCoroutine(ProcessMultiHit(enemy));
-            }
         }
     }
 
@@ -65,14 +69,14 @@ public class Sword_Effect : MonoBehaviour
         {
             currentDmg *= 2.0f;
             player.remainingStrongAttacks--;
-            Debug.Log("강화된 검격 적중!");
         }
 
         float variance = stats.meleeDamageVariance;
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (enemy == null || !enemy.gameObject.activeSelf) yield break;
+            if (enemy == null || !enemy.gameObject.activeSelf)
+                yield break;
 
             float randomMult = Random.Range(1.1f - variance, 1.1f);
             int finalDamage = Mathf.RoundToInt(currentDmg * randomMult);
@@ -81,14 +85,13 @@ public class Sword_Effect : MonoBehaviour
             enemy.TakeDamage(finalDamage);
 
             if (stats.currentAmmo < stats.maxAmmo)
-            {
                 stats.currentAmmo = Mathf.Min(stats.currentAmmo + ammoGain, stats.maxAmmo);
-            }
 
-            if (i < hitCount - 1) yield return new WaitForSeconds(hitInterval);
+            if (i < hitCount - 1)
+                yield return new WaitForSeconds(hitInterval);
         }
     }
-
+    
     private IEnumerator FadeOutRoutine()
     {
         yield return new WaitForSeconds(duration * 0.7f);
