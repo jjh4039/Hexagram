@@ -33,6 +33,11 @@ public class EnemyBee : Enemy
     [SerializeField] private float knockbackForce = 4f;
     [SerializeField] private float stunTime = 0.25f;
 
+    [Header("Muzzle Flash")]
+    [SerializeField] private GameObject projectileFlashPrefab;
+    [SerializeField] private float flashDistance = 0.3f;
+    [SerializeField] private float fireRecoilForce = 0.6f;
+
     private Transform target;
     private Rigidbody2D rigid;
 
@@ -185,6 +190,26 @@ public class EnemyBee : Enemy
     {
         if (projectilePrefab == null) return;
 
+        // 1. 플래시 생성
+        if (projectileFlashPrefab != null)
+        {
+            Vector3 flashPos = headPoint.position + (Vector3)(dir.normalized * flashDistance);
+
+            GameObject flash = Instantiate(
+                projectileFlashPrefab,
+                flashPos,
+                Quaternion.identity);
+
+            flash.transform.right = dir;
+        }
+
+        // 2. 발사 반동 (공격 방향 반대)
+        if (rigid != null)
+        {
+            rigid.AddForce(-dir.normalized * fireRecoilForce, ForceMode2D.Impulse);
+        }
+
+        // 3. 투사체 생성
         GameObject proj = Instantiate(
             projectilePrefab,
             headPoint.position,

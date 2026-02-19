@@ -837,3 +837,5 @@ MonoBehaviour:
   homingStrength: 5
   knockbackForce: 4
   stunTime: 0.3
+  projectileFlashPrefab: {fileID: 4735906407627503139, guid: a6dd218cd6b418249a8db5f956d727a8, type: 3}
+  flashDistance: 0.3
