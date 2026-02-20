@@ -39,22 +39,29 @@ public class Sword_Effect : MonoBehaviour
     {
         if (capsule == null) return;
 
-        Vector2 point = (Vector2)transform.position + capsule.offset;
-        Vector2 size = capsule.size;
+        // ★ [핵심 1] 1타 씹힘 완벽 해결: 물리 엔진에게 위치 강제 동기화 명령
+        Physics2D.SyncTransforms();
 
-        Collider2D[] hits = Physics2D.OverlapCapsuleAll(
-            point,
-            size,
-            capsule.direction,
-            transform.eulerAngles.z,
-            LayerMask.GetMask("Enemy")
-        );
+        ContactFilter2D filter = new ContactFilter2D();
+        filter.SetLayerMask(LayerMask.GetMask("Enemy"));
+        filter.useLayerMask = true;
+        filter.useTriggers = true;
 
-        foreach (var hit in hits)
+        Collider2D[] hits = new Collider2D[10];
+
+        // ★ [수정됨] OverlapCollider 대신 최신 API인 Overlap 사용!
+        int hitCount = capsule.Overlap(filter, hits);
+
+        for (int i = 0; i < hitCount; i++)
         {
-            Enemy enemy = hit.GetComponent<Enemy>();
-            if (enemy != null)
-                StartCoroutine(ProcessMultiHit(enemy));
+            if (hits[i] != null) // 안전장치
+            {
+                Enemy enemy = hits[i].GetComponent<Enemy>();
+                if (enemy != null)
+                {
+                    StartCoroutine(ProcessMultiHit(enemy));
+                }
+            }
         }
     }
 

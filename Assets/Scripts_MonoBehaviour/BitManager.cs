@@ -65,22 +65,41 @@ public class BitManager : MonoBehaviour
     /// </summary>
     public void OpenBitUI()
     {
-        // 1. 상태 초기화
+        // 1. 상태 및 비주얼 완전 초기화
         isInitialized = false;
         selectedIndex = -1;
         usedArtifacts.Clear();
+
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+
+        // ★ [핵심 추가] 모든 카드의 시각적 상태 리셋
+        for (int i = 0; i < bitChoices.Length; i++)
+        {
+            // 1) Hover 상태 리셋 (위치 초기화)
+            isHovering[i] = false;
+            if (hoverCoroutines[i] != null) StopCoroutine(hoverCoroutines[i]);
+            bitChoices[i].rect.anchoredPosition = bitChoices[i].initialAnchoredPos;
+            bitChoices[i].rect.localScale = Vector3.one; // 혹시 커졌을 스케일 대비
+
+            // 2) 선택 효과(Glow) 리셋
+            if (bitChoices[i].choiceEffect != null)
+                bitChoices[i].choiceEffect.enabled = false;
+
+            // 3) 알파값 리셋 (등장 연출을 위해 0으로)
+            if (bitChoices[i].group != null)
+                bitChoices[i].group.alpha = 0;
+        }
 
         // 2. 데이터 세팅
         SetupBitChoices();
 
-        // 3. 시간 정지 (UI 조작 중 게임 멈춤)
+        // 3. 시간 정지
         Time.timeScale = 0f;
         if (sfxIntro != null) SoundManager.instance.PlaySFX(sfxIntro, 0.15f, 0.1f);
 
         // 4. 연출 시작
         StopAllCoroutines();
-        gameObject.SetActive(true); // 비활성화 되어있을 경우를 대비
+        gameObject.SetActive(true);
         if (backgroundImage != null) StartCoroutine(LoopBackgroundAnimation());
         StartCoroutine(SequenceIntro());
     }

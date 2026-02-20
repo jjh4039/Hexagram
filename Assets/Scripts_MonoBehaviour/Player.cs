@@ -29,6 +29,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float blinkSpeed = 0.2f;
     [SerializeField] private float bodyContactDamage = 5f;
 
+    // ★ [1번, 3번 구현을 위해 새로 추가된 변수들]
+    [Header("Hit Feedback (New)")]
+    [SerializeField] private Material flashMaterial;      // 만들어두신 플래시 머티리얼 할당!
+    [SerializeField] private float flashDuration = 0.1f;  // 번쩍! 하는 시간 (0.1초면 충분합니다)
+    [SerializeField] private float hitShakeDuration = 0.1f;  // 피격 시 카메라 진동 시간
+    [SerializeField] private float hitShakeMagnitude = 0.05f; // 피격 시 카메라 진동 강도
+    [SerializeField] private float playerHitStopDuration = 0.12f;
+
+    private Material originalMaterial; // 원래 머티리얼로 되돌리기 위한 저장소
+
     [Header("Contact Damage Settings")]
     [SerializeField] private float contactCheckRadius = 0.6f;
     [SerializeField] private LayerMask enemyLayer;
@@ -68,6 +78,7 @@ public class Player : MonoBehaviour
 
     [Header("Sound")]
     [SerializeField] private AudioClip sfxDash;
+    [SerializeField] private AudioClip sfxHit;
 
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
 
@@ -78,6 +89,12 @@ public class Player : MonoBehaviour
         inputActions = new PlayerInput();
         stats = GetComponent<PlayerStats>();
         anim = GetComponentInChildren<Animator>();
+
+        // ★ 시작할 때 플레이어의 원래 머티리얼(기본값)을 저장해 둡니다.
+        if (spriteRenderer != null)
+        {
+            originalMaterial = spriteRenderer.material;
+        }
 
         currentMoveSpeed = defaultMoveSpeed;
         rigid.gravityScale = 0;
@@ -119,7 +136,6 @@ public class Player : MonoBehaviour
         CheckContactDamage();
     }
 
-    // 새 충돌 처리
     private void CheckContactDamage()
     {
         if (isInvincible) return;
@@ -337,24 +353,64 @@ public class Player : MonoBehaviour
     {
         if (isInvincible) return;
         if (stats != null) stats.TakeDamage((int)damage);
+
+        // 카메라 셰이크 
+        if (CameraFollow.instance != null)
+        {
+            CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
+        }
+
+        // ★ [새로 추가된 로직] 플레이어 피격 시 강렬한 히트 스탑 발생!
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.HitStop(playerHitStopDuration);
+        }
+
+        if (sfxHit != null && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlaySFX(sfxHit, 0.9f);
+        }
+
         StartCoroutine(Co_OnHit());
     }
 
+    // ★ [수정됨] 피격 연출의 꽃 (화이트 플래시 -> 빨간 깜빡임)
     IEnumerator Co_OnHit()
     {
         isInvincible = true;
         float timer = 0f;
-        bool isRed = false;
+
+        // 1. 화이트 플래시 (머티리얼 교체)
+        if (flashMaterial != null && spriteRenderer != null)
+        {
+            spriteRenderer.material = flashMaterial;
+            spriteRenderer.color = Color.white; // 혹시나 붉은색이 남아있을까봐 하얗게 초기화
+
+            yield return new WaitForSeconds(flashDuration);
+            timer += flashDuration;
+
+            // 플래시가 끝나면 원래 머티리얼로 복구!
+            spriteRenderer.material = originalMaterial;
+        }
+
+        // 2. 이후 기존처럼 남은 시간 동안 붉은색 깜빡임 진행
+        bool isRed = true; // 하얀색 플래시 직후니까 바로 빨간색부터 보여주면 아주 자연스럽습니다.
 
         while (timer < invincibleTime)
         {
-            spriteRenderer.color = isRed ? Color.white : paleRed;
+            spriteRenderer.color = isRed ? paleRed : Color.white;
             isRed = !isRed;
             yield return new WaitForSeconds(blinkSpeed);
             timer += blinkSpeed;
         }
 
-        spriteRenderer.color = Color.white;
+        // 연출 종료 후 완전 초기화
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = Color.white;
+            spriteRenderer.material = originalMaterial; // 안전장치
+        }
+
         isInvincible = false;
     }
 

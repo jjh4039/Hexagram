@@ -819,7 +819,7 @@ MonoBehaviour:
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
   hitStopDuration: 0.035
   sfxHit: {fileID: 8300000, guid: c2e7d4595958225459c1c95130d50c7b, type: 3}
-  scrapPrefab: {fileID: 0}
+  scrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
   dropChance: 100
   moveSpeed: 2.5
   spriteScale: 1.2
@@ -839,3 +839,5 @@ MonoBehaviour:
   stunTime: 0.3
   projectileFlashPrefab: {fileID: 4735906407627503139, guid: a6dd218cd6b418249a8db5f956d727a8, type: 3}
   flashDistance: 0.3
+  fireRecoilForce: 0.6
+  sfxFire: {fileID: 8300000, guid: 0a70d9583858e944d8a807dd86a5e251, type: 3}

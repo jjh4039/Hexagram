@@ -8,25 +8,46 @@ public class CameraFollow : MonoBehaviour
     [Header("Target")]
     public Transform player;
 
+    [Header("Weapon Link (For Aiming)")]
+    public WeaponManager weaponManager;
+
+    [Header("Pixel Perfect Camera")]
+    public Behaviour pixelCam;
+
     [Header("Settings")]
     [Range(1f, 10f)] public float smoothSpeed = 5f;
     [Range(0.01f, 0.5f)] public float mouseInfluence = 0.05f;
     public float maxMouseOffset = 1.0f;
 
+    [Header("Aim & Zoom Settings")]
+    [SerializeField] private float aimMouseInfluence = 0.15f;
+    [SerializeField] private float aimMaxMouseOffset = 2.0f;
+
+    [Tooltip("에임 시 화면을 몇 배로 만들 것인가? (0.95 = 5% 줌인)")]
+    [SerializeField] private float aimZoomMultiplier = 0.95f;
+    [SerializeField] private float aimTransitionSpeed = 5f;
+
     [Header("Shake Settings")]
-    [SerializeField] private float shakeDecaySpeed = 5f; // 감쇠 속도 (과하지 않게)
+    [SerializeField] private float shakeDecaySpeed = 5f;
 
     private Vector3 offset;
     private Vector3 shakeOffset;
-
     private float shakeTimer = 0f;
     private float currentShakeMagnitude = 0f;
     private float lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
 
+    private float currentInfluence;
+    private float currentMaxOffset;
+    private Camera cam;
+
+    private bool wasAiming = false;
+    private float dynamicBaseOrthoSize = 5f;
+
     private void Awake()
     {
         instance = this;
+        cam = GetComponent<Camera>();
     }
 
     void Start()
@@ -36,18 +57,15 @@ public class CameraFollow : MonoBehaviour
         offset = transform.position - player.position;
         offset.x = 0;
         offset.y = 0;
+
+        currentInfluence = mouseInfluence;
+        currentMaxOffset = maxMouseOffset;
     }
 
-    // 누적형 Shake
     public void HitShake(float duration, float magnitude)
     {
-        if (Time.time - lastHitShakeTime < hitShakeCooldown)
-            return;
-
-        lastHitShakeTime = Time.time;
-
-        shakeTimer = duration;
-        currentShakeMagnitude = magnitude;
+        if (Time.time - lastHitShakeTime < hitShakeCooldown) return;
+        lastHitShakeTime = Time.time; shakeTimer = duration; currentShakeMagnitude = magnitude;
     }
 
     private void UpdateShake()
@@ -55,19 +73,12 @@ public class CameraFollow : MonoBehaviour
         if (shakeTimer > 0f)
         {
             shakeTimer -= Time.deltaTime;
-
             float x = Random.Range(-1f, 1f) * currentShakeMagnitude;
             float y = Random.Range(-1f, 1f) * currentShakeMagnitude;
-
             shakeOffset = new Vector3(x, y, 0);
-
-            // 점점 강도 줄이기 (자연스럽게 사라짐)
             currentShakeMagnitude = Mathf.Lerp(currentShakeMagnitude, 0f, Time.deltaTime * shakeDecaySpeed);
         }
-        else
-        {
-            shakeOffset = Vector3.zero;
-        }
+        else shakeOffset = Vector3.zero;
     }
 
     void LateUpdate()
@@ -77,32 +88,68 @@ public class CameraFollow : MonoBehaviour
 
         UpdateShake();
 
-        Vector3 targetPosition = player.position + offset;
+        bool isRightClickDown = Mouse.current.rightButton.isPressed;
+        bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
+        bool isAiming = isRightClickDown && isGunEquipped;
 
+        // ★ [버그 해결!] 우클릭을 누르기 시작한 '첫 프레임'
+        if (isAiming && !wasAiming)
+        {
+            // 픽셀 퍼펙트 카메라가 '켜져 있을 때만' (즉, 줌이 완전히 풀린 기본 상태일 때만) 진짜 사이즈 캡처!
+            // 꺼져 있다면 줌 아웃 도중에 다시 누른 것이므로 기존의 값을 안전하게 유지합니다.
+            if (pixelCam == null || pixelCam.enabled)
+            {
+                dynamicBaseOrthoSize = cam.orthographicSize;
+            }
+        }
+        wasAiming = isAiming;
+
+        if (pixelCam != null)
+        {
+            if (isAiming)
+            {
+                pixelCam.enabled = false;
+            }
+            else if (!pixelCam.enabled && Mathf.Abs(cam.orthographicSize - dynamicBaseOrthoSize) < 0.01f)
+            {
+                cam.orthographicSize = dynamicBaseOrthoSize;
+                pixelCam.enabled = true;
+            }
+        }
+
+        float targetInfluence = isAiming ? aimMouseInfluence : mouseInfluence;
+        float targetMaxOffset = isAiming ? aimMaxMouseOffset : maxMouseOffset;
+
+        float targetOrthoSize = isAiming ? (dynamicBaseOrthoSize * aimZoomMultiplier) : dynamicBaseOrthoSize;
+
+        currentInfluence = Mathf.Lerp(currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
+        currentMaxOffset = Mathf.Lerp(currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
+
+        if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
+        {
+            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, aimTransitionSpeed * Time.deltaTime);
+        }
+
+        Vector3 targetPosition = player.position + offset;
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         Vector3 directionToMouse = mouseWorldPos - player.position;
         directionToMouse.z = 0;
 
-        Vector3 finalOffset = directionToMouse * mouseInfluence;
-        finalOffset = Vector3.ClampMagnitude(finalOffset, maxMouseOffset);
+        Vector3 finalOffset = directionToMouse * currentInfluence;
+        finalOffset = Vector3.ClampMagnitude(finalOffset, currentMaxOffset);
         targetPosition += finalOffset;
 
-        Vector3 smoothedPos =
-            Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
-
+        Vector3 smoothedPos = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
         transform.position = smoothedPos + shakeOffset;
     }
 
     public void SnapToTarget()
     {
         if (player == null) return;
-
         Vector3 targetPos = player.position + offset;
         transform.position = targetPos;
-
         shakeOffset = Vector3.zero;
-        shakeTimer = 0f;
-        currentShakeMagnitude = 0f;
+        shakeTimer = 0f; currentShakeMagnitude = 0f;
     }
 }

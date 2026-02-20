@@ -38,6 +38,9 @@ public class EnemyBee : Enemy
     [SerializeField] private float flashDistance = 0.3f;
     [SerializeField] private float fireRecoilForce = 0.6f;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip sfxFire; // ★ 벌 발사 사운드 추가
+
     private Transform target;
     private Rigidbody2D rigid;
 
@@ -75,14 +78,9 @@ public class EnemyBee : Enemy
     {
         while (!isDead)
         {
-            if (target == null)
+            if (target == null || isStunned)
             {
-                yield return null;
-                continue;
-            }
-
-            if (isStunned)
-            {
+                if (rigid != null) rigid.linearVelocity = Vector2.zero; // 멈춤 처리
                 yield return null;
                 continue;
             }
@@ -101,21 +99,29 @@ public class EnemyBee : Enemy
                 }
             }
 
-            yield return null;
+            // ★ 핵심: 프레임이 아닌 물리 주기에 맞춰 루프를 돌림 (녹화 중 속도 저하 방지)
+            yield return new WaitForFixedUpdate();
         }
     }
 
     void MoveToTarget()
     {
-        if (isStunned) return;
-        if (rigid == null) return;
+        if (isStunned || rigid == null) return;
 
-        if (anim != null)
-            anim.SetBool("isMoving", true);
+        if (anim != null) anim.SetBool("isMoving", true);
 
         Vector2 dir = (target.position - transform.position).normalized;
-
+        // 매 물리 프레임마다 일정한 속도를 주입
         rigid.linearVelocity = dir * moveSpeed;
+    }
+
+    // CancelAttack이나 Die 호출 시 속도를 0으로 만드는 로직을 포함하면 더 깔끔합니다.
+    void CancelAttack()
+    {
+        if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+        if (rigid != null) rigid.linearVelocity = Vector2.zero; // 공격 취소 시 관성 제거
+        ClearRectangles();
+        isAttacking = false;
     }
 
     IEnumerator Co_AttackSequence()
@@ -209,6 +215,12 @@ public class EnemyBee : Enemy
             rigid.AddForce(-dir.normalized * fireRecoilForce, ForceMode2D.Impulse);
         }
 
+        if (sfxFire != null && SoundManager.instance != null)
+        {
+            // 플레이어의 총소리(0.2f)보다는 약간 작게 설정하여 거리감을 줍니다.
+            SoundManager.instance.PlaySFX(sfxFire, 0.35f, 0.05f);
+        }
+
         // 3. 투사체 생성
         GameObject proj = Instantiate(
             projectilePrefab,
@@ -261,15 +273,6 @@ public class EnemyBee : Enemy
         isStunned = false;
     }
 
-    void CancelAttack()
-    {
-        if (attackCoroutine != null)
-            StopCoroutine(attackCoroutine);
-
-        ClearRectangles();
-        isAttacking = false;
-    }
-
     void ClearRectangles()
     {
         if (maxRectInstance != null)
@@ -277,5 +280,19 @@ public class EnemyBee : Enemy
 
         if (currentRectInstance != null)
             Destroy(currentRectInstance);
+    }
+
+    protected override void Die()
+    {
+        CancelAttack();
+
+        base.Die();
+
+        // 3. 사망 후 불필요한 물리 연산 중단
+        if (rigid != null)
+        {
+            rigid.linearVelocity = Vector2.zero;
+            rigid.simulated = false;
+        }
     }
 }

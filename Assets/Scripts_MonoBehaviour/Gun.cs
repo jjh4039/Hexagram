@@ -179,17 +179,27 @@ public class Gun : MonoBehaviour
 
     private System.Collections.IEnumerator VisualRecoilRoutine()
     {
-        Vector3 originalPos = new Vector3(0.05f, 0, 0);
-        Vector3 recoilPos = originalPos - (Vector3.right * gunRecoilDistance);
-        transform.localPosition = recoilPos;
+        // 1. 반동 전 원래 위치(상대 좌표)를 기억합니다.
+        Vector3 originalLocalPos = new Vector3(0.05f, 0, 0);
+
+        // 2. 현재 총이 바라보는 방향(transform.right)의 반대 방향으로 반동 위치를 계산합니다.
+        // transform.right는 월드 방향이므로, 부모의 회전을 고려한 로컬 오프셋으로 변환합니다.
+        Vector3 recoilOffset = transform.right * -gunRecoilDistance;
+
+        // 3. 월드 오프셋을 부모 좌표계 기준으로 변환하여 localPosition에 적용합니다.
+        transform.position += recoilOffset;
+        Vector3 recoilLocalPos = transform.localPosition;
+
         float elapsed = 0f;
         while (elapsed < gunRecoilDuration)
         {
             elapsed += Time.deltaTime;
-            transform.localPosition = Vector3.Lerp(recoilPos, originalPos, elapsed / gunRecoilDuration);
+            // 4. 반동 위치에서 원래 위치로 부드럽게 복귀합니다.
+            transform.localPosition = Vector3.Lerp(recoilLocalPos, originalLocalPos, elapsed / gunRecoilDuration);
             yield return null;
         }
-        transform.localPosition = originalPos;
+
+        transform.localPosition = originalLocalPos;
     }
 
     private void RotateWeapon()

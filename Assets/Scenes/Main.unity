@@ -4098,9 +4098,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   player: {fileID: 843584026}
+  weaponManager: {fileID: 1523878799}
+  pixelCam: {fileID: 519420035}
   smoothSpeed: 5
   mouseInfluence: 0.05
   maxMouseOffset: 1
+  aimMouseInfluence: 0.15
+  aimMaxMouseOffset: 2
+  aimZoomMultiplier: 0.95
+  aimTransitionSpeed: 5
   shakeDecaySpeed: 5
   hitShakeCooldown: 0.05
 --- !u!1 &593698556
@@ -6377,6 +6383,11 @@ MonoBehaviour:
   invincibleTime: 0.8
   blinkSpeed: 0.2
   bodyContactDamage: 5
+  flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
+  flashDuration: 0.1
+  hitShakeDuration: 0.1
+  hitShakeMagnitude: 0.05
+  playerHitStopDuration: 0.12
   contactCheckRadius: 0.3
   enemyLayer:
     serializedVersion: 2
@@ -6397,6 +6408,7 @@ MonoBehaviour:
   shakeMagnitude: 0.02
   remainingStrongAttacks: 0
   sfxDash: {fileID: 8300000, guid: 4a2c29d5818e2504e981ddbebf392795, type: 3}
+  sfxHit: {fileID: 8300000, guid: e9c204003edf21347898b01351220b65, type: 3}
 --- !u!114 &843584030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6939,11 +6951,11 @@ MonoBehaviour:
   laserLength: 50
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 192
   bulletPrefab: {fileID: 1876148070132325074, guid: fa3e55806af1f0a4982f90b76b7908ab, type: 3}
   fireRate: 0.125
   playerKnockbackForce: 3
-  gunRecoilDistance: 0.5
+  gunRecoilDistance: 0.3
   gunRecoilDuration: 0.2
   shakeDuration: 0.05
   shakeMagnitude: 0.02

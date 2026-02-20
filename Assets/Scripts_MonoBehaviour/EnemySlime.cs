@@ -129,16 +129,23 @@ public class EnemySlime : Enemy
 
         while (timer < moveTime)
         {
-            if (isDead || isStunned) yield break;
+            if (isDead || isStunned)
+            {
+                if (rigid != null) rigid.linearVelocity = Vector2.zero;
+                yield break;
+            }
 
             Vector2 dir = (target.position - transform.position).normalized;
 
-            rigid.AddForce(dir * moveSpeed);
+            // ★ 수정: AddForce 대신 linearVelocity를 사용하여 부하 상황에서도 일정한 속도 보장
+            if (rigid != null)
+                rigid.linearVelocity = dir * moveSpeed;
 
-            timer += Time.deltaTime;
-            yield return null;
+            timer += Time.fixedDeltaTime; // fixed 주기이므로 fixedDeltaTime 사용
+            yield return new WaitForFixedUpdate(); // 물리 주기에 맞춤
         }
 
+        if (rigid != null) rigid.linearVelocity = Vector2.zero; // 이동 종료 후 미끄러짐 방지
         if (anim != null) anim.SetBool("isMoving", false);
     }
 
