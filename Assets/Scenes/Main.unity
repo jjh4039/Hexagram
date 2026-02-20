@@ -10529,6 +10529,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61011bd583b21ec468879a6a05ed1a74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VirtualCursor
+  cursorSprites:
+  - {fileID: -4925920994356968675, guid: 49e3ef60338329246b9295455042ac53, type: 3}
+  - {fileID: 3005786938261815766, guid: e08d90a519740b2408cd55825ab1d0ae, type: 3}
 --- !u!224 &1299400500
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10547,7 +10550,7 @@ RectTransform:
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 500, y: 500}
   m_SizeDelta: {x: 18.75, y: 18.75}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1299400501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16716,6 +16719,7 @@ MonoBehaviour:
   dice: {fileID: 8506466090546429707}
   mapManager: {fileID: 1466253468}
   bitManager: {fileID: 1797329881}
+  cursor: {fileID: 1299400498}
   currentStageObj: {fileID: 289030045803919260}
   commonScrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
   currentScrap: 0

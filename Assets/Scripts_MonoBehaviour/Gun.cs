@@ -32,6 +32,7 @@ public class Gun : MonoBehaviour
     [Header("Sound")]
     [SerializeField] private AudioClip sfxShoot;
 
+    private bool isAiming = false;
     private Color currentBulletColor = Color.white;
     private Material currentBulletMaterial;
 
@@ -54,6 +55,15 @@ public class Gun : MonoBehaviour
         if (lineRenderer != null) lineRenderer.enabled = false;
         if (weaponManager?.InputActions != null)
             weaponManager.InputActions.Player.Attack.performed -= OnAttack;
+
+        // 마우스 커서 원상복구
+        if (GameManager.instance != null && GameManager.instance.cursor != null)
+        {
+            GameManager.instance.cursor.ChangeCursor(CursorType.Default);
+        }
+
+        // ★ [수정 1] 버그의 핵심 원인 해결! 스크립트가 꺼질 때 에임 상태도 반드시 초기화
+        isAiming = false;
     }
 
     private void Update()
@@ -68,6 +78,7 @@ public class Gun : MonoBehaviour
             lineRenderer.enabled = false;
 
         HandleChargingVisuals();
+        HandleAimCursor();
     }
 
     // ★ [수정됨] 레이캐스트를 쏴서 벽에 닿으면 거기까지만 그리기
@@ -200,5 +211,38 @@ public class Gun : MonoBehaviour
         Color currentColor = spriteRenderer.color;
         float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * fadeSpeed);
         spriteRenderer.color = new Color(currentColor.r, currentColor.g, currentColor.b, newAlpha);
+    }
+
+    private void HandleAimCursor()
+    {
+        // ★ [수정 2] 주사위 충전 중(무기를 넣은 상태)이거나 다른 무기일 때의 처리
+        if (GameManager.instance.player.isCharging || weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun)
+        {
+            // 만약 우클릭 조준 중에 주사위 쿨타임이 돌아서 무기가 들어갔다면 강제로 커서 초기화
+            if (isAiming)
+            {
+                isAiming = false;
+                GameManager.instance.cursor.ChangeCursor(CursorType.Default);
+            }
+            return; // 이후 로직(우클릭 감지) 실행 안 함
+        }
+
+        // ★ [수정 3] IsSwapping 체크 삭제 -> 무기를 꺼내는 도중에도 우클릭을 누르면 즉시 커서 변경!
+
+        if (Mouse.current != null)
+        {
+            bool isHoldingRightClick = Mouse.current.rightButton.isPressed;
+
+            if (isHoldingRightClick && !isAiming)
+            {
+                isAiming = true;
+                GameManager.instance.cursor.ChangeCursor(CursorType.Aim);
+            }
+            else if (!isHoldingRightClick && isAiming)
+            {
+                isAiming = false;
+                GameManager.instance.cursor.ChangeCursor(CursorType.Default);
+            }
+        }
     }
 }

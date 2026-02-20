@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public Dice dice;
     public MapManager mapManager;
     public BitManager bitManager;
+    public VirtualCursor cursor;
 
     public GameObject currentStageObj;
 
