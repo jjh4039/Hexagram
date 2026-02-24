@@ -15,7 +15,8 @@ MonoBehaviour:
   stageName: "\uC5D8\uB9AC\uD2B8"
   description: "\uAC15\uB825\uD55C \uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uCD5C\uC18C
     1\uAC1C\uC758 \uC544\uD2F0\uD329\uD2B8\uB97C \uC5BB\uC2B5\uB2C8\uB2E4."
-  stagePrefabs: []
+  stagePrefabs:
+  - {fileID: 4874768350431733968, guid: 226cc13364051044780c69c54542e2eb, type: 3}
   minRise: 12
   maxRise: 17
   themeColor: {r: 0.15686275, g: 0, b: 0, a: 1}
