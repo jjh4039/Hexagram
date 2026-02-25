@@ -25,14 +25,18 @@ public class StageMessageUI : MonoBehaviour
     [SerializeField] private float rewardInterval = 0.15f;
     [SerializeField] private RewardData[] rewardDatas;
 
+    [Header("--- Enemy Count UI (New) ---")]
+    [SerializeField] private CanvasGroup enemyCountGroup;
+    [SerializeField] private TextMeshProUGUI enemyCountText;
+
     [Header("Reward Juicy Settings")]
     [SerializeField] private AnimationCurve appearanceCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     [SerializeField] private float punchScaleAmount = 1.15f;
 
     [Header("Settings")]
-    [SerializeField] private float startDelay = 0.7f;
+    [SerializeField] private float startDelay = 0.55f;
     [SerializeField] private float fadeInTime = 0.5f;
-    [SerializeField] private float waitTime = 2.0f;
+    [SerializeField] private float waitTime = 1.0f;
     [SerializeField] private float fadeOutTime = 0.5f;
 
     [Header("Sound")]
@@ -52,18 +56,22 @@ public class StageMessageUI : MonoBehaviour
     private Coroutine currentCoroutine;
     private bool canSelectReward = false;
     private Vector3[] originalScales;
+    private bool isEnemyCountVisible = false;
+    private Vector3 enemyCountOriginScale;
 
     private void Awake()
     {
         instance = this;
-
-        // 리워드 아이템 스케일 저장
         originalScales = new Vector3[rewardItems.Length];
         for (int i = 0; i < rewardItems.Length; i++)
             if (rewardItems[i].rect != null) originalScales[i] = rewardItems[i].rect.localScale;
 
+        if (enemyCountText != null)
+            enemyCountOriginScale = enemyCountText.rectTransform.localScale;
+
         ResetAllUI();
-        // ShowClearMessage(); // 테스트용
+        if (enemyCountGroup != null) enemyCountGroup.alpha = 0f;
+        isEnemyCountVisible = false;
     }
 
     private void ResetAllUI()
@@ -80,9 +88,6 @@ public class StageMessageUI : MonoBehaviour
         }
     }
 
-    // ==========================================
-    // 1. Entry Message (기존 구조 완벽 유지)
-    // ==========================================
     public void ShowEntryMessage(string title, string desc)
     {
         if (entryTitle != null) entryTitle.text = title;
@@ -102,26 +107,17 @@ public class StageMessageUI : MonoBehaviour
         yield return FadeOut(entryGroup);
     }
 
-    // ==========================================
-    // 2. Clear & Reward Message (디테일 연출)
-    // ==========================================
     public void ShowClearMessage()
     {
         StopCurrentCoroutine();
         ResetAllUI();
-
-        if (sfxClear != null)
-            SoundManager.instance.PlaySFX(sfxClear, 1.2f, 0.1f);
-
+        if (sfxClear != null) SoundManager.instance.PlaySFX(sfxClear, 1.2f, 0.1f);
         currentCoroutine = StartCoroutine(ClearAndRewardSequence());
     }
 
     private IEnumerator ClearAndRewardSequence()
     {
-        // 클리어 텍스트 페이드인 시작 (병렬 실행)
         if (clearGroup != null) StartCoroutine(FadeIn(clearGroup));
-
-        // 리워드 아이템들 순차적 등장
         if (rewardGroup != null)
         {
             rewardGroup.alpha = 1f;
@@ -138,34 +134,20 @@ public class StageMessageUI : MonoBehaviour
     private void SetRandomRewardTexts()
     {
         if (rewardDatas == null || rewardDatas.Length == 0) return;
-
-        // 중복 방지를 위한 인덱스 풀
         int[] indices = new int[rewardDatas.Length];
-        for (int i = 0; i < indices.Length; i++)
-            indices[i] = i;
-
-        //
+        for (int i = 0; i < indices.Length; i++) indices[i] = i;
         for (int i = indices.Length - 1; i > 0; i--)
         {
             int j = Random.Range(0, i + 1);
             (indices[i], indices[j]) = (indices[j], indices[i]);
         }
-
-        // 리워드 슬롯 수만큼만 할당
         for (int i = 0; i < rewardItems.Length; i++)
         {
             if (i >= indices.Length) break;
-
             RewardData data = rewardDatas[indices[i]];
-
-            if (rewardItems[i].titleText != null)
-                rewardItems[i].titleText.text = data.titleText;
-
-            if (rewardItems[i].valueText != null)
-                rewardItems[i].valueText.text = data.valueText;
-
-            if (rewardItems[i].valueText != null)
-                rewardItems[i].valueText.color = data.valueTextColor;
+            if (rewardItems[i].titleText != null) rewardItems[i].titleText.text = data.titleText;
+            if (rewardItems[i].valueText != null) rewardItems[i].valueText.text = data.valueText;
+            if (rewardItems[i].valueText != null) rewardItems[i].valueText.color = data.valueTextColor;
         }
     }
 
@@ -174,35 +156,27 @@ public class StageMessageUI : MonoBehaviour
         float timer = 0f;
         Vector2 endPos = item.rect.anchoredPosition;
         Vector2 startPos = endPos + new Vector2(0, -rewardSlideDistance);
-
         item.rect.anchoredPosition = startPos;
         item.group.alpha = 0f;
         item.rect.localScale = originalScales[index] * 0.8f;
-
         while (timer < fadeInTime)
         {
             timer += Time.deltaTime;
             float t = timer / fadeInTime;
             float curveT = appearanceCurve.Evaluate(t);
-
             item.group.alpha = t;
             item.rect.anchoredPosition = Vector2.LerpUnclamped(startPos, endPos, curveT);
             item.rect.localScale = Vector3.LerpUnclamped(originalScales[index] * 0.8f, originalScales[index], curveT);
             yield return null;
         }
-
         item.group.alpha = 1f;
         item.rect.anchoredPosition = endPos;
         item.rect.localScale = originalScales[index];
     }
 
-    // ==========================================
-    // 3. 입력 감지 및 선택 피드백
-    // ==========================================
     private void Update()
     {
         if (!canSelectReward) return;
-
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectReward(0);
         else if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectReward(1);
         else if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectReward(2);
@@ -212,19 +186,13 @@ public class StageMessageUI : MonoBehaviour
     {
         if (index >= rewardItems.Length) return;
         canSelectReward = false;
-
         if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.1f);
-
-        // 글로우 효과 및 펀치 스케일
         if (rewardItems[index].glowEffect != null) rewardItems[index].glowEffect.enabled = true;
         StartCoroutine(PunchScale(rewardItems[index].rect, index));
-
-        // 선택되지 않은 아이템들 흐릿하게 처리
         for (int i = 0; i < rewardItems.Length; i++)
         {
             if (i != index) StartCoroutine(QuickFadeOut(rewardItems[i].group));
         }
-
         Invoke(nameof(HideAllClearUI), 0.4f);
     }
 
@@ -233,7 +201,6 @@ public class StageMessageUI : MonoBehaviour
         float timer = 0f;
         Vector3 startScale = originalScales[index];
         Vector3 peakScale = startScale * punchScaleAmount;
-
         while (timer < 0.1f)
         {
             timer += Time.deltaTime;
@@ -269,9 +236,64 @@ public class StageMessageUI : MonoBehaviour
         ResetAllUI();
     }
 
-    // ==========================================
-    // 유틸리티 (Fade 관련)
-    // ==========================================
+    // ★ [수정됨] playPunch 매개변수 추가
+    public void UpdateEnemyCount(int totalCount, bool playPunch = false)
+    {
+        if (enemyCountText != null)
+        {
+            enemyCountText.text = totalCount.ToString();
+        }
+
+        if (totalCount > 0 && !isEnemyCountVisible)
+        {
+            isEnemyCountVisible = true;
+            float entryTotalTime = startDelay + fadeInTime + waitTime + fadeOutTime;
+            StartCoroutine(DelayedFadeIn(enemyCountGroup, entryTotalTime));
+        }
+        else if (totalCount <= 0 && isEnemyCountVisible)
+        {
+            isEnemyCountVisible = false;
+            StartCoroutine(FadeOut(enemyCountGroup));
+        }
+
+        // ★ [수정됨] playPunch가 true일 때만 연출 실행
+        if (totalCount > 0 && isEnemyCountVisible && playPunch)
+        {
+            StartCoroutine(EnemyCountPunch());
+        }
+    }
+
+    public void HideEnemyCountUI()
+    {
+        if (enemyCountGroup != null && enemyCountGroup.alpha > 0f)
+        {
+            StartCoroutine(FadeOut(enemyCountGroup));
+        }
+    }
+
+    private IEnumerator EnemyCountPunch()
+    {
+        if (enemyCountText == null) yield break;
+        float duration = 0.2f;
+        float elapsed = 0f;
+        float maxScaleAmount = 1.25f;
+        Color originColor = Color.white;
+        Color punchColor = Color.red;
+        Vector3 targetScale = enemyCountOriginScale * maxScaleAmount;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            float curve = Mathf.Sin(t * Mathf.PI);
+            enemyCountText.rectTransform.localScale = Vector3.Lerp(enemyCountOriginScale, targetScale, curve);
+            enemyCountText.color = Color.Lerp(originColor, punchColor, curve);
+            yield return null;
+        }
+        enemyCountText.rectTransform.localScale = enemyCountOriginScale;
+        enemyCountText.color = originColor;
+    }
+
     private IEnumerator FadeIn(CanvasGroup group)
     {
         float timer = 0f;
@@ -283,6 +305,12 @@ public class StageMessageUI : MonoBehaviour
             yield return null;
         }
         group.alpha = 1f;
+    }
+
+    private IEnumerator DelayedFadeIn(CanvasGroup group, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        yield return FadeIn(group);
     }
 
     private IEnumerator FadeOut(CanvasGroup group)

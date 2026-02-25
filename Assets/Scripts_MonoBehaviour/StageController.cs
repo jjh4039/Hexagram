@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 using TMPro;
 
 public class StageController : MonoBehaviour
@@ -12,62 +13,40 @@ public class StageController : MonoBehaviour
     public GameObject barrierEla;
     public Statue statue;
 
-    [Header("--- UI References ---")]
-    public TextMeshProUGUI enemyCountText;
-
     [Header("--- Runtime Info ---")]
     private List<Enemy> activeEnemies = new List<Enemy>();
     private bool isCleared = false;
-
-    // ★ [추가] 초기화가 되었는지 확인하는 깃발
     private bool isInitialized = false;
 
-    // ★ [추가] 시작할 때 아무도 나를 안 건드렸으면 스스로 초기화!
+    private Dictionary<int, List<EnemySpawner>> waveSpawners = new Dictionary<int, List<EnemySpawner>>();
+    private int currentWave = 1;
+    private int pendingSpawns = 0;
+    private int totalRemainingEnemies = 0;
+
     private void Start()
     {
-        if (!isInitialized)
-        {
-            InitStage();
-        }
+        if (!isInitialized) InitStage();
     }
 
     public void InitStage()
     {
-        // 이미 초기화했다면 중복 실행 방지
         if (isInitialized) return;
         isInitialized = true;
 
-        if (enemyCountText == null)
-        {
-            GameObject uiObj = GameObject.Find("EnemyCount_Text");
-            if (uiObj != null) enemyCountText = uiObj.GetComponent<TextMeshProUGUI>();
-        }
-
         GameObject player = GameObject.FindWithTag("Player");
-        if (player != null && spawnPoint != null)
-        {
-            // 플레이어가 이미 배치된 상태라면 굳이 이동 안 시켜도 되지만,
-            // 확실하게 하려면 이동시킴 (시작 방 위치로)
-            player.transform.position = spawnPoint.position;
-        }
+        if (player != null && spawnPoint != null) player.transform.position = spawnPoint.position;
 
-        SpawnAllEnemies();
+        InitializeWaves();
 
-        // 안전지대 로직
         if (isSafeStage)
         {
-            Debug.Log("안전지대(시작됨): 석상 활성화 (문은 안 염)");
-
             if (barrierEla != null) barrierEla.SetActive(true);
             if (statue != null) statue.ActivateStatue();
-            if (enemyCountText != null) enemyCountText.text = "";
-
-            isCleared = true; // 클리어 처리 -> Update 문 실행 안 됨
+            if (StageMessageUI.instance != null) StageMessageUI.instance.HideEnemyCountUI();
+            isCleared = true;
         }
         else
         {
-            Debug.Log("전투지대(시작됨): 전투 시작");
-
             if (barrierEla != null) barrierEla.SetActive(true);
             isCleared = false;
         }
@@ -75,30 +54,56 @@ public class StageController : MonoBehaviour
         if (!isSafeStage) UpdateEnemyCountUI();
     }
 
-    private void SpawnAllEnemies()
+    private void InitializeWaves()
     {
         EnemySpawner[] spawners = GetComponentsInChildren<EnemySpawner>();
         activeEnemies.Clear();
+        waveSpawners.Clear();
+        totalRemainingEnemies = spawners.Length;
 
         foreach (var spawner in spawners)
         {
-            GameObject enemyObj = spawner.SpawnEnemy();
-            if (enemyObj != null)
-            {
-                Enemy enemyScript = enemyObj.GetComponent<Enemy>();
-                if (enemyScript != null)
-                {
-                    activeEnemies.Add(enemyScript);
-                }
-            }
+            if (!waveSpawners.ContainsKey(spawner.waveNumber))
+                waveSpawners[spawner.waveNumber] = new List<EnemySpawner>();
+            waveSpawners[spawner.waveNumber].Add(spawner);
         }
+
+        if (!isSafeStage && waveSpawners.Count > 0) StartWave(1);
+    }
+
+    private void StartWave(int waveIndex)
+    {
+        if (!waveSpawners.ContainsKey(waveIndex))
+        {
+            StageClear();
+            return;
+        }
+
+        currentWave = waveIndex;
+        List<EnemySpawner> spawnersToActivate = waveSpawners[waveIndex];
+        pendingSpawns = spawnersToActivate.Count;
+
+        // ★ [수정됨] 웨이브 시작 시에는 조용히 UI만 갱신 (인자 없음 = false)
+        UpdateEnemyCountUI();
+
+        foreach (var spawner in spawnersToActivate)
+        {
+            spawner.StartSpawning(OnEnemySpawned);
+        }
+    }
+
+    private void OnEnemySpawned(Enemy newEnemy)
+    {
+        pendingSpawns--;
+        if (newEnemy != null) activeEnemies.Add(newEnemy);
+
+        // ★ [수정됨] 몬스터 등장 시에도 조용히 UI만 갱신
+        UpdateEnemyCountUI();
     }
 
     private void Update()
     {
-        // 안전지대면 isCleared가 true라서 여기 아예 통과 못 함 (텍스트 뜰 일 없음)
         if (isCleared) return;
-
         CheckBattleStatus();
     }
 
@@ -108,43 +113,35 @@ public class StageController : MonoBehaviour
         activeEnemies.RemoveAll(x => x == null || x.IsDead);
         int afterCount = activeEnemies.Count;
 
-        if (beforeCount != afterCount)
+        int deadCount = beforeCount - afterCount;
+        if (deadCount > 0)
         {
-            UpdateEnemyCountUI();
+            totalRemainingEnemies -= deadCount;
+            // ★ [핵심] 몬스터가 죽었을 때만 playPunch = true 전달
+            if (StageMessageUI.instance != null)
+                StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies, true);
         }
 
-        if (activeEnemies.Count == 0)
-        {
-            StageClear();
-        }
+        if (activeEnemies.Count == 0 && pendingSpawns == 0) StartWave(currentWave + 1);
     }
 
     private void UpdateEnemyCountUI()
     {
-        if (enemyCountText != null)
+        if (StageMessageUI.instance != null)
         {
-            if (activeEnemies.Count <= 0)
-            {
-                enemyCountText.text = "";
-            }
-            else
-            {
-                enemyCountText.text = $"남은 적 : <color=red>{activeEnemies.Count}</color>";
-            }
+            // ★ [수정됨] 기본 호출은 연출 없음 (playPunch = false)
+            StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies);
         }
     }
 
     private void StageClear()
     {
         isCleared = true;
-
         if (barrierEla != null) barrierEla.SetActive(false);
         if (statue != null) statue.ActivateStatue();
-
-        if (enemyCountText != null) enemyCountText.text = "";
-
         if (StageMessageUI.instance != null)
         {
+            StageMessageUI.instance.HideEnemyCountUI();
             StageMessageUI.instance.ShowClearMessage();
         }
     }

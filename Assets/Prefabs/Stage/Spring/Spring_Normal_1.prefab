@@ -3134,6 +3134,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefab: {fileID: 3522918068342987818, guid: 7f33c4dd40d81af44ab0e51a6f8fd976, type: 3}
+  warningPrefab: {fileID: 2511136541265556103, guid: fd65f551b82a4474b8411a0cdaefd8d2, type: 3}
+  spawnDelay: 1
+  spawnEffectPrefab: {fileID: 2003268888159810025, guid: d74e62dc3aac01547b296e56de5bf092, type: 3}
+  waveNumber: 1
 --- !u!1 &848415937822500663
 GameObject:
   m_ObjectHideFlags: 0
@@ -8024,6 +8028,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefab: {fileID: 3522918068342987818, guid: 7f33c4dd40d81af44ab0e51a6f8fd976, type: 3}
+  warningPrefab: {fileID: 2511136541265556103, guid: fd65f551b82a4474b8411a0cdaefd8d2, type: 3}
+  spawnDelay: 1
+  spawnEffectPrefab: {fileID: 2003268888159810025, guid: d74e62dc3aac01547b296e56de5bf092, type: 3}
+  waveNumber: 1
 --- !u!1 &4453363640394064994
 GameObject:
   m_ObjectHideFlags: 0
@@ -8468,6 +8476,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefab: {fileID: 9204744948087488654, guid: d1792250110e7de41814bcbd90691696, type: 3}
+  warningPrefab: {fileID: 2511136541265556103, guid: fd65f551b82a4474b8411a0cdaefd8d2, type: 3}
+  spawnDelay: 1
+  spawnEffectPrefab: {fileID: 2003268888159810025, guid: d74e62dc3aac01547b296e56de5bf092, type: 3}
+  waveNumber: 2
 --- !u!1 &4874768350431733968
 GameObject:
   m_ObjectHideFlags: 0
@@ -8951,6 +8963,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefab: {fileID: 9204744948087488654, guid: d1792250110e7de41814bcbd90691696, type: 3}
+  warningPrefab: {fileID: 2511136541265556103, guid: fd65f551b82a4474b8411a0cdaefd8d2, type: 3}
+  spawnDelay: 1
+  spawnEffectPrefab: {fileID: 2003268888159810025, guid: d74e62dc3aac01547b296e56de5bf092, type: 3}
+  waveNumber: 2
 --- !u!1 &6721278417876587785
 GameObject:
   m_ObjectHideFlags: 0
