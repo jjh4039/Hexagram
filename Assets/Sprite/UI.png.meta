@@ -635,7 +635,7 @@ TextureImporter:
         width: 18
         height: 18
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 1, y: 1, z: 1, w: 1}
       customData: 
       outline: []
@@ -644,6 +644,28 @@ TextureImporter:
       bones: []
       spriteID: 850d3893ff24a2a47b8e20d4af3a8cf8
       internalID: -326738170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Boss
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 11
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 68676fec1b3a46c4e90db055de45fa62
+      internalID: -1458372636
       vertices: []
       indices: 
       edges: []
@@ -665,6 +687,7 @@ TextureImporter:
       Back 0: -1010605625
       Back 0-1: 2067653840
       Back 1: -1061235666
+      Boss: -1458372636
       Box 0: -155058199
       Box 1: 1777749549
       Front 0: 1312383074
