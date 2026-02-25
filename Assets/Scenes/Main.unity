@@ -8025,7 +8025,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.62789917, y: 14.9}
+  m_AnchoredPosition: {x: 0, y: 14.9}
   m_SizeDelta: {x: 41.1611, y: 5.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1068893259
@@ -8912,7 +8912,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.317
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -12341,7 +12341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1418589413}
   m_Layer: 5
-  m_Name: Boss
+  m_Name: BossHp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13066,7 +13066,7 @@ RectTransform:
   m_Father: {fileID: 1206108912}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.25}
-  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchorMax: {x: 2, y: 0.75}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -14174,7 +14174,7 @@ GameObject:
   - component: {fileID: 1682138968}
   - component: {fileID: 1682138967}
   m_Layer: 5
-  m_Name: Mp_Text
+  m_Name: Name_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14605,7 +14605,7 @@ GameObject:
   - component: {fileID: 1753855773}
   - component: {fileID: 1753855772}
   m_Layer: 5
-  m_Name: Mp_Text (1)
+  m_Name: HpDetail_Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18190,8 +18190,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 277.08334, y: 68.75}
+  m_AnchoredPosition: {x: 0, y: 1.1}
+  m_SizeDelta: {x: 266, y: 66}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &2087859027
 MonoBehaviour:
