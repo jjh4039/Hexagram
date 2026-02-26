@@ -149,7 +149,32 @@ public class Player : MonoBehaviour
 
         if (hitCount > 0)
         {
-            OnDamage(bodyContactDamage);
+            float finalDamage = bodyContactDamage; // 기본은 플레이어에 설정된 데미지
+
+            // 첫 번째로 충돌한 적의 정보를 가져옴
+            Collider2D hitCollider = contactResults[0];
+
+            // 만약 충돌한 적이 '보스'라면?
+            EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
+            if (boss != null)
+            {
+                // 1. 보스의 기본 데미지를 가져옴
+                finalDamage = boss.BaseContactDamage;
+
+                // 2. 보스가 돌진 중이면 데미지를 뻥튀기!
+                if (boss.IsDashing)
+                {
+                    finalDamage *= boss.DashDamageMultiplier;
+                    Debug.Log($"플레이어가 보스의 '돌진'에 맞았습니다! 데미지 증폭: {finalDamage}");
+                }
+                else
+                {
+                    Debug.Log($"플레이어가 보스와 부딪혔습니다. 기본 데미지: {finalDamage}");
+                }
+            }
+
+            // 계산된 최종 데미지 입기
+            OnDamage(finalDamage);
         }
     }
 
