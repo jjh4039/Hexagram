@@ -7281,7 +7281,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 110785381}
   anim: {fileID: 110785380}
   stats: {fileID: 843584030}
-  defaultMoveSpeed: 3
+  defaultMoveSpeed: 4
   minMoveSpeed: 6
   speedChangeRate: 5
   isAttacking: 0
@@ -14195,7 +14195,7 @@ MonoBehaviour:
   spriteScale: 1
   isEnraged: 0
   dealTime: 1
-  forcePatternIndex: 2
+  forcePatternIndex: 0
   forceEnrage: 1
   dashChargeTime: 1
   dashSpeed: 80

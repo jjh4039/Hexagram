@@ -198,7 +198,6 @@ public class EnemyBoss : Enemy
         base.TakeDamage(damage, isCritical);
         if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.04f);
-        if (!isEnraged && currentHealth <= maxHealth * 0.5f) EnterPhase2();
     }
 
     private void EnterPhase2()
@@ -218,11 +217,22 @@ public class EnemyBoss : Enemy
         {
             if (isStunned) { yield return null; continue; }
 
-            // ★ 수정됨: forcePatternIndex가 0이면 1~4 랜덤, 아니면 설정한 패턴 번호 강제 실행
             int patternIndex = (forcePatternIndex == 0) ? Random.Range(1, 5) : forcePatternIndex;
 
+            // 1. 패턴 실행
             yield return StartCoroutine(ExecutePattern(patternIndex));
+
+            if (!isEnraged && currentHealth <= maxHealth * 0.5f)
+            {
+                EnterPhase2();
+                // 폭주 돌입 시 아주 짧은 포효 시간(대기)을 주면 연출이 더 좋습니다.
+                yield return new WaitForSeconds(1.0f);
+            }
+
+            // 2. 휴식 (딜 타임)
             yield return new WaitForSeconds(dealTime);
+
+            // 3. 플레이어에게 다가가기
             yield return StartCoroutine(Co_MoveTowardsPlayer(1.5f));
         }
     }
@@ -568,7 +578,7 @@ public class EnemyBoss : Enemy
                     StartCoroutine(Co_SpawnSpikeWave(wallHitPoints[i], reverseDirections[i], spikeMaxLimitLength));
                 }
 
-                yield return new WaitForSeconds(waveDuration);
+                // yield return new WaitForSeconds(0.2f);
             }
         }
 
@@ -617,11 +627,13 @@ public class EnemyBoss : Enemy
             }
             isSniperTracking = true;
 
-            // Grid Charge Time 동안 장판이 천천히 차오르면서 양방향(관통) 추적
+            // ★ 수정됨: 장판이 차오르는 총 시간 = 쉬는시간 + 1차대기 + 2차대기
+            float totalSniperChargeTime = gridChargeTime + (gridFireDelay * 2f);
+
             StartCoroutine(Co_SniperTrackingRoutine(
                 (startPos, dir, len) => { lockedSniperStartPos = startPos; lockedSniperDir = dir; lockedSniperLength = len; },
                 () => isSniperTracking,
-                gridChargeTime
+                totalSniperChargeTime // 계산된 총 시간을 넘겨줌
             ));
         }
 
@@ -655,14 +667,12 @@ public class EnemyBoss : Enemy
         // ==============================================================
         if (isEnraged || forceEnrage)
         {
-            yield return new WaitForSeconds(0.4f); // 엇박자 딜레이
+            yield return new WaitForSeconds(1f); // 엇박자 딜레이
 
             if (giantVinePrefab != null && lockedSniperDir != Vector2.zero)
             {
-                // ★ 덩굴 이미지가 위(Y)를 향하고 있으므로, -90도를 해줘야 완벽하게 맞물립니다!
                 float angle = Mathf.Atan2(lockedSniperDir.y, lockedSniperDir.x) * Mathf.Rad2Deg - 90f;
 
-                // 보스 중심이 아니라, 계산된 '뒤쪽 벽(StartPos)'에서부터 생성되어 날아옵니다.
                 GameObject sniperVine = Instantiate(giantVinePrefab, lockedSniperStartPos, Quaternion.Euler(0, 0, angle));
                 sniperVine.transform.localScale = new Vector3(2, 2, 1);
 
@@ -671,7 +681,7 @@ public class EnemyBoss : Enemy
                 {
                     vineScript.Fire(vineDamage * 1.5f, lockedSniperLength);
                 }
-                if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.5f, 0.4f); // 더 큰 진동
+                if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.5f, 0.4f);
             }
 
             if (sniperMaxInstance != null) Destroy(sniperMaxInstance);
@@ -950,45 +960,58 @@ public class EnemyBoss : Enemy
     IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, System.Func<bool> isTracking, float chargeDuration)
     {
         float timer = 0f;
+
+        // ★ 추적 개선: 시작할 때의 초기 방향을 잡아둠
+        Vector2 currentDir = Vector2.right;
+        if (GameManager.instance?.player != null)
+        {
+            currentDir = (GameManager.instance.player.transform.position - transform.position).normalized;
+        }
+
         while (isTracking() && !isDead)
         {
             if (GameManager.instance?.player != null)
             {
                 timer += Time.deltaTime;
+                // 위에서 넘겨준 정확한 총 시간(chargeDuration)에 맞춰 0 -> 1로 차오름
                 float progress = Mathf.Clamp01(timer / chargeDuration);
 
                 Vector2 bossPos = transform.position;
                 Vector2 targetPos = GameManager.instance.player.transform.position;
-                Vector2 dir = (targetPos - bossPos).normalized;
+
+                // ★ 추적 개선: 목표 방향으로 즉시 꺾이지 않고 부드럽게(Lerp) 따라감 
+                // (숫자 5f를 조절하면 따라가는 속도를 더 느리게/빠르게 바꿀 수 있습니다)
+                Vector2 targetDir = (targetPos - bossPos).normalized;
+                currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * 5f).normalized;
 
                 // 1. 보스 기준 앞/뒤 양방향 레이캐스트 발사
-                RaycastHit2D backHit = Physics2D.Raycast(bossPos, -dir, 100f, wallLayer); // 보스 등 뒤의 벽
-                RaycastHit2D frontHit = Physics2D.Raycast(bossPos, dir, 100f, wallLayer); // 보스 앞쪽(플레이어 방향)의 벽
+                RaycastHit2D backHit = Physics2D.Raycast(bossPos, -currentDir, 100f, wallLayer);
+                RaycastHit2D frontHit = Physics2D.Raycast(bossPos, currentDir, 100f, wallLayer);
 
                 float backDist = backHit.collider != null ? backHit.distance : 50f;
                 float frontDist = frontHit.collider != null ? frontHit.distance : 50f;
 
                 // 2. 장판의 시작점을 '보스 등 뒤의 벽'으로 설정 (끼임 방지로 0.1f 띄움)
-                Vector2 startPos = bossPos - (dir * (backDist - 0.1f));
+                Vector2 startPos = bossPos - (currentDir * (backDist - 0.1f));
 
-                // 3. 총 길이 = 뒷벽까지 거리 + 앞벽까지 거리 (끼임 방지 여백 0.5f)
+                // 3. 총 길이 계산
                 float totalLength = (backDist - 0.1f) + (frontDist - 0.5f);
 
                 // 코루틴으로 정보 전달
-                onUpdateData(startPos, dir, totalLength);
+                onUpdateData(startPos, currentDir, totalLength);
 
                 // 4. Max 장판(어두운 배경)과 Current 장판(차오르는 붉은 선) 업데이트
                 if (sniperMaxInstance != null)
                 {
                     sniperMaxInstance.transform.position = startPos;
-                    sniperMaxInstance.transform.right = dir; // DashOrigin 프리팹은 기본 오른쪽(Right) 기준
+                    sniperMaxInstance.transform.right = currentDir;
                     sniperMaxInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength, gridLineWidth);
                 }
 
                 if (sniperCurrentInstance != null)
                 {
                     sniperCurrentInstance.transform.position = startPos;
-                    sniperCurrentInstance.transform.right = dir;
+                    sniperCurrentInstance.transform.right = currentDir;
                     sniperCurrentInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength * progress, gridLineWidth);
                 }
             }
