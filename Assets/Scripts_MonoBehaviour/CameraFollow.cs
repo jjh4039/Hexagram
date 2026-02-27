@@ -37,6 +37,7 @@ public class CameraFollow : MonoBehaviour
     private float lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
 
+    private float originalSmoothSpeed;
     private float currentInfluence;
     private float currentMaxOffset;
     private Camera cam;
@@ -60,6 +61,8 @@ public class CameraFollow : MonoBehaviour
 
         currentInfluence = mouseInfluence;
         currentMaxOffset = maxMouseOffset;
+
+        originalSmoothSpeed = smoothSpeed;
     }
 
     public void HitShake(float duration, float magnitude)
@@ -104,8 +107,6 @@ public class CameraFollow : MonoBehaviour
         // ★ [버그 해결!] 우클릭을 누르기 시작한 '첫 프레임'
         if (isAiming && !wasAiming)
         {
-            // 픽셀 퍼펙트 카메라가 '켜져 있을 때만' (즉, 줌이 완전히 풀린 기본 상태일 때만) 진짜 사이즈 캡처!
-            // 꺼져 있다면 줌 아웃 도중에 다시 누른 것이므로 기존의 값을 안전하게 유지합니다.
             if (pixelCam == null || pixelCam.enabled)
             {
                 dynamicBaseOrthoSize = cam.orthographicSize;
@@ -128,7 +129,6 @@ public class CameraFollow : MonoBehaviour
 
         float targetInfluence = isAiming ? aimMouseInfluence : mouseInfluence;
         float targetMaxOffset = isAiming ? aimMaxMouseOffset : maxMouseOffset;
-
         float targetOrthoSize = isAiming ? (dynamicBaseOrthoSize * aimZoomMultiplier) : dynamicBaseOrthoSize;
 
         currentInfluence = Mathf.Lerp(currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
@@ -140,17 +140,53 @@ public class CameraFollow : MonoBehaviour
         }
 
         Vector3 targetPosition = player.position + offset;
-        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-        Vector3 directionToMouse = mouseWorldPos - player.position;
-        directionToMouse.z = 0;
 
-        Vector3 finalOffset = directionToMouse * currentInfluence;
-        finalOffset = Vector3.ClampMagnitude(finalOffset, currentMaxOffset);
+        // ==============================================================
+        // ★ [수정됨] 마우스 영향력 계산 (컷신 중에는 무시)
+        // 타겟(player 변수)이 실제 게임매니저의 플레이어가 아닐 경우(즉, 컷신 중일 경우) 
+        // 마우스 오프셋을 강제로 0으로 만들어 보스에게 정확히 고정되도록 합니다.
+        // ==============================================================
+        Vector3 finalOffset = Vector3.zero;
+
+        bool isTrackingRealPlayer = (GameManager.instance != null && player == GameManager.instance.player.transform);
+
+        if (isTrackingRealPlayer)
+        {
+            Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
+            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+            Vector3 directionToMouse = mouseWorldPos - player.position;
+            directionToMouse.z = 0;
+
+            finalOffset = directionToMouse * currentInfluence;
+            finalOffset = Vector3.ClampMagnitude(finalOffset, currentMaxOffset);
+        }
+
         targetPosition += finalOffset;
 
         Vector3 smoothedPos = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
         transform.position = smoothedPos + shakeOffset;
+    }
+
+    public void SetTarget(Transform newTarget, float customSpeed = -1f)
+    {
+        player = newTarget;
+
+        if (customSpeed > 0f)
+        {
+            smoothSpeed = customSpeed;
+        }
+    }
+
+    // ★ [수정됨] 타겟 복구 시 속도도 원래대로 복구
+    public void ResetTargetToPlayer()
+    {
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            player = GameManager.instance.player.transform;
+        }
+
+        // 컷신이 끝나면 원래의 빠릿빠릿한 속도로 복구!
+        smoothSpeed = originalSmoothSpeed;
     }
 
     public void SnapToTarget()

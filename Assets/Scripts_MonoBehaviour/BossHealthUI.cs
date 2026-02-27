@@ -28,7 +28,6 @@ public class BossHealthUI : MonoBehaviour
         this.maxHP = maxHealth;
         if (nameText != null) nameText.text = name;
 
-        // 초기화: 모두 0에서 시작
         mainSlider.value = 0;
         flashSlider.value = 0;
         bufferSlider1.value = 0;
@@ -36,39 +35,30 @@ public class BossHealthUI : MonoBehaviour
 
         if (hpText != null) hpText.text = $"0 / {maxHP:N0}";
 
-        bossCanvasGroup.alpha = 1f;
+        // ★ 투명도를 0으로 둔 상태로 코루틴 시작
+        bossCanvasGroup.alpha = 0f;
 
-        // ★ [추가] 등장 인트로 연출 시작
         StartCoroutine(Co_IntroFill());
     }
 
     private IEnumerator Co_IntroFill()
     {
         float elapsed = 0f;
-        float duration = 3f; // 전체 연출 시간
-
-        // 시작 시 모든 바는 0
-        mainSlider.value = 0;
-        flashSlider.value = 0;
-        bufferSlider1.value = 0;
-        bufferSlider2.value = 0;
+        float duration = 2f; // 전체 연출 시간
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            // 1. 부드러운 진행도를 위해 에니메이션 커브와 유사한 t값 계산 (선택사항)
-            // t = Mathf.Sin(t * Mathf.PI * 0.5f); 
+            // ★ 초반 0.5초 동안 체력바 UI 자체가 스르륵 나타남
+            bossCanvasGroup.alpha = Mathf.Clamp01(elapsed / 0.5f);
 
-            // 2. 각 레이어별 차등 속도 적용 (비율에 따라 다르게 차오름)
-            // 잔상들이 먼저 빠르게 차오르고, 메인이 가장 느리게 따라감
-            bufferSlider2.value = Mathf.Lerp(0, 1f, t * 1.5f); // 가장 빠름
+            bufferSlider2.value = Mathf.Lerp(0, 1f, t * 1.5f);
             bufferSlider1.value = Mathf.Lerp(0, 1f, t * 1.25f);
             flashSlider.value = Mathf.Lerp(0, 1f, t);
-            mainSlider.value = Mathf.Lerp(0, 1f, t);          // 가장 느림
+            mainSlider.value = Mathf.Lerp(0, 1f, t);
 
-            // 3. 텍스트 카운팅 (메인 바 기준으로 표시)
             if (hpText != null)
             {
                 float currentDisplayHP = maxHP * mainSlider.value;
@@ -78,11 +68,11 @@ public class BossHealthUI : MonoBehaviour
             yield return null;
         }
 
-        // 최종 값 보정
         mainSlider.value = 1f;
         flashSlider.value = 1f;
         bufferSlider1.value = 1f;
         bufferSlider2.value = 1f;
+        bossCanvasGroup.alpha = 1f;
         if (hpText != null) hpText.text = $"{maxHP:N0} / {maxHP:N0}";
     }
 

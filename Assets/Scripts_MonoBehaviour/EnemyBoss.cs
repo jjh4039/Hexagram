@@ -119,6 +119,14 @@ public class EnemyBoss : Enemy
     [SerializeField] private GameObject circleIndicatorPrefab;
     [SerializeField] private GameObject gridIndicatorPrefab;
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip bossBGM;
+    [SerializeField] private AudioClip sfxDashFire;    // 돌진 쾅! 소리
+    [SerializeField] private AudioClip sfxAoeExplode;  // 2번 거대 폭발 소리
+    [SerializeField] private AudioClip sfxSpikeWave;   // 3번 가시 뻗어나가는 소리
+    [SerializeField] private AudioClip sfxVineExplode; // 4번 덩굴 솟아오르는 소리
+    [SerializeField] private AudioClip sfxEnrageRoar;  // 50% 체력 폭주 소리
+
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
     private GameObject sniperMaxInstance;
@@ -150,18 +158,46 @@ public class EnemyBoss : Enemy
     protected override void Start()
     {
         base.Start();
-
-        // ★ 보스가 처음 스폰된 위치를 이 방의 중앙(기준점)으로 기억합니다!
         initialSpawnPos = transform.position;
-
-        if (BossHealthUI.instance != null)
-            BossHealthUI.instance.SetupBoss(bossName, maxHealth);
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) target = playerObj.transform;
 
         ClearRectangles();
+
+        if (bossBGM != null && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlayBGM(bossBGM);
+        }
+
+        // ★ 수정됨: 컷신 실행 -> 끝나면 체력바 연출 -> 끝나면 전투 시작
+        if (CinematicManager.instance != null)
+        {
+            StartCoroutine(CinematicManager.instance.Co_PlayBossIntro(this.transform, () =>
+            {
+                // 레터박스와 노을 연출이 모두 끝난 후 실행됨
+                StartCoroutine(Co_PostCutsceneSetup());
+            }));
+        }
+        else
+        {
+            StartCoroutine(Co_PostCutsceneSetup());
+        }
+    }
+
+    // ★ [추가] 컷신 이후 체력바 연출과 AI 시작을 담당
+    private IEnumerator Co_PostCutsceneSetup()
+    {
+        // 체력바 UI는 CinematicManager에서 미리 켰으므로 여기서는 켜기만 합니다.
+        if (BossHealthUI.instance != null)
+        {
+            BossHealthUI.instance.SetupBoss(bossName, maxHealth);
+        }
+
+        // 모든 준비가 끝났으므로 보스 전투 즉시 시작!
         StartCoroutine(Co_BossAI());
+
+        yield break; // 코루틴 형식 유지를 위해 추가 (경고 방지)
     }
 
     private void Update()
@@ -212,11 +248,11 @@ public class EnemyBoss : Enemy
     // ==========================================
     IEnumerator Co_BossAI()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(0.5f);
+
         while (!isDead)
         {
             if (isStunned) { yield return null; continue; }
-
             int patternIndex = (forcePatternIndex == 0) ? Random.Range(1, 5) : forcePatternIndex;
 
             // 1. 패턴 실행
@@ -225,13 +261,13 @@ public class EnemyBoss : Enemy
             if (!isEnraged && currentHealth <= maxHealth * 0.5f)
             {
                 EnterPhase2();
-                // 폭주 돌입 시 아주 짧은 포효 시간(대기)을 주면 연출이 더 좋습니다.
+                // ★ [추가] 폭주 포효 사운드 재생
+                if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.0f);
                 yield return new WaitForSeconds(1.0f);
             }
 
             // 2. 휴식 (딜 타임)
             yield return new WaitForSeconds(dealTime);
-
             // 3. 플레이어에게 다가가기
             yield return StartCoroutine(Co_MoveTowardsPlayer(1.5f));
         }
@@ -317,6 +353,8 @@ public class EnemyBoss : Enemy
             ClearRectangles();
 
             if (anim != null) anim.SetTrigger("Dash");
+
+            if (sfxDashFire != null) SoundManager.instance.PlaySFX(sfxDashFire, 1f, 0.1f);
 
             isDashing = true;
             Coroutine trailCoroutine = StartCoroutine(Co_SpawnTrail());
@@ -413,6 +451,8 @@ public class EnemyBoss : Enemy
         if (anim != null) anim.SetTrigger("Slam");
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.3f);
 
+        if (sfxAoeExplode != null) SoundManager.instance.PlaySFX(sfxAoeExplode, 0.9f);
+
         if (aoeEffectPrefab != null)
         {
             GameObject vfx = Instantiate(aoeEffectPrefab, transform.position, Quaternion.identity);
@@ -508,6 +548,7 @@ public class EnemyBoss : Enemy
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.15f);
 
         // [Phase 2: 1차 발사]
+        if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f); // ★ 1차 소리
         foreach (Vector2 dir in lineDirections)
         {
             StartCoroutine(Co_SpawnSpikeWave(transform.position, dir, spikeMaxLimitLength));
@@ -573,6 +614,7 @@ public class EnemyBoss : Enemy
                 if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.25f, 0.2f);
 
                 // [Phase 4: 2차 발사 (벽에서 플레이어로 쇄도)]
+                if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f); // ★ 1차 소리
                 for (int i = 0; i < wallHitPoints.Count; i++)
                 {
                     StartCoroutine(Co_SpawnSpikeWave(wallHitPoints[i], reverseDirections[i], spikeMaxLimitLength));
@@ -641,10 +683,12 @@ public class EnemyBoss : Enemy
         yield return new WaitForSeconds(gridChargeTime);
 
         // [Phase 3: 폭발 (Fire) - 격자 1, 2차 발사]
+        if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1f, 0.1f); // ★ 1차
         FireVineSet(hSet1, null);
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.2f);
         yield return new WaitForSeconds(gridFireDelay);
 
+        if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1f, 0.1f); // ★ 2차
         FireVineSet(null, vSet1);
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.2f);
         yield return new WaitForSeconds(gridFireDelay);
@@ -659,6 +703,7 @@ public class EnemyBoss : Enemy
             if (sniperCurrentInstance != null) sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 0.9f); // 락온 경고
         }
 
+        if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1.2f, 0.1f); // ★ 3차 (십자)
         FireVineSet(hSet2, vSet2);
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.35f);
 
@@ -671,6 +716,8 @@ public class EnemyBoss : Enemy
 
             if (giantVinePrefab != null && lockedSniperDir != Vector2.zero)
             {
+                if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1.2f, 0.05f);
+
                 float angle = Mathf.Atan2(lockedSniperDir.y, lockedSniperDir.x) * Mathf.Rad2Deg - 90f;
 
                 GameObject sniperVine = Instantiate(giantVinePrefab, lockedSniperStartPos, Quaternion.Euler(0, 0, angle));

@@ -46,6 +46,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1299400497-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1797329878-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1418589412-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1804787783-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -157,6 +158,10 @@ MonoBehaviour:
           isColorRecursive: 1
         - colorIndex: 5
           iconNameOrGuid: sv_icon_dot11_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 1
+        - colorIndex: 1
+          iconNameOrGuid: PreMatSphere
           isIconRecursive: 1
           isColorRecursive: 1
   bookmarks: []
