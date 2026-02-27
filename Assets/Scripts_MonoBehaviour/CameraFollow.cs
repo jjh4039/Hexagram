@@ -64,8 +64,17 @@ public class CameraFollow : MonoBehaviour
 
     public void HitShake(float duration, float magnitude)
     {
-        if (Time.time - lastHitShakeTime < hitShakeCooldown) return;
-        lastHitShakeTime = Time.time; shakeTimer = duration; currentShakeMagnitude = magnitude;
+        // 1. 새로 들어온 진동이 현재 진행 중인 진동보다 '약한데' 쿨다운이 안 지났다면 무시 (작은 진동이 연속으로 올 때 최적화)
+        if (magnitude <= currentShakeMagnitude && Time.time - lastHitShakeTime < hitShakeCooldown)
+            return;
+
+        // 2. [핵심] 진동 강도는 기존 진동과 새 진동 중 '더 강한 것'을 채택 (작은 진동이 큰 진동을 씹어먹는 현상 방지)
+        currentShakeMagnitude = Mathf.Max(currentShakeMagnitude, magnitude);
+
+        // 3. 남은 시간도 더 긴 쪽을 채택하여 갑자기 멈추지 않게 함
+        shakeTimer = Mathf.Max(shakeTimer, duration);
+
+        lastHitShakeTime = Time.time;
     }
 
     private void UpdateShake()

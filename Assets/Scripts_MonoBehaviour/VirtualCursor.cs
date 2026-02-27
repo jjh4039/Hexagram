@@ -25,7 +25,7 @@ public class VirtualCursor : MonoBehaviour
         cursorImage = GetComponent<Image>(); // Image 컴포넌트 참조
 
         // 실제 시스템 마우스 커서 숨기기
-        Cursor.visible = false;
+        // Cursor.visible = false;
 
         // 마우스 잠그기
         // Cursor.lockState = CursorLockMode.Confined; 

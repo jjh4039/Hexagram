@@ -18,21 +18,26 @@ public class EnemyBoss : Enemy
 
     [Header("Debug / Testing")]
     [Tooltip("0: 랜덤(1~4), 1~4: 해당 패턴만 무한 반복")]
-    [SerializeField][Range(0, 4)] private int forcePatternIndex = 3; // 기본값을 3으로 두어 바로 테스트!
+    [SerializeField][Range(0, 4)] private int forcePatternIndex = 1; // 돌진 테스트를 위해 임시로 1로 세팅
+
+    [Tooltip("체력과 상관없이 강제로 폭주(Phase 2) 패턴을 켭니다.")]
+    [SerializeField] private bool forceEnrage = false;
 
     [Header("Pattern 1: Dash")]
     [SerializeField] private float dashChargeTime = 1.0f; // 빠르게 차오름
-    [SerializeField] private float dashSpeed = 40f;
+    [SerializeField] private float dashSpeed = 80f;
     [SerializeField] private float dashDuration = 0.5f;
     [SerializeField] private float dashRecoveryTime = 0.5f;
 
     [Header("Pattern 1: Dash Indicator")]
-    [SerializeField] private GameObject dashMaxRangeOrigin; 
+    [SerializeField] private GameObject dashMaxRangeOrigin;
     [SerializeField] private GameObject dashCurrentRangeOrigin;
-    [SerializeField] private float dashRectWidth = 1.5f;
-    [SerializeField] private float dashRectLength = 20f;
+    [SerializeField] private float dashRectWidth = 2f;
+    [Tooltip("돌진 장판의 최대 허용 길이 (레이캐스트가 닿으면 이보다 짧아짐)")]
+    [SerializeField] private float dashMaxLimitLength = 24f; // ★ 이름 변경됨 (dashRectLength -> dashMaxLimitLength)
     [SerializeField] private float dashHomingStrength = 2.0f;
     [SerializeField] private Vector2 dashIndicatorOffset = new Vector2(-1f, 0f);
+    [SerializeField] private AnimationCurve dashSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0);
 
     [Header("Pattern 1: Dash Damage & Visuals")]
     [SerializeField] private float baseContactDamage = 10f;
@@ -60,26 +65,54 @@ public class EnemyBoss : Enemy
 
     [Header("Pattern 2: Enrage Projectiles (Optional)")]
     [SerializeField] private GameObject aoeProjectilePrefab;   // 폭주 시 8방향으로 날아갈 투사체
-    [SerializeField] private float aoeProjectileSpeed = 6f;    // 투사체 속도
+    [SerializeField] private float aoeProjectileSpeed = 10f;    // 투사체 속도
 
     [Header("Pattern 3: Multi-Lines (Earth Spikes)")]
     [SerializeField] private float linesChargeTime = 1.5f;
-    [SerializeField] private int minLines = 5;
-    [SerializeField] private int maxLines = 8;              // 맵이 너무 꽉 차지 않게 8개 정도로 제한
-    [SerializeField] private float linesRecoveryTime = 1.0f;
-    [SerializeField] private float spikeRectWidth = 0.8f;  // ★ 추가: 패턴 3 전용 장판 너비 (얇게)
+    [SerializeField] private int minLines = 7;
+    [SerializeField] private int maxLines = 10;
+    [SerializeField] private float linesRecoveryTime = 0.5f;
+    [SerializeField] private float spikeRectWidth = 1.5f;
+    [SerializeField] private GameObject earthSpikePrefab;
+    [SerializeField] private float spikeDamage = 15f;
+    [SerializeField] private float spikeDistance = 1.5f;
+    [SerializeField] private float spikeSpawnDelay = 0.05f;
+    [Tooltip("송곳 장판의 최대 허용 길이")]
+    [SerializeField] private float spikeMaxLimitLength = 30f; // ★ 이름 변경됨 (spikeLineLength -> spikeMaxLimitLength)
 
-    // ★ 새로 추가된 송곳 관련 변수들
-    [SerializeField] private GameObject earthSpikePrefab;   // 아까 만든 송곳 프리팹 연결!
-    [SerializeField] private float spikeDamage = 15f;       // 송곳 1대당 데미지
-    [SerializeField] private float spikeDistance = 1.5f;    // 송곳이 생성되는 간격 (촘촘함 조절)
-    [SerializeField] private float spikeSpawnDelay = 0.05f; // 송곳이 솟아오르는 시간차 (파도 효과)
-    [SerializeField] private float spikeLineLength = 20f;   // 직선의 최대 길이
+    [Header("Pattern 4: Cross Grid (Vine)")]
+    [SerializeField] private float gridStartupDelay = 1.5f;
+    // 모든 예고가 끝난 뒤 폭발 직전의 긴장감 도는 대기 시간
+    [SerializeField] private float gridChargeTime = 0.5f;
 
-    [Header("Pattern 4: Cross Grid")]
-    [SerializeField] private float gridChargeTime = 2.5f;
-    [SerializeField] private float gridStepDelay = 0.5f;
-    [SerializeField] private float gridRecoveryTime = 1.5f;
+    // ★ 예고 장판이 서서히 켜졌다 꺼지는 시간 (기존 0.5 -> 1.0으로 2배 늘림!)
+    [SerializeField] private float gridTelegraphDuration = 0.8f;
+
+    // ★ 예고 장판과 다음 예고 장판 사이의 짧은 정적 (기존 0.3 -> 0.5로 늘림)
+    [SerializeField] private float gridTelegraphGap = 0.2f;
+
+    // ★ 실제 덩굴이 발사되고 다음 덩굴이 발사되기 전의 대기 시간 
+    // (기존 0.6 -> 1.5로 크게 늘려 덩굴이 완전히 사라진 뒤 다음 공격이 나오게 함)
+    [SerializeField] private float gridFireDelay = 1f;
+
+    // 패턴이 모두 끝난 후 보스의 후딜레이
+    [SerializeField] private float gridRecoveryTime = 2.0f;
+
+    [SerializeField] private GameObject giantVinePrefab;
+    [SerializeField] private float vineDamage = 25f;
+
+    [Tooltip("맵의 벽(Wall) 레이어를 선택하세요 (콜라이더 필수)")]
+    [SerializeField] private LayerMask wallLayer;
+
+    [Tooltip("장판의 두께")]
+    [SerializeField] private float gridLineWidth = 3f;
+
+    private Vector2 initialSpawnPos;
+
+    [Tooltip("스폰 위치 기준 가로줄의 Y 오프셋 (위에서 아래 순서대로 입력)")]
+    [SerializeField] private float[] gridOffsetY = new float[] { 4.5f, 3f, 1.5f, 0f, -1.5f, -3f, -4.5f };
+    [Tooltip("스폰 위치 기준 세로줄의 X 오프셋 (왼쪽에서 오른쪽 순서대로 입력)")]
+    [SerializeField] private float[] gridOffsetX = new float[] { -6f, -4.5f, -3f, -1.5f, 0f, 1.5f, 3f, 4.5f, 6f, 7.5f };
 
     [Header("Indicators (Assign Prefabs)")]
     [SerializeField] private GameObject lineIndicatorPrefab;
@@ -88,6 +121,8 @@ public class EnemyBoss : Enemy
 
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
+    private GameObject sniperMaxInstance;
+    private GameObject sniperCurrentInstance;
 
     private Transform target;
     private Rigidbody2D rigid;
@@ -116,13 +151,16 @@ public class EnemyBoss : Enemy
     {
         base.Start();
 
+        // ★ 보스가 처음 스폰된 위치를 이 방의 중앙(기준점)으로 기억합니다!
+        initialSpawnPos = transform.position;
+
         if (BossHealthUI.instance != null)
             BossHealthUI.instance.SetupBoss(bossName, maxHealth);
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) target = playerObj.transform;
 
-        ClearRectangles(); // ★ 시작할 때 모든 자녀 장판 숨기기
+        ClearRectangles();
         StartCoroutine(Co_BossAI());
     }
 
@@ -132,6 +170,26 @@ public class EnemyBoss : Enemy
 
         if (!isAttacking)
             LookAtTarget();
+
+        // ==============================================================
+        // ★ [테스트 & 영상 촬영용] Force Enrage 실시간 토글 스위치
+        // ==============================================================
+
+        // 1. 인스펙터에서 체크(켜기)를 눌렀을 때
+        if (forceEnrage && !isEnraged)
+        {
+            currentHealth = 600f; // 체력을 즉시 600으로 세팅
+            if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
+            EnterPhase2(); // 빨갛게 변하고 isEnraged = true 가 됨
+        }
+
+        // 2. 인스펙터에서 체크 해제(끄기)를 눌렀을 때 (단, 실제 체력이 50%를 안 넘었을 때만)
+        else if (!forceEnrage && isEnraged && currentHealth > maxHealth * 0.5f)
+        {
+            isEnraged = false;
+            if (spriteRenderer != null) spriteRenderer.color = Color.white; // 원래 하얀색으로 복구
+            Debug.Log("보스 폭주 강제 해제! (하얀색으로 복구)");
+        }
     }
 
     public override void TakeDamage(float damage, bool isCritical = false)
@@ -206,63 +264,96 @@ public class EnemyBoss : Enemy
     // ==========================================
     IEnumerator Co_Pattern1_Dash()
     {
-        Debug.Log($"패턴 1: 돌진 장판 시작!");
-        if (anim != null) anim.SetTrigger("ReadyDash");
+        Debug.Log($"패턴 1: 돌진 시작!");
 
-        Vector2 currentDir = (target.position - transform.position).normalized;
+        // ★ 폭주 상태(또는 강제 폭주 테스트 켜짐)라면 돌진 횟수를 2번으로 설정
+        int dashCount = (isEnraged || forceEnrage) ? 2 : 1;
 
-        // ★ 수정됨: 씬에 있는 자식을 원본으로 삼아 복제본을 만듭니다.
-        if (dashMaxRangeOrigin != null)
-            maxRectInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
-
-        if (dashCurrentRangeOrigin != null)
-            currentRectInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
-
-        // 복제본이 보스를 따라다니지 않도록 부모 관계를 해제합니다.
-        if (maxRectInstance != null) maxRectInstance.transform.SetParent(null);
-        if (currentRectInstance != null) currentRectInstance.transform.SetParent(null);
-
-        if (maxRectInstance != null) maxRectInstance.SetActive(true);
-        if (currentRectInstance != null) currentRectInstance.SetActive(true);
-
-        float timer = 0f;
-        while (timer < dashChargeTime && !isDead)
+        for (int i = 0; i < dashCount; i++)
         {
-            timer += Time.deltaTime;
-            Vector2 targetDir = (target.position - transform.position).normalized;
-            currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * dashHomingStrength);
+            if (anim != null) anim.SetTrigger("ReadyDash");
 
-            UpdateRectangle(maxRectInstance, currentDir, dashRectLength, dashRectWidth);
-            UpdateRectangle(currentRectInstance, currentDir, dashRectLength * (timer / dashChargeTime), dashRectWidth);
-            LookAtDirection(currentDir.x);
+            // ★ 핵심 수정: 2번째 돌진일 때는 예고 시간, 돌진 시간, 그리고 '장판의 최대 길이'도 절반으로 줄입니다.
+            float currentChargeTime = (i == 0) ? dashChargeTime : dashChargeTime * 0.5f;
+            float currentDashDuration = (i == 0) ? dashDuration : dashDuration * 0.5f;
+            float currentLimitLength = (i == 0) ? dashMaxLimitLength : dashMaxLimitLength * 0.5f; // <--- 이 부분 추가!
 
-            yield return null;
-        }
+            Vector2 currentDir = (target.position - transform.position).normalized;
 
-        ClearRectangles();
+            if (dashMaxRangeOrigin != null)
+                maxRectInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
 
-        if (anim != null) anim.SetTrigger("Dash");
+            if (dashCurrentRangeOrigin != null)
+                currentRectInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
 
-        isDashing = true;
-        // ★ 돌진과 동시에 잔상과 파티클 코루틴 시작
-        Coroutine trailCoroutine = StartCoroutine(Co_SpawnTrail());
-        Coroutine debrisCoroutine = StartCoroutine(Co_SpawnDebris());
+            if (maxRectInstance != null) { maxRectInstance.transform.SetParent(null); maxRectInstance.SetActive(true); }
+            if (currentRectInstance != null) { currentRectInstance.transform.SetParent(null); currentRectInstance.SetActive(true); }
 
-        timer = 0f;
-        while (timer < dashDuration && !isDead)
-        {
-            rigid.linearVelocity = currentDir * dashSpeed;
-            timer += Time.fixedDeltaTime;
-            yield return new WaitForFixedUpdate();
-        }
+            float timer = 0f;
+            while (timer < currentChargeTime && !isDead)
+            {
+                timer += Time.deltaTime;
+                Vector2 targetDir = (target.position - transform.position).normalized;
+                currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * dashHomingStrength);
 
-        isDashing = false;
-        // ★ 돌진이 끝나면 코루틴 정지
-        if (trailCoroutine != null) StopCoroutine(trailCoroutine);
-        if (debrisCoroutine != null) StopCoroutine(debrisCoroutine);
+                // ★ dashMaxLimitLength 대신 새로 만든 currentLimitLength 를 넘겨줍니다.
+                UpdateRectangle(maxRectInstance, currentDir, currentLimitLength, dashRectWidth);
+                UpdateRectangle(currentRectInstance, currentDir, currentLimitLength * (timer / currentChargeTime), dashRectWidth);
+                LookAtDirection(currentDir.x);
 
-        rigid.linearVelocity = Vector2.zero;
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.1f, 0.08f);
+                yield return null;
+            }
+
+            ClearRectangles();
+
+            if (anim != null) anim.SetTrigger("Dash");
+
+            isDashing = true;
+            Coroutine trailCoroutine = StartCoroutine(Co_SpawnTrail());
+            Coroutine debrisCoroutine = StartCoroutine(Co_SpawnDebris());
+
+            // ==============================================================
+            // ★ [벽 끼임 방지 로직] 돌진 시작 위치와 안전 거리 계산
+            // ==============================================================
+            Vector2 startDashPos = transform.position;
+            RaycastHit2D hit = Physics2D.Raycast(startDashPos, currentDir, currentLimitLength, wallLayer);
+
+            // 벽에 닿으면 '벽까지의 거리 - 보스 몸통 크기(약 1.5f)' 만큼만 이동하도록 제한
+            // 안 닿으면 목표했던 길이(currentLimitLength) 전체를 허용
+            float safeDistance = hit.collider != null ? Mathf.Max(0, hit.distance - 1.5f) : currentLimitLength;
+
+            timer = 0f;
+            while (timer < currentDashDuration && !isDead)
+            {
+                // ★ 핵심: 보스가 안전 거리(safeDistance)만큼 이동했다면 강제로 while문 탈출! (속도 주입 중단)
+                if (Vector2.Distance(startDashPos, transform.position) >= safeDistance)
+                {
+                    break;
+                }
+
+                float progress = timer / currentDashDuration;
+                float speedMultiplier = dashSpeedCurve.Evaluate(progress);
+
+                rigid.linearVelocity = currentDir * (dashSpeed * speedMultiplier);
+
+                timer += Time.fixedDeltaTime;
+                yield return new WaitForFixedUpdate();
+            }
+
+            // 돌진 종료 처리
+            isDashing = false;
+            if (trailCoroutine != null) StopCoroutine(trailCoroutine);
+            if (debrisCoroutine != null) StopCoroutine(debrisCoroutine);
+
+            rigid.linearVelocity = Vector2.zero; // 속도 완전히 초기화
+            if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.1f, 0.08f);
+
+            // 1차 돌진이 끝나고 2차 돌진을 시작하기 전, 아주 짧은 찰나의 정적(0.2초)
+            if (i == 0 && dashCount > 1)
+            {
+                yield return new WaitForSeconds(0.2f);
+            }
+        } // for문 끝
 
         yield return new WaitForSeconds(dashRecoveryTime);
     }
@@ -277,7 +368,6 @@ public class EnemyBoss : Enemy
         {
             attackMaxRangeObj.SetActive(true);
             attackMaxRangeObj.transform.localPosition = Vector3.zero;
-            // ★ 물리 범위와 상관없이 시각적 스케일(aoeVisualScale) 적용
             attackMaxRangeObj.transform.localScale = new Vector3(aoeVisualScale, aoeVisualScale, 1f);
         }
 
@@ -299,7 +389,6 @@ public class EnemyBoss : Enemy
 
             if (attackRangeObj != null)
             {
-                // ★ 여기도 aoeVisualScale 적용
                 float currentScale = Mathf.Lerp(0f, aoeVisualScale, progress);
                 attackRangeObj.transform.localScale = new Vector3(currentScale, currentScale, 1f);
             }
@@ -312,8 +401,6 @@ public class EnemyBoss : Enemy
 
         // 4. 폭발 발동!
         if (anim != null) anim.SetTrigger("Slam");
-
-        // ★ 화면 진동 아주 강하게!
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.3f);
 
         if (aoeEffectPrefab != null)
@@ -322,7 +409,15 @@ public class EnemyBoss : Enemy
             Destroy(vfx, 2f);
         }
 
-        // 5. 데미지 판정 (여기는 실제 물리 범위인 hugeAoeRadius를 그대로 사용!)
+        // ==============================================================
+        // ★ [폭주 기믹] 폭주 상태일 때 16방향으로 투사체 흩뿌리기!
+        // ==============================================================
+        if (isEnraged || forceEnrage)
+        {
+            FireProjectiles(32);
+        }
+
+        // 5. 데미지 판정
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, hugeAoeRadius, targetLayer);
         foreach (Collider2D hit in hits)
         {
@@ -346,103 +441,385 @@ public class EnemyBoss : Enemy
 
         List<GameObject> maxRects = new List<GameObject>();
         List<GameObject> currentRects = new List<GameObject>();
-        List<Vector2> lineDirections = new List<Vector2>();
 
-        // 1. 방향 설정 및 장판 생성
+        // 1차 발사 방향과 벽에 부딪힌 끝점들을 저장할 리스트
+        List<Vector2> lineDirections = new List<Vector2>();
+        List<Vector2> wallHitPoints = new List<Vector2>();
+
         for (int i = 0; i < lineCount; i++)
         {
             Vector2 dir;
-            if (i == 0 && target != null)
-            {
-                // ★ 첫 번째 줄은 무조건 플레이어를 향하도록! (정밀 타격)
-                dir = (target.position - transform.position).normalized;
-            }
+            // 타겟(플레이어) 정보는 이제 GameManager를 통해 안전하게 가져옵니다.
+            Transform currentTarget = GameManager.instance?.player?.transform;
+
+            if (i == 0 && currentTarget != null)
+                dir = (currentTarget.position - transform.position).normalized;
             else
             {
-                // 나머지는 무작위 360도 방향
                 float randomAngle = Random.Range(0f, 360f);
                 dir = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad));
             }
-
             lineDirections.Add(dir);
 
-            // ★ 돌진 예고 장판(Origin)을 재활용하여 다중 생성
+            // 미리 레이캐스트를 쏴서 벽의 끝점(Hit Point)을 계산해 둡니다.
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, spikeMaxLimitLength, wallLayer);
+            float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
+            wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
+
             if (dashMaxRangeOrigin != null)
             {
                 GameObject maxObj = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
-                maxObj.transform.SetParent(null);
-                maxObj.SetActive(true);
-                maxRects.Add(maxObj);
+                maxObj.transform.SetParent(null); maxObj.SetActive(true); maxRects.Add(maxObj);
             }
             if (dashCurrentRangeOrigin != null)
             {
                 GameObject curObj = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
-                curObj.transform.SetParent(null);
-                curObj.SetActive(true);
-                currentRects.Add(curObj);
+                curObj.transform.SetParent(null); curObj.SetActive(true); currentRects.Add(curObj);
             }
         }
 
+        // [Phase 1: 1차 예고]
         float timer = 0f;
-
-        // 2. 장판 차오르기 (모든 줄 동시에)
         while (timer < linesChargeTime && !isDead)
         {
             timer += Time.deltaTime;
             for (int i = 0; i < lineDirections.Count; i++)
             {
-                if (i < maxRects.Count)
-                    UpdateRectangle(maxRects[i], lineDirections[i], spikeLineLength, spikeRectWidth);
-                if (i < currentRects.Count)
-                    UpdateRectangle(currentRects[i], lineDirections[i], spikeLineLength * (timer / linesChargeTime), spikeRectWidth);
+                if (i < maxRects.Count) UpdateRectangle(maxRects[i], lineDirections[i], spikeMaxLimitLength, spikeRectWidth);
+                if (i < currentRects.Count) UpdateRectangle(currentRects[i], lineDirections[i], spikeMaxLimitLength * (timer / linesChargeTime), spikeRectWidth);
             }
             yield return null;
         }
 
-        // 3. 장판 지우기
         foreach (var rect in maxRects) if (rect != null) Destroy(rect);
         foreach (var rect in currentRects) if (rect != null) Destroy(rect);
 
         if (isDead) yield break;
-
-        // 4. 공격 실행! (모든 줄에서 동시에 파도처럼 송곳이 솟구침)
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.15f);
 
+        // [Phase 2: 1차 발사]
         foreach (Vector2 dir in lineDirections)
         {
-            StartCoroutine(Co_SpawnSpikeWave(dir));
+            StartCoroutine(Co_SpawnSpikeWave(transform.position, dir, spikeMaxLimitLength));
         }
 
-        // 5. 보스 후딜레이
+        // ==============================================================
+        // ★ [폭주 기믹] 올레인지 록온 (사방에서 플레이어를 향해 쇄도)
+        // ==============================================================
+        if (isEnraged || forceEnrage)
+        {
+            float maxSpikeCount = spikeMaxLimitLength / spikeDistance;
+            float waveDuration = maxSpikeCount * spikeSpawnDelay;
+            yield return new WaitForSeconds(waveDuration + 0.1f); // 1차 파도가 끝날 때까지 대기
+
+            Transform targetPlayer = GameManager.instance?.player?.transform;
+            if (targetPlayer != null)
+            {
+                maxRects.Clear();
+                currentRects.Clear();
+                List<Vector2> reverseDirections = new List<Vector2>();
+
+                // 저장해둔 벽의 끝점(wallHitPoints)에서 플레이어를 바라보는 새로운 방향을 계산합니다.
+                for (int i = 0; i < wallHitPoints.Count; i++)
+                {
+                    Vector2 startPos = wallHitPoints[i];
+                    Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
+                    reverseDirections.Add(toPlayerDir);
+
+                    if (dashMaxRangeOrigin != null)
+                    {
+                        GameObject maxObj = Instantiate(dashMaxRangeOrigin, startPos, Quaternion.identity);
+                        maxObj.transform.SetParent(null); maxObj.SetActive(true); maxRects.Add(maxObj);
+                    }
+                    if (dashCurrentRangeOrigin != null)
+                    {
+                        GameObject curObj = Instantiate(dashCurrentRangeOrigin, startPos, Quaternion.identity);
+                        curObj.transform.SetParent(null); curObj.SetActive(true); currentRects.Add(curObj);
+                    }
+                }
+
+                // [Phase 3: 2차 예고 (플레이어 조준)]
+                float returnChargeTime = linesChargeTime * 0.6f; // 살짝 빠르게!
+                timer = 0f;
+                while (timer < returnChargeTime && !isDead)
+                {
+                    timer += Time.deltaTime;
+                    float progress = timer / returnChargeTime;
+
+                    for (int i = 0; i < reverseDirections.Count; i++)
+                    {
+                        Vector2 startPos = wallHitPoints[i];
+                        // 이번엔 UpdateRectangle을 벽에서부터 쏘는 용도로 재활용합니다.
+                        if (i < maxRects.Count) UpdateRectangleFromPoint(maxRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
+                        if (i < currentRects.Count) UpdateRectangleFromPoint(currentRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
+                    }
+                    yield return null;
+                }
+
+                foreach (var rect in maxRects) if (rect != null) Destroy(rect);
+                foreach (var rect in currentRects) if (rect != null) Destroy(rect);
+
+                if (isDead) yield break;
+                if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.25f, 0.2f);
+
+                // [Phase 4: 2차 발사 (벽에서 플레이어로 쇄도)]
+                for (int i = 0; i < wallHitPoints.Count; i++)
+                {
+                    StartCoroutine(Co_SpawnSpikeWave(wallHitPoints[i], reverseDirections[i], spikeMaxLimitLength));
+                }
+
+                yield return new WaitForSeconds(waveDuration);
+            }
+        }
+
         yield return new WaitForSeconds(linesRecoveryTime);
     }
 
     IEnumerator Co_Pattern4_CrossGrid()
     {
-        Debug.Log($"패턴 4: 격자 장판 생성 후 {gridChargeTime}초 뒤 폭발 시작");
+        Debug.Log($"패턴 4: 가로 -> 세로 -> 전부 터지는 궁극기 시작!");
+
         if (anim != null) anim.SetTrigger("GatherHands");
+        yield return new WaitForSeconds(gridStartupDelay);
+
+        List<int> hSet1 = new List<int>(); List<int> hSet2 = new List<int>();
+        for (int i = 0; i < gridOffsetY.Length; i++) { if (i % 2 == 0) hSet1.Add(i); else hSet2.Add(i); }
+
+        List<int> vSet1 = new List<int>(); List<int> vSet2 = new List<int>();
+        for (int i = 0; i < gridOffsetX.Length; i++) { if (i % 2 == 0) vSet1.Add(i); else vSet2.Add(i); }
+
+        // [Phase 1: 예고 (Telegraph) - 격자가 깜빡임]
+        yield return StartCoroutine(Co_FlashTelegraph(hSet1, null));
+        yield return StartCoroutine(Co_FlashTelegraph(null, vSet1));
+        yield return StartCoroutine(Co_FlashTelegraph(hSet2, vSet2));
+
+        // ==============================================================
+        // ★ [폭주 기믹] Phase 2: 격자 예고가 모두 끝난 직후부터 스나이퍼 조준 시작!
+        // ==============================================================
+        Vector2 lockedSniperDir = Vector2.zero;
+        Vector2 lockedSniperStartPos = Vector2.zero;
+        float lockedSniperLength = 0f;
+        bool isSniperTracking = false;
+
+        if (isEnraged || forceEnrage)
+        {
+            if (dashMaxRangeOrigin != null)
+            {
+                sniperMaxInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
+                sniperMaxInstance.transform.SetParent(null);
+                sniperMaxInstance.SetActive(true);
+            }
+            if (dashCurrentRangeOrigin != null)
+            {
+                sniperCurrentInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
+                sniperCurrentInstance.transform.SetParent(null);
+                sniperCurrentInstance.SetActive(true);
+            }
+            isSniperTracking = true;
+
+            // Grid Charge Time 동안 장판이 천천히 차오르면서 양방향(관통) 추적
+            StartCoroutine(Co_SniperTrackingRoutine(
+                (startPos, dir, len) => { lockedSniperStartPos = startPos; lockedSniperDir = dir; lockedSniperLength = len; },
+                () => isSniperTracking,
+                gridChargeTime
+            ));
+        }
+
+        // 이 시간 동안 스나이퍼 장판이 차오릅니다.
         yield return new WaitForSeconds(gridChargeTime);
 
-        Debug.Log("  -> 1단계: 일부 가로 줄 폭발");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.05f);
-        yield return new WaitForSeconds(gridStepDelay);
+        // [Phase 3: 폭발 (Fire) - 격자 1, 2차 발사]
+        FireVineSet(hSet1, null);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.2f);
+        yield return new WaitForSeconds(gridFireDelay);
 
-        Debug.Log("  -> 2단계: 일부 세로 줄 폭발");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.05f);
-        yield return new WaitForSeconds(gridStepDelay);
+        FireVineSet(null, vSet1);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.2f);
+        yield return new WaitForSeconds(gridFireDelay);
 
-        Debug.Log("  -> 3단계: 남은 가로 줄 폭발");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.05f);
-        yield return new WaitForSeconds(gridStepDelay);
+        // ==============================================================
+        // ★ [폭주 기믹] Phase 4: 3번째 덩굴 폭발 직전 타겟 고정 (Lock-On)
+        // ==============================================================
+        if (isEnraged || forceEnrage)
+        {
+            isSniperTracking = false; // 추적 중지! (이 순간의 방향과 위치로 락온)
+            if (sniperMaxInstance != null) sniperMaxInstance.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 0.5f);
+            if (sniperCurrentInstance != null) sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 0.9f); // 락온 경고
+        }
 
-        Debug.Log("  -> 4단계: 남은 세로 줄 폭발");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.1f, 0.1f);
+        FireVineSet(hSet2, vSet2);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.35f);
 
+        // ==============================================================
+        // ★ [폭주 기믹] Phase 5: 마지막 스나이퍼 덩굴 발사!
+        // ==============================================================
+        if (isEnraged || forceEnrage)
+        {
+            yield return new WaitForSeconds(0.4f); // 엇박자 딜레이
+
+            if (giantVinePrefab != null && lockedSniperDir != Vector2.zero)
+            {
+                // ★ 덩굴 이미지가 위(Y)를 향하고 있으므로, -90도를 해줘야 완벽하게 맞물립니다!
+                float angle = Mathf.Atan2(lockedSniperDir.y, lockedSniperDir.x) * Mathf.Rad2Deg - 90f;
+
+                // 보스 중심이 아니라, 계산된 '뒤쪽 벽(StartPos)'에서부터 생성되어 날아옵니다.
+                GameObject sniperVine = Instantiate(giantVinePrefab, lockedSniperStartPos, Quaternion.Euler(0, 0, angle));
+                sniperVine.transform.localScale = new Vector3(2, 2, 1);
+
+                GiantVine vineScript = sniperVine.GetComponent<GiantVine>();
+                if (vineScript != null)
+                {
+                    vineScript.Fire(vineDamage * 1.5f, lockedSniperLength);
+                }
+                if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.5f, 0.4f); // 더 큰 진동
+            }
+
+            if (sniperMaxInstance != null) Destroy(sniperMaxInstance);
+            if (sniperCurrentInstance != null) Destroy(sniperCurrentInstance);
+        }
+
+        if (anim != null) anim.SetTrigger("StopGatherHands");
         yield return new WaitForSeconds(gridRecoveryTime);
     }
 
-    // ==========================================
-    // 오브젝트 풀링 및 시각 효과 (잔상, 파티클)
+    private (Vector2 startPos, float length) GetLineData(bool isHorizontal, int index)
+    {
+        Vector2 origin = isHorizontal ?
+            new Vector2(initialSpawnPos.x, initialSpawnPos.y + gridOffsetY[index]) :
+            new Vector2(initialSpawnPos.x + gridOffsetX[index], initialSpawnPos.y);
+
+        Vector2 dir1 = isHorizontal ? Vector2.left : Vector2.down;
+        Vector2 dir2 = isHorizontal ? Vector2.right : Vector2.up;
+
+        RaycastHit2D hit1 = Physics2D.Raycast(origin, dir1, 100f, wallLayer);
+        RaycastHit2D hit2 = Physics2D.Raycast(origin, dir2, 100f, wallLayer);
+
+        Debug.DrawRay(origin, dir1 * (hit1.collider != null ? hit1.distance : 100f), Color.red, 2f);
+        Debug.DrawRay(origin, dir2 * (hit2.collider != null ? hit2.distance : 100f), Color.red, 2f);
+
+        float dist1 = hit1.collider != null ? hit1.distance : 50f;
+        float dist2 = hit2.collider != null ? hit2.distance : 50f;
+
+        Vector2 startPos = origin + (dir1 * dist1);
+        float totalLength = dist1 + dist2;
+
+        return (startPos, totalLength);
+    }
+
+    IEnumerator Co_FlashTelegraph(List<int> hIndices, List<int> vIndices)
+    {
+        List<SpriteRenderer> srs = new List<SpriteRenderer>();
+        List<GameObject> markers = new List<GameObject>();
+
+        if (hIndices != null)
+        {
+            foreach (int index in hIndices)
+            {
+                // ★ dashMaxRangeOrigin 대신 dashCurrentRangeOrigin 사용
+                if (dashCurrentRangeOrigin == null) continue;
+                var data = GetLineData(true, index);
+
+                GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
+                telegraph.transform.SetParent(null);
+                telegraph.transform.localScale = Vector3.one;
+                telegraph.SetActive(true);
+
+                SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    telegraph.transform.rotation = Quaternion.Euler(0, 0, 0);
+                    sr.size = new Vector2(data.length, gridLineWidth);
+                    sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
+                    srs.Add(sr);
+                }
+                markers.Add(telegraph);
+            }
+        }
+
+        if (vIndices != null)
+        {
+            foreach (int index in vIndices)
+            {
+                // ★ dashMaxRangeOrigin 대신 dashCurrentRangeOrigin 사용
+                if (dashCurrentRangeOrigin == null) continue;
+                var data = GetLineData(false, index);
+
+                GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
+                telegraph.transform.SetParent(null);
+                telegraph.transform.localScale = Vector3.one;
+                telegraph.SetActive(true);
+
+                SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    telegraph.transform.rotation = Quaternion.Euler(0, 0, 90);
+                    sr.size = new Vector2(data.length, gridLineWidth);
+                    sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
+                    srs.Add(sr);
+                }
+                markers.Add(telegraph);
+            }
+        }
+
+        // 페이드 인
+        float halfTime = gridTelegraphDuration / 2f;
+        // ★ 만약 여전히 덜 선명하다면, 이 maxAlpha 값을 0.6f 나 0.8f 로 올려주시면 엄청 뚜렷해집니다!
+        float maxAlpha = 0.7f;
+
+        for (float t = 0; t < halfTime; t += Time.deltaTime)
+        {
+            float alpha = Mathf.Lerp(0f, maxAlpha, t / halfTime);
+            foreach (var sr in srs) if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
+            yield return null;
+        }
+
+        // 페이드 아웃
+        for (float t = 0; t < halfTime; t += Time.deltaTime)
+        {
+            float alpha = Mathf.Lerp(maxAlpha, 0f, t / halfTime);
+            foreach (var sr in srs) if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
+            yield return null;
+        }
+
+        foreach (var m in markers) if (m != null) Destroy(m);
+        yield return new WaitForSeconds(gridTelegraphGap);
+    }
+
+    private void FireVineSet(List<int> hIndices, List<int> vIndices)
+    {
+        if (giantVinePrefab == null) return;
+
+        if (hIndices != null)
+        {
+            foreach (int index in hIndices)
+            {
+                var data = GetLineData(true, index);
+                GameObject vine = Instantiate(giantVinePrefab, data.startPos, Quaternion.Euler(0, 0, -90));
+
+                vine.transform.localScale = new Vector3(2, 2, 1);
+
+                GiantVine vineScript = vine.GetComponent<GiantVine>();
+                if (vineScript != null)
+                    vineScript.Fire(vineDamage, data.length);
+            }
+        }
+
+        if (vIndices != null)
+        {
+            foreach (int index in vIndices)
+            {
+                var data = GetLineData(false, index);
+                GameObject vine = Instantiate(giantVinePrefab, data.startPos, Quaternion.Euler(0, 0, 0));
+
+                vine.transform.localScale = new Vector3(2, 2, 1);
+
+                GiantVine vineScript = vine.GetComponent<GiantVine>();
+                if (vineScript != null)
+                    vineScript.Fire(vineDamage, data.length);
+            }
+        }
+    }
+
     // ==========================================
 
     private void InitializeTrailPool()
@@ -522,14 +899,17 @@ public class EnemyBoss : Enemy
         }
     }
 
-    private void Fire8WayProjectiles()
+    private void FireProjectiles(int count)
     {
-        Debug.Log("보스 폭주! 8방향 파편 발사!");
-        // 45도 간격으로 8번 반복
-        for (int i = 0; i < 8; i++)
+        if (aoeProjectilePrefab == null) return;
+
+        Debug.Log($"보스 폭주! {count}방향 파편 발사!");
+
+        float angleStep = 360f / count; // 360도를 파편 개수로 나눔
+
+        for (int i = 0; i < count; i++)
         {
-            float angle = i * 45f;
-            // 각도를 방향 벡터(Vector2)로 변환
+            float angle = i * angleStep;
             Vector2 dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
 
             GameObject proj = Instantiate(aoeProjectilePrefab, transform.position, Quaternion.identity);
@@ -542,10 +922,85 @@ public class EnemyBoss : Enemy
         }
     }
 
+    // ★ 폭주 기믹 전용: 맵 끝에서부터 보스 방향으로 돌아오는 송곳 파도
+    IEnumerator Co_SpawnSpikeWave(Vector2 origin, Vector2 dir, float maxLength)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(origin, dir, maxLength, wallLayer);
+        float availableLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : maxLength;
+        int spikeCount = Mathf.FloorToInt(availableLength / spikeDistance);
+
+        for (int i = 1; i <= spikeCount; i++)
+        {
+            if (isDead) yield break;
+
+            Vector2 spawnPos = origin + dir * (i * spikeDistance);
+
+            if (earthSpikePrefab != null)
+            {
+                GameObject spikeObj = Instantiate(earthSpikePrefab, spawnPos, Quaternion.identity);
+                EarthSpike spikeScript = spikeObj.GetComponent<EarthSpike>();
+                if (spikeScript != null) spikeScript.Initialize(spikeDamage);
+            }
+
+            yield return new WaitForSeconds(spikeSpawnDelay);
+        }
+    }
+
+    // ★ 천천히 차오르는 양방향(관통형) 스나이퍼 추적 코루틴
+    IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, System.Func<bool> isTracking, float chargeDuration)
+    {
+        float timer = 0f;
+        while (isTracking() && !isDead)
+        {
+            if (GameManager.instance?.player != null)
+            {
+                timer += Time.deltaTime;
+                float progress = Mathf.Clamp01(timer / chargeDuration);
+
+                Vector2 bossPos = transform.position;
+                Vector2 targetPos = GameManager.instance.player.transform.position;
+                Vector2 dir = (targetPos - bossPos).normalized;
+
+                // 1. 보스 기준 앞/뒤 양방향 레이캐스트 발사
+                RaycastHit2D backHit = Physics2D.Raycast(bossPos, -dir, 100f, wallLayer); // 보스 등 뒤의 벽
+                RaycastHit2D frontHit = Physics2D.Raycast(bossPos, dir, 100f, wallLayer); // 보스 앞쪽(플레이어 방향)의 벽
+
+                float backDist = backHit.collider != null ? backHit.distance : 50f;
+                float frontDist = frontHit.collider != null ? frontHit.distance : 50f;
+
+                // 2. 장판의 시작점을 '보스 등 뒤의 벽'으로 설정 (끼임 방지로 0.1f 띄움)
+                Vector2 startPos = bossPos - (dir * (backDist - 0.1f));
+
+                // 3. 총 길이 = 뒷벽까지 거리 + 앞벽까지 거리 (끼임 방지 여백 0.5f)
+                float totalLength = (backDist - 0.1f) + (frontDist - 0.5f);
+
+                // 코루틴으로 정보 전달
+                onUpdateData(startPos, dir, totalLength);
+
+                // 4. Max 장판(어두운 배경)과 Current 장판(차오르는 붉은 선) 업데이트
+                if (sniperMaxInstance != null)
+                {
+                    sniperMaxInstance.transform.position = startPos;
+                    sniperMaxInstance.transform.right = dir; // DashOrigin 프리팹은 기본 오른쪽(Right) 기준
+                    sniperMaxInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength, gridLineWidth);
+                }
+
+                if (sniperCurrentInstance != null)
+                {
+                    sniperCurrentInstance.transform.position = startPos;
+                    sniperCurrentInstance.transform.right = dir;
+                    sniperCurrentInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength * progress, gridLineWidth);
+                }
+            }
+            yield return null;
+        }
+    }
+
     // ==========================================
     // 유틸리티
     // ==========================================
-    void UpdateRectangle(GameObject rect, Vector2 dir, float length, float width)
+    // ★ 레이캐스트가 적용된 장판 그리기 함수 (패턴 1, 3 공통 사용)
+    void UpdateRectangle(GameObject rect, Vector2 dir, float requestedLength, float width)
     {
         if (rect == null) return;
         float facingDirection = Mathf.Sign(transform.localScale.x);
@@ -555,24 +1010,48 @@ public class EnemyBoss : Enemy
         rect.transform.position = startPos;
         rect.transform.right = dir.normalized;
 
+        // ★ 레이캐스트로 벽 감지
+        RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, requestedLength, wallLayer);
+
+        // 벽에 닿았다면 거리를 잰 뒤 살짝(0.5f) 여백을 주고, 안 닿았다면 요청받은 원래 길이를 씁니다.
+        float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 0.5f) : requestedLength;
+
         SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            float adjustedLength = length + Mathf.Abs(dashIndicatorOffset.x);
-            // ★ dashRectWidth 대신 인자로 받은 width를 사용!
+            float adjustedLength = finalLength + Mathf.Abs(dashIndicatorOffset.x);
             sr.size = new Vector2(adjustedLength, width);
+        }
+    }
+
+    void UpdateRectangleFromPoint(GameObject rect, Vector2 startPos, Vector2 dir, float maxLimitLength, float progress, float width)
+    {
+        if (rect == null) return;
+
+        rect.transform.position = startPos;
+        rect.transform.right = dir.normalized;
+
+        RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, maxLimitLength, wallLayer);
+        float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 0.5f) : maxLimitLength;
+
+        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            float currentLength = finalLength * progress;
+            sr.size = new Vector2(currentLength, width);
         }
     }
 
     void ClearRectangles()
     {
-        // 1번 패턴 (대쉬) : 월드에 생성된 것이므로 파괴(Destroy)
         if (maxRectInstance != null) Destroy(maxRectInstance);
         if (currentRectInstance != null) Destroy(currentRectInstance);
-
-        // 2번 패턴 (폭발) : 자녀 오브젝트이므로 숨기기(SetActive)
         if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
         if (attackRangeObj != null) attackRangeObj.SetActive(false);
+
+        // ★ 조준선도 2개 다 지우도록 수정
+        if (sniperMaxInstance != null) Destroy(sniperMaxInstance);
+        if (sniperCurrentInstance != null) Destroy(sniperCurrentInstance);
     }
 
     private void LookAtTarget()
@@ -618,30 +1097,40 @@ public class EnemyBoss : Enemy
 
     IEnumerator Co_SpawnSpikeWave(Vector2 dir)
     {
-        // 직선 길이에 맞춰 생성할 송곳의 총 개수 계산
-        int spikeCount = Mathf.FloorToInt(spikeLineLength / spikeDistance);
+        // 방향으로 레이캐스트를 쏴서 벽까지의 거리를 잽니다.
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, spikeMaxLimitLength, wallLayer);
 
-        // i를 1부터 시작하여 보스 몸 정중앙이 아닌 살짝 앞부터 솟구치게 함
+        // 벽에 닿았으면 그 거리에서 살짝(1f) 뺀 길이를 쓰고, 아니면 최대 길이를 씁니다.
+        float availableLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
+
+        // 가용 길이에 맞춰 생성할 송곳 개수 계산
+        int spikeCount = Mathf.FloorToInt(availableLength / spikeDistance);
+
         for (int i = 1; i <= spikeCount; i++)
         {
-            if (isDead) yield break; // 보스가 죽으면 파도 중단
+            if (isDead) yield break;
 
-            // 보스 중심에서 dir 방향으로 일정 간격(spikeDistance)만큼 떨어진 위치
             Vector2 spawnPos = (Vector2)transform.position + dir * (i * spikeDistance);
 
             if (earthSpikePrefab != null)
             {
                 GameObject spikeObj = Instantiate(earthSpikePrefab, spawnPos, Quaternion.identity);
                 EarthSpike spikeScript = spikeObj.GetComponent<EarthSpike>();
-                if (spikeScript != null)
-                {
-                    // 아까 만든 스크립트의 Initialize 호출 (데미지 전달 및 솟아오름 시작)
-                    spikeScript.Initialize(spikeDamage);
-                }
+                if (spikeScript != null) spikeScript.Initialize(spikeDamage);
             }
 
-            // ★ 다음 송곳이 나오기까지 아주 짧은 대기시간 (좌르륵 솟구치는 느낌)
             yield return new WaitForSeconds(spikeSpawnDelay);
+        }
+    }
+
+    private void ShuffleList(List<int> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            int temp = list[i];
+            int randomIndex = Random.Range(i, list.Count);
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
         }
     }
 

@@ -27,10 +27,8 @@ public class EarthSpike : MonoBehaviour
     }
 
     private IEnumerator Co_SpikeRoutine()
-    {
+    { 
         yield return new WaitForSeconds(colliderEnableDelay);
-
-        // ★ 송곳이 가장 높이 솟아오르는 순간(판정 ON)에 먼지 파티클 생성!
         if (debrisPrefab != null)
         {
             GameObject vfx = Instantiate(debrisPrefab, transform.position, Quaternion.identity);
