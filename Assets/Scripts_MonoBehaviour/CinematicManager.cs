@@ -11,14 +11,16 @@ public class CinematicManager : MonoBehaviour
     [Header("Cinematic Bars UI")]
     [SerializeField] private RectTransform topBar;      // 상단 검은 줄
     [SerializeField] private RectTransform bottomBar;   // 하단 검은 줄
-    [SerializeField] private float barHeight = 150f;    // 최종 검은 줄의 두께
-    [SerializeField] private float barAnimTime = 0.5f;  // 스르륵 나오는 시간
+    [SerializeField] private float barHeight = 40f;    // 최종 검은 줄의 두께
+    [SerializeField] private float barAnimTime = 1.5f;  // 스르륵 나오는 시간
 
     [Header("Environment Sunset")]
     [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f); // 저녁 색상
     [SerializeField] private float sunsetDuration = 2f; // 해가 지는 시간
-    [SerializeField] private float holdDuration = 1f;   // 해가 지고 난 뒤 머무는 시간
+    [SerializeField] private float holdDuration = 2f;   // 해가 지고 난 뒤 머무는 시간
     [SerializeField] private float cinematicCameraSpeed = 1.5f; // 컷신 중 카메라 이동 속도
+
+    public float SunsetDuration => sunsetDuration;
 
     // ★ [추가] 숨길 UI 목록
     [Header("UI to Hide During Cinematic")]
@@ -47,14 +49,13 @@ public class CinematicManager : MonoBehaviour
         }
     }
 
-    public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onFinish)
+    public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
     {
         // 1. 플레이어 조작 봉쇄
         Player player = GameManager.instance.player;
         player.enabled = false;
         player.rigid.linearVelocity = Vector2.zero;
 
-        // ★ [추가] 컷신 시작 시 UI 서서히 숨기기 (코루틴을 대기하지 않고 즉시 실행)
         StartCoroutine(Co_FadeGameplayUI(false));
 
         // 2. 카메라 보스 고정
@@ -63,23 +64,37 @@ public class CinematicManager : MonoBehaviour
         // 3. 레터박스 스르륵 등장!
         yield return StartCoroutine(Co_AnimateLetterBox(true));
 
-        // 4. 지형 서서히 어두워짐
+        // ==========================================
+        // ★ 4. 지형 어두워짐 시작 (이때 보스에게 신호 보냄)
+        onSunsetStart?.Invoke();
+
         yield return StartCoroutine(Co_SunsetEffect());
 
-        // 5. 분위기 잡기 대기
-        yield return new WaitForSeconds(holdDuration);
+        // ★ 5. 지형 어두워짐 완료! (이때 보스가 기동하며 쾅! 신호 보냄)
+        onSunsetDone?.Invoke();
+        // ==========================================
 
-        // 6. 레터박스 스르륵 퇴장!
-        yield return StartCoroutine(Co_AnimateLetterBox(false));
+        // 6. 분위기 잡기 대기
+        // 이전의 묵직한 타이밍 유지를 위해 대기
+        yield return new WaitForSeconds(holdDuration + barAnimTime);
 
-        // 7. 복구
+        // ==========================================
+        // ★ 7. 전투 시작 신호탄! (동시다발적 실행)
+        // ==========================================
+
+        // 7-1. 카메라는 플레이어에게 복귀 시작
         CameraFollow.instance.ResetTargetToPlayer();
-        player.enabled = true;
 
-        // ★ [추가] 컷신 종료 시 UI 서서히 다시 켜기
+        // 7-2. 레터박스 퇴장 시작 (yield를 빼서 기다리지 않음)
+        StartCoroutine(Co_AnimateLetterBox(false));
+
+        // 7-3. UI 켜기 시작
         StartCoroutine(Co_FadeGameplayUI(true));
 
-        // 8. 콜백 실행 (이후 체력바가 차오르기 시작함)
+        // 7-4. 플레이어 조작 즉시 복구!
+        player.enabled = true;
+
+        // 7-5. 컷신 완전 종료 콜백 (보스 체력바가 이때부터 차오름)
         onFinish?.Invoke();
     }
 

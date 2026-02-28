@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
     [Header("State")]
     public bool isAttacking = false;
     public bool isCharging = false;
+    public bool isKnockedBack = false; // ★ 추가됨
 
     [Header("Hit & Invincibility")]
     [SerializeField] private bool isInvincible = false;
@@ -130,7 +131,7 @@ public class Player : MonoBehaviour
     {
         if (isDashing) return;
 
-        if (!isAttacking)
+        if (!isAttacking && !isKnockedBack)
             Move();
 
         CheckContactDamage();
@@ -457,5 +458,65 @@ public class Player : MonoBehaviour
         Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         spriteRenderer.flipX = mousePos.x < transform.position.x;
+    }
+
+    public void ApplyKnockback(Vector2 direction, float maxSpeed, float duration)
+    {
+        if (stats != null && stats.currentHealth <= 0) return; // 죽었으면 무시
+
+        StartCoroutine(Co_KnockbackRoutine(direction, maxSpeed, duration));
+    }
+
+    private IEnumerator Co_KnockbackRoutine(Vector2 dir, float maxSpeed, float duration)
+    {
+        isKnockedBack = true;
+        isAttacking = false;
+        isCharging = false;
+
+        // ★ [핵심] 날아가는 동안 '무적' 판정을 주어 보스 몸에 부딪혀서 히트 스탑이 걸리는 걸 막습니다!
+        isInvincible = true;
+
+        // 타격감: 날아갈 때 짧게 화이트 플래시 켜기
+        if (flashMaterial != null && spriteRenderer != null)
+        {
+            spriteRenderer.material = flashMaterial;
+            Invoke("RestoreMaterial", 0.1f);
+        }
+
+        float timer = 0f;
+        float ghostTimer = 0f;
+
+        while (timer < duration)
+        {
+            // ★ 물리 엔진과 동기화하기 위해 FixedUpdate 주기에 맞춤
+            yield return new WaitForFixedUpdate();
+            timer += Time.fixedDeltaTime;
+
+            float t = timer / duration;
+
+            // ★ 가속도 마법 (Ease-Out Quadratic): 
+            // 시작하자마자 미친 속도로 튕겨나가고, 뒤로 갈수록 급브레이크가 걸림
+            float speedDecay = Mathf.Pow(1 - t, 2);
+            rigid.linearVelocity = dir * (maxSpeed * speedDecay);
+
+            // ★ 바람에 날아가는 연출: 넉백 당하는 동안 대시 잔상(Ghost)을 마구 뿌림!
+            ghostTimer += Time.fixedDeltaTime;
+            if (ghostTimer > ghostInterval)
+            {
+                CreateGhost();
+                ghostTimer = 0f;
+            }
+        }
+
+        // 넉백 종료
+        rigid.linearVelocity = Vector2.zero;
+        isKnockedBack = false;
+        isInvincible = false;
+    }
+
+    // 화이트 플래시 원상복구용 함수
+    private void RestoreMaterial()
+    {
+        if (spriteRenderer != null) spriteRenderer.material = originalMaterial;
     }
 }

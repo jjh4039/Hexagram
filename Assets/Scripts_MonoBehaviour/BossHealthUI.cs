@@ -44,7 +44,7 @@ public class BossHealthUI : MonoBehaviour
     private IEnumerator Co_IntroFill()
     {
         float elapsed = 0f;
-        float duration = 2f; // 전체 연출 시간
+        float duration = 1.5f; // 전체 연출 시간
 
         while (elapsed < duration)
         {

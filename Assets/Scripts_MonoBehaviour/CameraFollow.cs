@@ -30,6 +30,8 @@ public class CameraFollow : MonoBehaviour
     [Header("Shake Settings")]
     [SerializeField] private float shakeDecaySpeed = 5f;
 
+    private float currentShakeDecay; // 현재 적용 중인 감쇠 속도
+
     private Vector3 offset;
     private Vector3 shakeOffset;
     private float shakeTimer = 0f;
@@ -65,17 +67,16 @@ public class CameraFollow : MonoBehaviour
         originalSmoothSpeed = smoothSpeed;
     }
 
-    public void HitShake(float duration, float magnitude)
+    public void HitShake(float duration, float magnitude, float customDecay = -1f)
     {
-        // 1. 새로 들어온 진동이 현재 진행 중인 진동보다 '약한데' 쿨다운이 안 지났다면 무시 (작은 진동이 연속으로 올 때 최적화)
         if (magnitude <= currentShakeMagnitude && Time.time - lastHitShakeTime < hitShakeCooldown)
             return;
 
-        // 2. [핵심] 진동 강도는 기존 진동과 새 진동 중 '더 강한 것'을 채택 (작은 진동이 큰 진동을 씹어먹는 현상 방지)
         currentShakeMagnitude = Mathf.Max(currentShakeMagnitude, magnitude);
-
-        // 3. 남은 시간도 더 긴 쪽을 채택하여 갑자기 멈추지 않게 함
         shakeTimer = Mathf.Max(shakeTimer, duration);
+
+        // 커스텀 감쇠값이 들어오면 그것을 쓰고, 아니면 원래의 빠른 감쇠 속도를 씁니다.
+        currentShakeDecay = customDecay > 0f ? customDecay : shakeDecaySpeed;
 
         lastHitShakeTime = Time.time;
     }
@@ -88,7 +89,9 @@ public class CameraFollow : MonoBehaviour
             float x = Random.Range(-1f, 1f) * currentShakeMagnitude;
             float y = Random.Range(-1f, 1f) * currentShakeMagnitude;
             shakeOffset = new Vector3(x, y, 0);
-            currentShakeMagnitude = Mathf.Lerp(currentShakeMagnitude, 0f, Time.deltaTime * shakeDecaySpeed);
+
+            // ★ [수정됨] shakeDecaySpeed 대신 currentShakeDecay 사용
+            currentShakeMagnitude = Mathf.Lerp(currentShakeMagnitude, 0f, Time.deltaTime * currentShakeDecay);
         }
         else shakeOffset = Vector3.zero;
     }

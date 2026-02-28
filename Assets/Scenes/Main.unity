@@ -7361,6 +7361,7 @@ MonoBehaviour:
   speedChangeRate: 5
   isAttacking: 0
   isCharging: 0
+  isKnockedBack: 0
   isInvincible: 0
   invincibleTime: 0.8
   blinkSpeed: 0.2
@@ -14377,13 +14378,15 @@ MonoBehaviour:
   sfxHit: {fileID: 8300000, guid: c2e7d4595958225459c1c95130d50c7b, type: 3}
   scrapPrefab: {fileID: 0}
   dropChance: 100
+  forcePatternIndex: 0
+  forceEnrage: 1
   bossName: "\uC232\uC758 \uAD00\uB9AC\uC790"
   moveSpeed: 3
   spriteScale: 1
   isEnraged: 0
+  enragePauseTime: 2
+  enrageKnockbackForce: 10
   dealTime: 0.8
-  forcePatternIndex: 0
-  forceEnrage: 0
   dashChargeTime: 1
   dashSpeed: 80
   dashDuration: 0.5
@@ -14481,15 +14484,12 @@ MonoBehaviour:
   - -7.5
   - -10.5
   - -13.5
-  lineIndicatorPrefab: {fileID: 0}
-  circleIndicatorPrefab: {fileID: 0}
-  gridIndicatorPrefab: {fileID: 0}
   bossBGM: {fileID: 8300000, guid: a58001024e015244e96acb44e71866bc, type: 3}
   sfxDashFire: {fileID: 8300000, guid: 6872b54f82f2f1a4aaddbd04a8317f12, type: 3}
   sfxAoeExplode: {fileID: 8300000, guid: ebd7cc7a188074645a0d90dd2d3e000a, type: 3}
   sfxSpikeWave: {fileID: 8300000, guid: 18e91b72fa76d3842969ebc5657bcc38, type: 3}
   sfxVineExplode: {fileID: 8300000, guid: 0820513f45c40e84981f87946cf7982e, type: 3}
-  sfxEnrageRoar: {fileID: 0}
+  sfxEnrageRoar: {fileID: 8300000, guid: 46575625baea9d8449796338cf2ee9db, type: 3}
 --- !u!212 &1528561160
 SpriteRenderer:
   serializedVersion: 2
@@ -14539,8 +14539,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -7466101948472415572, guid: 9aed5488007fb304ca5ad95be07c55c6, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: -163237355337360096, guid: 94f13b3f184e93646a44fb215b20f8b2, type: 3}
+  m_Color: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -19881,8 +19881,8 @@ MonoBehaviour:
   barHeight: 40
   barAnimTime: 1.5
   nightColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
-  sunsetDuration: 2.5
-  holdDuration: 1.3
+  sunsetDuration: 1.8
+  holdDuration: 2.2
   cinematicCameraSpeed: 1.5
   uiElementsToHide:
   - {fileID: 7948204977122636316}

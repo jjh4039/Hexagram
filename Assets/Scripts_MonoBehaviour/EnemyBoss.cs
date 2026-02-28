@@ -4,6 +4,12 @@ using System.Collections.Generic; // Queue를 사용하기 위해 추가
 
 public class EnemyBoss : Enemy
 {
+    [Header("Debug / Testing")]
+    [Tooltip("0: 랜덤(1~4), 1~4: 해당 패턴만 무한 반복")]
+    [SerializeField][Range(0, 4)] private int forcePatternIndex = 1; // 돌진 테스트를 위해 임시로 1로 세팅
+    [Tooltip("체력과 상관없이 강제로 폭주(Phase 2) 패턴을 켭니다.")]
+    [SerializeField] private bool forceEnrage = false;
+
     [Header("Boss Specific Stats")]
     [SerializeField] private string bossName = "숲의 관리자";
     [SerializeField] private float moveSpeed = 3f;
@@ -13,15 +19,11 @@ public class EnemyBoss : Enemy
     [SerializeField] private bool isEnraged = false; // 체력 50% 이하 폭주 상태
     private SpriteRenderer spriteRenderer;
 
+    [SerializeField] private float enragePauseTime = 2.0f; // 포효하며 멈춰있는 시간
+    [SerializeField] private float enrageKnockbackForce = 30f; // 플레이어를 밀쳐내는 힘
+
     [Header("Global Attack Settings")]
     [SerializeField] private float dealTime = 1.0f;   // ★ 모든 패턴 종료 후 플레이어의 확정 딜타임 (휴식기)
-
-    [Header("Debug / Testing")]
-    [Tooltip("0: 랜덤(1~4), 1~4: 해당 패턴만 무한 반복")]
-    [SerializeField][Range(0, 4)] private int forcePatternIndex = 1; // 돌진 테스트를 위해 임시로 1로 세팅
-
-    [Tooltip("체력과 상관없이 강제로 폭주(Phase 2) 패턴을 켭니다.")]
-    [SerializeField] private bool forceEnrage = false;
 
     [Header("Pattern 1: Dash")]
     [SerializeField] private float dashChargeTime = 1.0f; // 빠르게 차오름
@@ -34,7 +36,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private GameObject dashCurrentRangeOrigin;
     [SerializeField] private float dashRectWidth = 2f;
     [Tooltip("돌진 장판의 최대 허용 길이 (레이캐스트가 닿으면 이보다 짧아짐)")]
-    [SerializeField] private float dashMaxLimitLength = 24f; // ★ 이름 변경됨 (dashRectLength -> dashMaxLimitLength)
+    [SerializeField] private float dashMaxLimitLength = 24f;
     [SerializeField] private float dashHomingStrength = 2.0f;
     [SerializeField] private Vector2 dashIndicatorOffset = new Vector2(-1f, 0f);
     [SerializeField] private AnimationCurve dashSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0);
@@ -114,11 +116,6 @@ public class EnemyBoss : Enemy
     [Tooltip("스폰 위치 기준 세로줄의 X 오프셋 (왼쪽에서 오른쪽 순서대로 입력)")]
     [SerializeField] private float[] gridOffsetX = new float[] { -6f, -4.5f, -3f, -1.5f, 0f, 1.5f, 3f, 4.5f, 6f, 7.5f };
 
-    [Header("Indicators (Assign Prefabs)")]
-    [SerializeField] private GameObject lineIndicatorPrefab;
-    [SerializeField] private GameObject circleIndicatorPrefab;
-    [SerializeField] private GameObject gridIndicatorPrefab;
-
     [Header("Sound")]
     [SerializeField] private AudioClip bossBGM;
     [SerializeField] private AudioClip sfxDashFire;    // 돌진 쾅! 소리
@@ -170,19 +167,55 @@ public class EnemyBoss : Enemy
             SoundManager.instance.PlayBGM(bossBGM);
         }
 
-        // ★ 수정됨: 컷신 실행 -> 끝나면 체력바 연출 -> 끝나면 전투 시작
+        // ★ [추가] 처음 스폰될 때 보스를 잠든 것처럼 어둡게(회색) 만듭니다.
+        if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+
+        // ★ [수정됨] 컷신 타이밍에 맞춰 동작하도록 콜백(Action) 세팅
         if (CinematicManager.instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_PlayBossIntro(this.transform, () =>
-            {
-                // 레터박스와 노을 연출이 모두 끝난 후 실행됨
-                StartCoroutine(Co_PostCutsceneSetup());
-            }));
+            StartCoroutine(CinematicManager.instance.Co_PlayBossIntro(
+                this.transform,
+                onSunsetStart: () =>
+                {
+                    // [신호 1] 지형이 어두워지기 시작하면, 보스는 서서히 흰색으로 밝아짐
+                    StartCoroutine(Co_WakeUpColorLerp(CinematicManager.instance.SunsetDuration));
+                },
+                onSunsetDone: () =>
+                {
+                    // ★ [수정됨] 지속시간 2초, 강도 0.5, 감쇠율 1.0 (아주 서서히 줄어드는 긴 진동!)
+                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.1f, 1f);
+
+                    if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
+                    if (anim != null) anim.SetTrigger("Start");
+                },
+                onFinish: () =>
+                {
+                    // [신호 3] 컷신이 완전히 끝나면 체력바 채우기 시작
+                    StartCoroutine(Co_PostCutsceneSetup());
+                }
+            ));
         }
         else
         {
             StartCoroutine(Co_PostCutsceneSetup());
         }
+    }
+
+    private IEnumerator Co_WakeUpColorLerp(float duration)
+    {
+        if (spriteRenderer == null) yield break;
+
+        float elapsed = 0f;
+        Color startColor = Color.gray; // 시작 시 어두운 회색
+        Color endColor = Color.white;  // 완료 시 원래 색상(흰색)
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            spriteRenderer.color = Color.Lerp(startColor, endColor, elapsed / duration);
+            yield return null;
+        }
+        spriteRenderer.color = endColor;
     }
 
     // ★ [추가] 컷신 이후 체력바 연출과 AI 시작을 담당
@@ -194,10 +227,21 @@ public class EnemyBoss : Enemy
             BossHealthUI.instance.SetupBoss(bossName, maxHealth);
         }
 
+        // ==============================================================
+        // ★ [테스트 로직] 컷신 연출이 다 끝난 후, 인스펙터 체크가 되어있다면!
+        // ==============================================================
+        if (forceEnrage)
+        {
+            Debug.Log("테스트 모드: 컷신 종료 후 보스 체력 강제 50% 삭감!");
+            currentHealth = maxHealth * 0.5f;
+
+            // UI에 깎인 체력 반영 (SetupBoss 애니메이션 씹히는 걸 방지하기 위해 0.5초 대기)
+            yield return new WaitForSeconds(0.5f);
+            if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
+        }
+
         // 모든 준비가 끝났으므로 보스 전투 즉시 시작!
         StartCoroutine(Co_BossAI());
-
-        yield break; // 코루틴 형식 유지를 위해 추가 (경고 방지)
     }
 
     private void Update()
@@ -207,24 +251,12 @@ public class EnemyBoss : Enemy
         if (!isAttacking)
             LookAtTarget();
 
-        // ==============================================================
-        // ★ [테스트 & 영상 촬영용] Force Enrage 실시간 토글 스위치
-        // ==============================================================
-
-        // 1. 인스펙터에서 체크(켜기)를 눌렀을 때
-        if (forceEnrage && !isEnraged)
-        {
-            currentHealth = 600f; // 체력을 즉시 600으로 세팅
-            if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
-            EnterPhase2(); // 빨갛게 변하고 isEnraged = true 가 됨
-        }
-
-        // 2. 인스펙터에서 체크 해제(끄기)를 눌렀을 때 (단, 실제 체력이 50%를 안 넘었을 때만)
-        else if (!forceEnrage && isEnraged && currentHealth > maxHealth * 0.5f)
+        // 끄기(테스트 해제)를 눌렀을 때의 복구 로직만 남겨둠
+        if (!forceEnrage && isEnraged && currentHealth > maxHealth * 0.5f)
         {
             isEnraged = false;
-            if (spriteRenderer != null) spriteRenderer.color = Color.white; // 원래 하얀색으로 복구
-            Debug.Log("보스 폭주 강제 해제! (하얀색으로 복구)");
+            if (spriteRenderer != null) spriteRenderer.color = Color.white;
+            Debug.Log("보스 폭주 강제 해제!");
         }
     }
 
@@ -236,15 +268,65 @@ public class EnemyBoss : Enemy
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.04f);
     }
 
-    private void EnterPhase2()
+    private IEnumerator Co_EnragePattern()
     {
+        Debug.Log("보스 폭주 패턴 시작! 포효 및 넉백 발동!");
         isEnraged = true;
-        if (spriteRenderer != null) spriteRenderer.color = new Color(1f, 0.5f, 0.5f);
-        Debug.Log("보스 폭주! 패턴에 투사체 추가됨!");
+        isAttacking = true; // 다른 행동 잠금
+        rigid.linearVelocity = Vector2.zero; // 제자리에 우뚝 섬
+
+        // 1. 애니메이션 트리거 작동
+        if (anim != null) anim.SetTrigger("Enrage");
+
+        // 2. 포효 사운드 & 긴 카메라 진동 (1.5초 유지, 강도 0.4)
+        if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.2f);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.2f, 1f);
+
+        // 3. 플레이어 강제 넉백 발동
+        KnockbackPlayer();
+
+        // 4. 몸 색깔이 서서히 붉게 변함 (Lerp)
+        float elapsed = 0f;
+        Color startColor = Color.white;
+        Color enrageColor = new Color(1f, 0.4f, 0.4f);
+
+        while (elapsed < enragePauseTime)
+        {
+            elapsed += Time.deltaTime;
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = Color.Lerp(startColor, enrageColor, elapsed / enragePauseTime);
+            }
+            yield return null;
+        }
+
+        // 최종 색상 고정 및 해제
+        if (spriteRenderer != null) spriteRenderer.color = enrageColor;
+        isAttacking = false;
+
+        Debug.Log("폭주 포효 완료! 광폭화 전투 돌입.");
+    }
+
+    // ★ [추가] 플레이어 밀쳐내기 유틸리티 함수
+    private void KnockbackPlayer()
+    {
+        if (GameManager.instance == null || GameManager.instance.player == null) return;
+
+        Player playerScript = GameManager.instance.player;
+
+        // 보스에서 플레이어로 향하는 방향 계산 (완전히 겹쳤을 때 에러 방지)
+        Vector2 knockbackDir = (playerScript.transform.position - transform.position);
+        if (knockbackDir == Vector2.zero) knockbackDir = Vector2.down;
+
+        // ★ 넉백 힘을 인스펙터 값의 2배로 뻥튀기! 시간은 0.35초로 아주 짧고 굵게!
+        playerScript.ApplyKnockback(knockbackDir.normalized, enrageKnockbackForce * 2f, 0.35f);
     }
 
     // ==========================================
     // AI 메인 루프
+    // ==========================================
+    // ==========================================
+    // AI 메인 루프 (순서 교체!)
     // ==========================================
     IEnumerator Co_BossAI()
     {
@@ -253,23 +335,27 @@ public class EnemyBoss : Enemy
         while (!isDead)
         {
             if (isStunned) { yield return null; continue; }
-            int patternIndex = (forcePatternIndex == 0) ? Random.Range(1, 5) : forcePatternIndex;
 
-            // 1. 패턴 실행
+            // 1. 공격 패턴 실행
+            int patternIndex = (forcePatternIndex == 0) ? Random.Range(1, 5) : forcePatternIndex;
             yield return StartCoroutine(ExecutePattern(patternIndex));
 
+            // 2. 휴식 (딜 타임) - 패턴 끝나고 유저가 팰 시간을 확실히 줌
+            yield return new WaitForSeconds(dealTime);
+
+            // =========================================================
+            // ★ [핵심 수정] 딜타임이 끝난 직후, 움직이기 '전'에 폭주 검사!
+            // =========================================================
             if (!isEnraged && currentHealth <= maxHealth * 0.5f)
             {
-                EnterPhase2();
-                // ★ [추가] 폭주 포효 사운드 재생
-                if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.0f);
-                yield return new WaitForSeconds(1.0f);
+                // 움직이지 않고 그 자리에서 즉시 포효!
+                yield return StartCoroutine(Co_EnragePattern());
+                yield return new WaitForSeconds(dealTime); // 포효 끝난 후 잠깐 딜레이
+                continue; // 포효를 했으니 다가가지 않고 다음 공격 패턴으로 바로 넘어감
             }
 
-            // 2. 휴식 (딜 타임)
-            yield return new WaitForSeconds(dealTime);
-            // 3. 플레이어에게 다가가기
-            yield return StartCoroutine(Co_MoveTowardsPlayer(1.5f));
+            // 3. 폭주 조건이 아니라면 평소처럼 플레이어에게 다가가기
+            yield return StartCoroutine(Co_MoveTowardsPlayer(1.4f));
         }
     }
 
@@ -1163,51 +1249,5 @@ public class EnemyBoss : Enemy
 
         // 4. ★ 모든 뒷정리가 끝난 후 마지막으로 본체를 파괴!
         base.Die();
-    }
-
-    IEnumerator Co_SpawnSpikeWave(Vector2 dir)
-    {
-        // 방향으로 레이캐스트를 쏴서 벽까지의 거리를 잽니다.
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, spikeMaxLimitLength, wallLayer);
-
-        // 벽에 닿았으면 그 거리에서 살짝(1f) 뺀 길이를 쓰고, 아니면 최대 길이를 씁니다.
-        float availableLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
-
-        // 가용 길이에 맞춰 생성할 송곳 개수 계산
-        int spikeCount = Mathf.FloorToInt(availableLength / spikeDistance);
-
-        for (int i = 1; i <= spikeCount; i++)
-        {
-            if (isDead) yield break;
-
-            Vector2 spawnPos = (Vector2)transform.position + dir * (i * spikeDistance);
-
-            if (earthSpikePrefab != null)
-            {
-                GameObject spikeObj = Instantiate(earthSpikePrefab, spawnPos, Quaternion.identity);
-                EarthSpike spikeScript = spikeObj.GetComponent<EarthSpike>();
-                if (spikeScript != null) spikeScript.Initialize(spikeDamage);
-            }
-
-            yield return new WaitForSeconds(spikeSpawnDelay);
-        }
-    }
-
-    private void ShuffleList(List<int> list)
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            int temp = list[i];
-            int randomIndex = Random.Range(i, list.Count);
-            list[i] = list[randomIndex];
-            list[randomIndex] = temp;
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        // 2번 패턴(거대 폭발)의 실제 데미지 판정 범위 (노란색 선)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, hugeAoeRadius);
     }
 }
