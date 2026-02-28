@@ -20,6 +20,12 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] private float holdDuration = 2f;   // 해가 지고 난 뒤 머무는 시간
     [SerializeField] private float cinematicCameraSpeed = 1.5f; // 컷신 중 카메라 이동 속도
 
+    [Header("Death Cinematic")]
+    [Tooltip("화면을 하얗게 덮을 패널 (CanvasGroup 포함)")]
+    [SerializeField] private CanvasGroup whiteScreenGroup;
+    [SerializeField] private float slowMotionScale = 0.2f; // 얼마나 느려질 것인가? (0.2배속)
+    [SerializeField] private float whiteOutDuration = 2.0f; // 화면이 하얗게 덮이는 데 걸리는 시간
+
     public float SunsetDuration => sunsetDuration;
 
     // ★ [추가] 숨길 UI 목록
@@ -190,5 +196,70 @@ public class CinematicManager : MonoBehaviour
         {
             tm.color = nightColor;
         }
+    }
+
+    public void PlayBossDeathCinematic(EnemyBoss boss)
+    {
+        StartCoroutine(Co_BossDeathCinematic(boss));
+    }
+
+    private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
+    {
+        // 1. 숨 막히는 슬로우 모션 발동!
+        Time.timeScale = slowMotionScale;
+
+        // ★ [수정됨] 화면 하얘지기 시작할 때 묵직한 카메라 진동!
+        // 슬로우 모션 중이므로 진동 시간(0.5f)이 현실에서는 꽤 길게 느껴집니다.
+        if (CameraFollow.instance != null)
+            CameraFollow.instance.HitShake(0.5f, 0.15f);
+
+        // 2. 화면이 서서히 눈부시게 하얘짐
+        if (whiteScreenGroup != null)
+        {
+            whiteScreenGroup.gameObject.SetActive(true);
+            float elapsed = 0f;
+
+            // 슬로우 모션 중이므로 Time.deltaTime 대신 Time.unscaledDeltaTime(현실 시간) 사용
+            while (elapsed < whiteOutDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                whiteScreenGroup.alpha = Mathf.Clamp01(elapsed / whiteOutDuration);
+                yield return null;
+            }
+            whiteScreenGroup.alpha = 1f;
+        }
+
+        // ==========================================================
+        // ★ [핵심] 화면이 완전히 새하얗게 변한 바로 이 순간!!
+        // 아무도 모르게 보스를 석상 스프라이트로 교체합니다.
+        // ==========================================================
+        if (boss != null)
+        {
+            boss.TurnIntoStatue();
+        }
+
+        // 3. 완전히 새하얀 상태에서 여운을 주기 위해 1.5초 대기 (현실 시간 기준)
+        yield return new WaitForSecondsRealtime(1.5f);
+
+        // 4. 시간 원상복구
+        Time.timeScale = 1f;
+
+        // 5. 빛이 걷히고 나면... 이미 차가운 석상이 된 보스가 드러남
+        if (whiteScreenGroup != null)
+        {
+            float elapsed = 0f;
+            float fadeInDuration = 1.5f;
+
+            while (elapsed < fadeInDuration)
+            {
+                elapsed += Time.deltaTime;
+                whiteScreenGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeInDuration);
+                yield return null;
+            }
+            whiteScreenGroup.gameObject.SetActive(false);
+        }
+
+        // (추후 여기에 "스테이지 클리어" UI를 띄우는 로직을 넣으시면 완벽합니다!)
+        Debug.Log("보스 처치 연출 완전 종료!");
     }
 }

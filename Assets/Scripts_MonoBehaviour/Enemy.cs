@@ -20,7 +20,7 @@ public class Enemy : MonoBehaviour
 
     [Header("Hit Flash")]
     [SerializeField] private Material flashMaterial;
-    private Material originalMaterial;
+    protected Material originalMaterial;
     private SpriteRenderer sr;
     private Coroutine flashRoutine;
 
