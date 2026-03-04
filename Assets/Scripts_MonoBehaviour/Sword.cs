@@ -15,10 +15,10 @@ public class Sword : MonoBehaviour
 
     [Header("Stats")]
     [SerializeField] private float attackSpeed = 1.0f;
-
     [SerializeField] private float fadeSpeed = 10f;
+    [SerializeField] private float attackMoveSpeedMultiplier = 0.4f; // 검 공격 시 슬로우 정도
+    public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier; // 위 변수 외부 노출용
 
-    // ★ [추가] 검 휘두르는 소리 파일
     [Header("Audio")]
     [SerializeField] private AudioClip sfxSlash;
 
@@ -35,20 +35,7 @@ public class Sword : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
     }
 
-    private void OnEnable()
-    {
-        if (anim != null) anim.Rebind();
-        if (weaponManager?.InputActions != null)
-            weaponManager.InputActions.Player.Attack.performed += OnAttackInput;
-    }
-
-    private void OnDisable()
-    {
-        if (weaponManager?.InputActions != null)
-            weaponManager.InputActions.Player.Attack.performed -= OnAttackInput;
-    }
-
-    private void OnAttackInput(InputAction.CallbackContext context)
+    public void TriggerAttack()
     {
         lastInputTime = Time.time;
         TryAttack();
@@ -56,8 +43,11 @@ public class Sword : MonoBehaviour
 
     private void Update()
     {
-        Vector2 mouseScreenPos = weaponManager.InputActions.Player.Look.ReadValue<Vector2>();
-        mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            Vector2 mouseScreenPos = GameManager.instance.player.Input.Player.Look.ReadValue<Vector2>();
+            mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        }
 
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
         bool isIdle = stateInfo.IsName("Base Layer.Sword_Idle") || stateInfo.IsName("Sword_Idle");
@@ -110,17 +100,15 @@ public class Sword : MonoBehaviour
         anim.speed = attackSpeed;
         nextAttackUnlockTime = Time.time + (activeDuration / attackSpeed);
 
-        float currentDmgMultiplier = GameManager.instance.player.damageMultiplier;
+        float currentDmgMultiplier = GameManager.instance.stats.damageMultiplier;
 
-        if (GameManager.instance.player.remainingStrongAttacks > 0)
+        if (GameManager.instance.stats.remainingStrongAttacks > 0)
         {
             currentDmgMultiplier *= 2.0f;
-            GameManager.instance.player.remainingStrongAttacks--;
+            GameManager.instance.stats.remainingStrongAttacks--;
             Debug.Log("강화 공격 발동!");
         }
 
-        // ★ [핵심] 검 휘두르는 소리 재생!
-        // 콤보마다 피치를 조금씩 다르게 줘도 좋지만, SoundManager가 알아서 랜덤 피치를 섞어주니 그냥 재생하면 됩니다.
         if (sfxSlash != null)
             SoundManager.instance.PlaySFX(sfxSlash, 0.8f, 0.2f);
 
@@ -132,17 +120,21 @@ public class Sword : MonoBehaviour
         SpawnSlashEffect();
     }
 
-    // ... (ApplyPhysics, SpawnSlashEffect, RotateWeapon, ResetAttackStatus 등 나머지 기존 유지) ...
     private void ApplyPhysics()
     {
+        // 1. 공격 상태임을 알림
         GameManager.instance.player.isAttacking = true;
+
+        // 2. 공격 시작 시 기존 속도를 초기화하여 관성 제거
         GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
-        float force = (comboStep == 3) ? 1.5f : 0.75f;
-        Vector2 pushDir = (mouseWorldPos - (Vector2)GameManager.instance.player.transform.position).normalized;
-        GameManager.instance.player.rigid.AddForce(pushDir * force, ForceMode2D.Impulse);
+
+        // ★ [수정] 전진성(AddForce) 로직을 완전히 삭제했습니다. 이제 제자리에서 공격합니다.
+
+        // 3. 공격 종료 판정 타이밍
         CancelInvoke("ResetAttackStatus");
-        Invoke("ResetAttackStatus", 0.2f / attackSpeed);
+        Invoke("ResetAttackStatus", 0.3f / attackSpeed);
     }
+
     private void SpawnSlashEffect()
     {
         Vector2 dir = (mouseWorldPos - (Vector2)transform.position).normalized;
@@ -158,17 +150,30 @@ public class Sword : MonoBehaviour
         currentEffect.SetActive(false);
         currentEffect.SetActive(true);
     }
+
     private void RotateWeapon()
     {
         float offset = 0f;
         Vector2 lookDir = mouseWorldPos - (Vector2)transform.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+
         Vector3 pivotScale = Vector3.one;
-        if (angle > 90 || angle < -90) { pivotScale.y = 1f; spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0); }
-        else { pivotScale.y = -1f; spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0); }
+
+        if (angle > 90 || angle < -90)
+        {
+            pivotScale.y = 1f;
+            spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0);
+        }
+        else
+        {
+            pivotScale.y = -1f;
+            spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0);
+        }
+
         transform.localScale = pivotScale;
     }
+
     private void ResetAttackStatus()
     {
         GameManager.instance.player.isAttacking = false;

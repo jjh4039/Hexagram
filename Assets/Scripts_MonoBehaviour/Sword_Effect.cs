@@ -38,8 +38,6 @@ public class Sword_Effect : MonoBehaviour
     private void ProcessHit()
     {
         if (capsule == null) return;
-
-        // ★ [핵심 1] 1타 씹힘 완벽 해결: 물리 엔진에게 위치 강제 동기화 명령
         Physics2D.SyncTransforms();
 
         ContactFilter2D filter = new ContactFilter2D();
@@ -48,13 +46,11 @@ public class Sword_Effect : MonoBehaviour
         filter.useTriggers = true;
 
         Collider2D[] hits = new Collider2D[10];
-
-        // ★ [수정됨] OverlapCollider 대신 최신 API인 Overlap 사용!
         int hitCount = capsule.Overlap(filter, hits);
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (hits[i] != null) // 안전장치
+            if (hits[i] != null)
             {
                 Enemy enemy = hits[i].GetComponent<Enemy>();
                 if (enemy != null)
@@ -67,15 +63,16 @@ public class Sword_Effect : MonoBehaviour
 
     private IEnumerator ProcessMultiHit(Enemy enemy)
     {
-        Player player = GameManager.instance.player;
         PlayerStats stats = GameManager.instance.stats;
 
-        float currentDmg = stats.meleeAttackPower * damageMultiplier * player.damageMultiplier;
+        // ★ [버그 수정 완료] stats.damageMultiplier 로 수정
+        float currentDmg = stats.meleeAttackPower * damageMultiplier * stats.damageMultiplier;
 
-        if (player.remainingStrongAttacks > 0)
+        // ★ [버그 수정 완료] stats.remainingStrongAttacks 로 수정
+        if (stats.remainingStrongAttacks > 0)
         {
             currentDmg *= 2.0f;
-            player.remainingStrongAttacks--;
+            stats.remainingStrongAttacks--;
         }
 
         float variance = stats.meleeDamageVariance;
@@ -98,7 +95,7 @@ public class Sword_Effect : MonoBehaviour
                 yield return new WaitForSeconds(hitInterval);
         }
     }
-    
+
     private IEnumerator FadeOutRoutine()
     {
         yield return new WaitForSeconds(duration * 0.7f);

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,10 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator anim;
     [SerializeField] private PlayerStats stats;
 
+    [Header("Input Control (New)")]
+    public bool canControl = true; // ★ 컷신에서 이 값만 false로 하면 모든 조작(이동, 공격)이 멈춥니다!
+    public Vector2 mouseWorldPos { get; private set; } // 무기들이 이 좌표를 가져다 씁니다.
+
     [Header("Movement")]
     [SerializeField] private float defaultMoveSpeed = 5f;
     [SerializeField] private float minMoveSpeed = 1f;
@@ -22,7 +27,7 @@ public class Player : MonoBehaviour
     [Header("State")]
     public bool isAttacking = false;
     public bool isCharging = false;
-    public bool isKnockedBack = false; // ★ 추가됨
+    public bool isKnockedBack = false;
 
     [Header("Hit & Invincibility")]
     [SerializeField] private bool isInvincible = false;
@@ -30,15 +35,14 @@ public class Player : MonoBehaviour
     [SerializeField] private float blinkSpeed = 0.2f;
     [SerializeField] private float bodyContactDamage = 5f;
 
-    // ★ [1번, 3번 구현을 위해 새로 추가된 변수들]
-    [Header("Hit Feedback (New)")]
-    [SerializeField] private Material flashMaterial;      // 만들어두신 플래시 머티리얼 할당!
-    [SerializeField] private float flashDuration = 0.1f;  // 번쩍! 하는 시간 (0.1초면 충분합니다)
-    [SerializeField] private float hitShakeDuration = 0.1f;  // 피격 시 카메라 진동 시간
-    [SerializeField] private float hitShakeMagnitude = 0.05f; // 피격 시 카메라 진동 강도
+    [Header("Hit Feedback")]
+    [SerializeField] private Material flashMaterial;
+    [SerializeField] private float flashDuration = 0.1f;
+    [SerializeField] private float hitShakeDuration = 0.1f;
+    [SerializeField] private float hitShakeMagnitude = 0.05f;
     [SerializeField] private float playerHitStopDuration = 0.12f;
 
-    private Material originalMaterial; // 원래 머티리얼로 되돌리기 위한 저장소
+    private Material originalMaterial;
 
     [Header("Contact Damage Settings")]
     [SerializeField] private float contactCheckRadius = 0.6f;
@@ -46,19 +50,12 @@ public class Player : MonoBehaviour
     private ContactFilter2D contactFilter;
     private readonly Collider2D[] contactResults = new Collider2D[8];
 
-    [Header("--- Dice Buff Status (New!) ---")]
-    public float damageMultiplier = 1.0f;
-    public float moveSpeedMultiplier = 1.0f;
-    public float attackSpeedMultiplier = 1.0f;
-    public float chargeSpeedMultiplier = 1.0f;
-
     [Header("Weapon Link")]
     [SerializeField] private WeaponManager weaponManager;
 
     [Header("Dash Settings")]
     [SerializeField] private float dashSpeed = 25f;
     [SerializeField] private float dashDuration = 0.2f;
-    [SerializeField] private float dashCooldown = 0.8f;
 
     [Header("Dash Visuals")]
     [SerializeField] private float ghostInterval = 0.01f;
@@ -74,28 +71,33 @@ public class Player : MonoBehaviour
     private float lastDashTime = -99f;
     private Color currentDiceColor = Color.white;
 
-    [Header("Strong")]
-    public int remainingStrongAttacks = 0;
-
     [Header("Sound")]
     [SerializeField] private AudioClip sfxDash;
     [SerializeField] private AudioClip sfxHit;
 
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
+    public PlayerInput Input => inputActions;
+
+    [System.Serializable]
+    public class ActiveBuff
+    {
+        public DiceData buffData;
+        public float remainingTime;
+        public int stackCount;
+    }
+
+    [Header("--- Buff Manager ---")]
+    public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         inputActions = new PlayerInput();
-        stats = GetComponent<PlayerStats>();
+        if (stats == null) stats = GetComponent<PlayerStats>();
         anim = GetComponentInChildren<Animator>();
 
-        // ★ 시작할 때 플레이어의 원래 머티리얼(기본값)을 저장해 둡니다.
-        if (spriteRenderer != null)
-        {
-            originalMaterial = spriteRenderer.material;
-        }
+        if (spriteRenderer != null) originalMaterial = spriteRenderer.material;
 
         currentMoveSpeed = defaultMoveSpeed;
         rigid.gravityScale = 0;
@@ -111,246 +113,173 @@ public class Player : MonoBehaviour
     private void OnEnable()
     {
         inputActions.Enable();
+        // ★ 모든 입력을 Player에서 중앙 통제합니다.
         inputActions.Player.Dash.performed += OnDash;
+        inputActions.Player.Attack.performed += OnAttack;
+        inputActions.Player.Swap.performed += OnSwap;
     }
 
     private void OnDisable()
     {
         inputActions.Disable();
         inputActions.Player.Dash.performed -= OnDash;
+        inputActions.Player.Attack.performed -= OnAttack;
+        inputActions.Player.Swap.performed -= OnSwap;
     }
 
-    private void Update()
+    // ==========================================
+    // ★ 입력 통제 센터 (Input Control)
+    // ==========================================
+    private void OnAttack(InputAction.CallbackContext context)
     {
-        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
-        LookAtMouse();
-        HandleSpeedInterpolation();
+        if (!canControl || isDashing || isKnockedBack) return;
+
+        // ★ SendMessage 삭제! 다이렉트로 빠르게 호출합니다.
+        if (weaponManager != null) weaponManager.OnAttackInput();
     }
 
-    private void FixedUpdate()
+    private void OnSwap(InputAction.CallbackContext context)
     {
-        if (isDashing) return;
+        if (!canControl || isDashing || isKnockedBack) return;
 
-        if (!isAttacking && !isKnockedBack)
-            Move();
-
-        CheckContactDamage();
-    }
-
-    private void CheckContactDamage()
-    {
-        if (isInvincible) return;
-
-        int hitCount = Physics2D.OverlapCircle(
-            transform.position,
-            contactCheckRadius,
-            contactFilter,
-            contactResults
-        );
-
-        if (hitCount > 0)
-        {
-            float finalDamage = bodyContactDamage; // 기본은 플레이어에 설정된 데미지
-
-            // 첫 번째로 충돌한 적의 정보를 가져옴
-            Collider2D hitCollider = contactResults[0];
-
-            // 만약 충돌한 적이 '보스'라면?
-            EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
-            if (boss != null)
-            {
-                // 1. 보스의 기본 데미지를 가져옴
-                finalDamage = boss.BaseContactDamage;
-
-                // 2. 보스가 돌진 중이면 데미지를 뻥튀기!
-                if (boss.IsDashing)
-                {
-                    finalDamage *= boss.DashDamageMultiplier;
-                    Debug.Log($"플레이어가 보스의 '돌진'에 맞았습니다! 데미지 증폭: {finalDamage}");
-                }
-                else
-                {
-                    Debug.Log($"플레이어가 보스와 부딪혔습니다. 기본 데미지: {finalDamage}");
-                }
-            }
-
-            // 계산된 최종 데미지 입기
-            OnDamage(finalDamage);
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, contactCheckRadius);
-    }
-
-    public void ApplyDiceBuff(DiceData data)
-    {
-        RemoveDiceBuff();
-        if (weaponManager != null)
-            weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
-
-        currentDiceColor = data.particleColor;
-
-        switch (data.effectType)
-        {
-            case DiceEffectType.AttackBuff:
-                if (stats != null) stats.TakeDamage(1);
-                damageMultiplier = 1.0f + (data.effectValue / 100f);
-                break;
-
-            case DiceEffectType.CriticalBuff:
-                remainingStrongAttacks = (int)data.effectValue;
-                break;
-
-            case DiceEffectType.GrowthBuff:
-                if (stats != null)
-                {
-                    float growthFactor = 1.0f + (data.effectValue / 100f);
-                    stats.meleeAttackPower *= growthFactor;
-                    stats.rangeAttackPower *= growthFactor;
-                }
-                break;
-
-            case DiceEffectType.Heal:
-                if (stats != null)
-                    stats.currentHealth = Mathf.Min(
-                        stats.currentHealth + (int)data.effectValue,
-                        stats.maxHealth
-                    );
-                break;
-
-            case DiceEffectType.SpeedBuff:
-                moveSpeedMultiplier = 1.0f + (data.effectValue / 100f);
-                attackSpeedMultiplier = 1.0f + (data.effectValue / 100f);
-                break;
-
-            case DiceEffectType.ChargingBuff:
-                chargeSpeedMultiplier = data.effectValue;
-                break;
-        }
-    }
-
-    public void RemoveDiceBuff()
-    {
-        damageMultiplier = 1.0f;
-        moveSpeedMultiplier = 1.0f;
-        attackSpeedMultiplier = 1.0f;
-        chargeSpeedMultiplier = 1.0f;
-
-        if (weaponManager != null)
-            weaponManager.UpdateWeaponVisuals(Color.white, null);
+        // ★ SendMessage 삭제!
+        if (weaponManager != null) weaponManager.OnSwapInput();
     }
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (isAttacking || isCharging || isDashing) return;
-        if (Time.time < lastDashTime + dashCooldown) return;
+        // ★ [변경] 쿨타임 체크 대신 스택이 1 이상인지 확인
+        if (!canControl || isAttacking || isCharging || isDashing) return;
+        if (stats.currentDashStacks < 1f) return;
 
+        // 스택 1개 소모하고 대시 시작
+        stats.currentDashStacks -= 1f;
         StartCoroutine(DashRoutine());
     }
 
-    private IEnumerator DashRoutine()
+    private void Update()
     {
-        isDashing = true;
-        isInvincible = true;
-        lastDashTime = Time.time;
+        if (!canControl)
+        {
+            moveInput = Vector2.zero;
+            UpdateBuffTimers();
+            return; // 컷신 중이면 이동 입력 무시
+        }
 
-        Vector2 dashDir;
+        if (stats.currentDashStacks < stats.maxDashStacks)
+        {
+            stats.currentDashStacks += Time.deltaTime * stats.dashRechargeRate;
+            stats.currentDashStacks = Mathf.Min(stats.currentDashStacks, stats.maxDashStacks);
+        }
 
-        if (moveInput.magnitude > 0)
-            dashDir = moveInput.normalized;
+        moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+        LookAtMouse();
+        HandleSpeedInterpolation();
+        UpdateBuffTimers();
+    }
+
+    private void LookAtMouse()
+    {
+        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+        mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        spriteRenderer.flipX = mouseWorldPos.x < transform.position.x;
+    }
+
+    // --- 이하 로직 (Move, DashRoutine, BuffManager 등)은 아까 드린 코드와 100% 동일하므로 생략하지 않고 모두 포함 ---
+    private void FixedUpdate()
+    {
+        if (isDashing) return;
+
+        if (!isKnockedBack) Move();
+
+        CheckContactDamage();
+    }
+
+    private void UpdateBuffTimers()
+    {
+        for (int i = activeBuffs.Count - 1; i >= 0; i--)
+        {
+            activeBuffs[i].remainingTime -= Time.deltaTime;
+            if (activeBuffs[i].remainingTime <= 0)
+            {
+                RemoveBuff(activeBuffs[i]);
+                activeBuffs.RemoveAt(i);
+            }
+        }
+    }
+
+    public void ApplyDiceBuff(DiceData data)
+    {
+        ActiveBuff existingBuff = activeBuffs.Find(b => b.buffData.effectType == data.effectType);
+        if (existingBuff != null)
+        {
+            existingBuff.remainingTime = (existingBuff.remainingTime + data.duration) / 2f;
+            existingBuff.stackCount = 2;
+            Debug.Log($"[버프 중첩!] {data.diceName} 연장. 남은시간: {existingBuff.remainingTime:F1}초, 효과 2배!");
+        }
         else
         {
-            Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
-            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-            dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
+            ActiveBuff newBuff = new ActiveBuff { buffData = data, remainingTime = data.duration, stackCount = 1 };
+            activeBuffs.Add(newBuff);
+            Debug.Log($"[신규 버프] {data.diceName} 발동! 시간: {data.duration}초");
         }
+        RecalculateStats();
+        currentDiceColor = data.particleColor;
+        if (weaponManager != null) weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
+    }
 
-        if (dashDustPrefab != null)
+    private void RemoveBuff(ActiveBuff expiredBuff)
+    {
+        Debug.Log($"[버프 종료] {expiredBuff.buffData.diceName}");
+        RecalculateStats();
+        if (activeBuffs.Count == 0 && weaponManager != null) weaponManager.UpdateWeaponVisuals(Color.white, null);
+    }
+
+    private void RecalculateStats()
+    {
+        if (stats == null) return;
+        stats.damageMultiplier = 1.0f;
+        stats.moveSpeedMultiplier = 1.0f;
+        stats.attackSpeedMultiplier = 1.0f;
+        stats.chargeSpeedMultiplier = 1.0f;
+
+        foreach (var buff in activeBuffs)
         {
-            GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity);
-            var mainModule = dust.GetComponent<ParticleSystem>().main;
-            mainModule.startColor = currentDiceColor;
-            Destroy(dust, 1.0f);
+            float finalEffectValue = buff.buffData.effectValue * buff.stackCount;
+            switch (buff.buffData.effectType)
+            {
+                case DiceEffectType.AttackBuff: stats.damageMultiplier += (finalEffectValue / 100f); break;
+                case DiceEffectType.SpeedBuff: stats.moveSpeedMultiplier += (finalEffectValue / 100f); stats.attackSpeedMultiplier += (finalEffectValue / 100f); break;
+                case DiceEffectType.GrowthBuff:
+                    float growthFactor = 1.0f + (finalEffectValue / 100f);
+                    stats.meleeAttackPower *= growthFactor; stats.rangeAttackPower *= growthFactor; break;
+                case DiceEffectType.CriticalBuff: stats.remainingStrongAttacks += (int)finalEffectValue; break;
+                case DiceEffectType.ChargingBuff: stats.chargeSpeedMultiplier += finalEffectValue; break;
+                case DiceEffectType.Heal: stats.currentHealth = Mathf.Min(stats.currentHealth + (int)finalEffectValue, stats.maxHealth); buff.remainingTime = 0; break;
+            }
         }
-
-        if (sfxDash != null)
-            SoundManager.instance.PlaySFX(sfxDash, 0.4f);
-
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
-
-        rigid.linearVelocity = dashDir * dashSpeed;
-
-        StartCoroutine(DashGhostRoutine());
-
-        yield return new WaitForSeconds(dashDuration);
-
-        rigid.linearVelocity = Vector2.zero;
-        isDashing = false;
-        isInvincible = false;
     }
 
-    public void OnDie()
+    private void Move()
     {
-        isAttacking = false;
-        isDashing = false;
-        isCharging = false;
+        if (!canControl) return;
 
-        isInvincible = true;
+        float finalSpeed = defaultMoveSpeed * stats.moveSpeedMultiplier;
 
-        rigid.linearVelocity = Vector2.zero;
-        rigid.simulated = false;
-
-        inputActions.Disable();
-
-        spriteRenderer.color = Color.gray;
-        if (anim != null) anim.enabled = false;
-
-        Debug.Log("Player: 으악 죽었다... (조작 불능 상태)");
-    }
-
-    private IEnumerator DashGhostRoutine()
-    {
-        while (isDashing)
+        if (isAttacking)
         {
-            CreateGhost();
-            yield return new WaitForSeconds(ghostInterval);
-        }
-    }
-
-    private void CreateGhost()
-    {
-        GameObject ghostObj = new GameObject("DashGhost");
-        ghostObj.transform.position = transform.position;
-        ghostObj.transform.localScale = transform.localScale;
-
-        SpriteRenderer sr = ghostObj.AddComponent<SpriteRenderer>();
-        sr.sprite = spriteRenderer.sprite;
-        sr.color = ghostColor;
-        sr.flipX = spriteRenderer.flipX;
-        sr.sortingLayerID = spriteRenderer.sortingLayerID;
-        sr.sortingOrder = spriteRenderer.sortingOrder - 1;
-
-        StartCoroutine(FadeOutAndDestroy(ghostObj, sr));
-    }
-
-    private IEnumerator FadeOutAndDestroy(GameObject obj, SpriteRenderer sr)
-    {
-        float timer = 0f;
-        Color startColor = sr.color;
-
-        while (timer < ghostFadeTime)
-        {
-            timer += Time.deltaTime;
-            float alpha = Mathf.Lerp(startColor.a, 0f, timer / ghostFadeTime);
-            sr.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
-            yield return null;
+            if (weaponManager != null)
+            {
+                finalSpeed *= weaponManager.GetCurrentAttackMoveMultiplier();
+            }
+            else
+            {
+                finalSpeed *= 0f; // 매니저 없으면 안전하게 멈춤
+            }
         }
 
-        Destroy(obj);
+        // 이제 finalSpeed가 0보다 크면 공격 중에도 미세하게 움직입니다!
+        rigid.linearVelocity = moveInput * finalSpeed;
     }
 
     private void HandleSpeedInterpolation()
@@ -359,164 +288,116 @@ public class Player : MonoBehaviour
         currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
     }
 
-    public void SetChargingState(bool _isCharging)
+    private void CheckContactDamage()
     {
-        isCharging = _isCharging;
-        if (anim != null) anim.SetBool("IsCharging", isCharging);
-    }
-
-    public void PlayWakeUpAnimation()
-    {
-        if (anim != null) anim.SetBool("IsCharging", false);
-    }
-
-    public void SetDiceAnimation(int diceIndex)
-    {
-        if (anim != null) anim.SetFloat("DiceType", (float)diceIndex);
+        if (isInvincible) return;
+        int hitCount = Physics2D.OverlapCircle(transform.position, contactCheckRadius, contactFilter, contactResults);
+        if (hitCount > 0)
+        {
+            float finalDamage = bodyContactDamage;
+            Collider2D hitCollider = contactResults[0];
+            EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
+            if (boss != null) { finalDamage = boss.BaseContactDamage; if (boss.IsDashing) finalDamage *= boss.DashDamageMultiplier; }
+            OnDamage(finalDamage);
+        }
     }
 
     public void OnDamage(float damage)
     {
         if (isInvincible) return;
         if (stats != null) stats.TakeDamage((int)damage);
-
-        // 카메라 셰이크 
-        if (CameraFollow.instance != null)
-        {
-            CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
-        }
-
-        // ★ [새로 추가된 로직] 플레이어 피격 시 강렬한 히트 스탑 발생!
-        if (GameManager.instance != null)
-        {
-            GameManager.instance.HitStop(playerHitStopDuration);
-        }
-
-        if (sfxHit != null && SoundManager.instance != null)
-        {
-            SoundManager.instance.PlaySFX(sfxHit, 0.9f);
-        }
-
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
+        if (GameManager.instance != null) GameManager.instance.HitStop(playerHitStopDuration);
+        if (sfxHit != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxHit, 0.9f);
         StartCoroutine(Co_OnHit());
     }
 
-    // ★ [수정됨] 피격 연출의 꽃 (화이트 플래시 -> 빨간 깜빡임)
     IEnumerator Co_OnHit()
     {
         isInvincible = true;
         float timer = 0f;
-
-        // 1. 화이트 플래시 (머티리얼 교체)
         if (flashMaterial != null && spriteRenderer != null)
         {
-            spriteRenderer.material = flashMaterial;
-            spriteRenderer.color = Color.white; // 혹시나 붉은색이 남아있을까봐 하얗게 초기화
-
+            spriteRenderer.material = flashMaterial; spriteRenderer.color = Color.white;
             yield return new WaitForSeconds(flashDuration);
-            timer += flashDuration;
-
-            // 플래시가 끝나면 원래 머티리얼로 복구!
-            spriteRenderer.material = originalMaterial;
+            timer += flashDuration; spriteRenderer.material = originalMaterial;
         }
-
-        // 2. 이후 기존처럼 남은 시간 동안 붉은색 깜빡임 진행
-        bool isRed = true; // 하얀색 플래시 직후니까 바로 빨간색부터 보여주면 아주 자연스럽습니다.
-
+        bool isRed = true;
         while (timer < invincibleTime)
         {
             spriteRenderer.color = isRed ? paleRed : Color.white;
-            isRed = !isRed;
-            yield return new WaitForSeconds(blinkSpeed);
-            timer += blinkSpeed;
+            isRed = !isRed; yield return new WaitForSeconds(blinkSpeed); timer += blinkSpeed;
         }
-
-        // 연출 종료 후 완전 초기화
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.color = Color.white;
-            spriteRenderer.material = originalMaterial; // 안전장치
-        }
-
+        if (spriteRenderer != null) { spriteRenderer.color = Color.white; spriteRenderer.material = originalMaterial; }
         isInvincible = false;
-    }
-
-    private void Move()
-    {
-        if (moveInput.magnitude > 0)
-        {
-            float finalSpeed = currentMoveSpeed * moveSpeedMultiplier;
-            rigid.linearVelocity = moveInput.normalized * finalSpeed;
-        }
-        else
-        {
-            rigid.linearVelocity = Vector2.zero;
-        }
-    }
-
-    private void LookAtMouse()
-    {
-        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-        spriteRenderer.flipX = mousePos.x < transform.position.x;
     }
 
     public void ApplyKnockback(Vector2 direction, float maxSpeed, float duration)
     {
-        if (stats != null && stats.currentHealth <= 0) return; // 죽었으면 무시
-
+        if (stats != null && stats.currentHealth <= 0) return;
         StartCoroutine(Co_KnockbackRoutine(direction, maxSpeed, duration));
     }
 
     private IEnumerator Co_KnockbackRoutine(Vector2 dir, float maxSpeed, float duration)
     {
-        isKnockedBack = true;
-        isAttacking = false;
-        isCharging = false;
-
-        // ★ [핵심] 날아가는 동안 '무적' 판정을 주어 보스 몸에 부딪혀서 히트 스탑이 걸리는 걸 막습니다!
-        isInvincible = true;
-
-        // 타격감: 날아갈 때 짧게 화이트 플래시 켜기
-        if (flashMaterial != null && spriteRenderer != null)
-        {
-            spriteRenderer.material = flashMaterial;
-            Invoke("RestoreMaterial", 0.1f);
-        }
-
-        float timer = 0f;
-        float ghostTimer = 0f;
-
+        isKnockedBack = true; isAttacking = false; isCharging = false; isInvincible = true;
+        if (flashMaterial != null && spriteRenderer != null) { spriteRenderer.material = flashMaterial; Invoke("RestoreMaterial", 0.1f); }
+        float timer = 0f; float ghostTimer = 0f;
         while (timer < duration)
         {
-            // ★ 물리 엔진과 동기화하기 위해 FixedUpdate 주기에 맞춤
             yield return new WaitForFixedUpdate();
-            timer += Time.fixedDeltaTime;
-
-            float t = timer / duration;
-
-            // ★ 가속도 마법 (Ease-Out Quadratic): 
-            // 시작하자마자 미친 속도로 튕겨나가고, 뒤로 갈수록 급브레이크가 걸림
+            timer += Time.fixedDeltaTime; float t = timer / duration;
             float speedDecay = Mathf.Pow(1 - t, 2);
             rigid.linearVelocity = dir * (maxSpeed * speedDecay);
-
-            // ★ 바람에 날아가는 연출: 넉백 당하는 동안 대시 잔상(Ghost)을 마구 뿌림!
             ghostTimer += Time.fixedDeltaTime;
-            if (ghostTimer > ghostInterval)
-            {
-                CreateGhost();
-                ghostTimer = 0f;
-            }
+            if (ghostTimer > ghostInterval) { CreateGhost(); ghostTimer = 0f; }
         }
-
-        // 넉백 종료
-        rigid.linearVelocity = Vector2.zero;
-        isKnockedBack = false;
-        isInvincible = false;
+        rigid.linearVelocity = Vector2.zero; isKnockedBack = false; isInvincible = false;
     }
 
-    // 화이트 플래시 원상복구용 함수
-    private void RestoreMaterial()
+    private void RestoreMaterial() { if (spriteRenderer != null) spriteRenderer.material = originalMaterial; }
+
+    private IEnumerator DashRoutine()
     {
-        if (spriteRenderer != null) spriteRenderer.material = originalMaterial;
+        isDashing = true; isInvincible = true; lastDashTime = Time.time;
+        Vector2 dashDir;
+        if (moveInput.magnitude > 0) dashDir = moveInput.normalized;
+        else dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
+
+        if (dashDustPrefab != null) { GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity); var mainModule = dust.GetComponent<ParticleSystem>().main; mainModule.startColor = currentDiceColor; Destroy(dust, 1.0f); }
+        if (sfxDash != null) SoundManager.instance.PlaySFX(sfxDash, 0.4f);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
+
+        rigid.linearVelocity = dashDir * dashSpeed;
+        StartCoroutine(DashGhostRoutine());
+        yield return new WaitForSeconds(dashDuration);
+        rigid.linearVelocity = Vector2.zero; isDashing = false; isInvincible = false;
     }
+
+    private IEnumerator DashGhostRoutine() { while (isDashing) { CreateGhost(); yield return new WaitForSeconds(ghostInterval); } }
+    private void CreateGhost()
+    {
+        GameObject ghostObj = new GameObject("DashGhost"); ghostObj.transform.position = transform.position; ghostObj.transform.localScale = transform.localScale;
+        SpriteRenderer sr = ghostObj.AddComponent<SpriteRenderer>(); sr.sprite = spriteRenderer.sprite; sr.color = ghostColor; sr.flipX = spriteRenderer.flipX; sr.sortingLayerID = spriteRenderer.sortingLayerID; sr.sortingOrder = spriteRenderer.sortingOrder - 1;
+        StartCoroutine(FadeOutAndDestroy(ghostObj, sr));
+    }
+    private IEnumerator FadeOutAndDestroy(GameObject obj, SpriteRenderer sr)
+    {
+        float timer = 0f; Color startColor = sr.color;
+        while (timer < ghostFadeTime) { timer += Time.deltaTime; float alpha = Mathf.Lerp(startColor.a, 0f, timer / ghostFadeTime); sr.color = new Color(startColor.r, startColor.g, startColor.b, alpha); yield return null; }
+        Destroy(obj);
+    }
+
+    public void OnDie()
+    {
+        isAttacking = false; isDashing = false; isCharging = false; isInvincible = true;
+        rigid.linearVelocity = Vector2.zero; rigid.simulated = false;
+        canControl = false; // ★ 죽었을 때도 조작 통제
+        spriteRenderer.color = Color.gray;
+        if (anim != null) anim.enabled = false;
+        Debug.Log("Player: 으악 죽었다...");
+    }
+
+    public void SetChargingState(bool _isCharging) { isCharging = _isCharging; if (anim != null) anim.SetBool("IsCharging", isCharging); }
+    private void OnDrawGizmosSelected() { Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position, contactCheckRadius); }
 }

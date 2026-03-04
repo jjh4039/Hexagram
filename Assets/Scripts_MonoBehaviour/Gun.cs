@@ -11,7 +11,6 @@ public class Gun : MonoBehaviour
     [SerializeField] private Transform muzzlePoint;
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private float laserLength = 50f;
-
     [SerializeField] private LayerMask obstacleLayer;
 
     [Header("Shooting Settings")]
@@ -31,7 +30,9 @@ public class Gun : MonoBehaviour
 
     [Header("Sound")]
     [SerializeField] private AudioClip sfxShoot;
+    [SerializeField] private AudioClip sfxEmpty; // ★ 탄약 없을 때 '틱' 소리
 
+    [SerializeField] private GameObject damageTextPrefab; // 총알 부족 텍스트
     private bool isAiming = false;
     private Color currentBulletColor = Color.white;
     private Material currentBulletMaterial;
@@ -41,20 +42,20 @@ public class Gun : MonoBehaviour
         weaponManager = GetComponentInParent<WeaponManager>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         lineRenderer = GetComponent<LineRenderer>();
+
+        if (lineRenderer != null) lineRenderer.useWorldSpace = true;
     }
 
     private void OnEnable()
     {
         if (lineRenderer != null) lineRenderer.enabled = false;
-        if (weaponManager?.InputActions != null)
-            weaponManager.InputActions.Player.Attack.performed += OnAttack;
+        // ★ 에러 수정: WeaponManager의 InputActions가 삭제되었으므로 구독 해제
     }
 
     private void OnDisable()
     {
         if (lineRenderer != null) lineRenderer.enabled = false;
-        if (weaponManager?.InputActions != null)
-            weaponManager.InputActions.Player.Attack.performed -= OnAttack;
+        // ★ 에러 수정: WeaponManager의 InputActions가 삭제되었으므로 구독 해제
 
         // 마우스 커서 원상복구
         if (GameManager.instance != null && GameManager.instance.cursor != null)
@@ -62,18 +63,33 @@ public class Gun : MonoBehaviour
             GameManager.instance.cursor.ChangeCursor(CursorType.Default);
         }
 
-        // ★ [수정 1] 버그의 핵심 원인 해결! 스크립트가 꺼질 때 에임 상태도 반드시 초기화
         isAiming = false;
     }
 
     private void Update()
     {
-        Vector2 mouseScreenPos = weaponManager.InputActions.Player.Look.ReadValue<Vector2>();
+        if (GameManager.instance.player == null) return;
+
+        // [통제탑 연결] 컷신 등으로 조작이 끊기면 레이저 끄고 커서 초기화 후 리턴!
+        if (!GameManager.instance.player.canControl)
+        {
+            if (lineRenderer != null) lineRenderer.enabled = false;
+            if (isAiming)
+            {
+                isAiming = false;
+                GameManager.instance.cursor.ChangeCursor(CursorType.Default);
+            }
+            return;
+        }
+
+        // ★ 에러 수정: WeaponManager 대신 중앙 통제소인 Player의 Input을 사용합니다.
+        Vector2 mouseScreenPos = GameManager.instance.player.Input.Player.Look.ReadValue<Vector2>();
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+
         RotateWeapon();
 
         if (!GameManager.instance.player.isCharging && !weaponManager.IsSwapping)
-            DrawLaser(); // 레이저 그리기
+            DrawLaser();
         else if (lineRenderer != null)
             lineRenderer.enabled = false;
 
@@ -81,36 +97,28 @@ public class Gun : MonoBehaviour
         HandleAimCursor();
     }
 
-    // ★ [수정됨] 레이캐스트를 쏴서 벽에 닿으면 거기까지만 그리기
     private void DrawLaser()
     {
         if (lineRenderer == null || muzzlePoint == null) return;
 
         lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, muzzlePoint.position); // 시작점 (총구)
+        lineRenderer.SetPosition(0, muzzlePoint.position);
 
-        // 총이 바라보는 방향 (오른쪽)
         Vector2 direction = transform.right;
 
-        // 1. 레이저 발사! (총구 위치에서, 방향으로, 길이만큼, 장애물 레이어만 감지)
         RaycastHit2D hit = Physics2D.Raycast(muzzlePoint.position, direction, laserLength, obstacleLayer);
 
         if (hit.collider != null)
         {
-            // 2. 무언가(벽)에 닿았다면? -> 닿은 위치(hit.point)까지만 그립니다.
-            // (Tag 확인이 필요하면 if (hit.collider.CompareTag("Wall")) 등을 쓸 수 있지만,
-            // LayerMask로 거르는 게 성능상 훨씬 좋습니다.)
             lineRenderer.SetPosition(1, hit.point);
         }
         else
         {
-            // 3. 아무것도 안 닿았으면? -> 최대 길이까지 쭉 그립니다.
             Vector2 endPoint = (Vector2)muzzlePoint.position + (direction * laserLength);
             lineRenderer.SetPosition(1, endPoint);
         }
     }
 
-    // ... (이하 함수들은 기존과 동일하게 유지) ...
     public void UpdateVisuals(Color color, Material newMaterial)
     {
         if (lineRenderer != null)
@@ -122,20 +130,25 @@ public class Gun : MonoBehaviour
         currentBulletMaterial = newMaterial;
     }
 
-    private void OnAttack(InputAction.CallbackContext context)
+    public void TriggerAttack()
     {
-        if (weaponManager.IsSwapping) return;
-        if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun) return;
-        if (GameManager.instance.player.isCharging) return;
+        if (weaponManager.IsSwapping || GameManager.instance.player.isCharging) return;
         if (Time.time < nextFireTime) return;
 
-        if (GameManager.instance.stats.currentAmmo >= 100)
+        // ★ [피드백 추가] 탄약이 100(1발분)보다 적으면
+        if (GameManager.instance.stats.currentAmmo < 100)
         {
-            GameManager.instance.stats.currentAmmo -= 100;
-            Shoot();
-            nextFireTime = Time.time + fireRate;
+            if (sfxEmpty != null) SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
+            SpawnAmmoEmptyText();
+
+            Debug.Log("탄약 부족!");
+            return;
         }
-        else Debug.Log("탄약 부족!");
+
+        // 탄약 충분할 때만 발사
+        GameManager.instance.stats.currentAmmo -= 100;
+        Shoot();
+        nextFireTime = Time.time + fireRate;
     }
 
     private void Shoot()
@@ -150,9 +163,7 @@ public class Gun : MonoBehaviour
             bulletScript.SetupVisuals(currentBulletColor, currentBulletMaterial);
         }
 
-        // 사운드 재생
-        if (sfxShoot != null)
-            SoundManager.instance.PlaySFX(sfxShoot, 0.2f);
+        if (sfxShoot != null) SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
 
         Recoil();
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
@@ -179,14 +190,9 @@ public class Gun : MonoBehaviour
 
     private System.Collections.IEnumerator VisualRecoilRoutine()
     {
-        // 1. 반동 전 원래 위치(상대 좌표)를 기억합니다.
         Vector3 originalLocalPos = new Vector3(0.05f, 0, 0);
-
-        // 2. 현재 총이 바라보는 방향(transform.right)의 반대 방향으로 반동 위치를 계산합니다.
-        // transform.right는 월드 방향이므로, 부모의 회전을 고려한 로컬 오프셋으로 변환합니다.
         Vector3 recoilOffset = transform.right * -gunRecoilDistance;
 
-        // 3. 월드 오프셋을 부모 좌표계 기준으로 변환하여 localPosition에 적용합니다.
         transform.position += recoilOffset;
         Vector3 recoilLocalPos = transform.localPosition;
 
@@ -194,11 +200,9 @@ public class Gun : MonoBehaviour
         while (elapsed < gunRecoilDuration)
         {
             elapsed += Time.deltaTime;
-            // 4. 반동 위치에서 원래 위치로 부드럽게 복귀합니다.
             transform.localPosition = Vector3.Lerp(recoilLocalPos, originalLocalPos, elapsed / gunRecoilDuration);
             yield return null;
         }
-
         transform.localPosition = originalLocalPos;
     }
 
@@ -225,19 +229,15 @@ public class Gun : MonoBehaviour
 
     private void HandleAimCursor()
     {
-        // ★ [수정 2] 주사위 충전 중(무기를 넣은 상태)이거나 다른 무기일 때의 처리
         if (GameManager.instance.player.isCharging || weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun)
         {
-            // 만약 우클릭 조준 중에 주사위 쿨타임이 돌아서 무기가 들어갔다면 강제로 커서 초기화
             if (isAiming)
             {
                 isAiming = false;
                 GameManager.instance.cursor.ChangeCursor(CursorType.Default);
             }
-            return; // 이후 로직(우클릭 감지) 실행 안 함
+            return;
         }
-
-        // ★ [수정 3] IsSwapping 체크 삭제 -> 무기를 꺼내는 도중에도 우클릭을 누르면 즉시 커서 변경!
 
         if (Mouse.current != null)
         {
@@ -253,6 +253,21 @@ public class Gun : MonoBehaviour
                 isAiming = false;
                 GameManager.instance.cursor.ChangeCursor(CursorType.Default);
             }
+        }
+    }
+
+    private void SpawnAmmoEmptyText()
+    {
+        if (damageTextPrefab == null) return;
+
+        // 현재 마우스 월드 좌표(mouseWorldPos)에 텍스트 생성
+        GameObject textObj = Instantiate(damageTextPrefab, mouseWorldPos, Quaternion.identity);
+        DamageText dt = textObj.GetComponent<DamageText>();
+
+        if (dt != null)
+        {
+            // 아까 추가한 문자열용 Setup 호출
+            dt.Setup("탄약 부족!", Color.red);
         }
     }
 }

@@ -59,6 +59,23 @@ public class DamageText : MonoBehaviour
         if (globalSortingOrder > 30000) globalSortingOrder = 2000; // 초기화
     }
 
+    // 텍스트 띄우기 용 오버로드
+    public void Setup(string message, Color color)
+    {
+        textMesh.text = message;
+        textMesh.color = color;
+        textMesh.fontSize = normalSize * 0.7f; // 혹은 원하는 크기
+        textMesh.fontStyle = FontStyles.Bold;
+
+        originalColor = textMesh.color;
+        alpha = 1f;
+
+        // 동일한 연출 적용
+        moveVector = new Vector3(Random.Range(-0.5f, 0.5f), 1f, 0).normalized * moveSpeed;
+        textMesh.sortingOrder = globalSortingOrder++;
+        if (globalSortingOrder > 30000) globalSortingOrder = 2000;
+    }
+
     void Update()
     {
         // 1. 이동 (위로 솟았다가 중력 때문에 천천히 떨어짐)

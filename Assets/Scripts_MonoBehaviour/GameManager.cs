@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 
     public Player player;
     public PlayerStats stats;
-    public WeaponUI weaponUI;
+    public WeaponManager weaponManager;
     public Dice dice;
     public MapManager mapManager;
     public BitManager bitManager;
@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
 
     [Header("--- Scrap Data & UI ---")]
     public int currentScrap = 0;
-    public TextMeshProUGUI scrapText;
 
     private float hitStopTimer = 0f;
     private bool isHitStopping = false;
@@ -44,13 +43,9 @@ public class GameManager : MonoBehaviour
         originalFixedDeltaTime = Time.fixedDeltaTime;
     }
 
-    void Start()
+    public void AddScrap(int amount)
     {
-        if (scrapText != null)
-        {
-            scrapTextOriginScale = scrapText.transform.localScale;
-            UpdateScrapUI();
-        }
+        currentScrap += amount;
     }
 
     // =========================================================
@@ -85,50 +80,6 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError($"오류: {stageData.stageName} 데이터 프리펩 없음!");
         }
-    }
-
-    // =========================================================
-    // Scrap
-    // =========================================================
-    public void AddScrap(int amount)
-    {
-        currentScrap += amount;
-        UpdateScrapUI();
-
-        if (scrapText != null)
-        {
-            if (scrapPunchRoutine != null)
-                StopCoroutine(scrapPunchRoutine);
-
-            scrapPunchRoutine = StartCoroutine(ScrapTextPunch());
-        }
-    }
-
-    private void UpdateScrapUI()
-    {
-        if (scrapText != null)
-            scrapText.text = $"{currentScrap}";
-    }
-
-    private IEnumerator ScrapTextPunch()
-    {
-        float duration = 0.12f;
-        float elapsed = 0f;
-        Vector3 targetScale = scrapTextOriginScale * 1.1f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-
-            float scale = Mathf.Sin(t * Mathf.PI);
-            scrapText.transform.localScale =
-                Vector3.Lerp(scrapTextOriginScale, targetScale, scale);
-
-            yield return null;
-        }
-
-        scrapText.transform.localScale = scrapTextOriginScale;
     }
 
     // =========================================================

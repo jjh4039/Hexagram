@@ -55,16 +55,15 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
+        currentInfluence = mouseInfluence;
+        currentMaxOffset = maxMouseOffset;
+        originalSmoothSpeed = smoothSpeed;
+
         if (player == null) return;
 
         offset = transform.position - player.position;
         offset.x = 0;
         offset.y = 0;
-
-        currentInfluence = mouseInfluence;
-        currentMaxOffset = maxMouseOffset;
-
-        originalSmoothSpeed = smoothSpeed;
     }
 
     public void HitShake(float duration, float magnitude, float customDecay = -1f)
@@ -188,8 +187,8 @@ public class CameraFollow : MonoBehaviour
             player = GameManager.instance.player.transform;
         }
 
-        // 컷신이 끝나면 원래의 빠릿빠릿한 속도로 복구!
-        smoothSpeed = originalSmoothSpeed;
+        smoothSpeed = (originalSmoothSpeed > 2) ? originalSmoothSpeed : 5f;
+        // 보스 시작에서 에러가 생길 수 있어서 2로 하드코딩
     }
 
     public void SnapToTarget()
