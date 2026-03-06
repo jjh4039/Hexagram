@@ -701,7 +701,7 @@ TextureImporter:
         width: 13
         height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 2, y: 1, z: 2, w: 1}
       customData: 
       outline: []
@@ -710,6 +710,72 @@ TextureImporter:
       bones: []
       spriteID: 5b28e99a5bd9fc04b9933bec244750b8
       internalID: -32576735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_8
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 12
+        width: 10
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a7d65dfc187002a4c9f0ee7c75f0eb85
+      internalID: -1064889000
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_9
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 12
+        width: 10
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1d411c362751207408d3ed4926b51c29
+      internalID: 228175781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UI_10
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 12
+        width: 10
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7d40ea9dcd2c10b41b4ec0a4e6c21716
+      internalID: 1608206172
       vertices: []
       indices: 
       edges: []
@@ -755,12 +821,15 @@ TextureImporter:
       Title 2: -77559378
       UI_0: -1819716915
       UI_1: -1817050698
+      UI_10: 1608206172
       UI_2: -65541215
       UI_3: 136103034
       UI_4: -406827543
       UI_5: -326738170
       UI_6: 2007333568
       UI_7: -32576735
+      UI_8: -1064889000
+      UI_9: 228175781
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
