@@ -9,7 +9,7 @@ public class Dice : MonoBehaviour
     [SerializeField] public DiceData defaultData;
 
     [Header("--- Charge Economy ---")]
-    [SerializeField] private float passiveChargeRate = 5f; // 초당 자동 충전량
+    [SerializeField] private float passiveChargeRate = 30f; // 초당 자동 충전량
     [SerializeField] private float hitChargeAmount = 15f;  // 적 타격 시 충전량
 
     [Header("--- Skill Cooldowns (소프트 쿨타임) ---")]
