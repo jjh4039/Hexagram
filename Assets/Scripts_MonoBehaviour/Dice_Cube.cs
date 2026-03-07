@@ -2,31 +2,29 @@ using UnityEngine;
 
 public class Dice_Cube : MonoBehaviour
 {
-    [Header("Rotation Settings")]
-    [SerializeField] private float rotateSpeed = 50f;
-    [SerializeField] private Vector3 rotationAxis = new Vector3(1, 0.8f, 1.2f); // ★ 불규칙한 회전축 설정
+    [Header("--- Roll Settings ---")]
+    [SerializeField] private float rollSpeed = 1000f;
+    [SerializeField] private float minRotationThreshold = 0.5f; // 축의 최소 값 보정치
 
-    [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 0.2f; // 위아래 이동 범위
-    [SerializeField] private float floatFrequency = 1.5f; // 부유 속도
+    private Vector3 currentAxis;
 
-    private Vector3 startPos;
-
-    void Awake()
+    void OnEnable()
     {
-        // 시작 시점의 로컬 위치를 저장합니다.
-        startPos = transform.localPosition;
+        Vector3 rawAxis = Random.onUnitSphere;
+
+        if (Mathf.Abs(rawAxis.x) < minRotationThreshold) rawAxis.x = minRotationThreshold * Mathf.Sign(rawAxis.x == 0 ? 1 : rawAxis.x);
+        if (Mathf.Abs(rawAxis.y) < minRotationThreshold) rawAxis.y = minRotationThreshold * Mathf.Sign(rawAxis.y == 0 ? 1 : rawAxis.y);
+        if (Mathf.Abs(rawAxis.z) < minRotationThreshold) rawAxis.z = minRotationThreshold * Mathf.Sign(rawAxis.z == 0 ? 1 : rawAxis.z);
+
+        currentAxis = rawAxis.normalized;
     }
 
     void Update()
     {
-        // 1. 불규칙한 회전 연출
-        // 고정된 (1,1,1) 대신 미세하게 다른 축 값을 곱해 자이로스코프 느낌을 줍니다.
-        transform.Rotate(rotationAxis * rotateSpeed * Time.deltaTime);
+        // 월드 좌표 기준 회전
+        transform.Rotate(currentAxis * rollSpeed * Time.deltaTime, Space.World);
 
-        // 2. 부유(Floating) 연출
-        // Sin 곡선을 이용해 부드럽게 위아래로 움직이게 합니다.
-        float newY = startPos.y + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
-        transform.localPosition = new Vector3(startPos.x, newY, startPos.z);
+        // 로컬 좌표 기준 추가 회전 (덜그럭거리는 느낌)
+        transform.Rotate(new Vector3(1.2f, 0.5f, 0.8f) * (rollSpeed * 0.5f) * Time.deltaTime, Space.Self);
     }
 }

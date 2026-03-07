@@ -15,6 +15,8 @@ MonoBehaviour:
   diceName: "\uC815\uBC00 \uD0C0\uACA9"
   description: "\uB2E4\uC74C 2\uD68C\uC758 \uACF5\uACA9\uC774 \uAC15\uD55C \uD53C\uD574\uB97C
     \uC785\uD799\uB2C8\uB2E4."
+  shortDescription: "\uB2E4\uC74C 2\uD68C\uC758 \uACF5\uACA9\uC774\n\uAC15\uD55C
+    \uD53C\uD574\uB97C \uC785\uD799\uB2C8\uB2E4"
   icon: {fileID: 426809032, guid: 65b962f3566eda74f8050782f0268e80, type: 3}
   particleColor:
     serializedVersion: 2

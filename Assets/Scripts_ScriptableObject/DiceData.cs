@@ -17,7 +17,8 @@ public class DiceData : ScriptableObject
 {
     [Header("--- 기본 정보 ---")]
     public string diceName;          // 주사위 이름 (예: 광전사의 눈)
-    [TextArea] public string description; // 설명 (UI에 뜰 텍스트)
+    [TextArea] public string description; // 설명
+    [TextArea] public string shortDescription; // 설명 (UI에 뜰 텍스트)
 
     [Header("--- 비주얼 ---")]
     public Sprite icon;              // UI 아이콘 (I, II, III...)
