@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DiceData
   diceName: "\uB178\uB780\uC0C9"
   description: "\uC601\uAD6C\uC801\uC73C\uB85C \uACF5\uACA9\uB825\uC774 3% \uC0C1\uC2B9\uD569\uB2C8\uB2E4."
-  shortDescription: "\uACF5\uACA9\uB825\uC774 \uC601\uAD6C\uD788 \uC99D\uAC00\uD569\uB2C8\uB2E4"
+  shortDescription: "\uCE58\uBA85\uD0C0 \uD53C\uD574\uAC00\n50% \uC99D\uAC00\uD569\uB2C8\uB2E4"
   icon: {fileID: 1373975778, guid: 65b962f3566eda74f8050782f0268e80, type: 3}
   particleColor:
     serializedVersion: 2

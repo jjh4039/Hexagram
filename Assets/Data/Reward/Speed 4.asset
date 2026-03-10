@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3319df5183f6d1c4daebcc24443e53be, type: 3}
-  m_Name: DiceSpeed 0.2s
+  m_Name: Speed 4
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  titleText: "\uC8FC\uC0AC\uC704 \uCDA9\uC804 \uC18D\uB3C4"
-  valueText: "-0.2\uCD08"
-  valueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  titleText: "\uC774\uB3D9\uC18D\uB3C4"
+  valueText: +4%
+  valueTextColor: {r: 0.23375754, g: 0.824728, b: 0.9716981, a: 1}

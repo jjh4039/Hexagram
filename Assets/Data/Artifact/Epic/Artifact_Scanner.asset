@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72aa018b570d3964bad2e854c273b67f, type: 3}
+  m_Name: Artifact_Scanner
+  m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
+  artifactName: "\uD655\uB960 \uC2A4\uCE90\uB108"
+  description: "\uD68D\uB4DD \uC2DC \uC6D0\uD558\uB294 \uBA74\uC758 \uD655\uB960\uC744\n\uC601\uAD6C\uD788
+    5% \uC0C1\uC2B9\uC2DC\uD0A8\uB2E4."
+  icon: {fileID: 3105931553845373892, guid: ee7487cbc3d925149b178758859378c7, type: 3}
+  grade: 2
+  basePrice: 100
+  type: 1
+  effectType: 2
+  condition: 6
+  value: 15
+  isPercent: 1

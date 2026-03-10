@@ -9,6 +9,9 @@ public class StageMessageUI : MonoBehaviour
 {
     public static StageMessageUI instance;
 
+    [Header("--- Debug / Test ---")]
+    [SerializeField] private bool enableRewardTest = true;
+
     [Header("--- Entry UI (Start) ---")]
     [SerializeField] private CanvasGroup entryGroup;
     [SerializeField] private TextMeshProUGUI entryTitle;
@@ -176,6 +179,12 @@ public class StageMessageUI : MonoBehaviour
 
     private void Update()
     {
+        if (enableRewardTest && Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            ShowClearMessage();
+            return;
+        }
+
         if (!canSelectReward) return;
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectReward(0);
         else if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectReward(1);
