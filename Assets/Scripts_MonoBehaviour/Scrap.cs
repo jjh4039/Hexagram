@@ -3,15 +3,13 @@ using System.Collections;
 
 public class Scrap : MonoBehaviour
 {
-    [Header("Settings")]
-    public int value = 1;
+    [Header("Settings")] public int value = 1;
     [SerializeField] private float acceleration = 40f;
     [SerializeField] private float initialSpeed = 2f;
     [SerializeField] private float rotateSpeed = 360f;
     [SerializeField] private float magnetDelay = 0.5f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxCollect; // ¡Ú [Ãß°¡] È¹µæ »ç¿îµå
+    [Header("Sound")] [SerializeField] private AudioClip sfxCollect; // ï¿½ï¿½ [ï¿½ß°ï¿½] È¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     private Transform target;
     private bool isCollected = false;
@@ -35,7 +33,8 @@ public class Scrap : MonoBehaviour
             if (currentSpeed == 0) currentSpeed = initialSpeed;
             currentSpeed += acceleration * Time.deltaTime;
 
-            transform.position = Vector3.MoveTowards(transform.position, target.position, currentSpeed * Time.deltaTime);
+            transform.position =
+                Vector3.MoveTowards(transform.position, target.position, currentSpeed * Time.deltaTime);
             transform.Rotate(0, 0, rotateSpeed * Time.deltaTime);
 
             float distance = Vector2.Distance(transform.position, target.position);
@@ -55,13 +54,13 @@ public class Scrap : MonoBehaviour
             GameManager.instance.AddScrap(value);
         }
 
-        // ¡Ú [Ãß°¡] È¹µæ »ç¿îµå Àç»ý
+        // ï¿½ï¿½ [ï¿½ß°ï¿½] È¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
         if (sfxCollect != null)
         {
             SoundManager.instance.PlaySFX(sfxCollect, 1f);
         }
 
-        Debug.Log($"°íÃ¶ È¹µæ! (+{value})");
+        Debug.Log($"ï¿½ï¿½Ã¶ È¹ï¿½ï¿½! (+{value})");
         Destroy(gameObject);
     }
 
@@ -91,6 +90,7 @@ public class Scrap : MonoBehaviour
             {
                 transform.position = Vector3.Lerp(startPos, targetPos, t) + Vector3.up * height;
             }
+
             yield return null;
         }
     }

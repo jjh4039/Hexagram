@@ -2628,7 +2628,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &349246237
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3154,7 +3154,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388206899}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
@@ -3243,7 +3243,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388206899}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35fc49e13720d6c4fb056bc4d105e6af, type: 3}
   m_Name: 
@@ -9388,7 +9388,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &939410203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10300,7 +10300,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1005981995883516803, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: m_ColliderPaths.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2544754014234877627, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: dropChance
@@ -10316,7 +10316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4874768350431733968, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6127454702898223684, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12851,7 +12851,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6770056987612179759, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8550526856449362156, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12895,7 +12895,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8707189956456441058, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_ColliderPaths.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14694,7 +14694,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1401088101}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
@@ -14783,7 +14783,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1401088101}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35fc49e13720d6c4fb056bc4d105e6af, type: 3}
   m_Name: 
@@ -14979,10 +14979,9 @@ MonoBehaviour:
   - {fileID: 968860345}
   titleText: {fileID: 388206903}
   titleDesText: {fileID: 1401088105}
-  titleTextGlow: {fileID: 388206901}
-  titleDesTextGlow: {fileID: 1401088103}
+  titleTextGlow: {fileID: 0}
+  titleDesTextGlow: {fileID: 0}
   hangingPhysics: {fileID: 1403389555}
-  sfxSwap: {fileID: 8300000, guid: e9c2b0fa1c314cb4a829236c43d9d956, type: 3}
   xOffset: 300
   sideScale: 0.8
   sideAlpha: 0.15

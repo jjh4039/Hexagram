@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using System.Collections; // ÄÚ·çÆ¾ »ç¿ëÀ» À§ÇØ ÇÊ¼ö
+using System.Collections; // ì½”ë£¨í‹´ ì‚¬ìš©ì„ ìœ„í•´ í•„ìˆ˜
 using System.Collections.Generic;
 
 public class DashboardUI : MonoBehaviour
@@ -9,14 +9,14 @@ public class DashboardUI : MonoBehaviour
     public static DashboardUI instance;
 
     [Header("Main Objects")]
-    public GameObject dashboardPanel;   // ÀüÃ¼ ÆË¾÷ (°ËÀº ¹è°æ + ÆÇ)
-    public CanvasGroup dashboardCG;     // ¡Ú [ÇÊ¼ö] Åõ¸íµµ Á¶Àı¿ë (ÀÎ½ºÆåÅÍ¿¡¼­ ¿¬°á!)
-    public Transform artifactGrid;      // ¾ÆÆ¼ÆÑÆ®°¡ »ı¼ºµÉ ±×¸®µå
-    public GameObject slotPrefab;       // ½½·Ô ÇÁ¸®ÆÕ
+    public GameObject dashboardPanel;   // ì „ì²´ íŒì—… (ê²€ì€ ë°°ê²½ + íŒ)
+    public CanvasGroup dashboardCG;     // â˜… [í•„ìˆ˜] íˆ¬ëª…ë„ ì¡°ì ˆìš© (ì¸ìŠ¤í™í„°ì—ì„œ ì—°ê²°!)
+    public Transform artifactGrid;      // ì•„í‹°íŒ©íŠ¸ê°€ ìƒì„±ë  ê·¸ë¦¬ë“œ
+    public GameObject slotPrefab;       // ìŠ¬ë¡¯ í”„ë¦¬íŒ¹
 
     [Header("Animation Settings")]
-    public float fadeDuration = 0.2f;   // ÆäÀÌµå ½Ã°£ (0.2ÃÊ ÃßÃµ)
-    public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f); // ½ÃÀÛ/Á¾·á Å©±â
+    public float fadeDuration = 0.2f;   // í˜ì´ë“œ ì‹œê°„ (0.2ì´ˆ ì¶”ì²œ)
+    public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f); // ì‹œì‘/ì¢…ë£Œ í¬ê¸°
 
     [Header("Tooltip")]
     public GameObject tooltipGroup;
@@ -25,25 +25,25 @@ public class DashboardUI : MonoBehaviour
     public Vector2 tooltipOffset = new Vector2(15f, -15f);
 
     [Header("Sound Effects")]
-    [SerializeField] private AudioClip sfxOpen;   // 1. Ã¢ ¿­¸± ¶§
-    [SerializeField] private AudioClip sfxClose;  // 1. Ã¢ ´İÈú ¶§
-    [SerializeField] private AudioClip sfxHover;  // 2. ÅøÆÁ ¶ã ¶§
+    [SerializeField] private AudioClip sfxOpen;   // 1. ì°½ ì—´ë¦´ ë•Œ
+    [SerializeField] private AudioClip sfxClose;  // 1. ì°½ ë‹«í ë•Œ
+    [SerializeField] private AudioClip sfxHover;  // 2. íˆ´íŒ ëœ° ë•Œ
 
     private PlayerInput inputActions;
     public bool isOpen = false;
     private bool isTooltipActive = false;
-    private Coroutine fadeRoutine; // ½ÇÇà ÁßÀÎ ¾Ö´Ï¸ŞÀÌ¼Ç °ü¸®¿ë
+    private Coroutine fadeRoutine; // ì‹¤í–‰ ì¤‘ì¸ ì• ë‹ˆë©”ì´ì…˜ ê´€ë¦¬ìš©
 
     private void Awake()
     {
         instance = this;
 
-        // ½ÃÀÛÇÒ ¶§ ²¨µÎ±â ¹× ÃÊ±âÈ­
+        // ì‹œì‘í•  ë•Œ êº¼ë‘ê¸° ë° ì´ˆê¸°í™”
         if (dashboardCG == null) dashboardCG = dashboardPanel.GetComponent<CanvasGroup>();
         if (dashboardCG != null)
         {
             dashboardCG.alpha = 0f;
-            dashboardCG.blocksRaycasts = false; // Å¬¸¯ ¹æÁö
+            dashboardCG.blocksRaycasts = false; // í´ë¦­ ë°©ì§€
         }
 
         dashboardPanel.SetActive(false);
@@ -66,7 +66,7 @@ public class DashboardUI : MonoBehaviour
 
     private void Update()
     {
-        // ÅøÆÁÀÌ ÄÑÁ®ÀÖÀ¸¸é ¸¶¿ì½º µû¶ó´Ù´Ï±â
+        // íˆ´íŒì´ ì¼œì ¸ìˆìœ¼ë©´ ë§ˆìš°ìŠ¤ ë”°ë¼ë‹¤ë‹ˆê¸°
         if (isOpen && isTooltipActive && tooltipGroup != null)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
@@ -76,7 +76,7 @@ public class DashboardUI : MonoBehaviour
 
     private void OnToggle(InputAction.CallbackContext context)
     {
-        // ÄÑÁ®ÀÖÀ¸¸é ²ô°í, ²¨Á®ÀÖÀ¸¸é ÄÒ´Ù
+        // ì¼œì ¸ìˆìœ¼ë©´ ë„ê³ , êº¼ì ¸ìˆìœ¼ë©´ ì¼ ë‹¤
         if (isOpen) CloseDashboard();
         else OpenDashboard();
     }
@@ -85,12 +85,12 @@ public class DashboardUI : MonoBehaviour
     {
         isOpen = true;
         dashboardPanel.SetActive(true);
-        Time.timeScale = 0f; // ½Ã°£ Á¤Áö (°ÔÀÓ ¸ØÃã)
+        Time.timeScale = 0f; // ì‹œê°„ ì •ì§€ (ê²Œì„ ë©ˆì¶¤)
 
-        RefreshArtifacts(); // ½½·Ô °»½Å
+        RefreshArtifacts(); // ìŠ¬ë¡¯ ê°±ì‹ 
         SoundManager.instance.PlaySFX(sfxOpen, 1.0f);
 
-        // ¡Ú ¿­±â ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ (ÀÌÀü ¾Ö´Ï¸ŞÀÌ¼Ç Ãë¼Ò)
+        // â˜… ì—´ê¸° ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ (ì´ì „ ì• ë‹ˆë©”ì´ì…˜ ì·¨ì†Œ)
         if (fadeRoutine != null) StopCoroutine(fadeRoutine);
         fadeRoutine = StartCoroutine(FadeRoutine(true));
     }
@@ -102,59 +102,59 @@ public class DashboardUI : MonoBehaviour
 
         SoundManager.instance.PlaySFX(sfxClose, 1.0f);
 
-        // ¡Ú ´İ±â ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ
+        // â˜… ë‹«ê¸° ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘
         if (fadeRoutine != null) StopCoroutine(fadeRoutine);
         fadeRoutine = StartCoroutine(FadeRoutine(false));
     }
 
-    // ¡Ú ÆäÀÌµå ÀÎ/¾Æ¿ô + ½ºÄÉÀÏ ¾÷/´Ù¿î ÄÚ·çÆ¾
+    // â˜… í˜ì´ë“œ ì¸/ì•„ì›ƒ + ìŠ¤ì¼€ì¼ ì—…/ë‹¤ìš´ ì½”ë£¨í‹´
     private IEnumerator FadeRoutine(bool show)
     {
         float timer = 0f;
 
-        // Alpha ¼³Á¤ (0 <-> 1)
+        // Alpha ì„¤ì • (0 <-> 1)
         float startAlpha = dashboardCG.alpha;
         float targetAlpha = show ? 1f : 0f;
 
-        // Scale ¼³Á¤ (0.9 <-> 1.0)
-        // ÄÓ ¶§: 0.9 -> 1.0 (Ä¿Áü)
-        // ²ø ¶§: 1.0 -> 0.9 (ÀÛ¾ÆÁü)
+        // Scale ì„¤ì • (0.9 <-> 1.0)
+        // ì¼¤ ë•Œ: 0.9 -> 1.0 (ì»¤ì§)
+        // ëŒ ë•Œ: 1.0 -> 0.9 (ì‘ì•„ì§)
         Vector3 fromScale = show ? startScale : Vector3.one;
         Vector3 toScale = show ? Vector3.one : startScale;
 
-        // ÄÑÁú ¶§´Â ¹Ù·Î Å¬¸¯ Çã¿ë, ²¨Áú ¶§´Â Â÷´Ü
+        // ì¼œì§ˆ ë•ŒëŠ” ë°”ë¡œ í´ë¦­ í—ˆìš©, êº¼ì§ˆ ë•ŒëŠ” ì°¨ë‹¨
         if (show) dashboardCG.blocksRaycasts = true;
         else dashboardCG.blocksRaycasts = false;
 
         while (timer < fadeDuration)
         {
-            timer += Time.unscaledDeltaTime; // TimeScale 0ÀÌ¾îµµ ÀÛµ¿ÇÏµµ·Ï unscaled »ç¿ë
+            timer += Time.unscaledDeltaTime; // TimeScale 0ì´ì–´ë„ ì‘ë™í•˜ë„ë¡ unscaled ì‚¬ìš©
             float t = timer / fadeDuration;
 
-            // ºÎµå·¯¿î ¿òÁ÷ÀÓ (Ease Out Sine)
+            // ë¶€ë“œëŸ¬ìš´ ì›€ì§ì„ (Ease Out Sine)
             t = Mathf.Sin(t * Mathf.PI * 0.5f);
 
-            // Åõ¸íµµ Á¶Àı
+            // íˆ¬ëª…ë„ ì¡°ì ˆ
             dashboardCG.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
 
-            // Å©±â Á¶Àı (¿­ ¶§µµ, ´İÀ» ¶§µµ ÀÛµ¿)
+            // í¬ê¸° ì¡°ì ˆ (ì—´ ë•Œë„, ë‹«ì„ ë•Œë„ ì‘ë™)
             dashboardPanel.transform.localScale = Vector3.Lerp(fromScale, toScale, t);
 
             yield return null;
         }
 
-        // ¾Ö´Ï¸ŞÀÌ¼Ç Á¾·á ÈÄ °ª È®Á¤
+        // ì• ë‹ˆë©”ì´ì…˜ ì¢…ë£Œ í›„ ê°’ í™•ì •
         dashboardCG.alpha = targetAlpha;
         dashboardPanel.transform.localScale = toScale;
 
         if (!show)
         {
             dashboardPanel.SetActive(false);
-            Time.timeScale = 1f; // ¡Ú ¿ÏÀüÈ÷ ´İÈù ÈÄ¿¡ ½Ã°£ ´Ù½Ã Èå¸£°Ô ÇÔ (¾ÈÁ¤¼º UP)
+            Time.timeScale = 1f; // â˜… ì™„ì „íˆ ë‹«íŒ í›„ì— ì‹œê°„ ë‹¤ì‹œ íë¥´ê²Œ í•¨ (ì•ˆì •ì„± UP)
         }
     }
 
-    // ¾ÆÆ¼ÆÑÆ® ¸ñ·Ï °»½Å
+    // ì•„í‹°íŒ©íŠ¸ ëª©ë¡ ê°±ì‹ 
     public void RefreshArtifacts()
     {
         foreach (Transform child in artifactGrid) Destroy(child.gameObject);
@@ -165,13 +165,13 @@ public class DashboardUI : MonoBehaviour
         }
     }
 
-    // ¾ÆÆ¼ÆÑÆ®¿ë ÅøÆÁ Ç¥½Ã
+    // ì•„í‹°íŒ©íŠ¸ìš© íˆ´íŒ í‘œì‹œ
     public void ShowTooltip(ArtifactData data)
     {
         if (tooltipGroup == null) return;
 
-        // ³»¿ëÀÌ ¹Ù²ğ ¶§ ¼Ò¸® Àç»ı (ÀÌ¹Ì ÄÑÁ®ÀÖ¾îµµ ´Ù¸¥ ¾ÆÀÌÅÛÀÌ¸é ¼Ò¸® ³²)
-        // ³Ê¹« ½Ã²ô·¯¿ì¸é if(!isTooltipActive) Á¶°Ç Ãß°¡ÇÏ¼¼¿ä.
+        // ë‚´ìš©ì´ ë°”ë€” ë•Œ ì†Œë¦¬ ì¬ìƒ (ì´ë¯¸ ì¼œì ¸ìˆì–´ë„ ë‹¤ë¥¸ ì•„ì´í…œì´ë©´ ì†Œë¦¬ ë‚¨)
+        // ë„ˆë¬´ ì‹œë„ëŸ¬ìš°ë©´ if(!isTooltipActive) ì¡°ê±´ ì¶”ê°€í•˜ì„¸ìš”.
         SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
 
         isTooltipActive = true;
@@ -184,7 +184,7 @@ public class DashboardUI : MonoBehaviour
         descText.text = $"<color={colorHex}>[ {data.grade} ]</color>\n\n{data.description}";
     }
 
-    // ¹ü¿ë(¹ë·±½º/½ºÅÈ µî) ÅøÆÁ Ç¥½Ã
+    // ë²”ìš©(ë°¸ëŸ°ìŠ¤/ìŠ¤íƒ¯ ë“±) íˆ´íŒ í‘œì‹œ
     public void ShowTooltipCommon(string title, string content)
     {
         if (tooltipGroup == null) return;
@@ -197,7 +197,7 @@ public class DashboardUI : MonoBehaviour
         descText.text = content;
     }
 
-    // ÅøÆÁ ¼û±â±â
+    // íˆ´íŒ ìˆ¨ê¸°ê¸°
     public void HideTooltip()
     {
         if (tooltipGroup == null) return;

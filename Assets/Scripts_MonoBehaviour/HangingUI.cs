@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class HangingUI : MonoBehaviour
 {
-    [Header("¹°¸® ¼³Á¤")]
-    [SerializeField] private float gravity = 20f;      // º¹¿ø·Â (Å¬¼ö·Ï »¡¸® ¸ØÃã)
-    [SerializeField] private float drag = 0.98f;       // °ø±â ÀúÇ× (0.9 ~ 0.99)
-    [SerializeField] private float maxAngle = 45f;     // ÃÖ´ë È¸Àü °¢µµ Á¦ÇÑ
+    [Header("ë¬¼ë¦¬ ì„¤ì •")]
+    [SerializeField] private float gravity = 30f;      // ë³µì›ë ¥ (í´ìˆ˜ë¡ ë¹¨ë¦¬ ë©ˆì¶¤)
+    [SerializeField] private float drag = 0.98f;       // ê³µê¸° ì €í•­ (0.9 ~ 0.99)
+    [SerializeField] private float maxAngle = 10f;     // ìµœëŒ€ íšŒì „ ê°ë„ ì œí•œ
 
-    [Header("ÃÊ±â ¿¬Ãâ")]
-    [SerializeField] private float startPushForce = 15f; // Ã¢ ¿­¸± ¶§ ¹Ì´Â Èû
+    [Header("ì´ˆê¸° ì—°ì¶œ")]
+    [SerializeField] private float startPushForce = 15f; // ì°½ ì—´ë¦´ ë•Œ ë¯¸ëŠ” í˜
 
-    private float currentVelocity = 0f; // ÇöÀç È¸Àü ¼Óµµ
-    private float currentAngle = 0f;    // ÇöÀç °¢µµ
+    private float currentVelocity = 0f; // í˜„ì¬ íšŒì „ ì†ë„
+    private float currentAngle = 0f;    // í˜„ì¬ ê°ë„
     private RectTransform rectTran;
 
     private void Awake()
@@ -21,35 +21,45 @@ public class HangingUI : MonoBehaviour
 
     private void OnEnable()
     {
-        // UI°¡ ÄÑÁú ¶§(Tab ´©¸§) »ìÂ¦ ±â¿ï¾îÁø »óÅÂ·Î ½ÃÀÛÇÏ°Å³ª ¹Ğ¾îÁÜ
+        // UIê°€ ì¼œì§ˆ ë•Œ(Tab ëˆ„ë¦„) ì‚´ì§ ê¸°ìš¸ì–´ì§„ ìƒíƒœë¡œ ì‹œì‘í•˜ê±°ë‚˜ ë°€ì–´ì¤Œ
         currentAngle = 0f;
-        currentVelocity = startPushForce; // Åö ÃÄ¼­ ½ÃÀÛ
+        currentVelocity = startPushForce; // íˆ­ ì³ì„œ ì‹œì‘
     }
 
     private void Update()
     {
-        // 1. ¹°¸® °è»ê (´ÜÁøÀÚ ¿îµ¿ Èä³»)
-        // °¢µµ°¡ 0À¸·Î µ¹¾Æ°¡·Á´Â Èû (Áß·Â)
+        if (Mathf.Abs(currentVelocity) < 0.01f && Mathf.Abs(currentAngle) < 0.01f)
+        {
+            // ì™„ë²½í•œ ì •ì§€ ìƒíƒœë¡œ ê³ ì •í•˜ê³  ë¦¬í„´
+            if (currentAngle != 0) {
+                currentAngle = 0;
+                rectTran.localRotation = Quaternion.identity;
+            }
+            return; 
+        }
+        
+        // 1. ë¬¼ë¦¬ ê³„ì‚° (ë‹¨ì§„ì ìš´ë™ í‰ë‚´)
+        // ê°ë„ê°€ 0ìœ¼ë¡œ ëŒì•„ê°€ë ¤ëŠ” í˜ (ì¤‘ë ¥)
         float restorationForce = -currentAngle * gravity * Time.unscaledDeltaTime;
 
-        // ¼Óµµ¿¡ Èû ´õÇÏ±â
+        // ì†ë„ì— í˜ ë”í•˜ê¸°
         currentVelocity += restorationForce;
 
-        // °ø±â ÀúÇ× Àû¿ë (Á¡Á¡ ´À·ÁÁü)
+        // ê³µê¸° ì €í•­ ì ìš© (ì ì  ëŠë ¤ì§)
         currentVelocity *= drag;
 
-        // 2. °¢µµ Àû¿ë
+        // 2. ê°ë„ ì ìš©
         currentAngle += currentVelocity * Time.unscaledDeltaTime;
 
-        // (¼±ÅÃ»çÇ×) ³Ê¹« °úÇÏ°Ô µ¹Áö ¾Ê°Ô Á¦ÇÑ
+        // (ì„ íƒì‚¬í•­) ë„ˆë¬´ ê³¼í•˜ê²Œ ëŒì§€ ì•Šê²Œ ì œí•œ
         currentAngle = Mathf.Clamp(currentAngle, -maxAngle, maxAngle);
 
-        // 3. ½ÇÁ¦ È¸Àü ½ÃÅ°±â (ZÃà È¸Àü)
+        // 3. ì‹¤ì œ íšŒì „ ì‹œí‚¤ê¸° (Zì¶• íšŒì „)
         rectTran.localRotation = Quaternion.Euler(0, 0, currentAngle);
     }
 
-    // ¡Ú ¿ÜºÎ(InventoryManager)¿¡¼­ A/D Å°¸¦ ´­·¶À» ¶§ È£ÃâÇÒ ÇÔ¼ö
-    // ¿ŞÂÊÀ¸·Î ³Ñ±â¸é AddForce(30), ¿À¸¥ÂÊÀÌ¸é AddForce(-30) ÀÌ·± ½Ä
+    // â˜… ì™¸ë¶€(InventoryManager)ì—ì„œ A/D í‚¤ë¥¼ ëˆŒë €ì„ ë•Œ í˜¸ì¶œí•  í•¨ìˆ˜
+    // ì™¼ìª½ìœ¼ë¡œ ë„˜ê¸°ë©´ AddForce(30), ì˜¤ë¥¸ìª½ì´ë©´ AddForce(-30) ì´ëŸ° ì‹
     public void Push(float force)
     {
         currentVelocity += force;

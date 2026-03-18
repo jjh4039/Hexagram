@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -5,34 +6,38 @@ using System.Collections;
 
 public class AmmoUI : MonoBehaviour
 {
-    [Header("Ammo Visuals")]
-    public Image[] bulletPanels; // 5°³ÀÇ Fill ÀÌ¹ÌÁö
-    public TextMeshProUGUI[] ammoText; // [0]:Á¤¼ö, [1]:¼Ò¼ö, [2]:MAX ÅØ½ºÆ®
+    [Header("Ammo Visuals")] public Image[] bulletPanels; // 5ï¿½ï¿½ï¿½ï¿½ Fill ï¿½Ì¹ï¿½ï¿½ï¿½
+    public TextMeshProUGUI[] ammoText; // [0]:ï¿½ï¿½ï¿½ï¿½, [1]:ï¿½Ò¼ï¿½, [2]:MAX ï¿½Ø½ï¿½Æ®
 
-    [Header("Ammo Sprites (New)")]
-    [SerializeField] private Sprite normalAmmoSprite; // Æò»ó½Ã ÇÏ¾á ÃÑ¾Ë ½ºÇÁ¶óÀÌÆ®
-    [SerializeField] private Sprite maxAmmoSprite;    // ¡Ú [Ãß°¡] °¡µæ Ã¡À» ¶§ÀÇ ÁÖÈ²»ö Àü¿ë ½ºÇÁ¶óÀÌÆ®
+    [Header("Ammo Sprites (New)")] [SerializeField]
+    private Sprite normalAmmoSprite; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ï¾ï¿½ ï¿½Ñ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 
-    [Header("Scrap Visuals")]
-    [SerializeField] private RectTransform scrapGroup;
+    [SerializeField] private Sprite maxAmmoSprite; // ï¿½ï¿½ [ï¿½ß°ï¿½] ï¿½ï¿½ï¿½ï¿½ Ã¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È²ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+
+    [Header("Scrap Visuals")] [SerializeField]
+    private RectTransform scrapGroup;
+
     [SerializeField] private TextMeshProUGUI scrapText;
     [SerializeField] private float scrapMoveDistance = 50f;
     private Vector2 scrapOriginPos;
     private Vector3 scrapTextOriginScale;
     private Coroutine scrapPunchRoutine;
 
-    [Header("Ammo Status Colors")]
-    [SerializeField] private Color emptyTextColor = Color.red;    // 0~99 (ÅØ½ºÆ® Àü¿ë)
-    [SerializeField] private Color normalTextColor = Color.white;  // 100~499
+    [Header("Ammo Status Colors")] [SerializeField]
+    private Color emptyTextColor = Color.red; // 0~99 (ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½)
+
+    [SerializeField] private Color normalTextColor = Color.white; // 100~499
     [SerializeField] private Color maxAmmoTextColor = new Color(1f, 0.5f, 0f); // 500
 
-    [Header("Case Visuals")]
-    [SerializeField] private Image[] caseImages;
+    [Header("Case Visuals")] [SerializeField]
+    private Image[] caseImages;
+
     [SerializeField] private Color caseNormalColor = new Color(0, 0, 0, 0.5f);
     [SerializeField] private Color caseAimingColor = new Color(0, 0, 0, 0.8f);
 
-    [Header("Aiming Animation")]
-    [SerializeField] private float normalScale = 1.0f;
+    [Header("Aiming Animation")] [SerializeField]
+    private float normalScale = 1.0f;
+
     [SerializeField] private float aimingScale = 1.2f;
     [SerializeField] private float animDuration = 0.2f;
     [SerializeField] private RectTransform uiRoot;
@@ -47,7 +52,7 @@ public class AmmoUI : MonoBehaviour
         if (scrapText != null) scrapTextOriginScale = scrapText.transform.localScale;
         if (scrapGroup != null) scrapOriginPos = scrapGroup.anchoredPosition;
 
-        // ½ÃÀÛÇÒ ¶§ ±âº» ½ºÇÁ¶óÀÌÆ® ±â¾ï (ÀÎ½ºÆåÅÍ¿¡¼­ ¾È ³Ö¾úÀ» °æ¿ì ´ëºñ)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½âº» ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ (ï¿½Î½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½)
         if (normalAmmoSprite == null && bulletPanels.Length > 0) normalAmmoSprite = bulletPanels[0].sprite;
     }
 
@@ -72,7 +77,7 @@ public class AmmoUI : MonoBehaviour
         int currentAmmo = GameManager.instance.stats.currentAmmo;
         int maxAmmoValue = GameManager.instance.stats.maxAmmo;
 
-        // --- 1. ÅØ½ºÆ® ¾÷µ¥ÀÌÆ® (»ö»ó¸¸ º¯°æ) ---
+        // --- 1. ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½) ---
         ammoText[0].text = (currentAmmo / 100).ToString();
         ammoText[1].text = "." + (currentAmmo % 100).ToString("D2");
 
@@ -92,21 +97,21 @@ public class AmmoUI : MonoBehaviour
             if (isMax) ammoText[2].color = maxAmmoTextColor;
         }
 
-        // --- 2. ÃÑ¾Ë ÀÌ¹ÌÁö ¹× ½ºÇÁ¶óÀÌÆ® ±³Ã¼ ·ÎÁ÷ ---
-        // ¡Ú [ÇÙ½É] Åº¾àÀÌ ÃÖ´ëÄ¡ÀÏ ¶§ ¾µ ½ºÇÁ¶óÀÌÆ®¸¦ °áÁ¤
+        // --- 2. ï¿½Ñ¾ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ ---
+        // ï¿½ï¿½ [ï¿½Ù½ï¿½] Åºï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         Sprite targetAmmoSprite = isMax ? maxAmmoSprite : normalAmmoSprite;
 
         for (int i = 0; i < bulletPanels.Length; i++)
         {
             int threshold = (i * 100 + 100);
 
-            // ÀÌ¹ÌÁö Ã¤¿ì±â ·ÎÁ÷ (Vertical Fill)
+            // ï¿½Ì¹ï¿½ï¿½ï¿½ Ã¤ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (Vertical Fill)
             if (threshold <= currentAmmo) bulletPanels[i].fillAmount = 1f;
             else if (currentAmmo > threshold - 100) bulletPanels[i].fillAmount = (currentAmmo % 100) / 100f;
             else bulletPanels[i].fillAmount = 0f;
 
-            // ¡Ú ½ºÇÁ¶óÀÌÆ® Á÷Á¢ ±³Ã¼
-            // image.color´Â °Çµå¸®Áö ¾Ê°í, ÀÌ¹ÌÁöÀÇ ¿øº» ¼Ò½º(sprite)¸¦ °¥¾Æ³¢¿ó´Ï´Ù.
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼
+            // image.colorï¿½ï¿½ ï¿½Çµå¸®ï¿½ï¿½ ï¿½Ê°ï¿½, ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ò½ï¿½(sprite)ï¿½ï¿½ ï¿½ï¿½ï¿½Æ³ï¿½ï¿½ï¿½Ï´ï¿½.
             if (bulletPanels[i].sprite != targetAmmoSprite)
             {
                 bulletPanels[i].sprite = targetAmmoSprite;
@@ -114,7 +119,7 @@ public class AmmoUI : MonoBehaviour
         }
     }
 
-    // ... (Co_ScaleAnimation, UpdateScrapVisuals, Co_ScrapPunch ±âÁ¸ ·ÎÁ÷ µ¿ÀÏ) ...
+    // ... (Co_ScaleAnimation, UpdateScrapVisuals, Co_ScrapPunch ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½) ...
     private IEnumerator Co_ScaleAnimation(bool isAiming)
     {
         Vector3 startScale = uiRoot.localScale;
@@ -131,12 +136,19 @@ public class AmmoUI : MonoBehaviour
             float curve = 1f - Mathf.Pow(1f - t, 3); // Ease-Out
             uiRoot.localScale = Vector3.Lerp(startScale, targetScale, curve);
             if (scrapGroup != null) scrapGroup.anchoredPosition = Vector2.Lerp(startScrapPos, targetScrapPos, curve);
-            foreach (var img in caseImages) { if (img != null) img.color = Color.Lerp(startCaseColor, targetCaseColor, curve); }
+            foreach (var img in caseImages)
+            {
+                if (img != null) img.color = Color.Lerp(startCaseColor, targetCaseColor, curve);
+            }
+
             yield return null;
         }
+
         uiRoot.localScale = targetScale;
         if (scrapGroup != null) scrapGroup.anchoredPosition = targetScrapPos;
-        foreach (var img in caseImages) if (img != null) img.color = targetCaseColor;
+        foreach (var img in caseImages)
+            if (img != null)
+                img.color = targetCaseColor;
     }
 
     private void UpdateScrapVisuals()
@@ -151,6 +163,7 @@ public class AmmoUI : MonoBehaviour
                 if (scrapPunchRoutine != null) StopCoroutine(scrapPunchRoutine);
                 scrapPunchRoutine = StartCoroutine(Co_ScrapPunch());
             }
+
             lastScrapCount = currentScrap;
         }
     }
@@ -168,6 +181,7 @@ public class AmmoUI : MonoBehaviour
             scrapText.transform.localScale = Vector3.Lerp(scrapTextOriginScale, targetScale, scale);
             yield return null;
         }
+
         scrapText.transform.localScale = scrapTextOriginScale;
     }
 }

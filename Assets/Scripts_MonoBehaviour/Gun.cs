@@ -30,9 +30,9 @@ public class Gun : MonoBehaviour
 
     [Header("Sound")]
     [SerializeField] private AudioClip sfxShoot;
-    [SerializeField] private AudioClip sfxEmpty; // ¡Ú Åº¾à ¾øÀ» ¶§ 'Æ½' ¼Ò¸®
+    [SerializeField] private AudioClip sfxEmpty; // â˜… íƒ„ì•½ ì—†ì„ ë•Œ 'í‹±' ì†Œë¦¬
 
-    [SerializeField] private GameObject damageTextPrefab; // ÃÑ¾Ë ºÎÁ· ÅØ½ºÆ®
+    [SerializeField] private GameObject damageTextPrefab; // ì´ì•Œ ë¶€ì¡± í…ìŠ¤íŠ¸
     private bool isAiming = false;
     private Color currentBulletColor = Color.white;
     private Material currentBulletMaterial;
@@ -49,15 +49,15 @@ public class Gun : MonoBehaviour
     private void OnEnable()
     {
         if (lineRenderer != null) lineRenderer.enabled = false;
-        // ¡Ú ¿¡·¯ ¼öÁ¤: WeaponManagerÀÇ InputActions°¡ »èÁ¦µÇ¾úÀ¸¹Ç·Î ±¸µ¶ ÇØÁ¦
+        // â˜… ì—ëŸ¬ ìˆ˜ì •: WeaponManagerì˜ InputActionsê°€ ì‚­ì œë˜ì—ˆìœ¼ë¯€ë¡œ êµ¬ë… í•´ì œ
     }
 
     private void OnDisable()
     {
         if (lineRenderer != null) lineRenderer.enabled = false;
-        // ¡Ú ¿¡·¯ ¼öÁ¤: WeaponManagerÀÇ InputActions°¡ »èÁ¦µÇ¾úÀ¸¹Ç·Î ±¸µ¶ ÇØÁ¦
+        // â˜… ì—ëŸ¬ ìˆ˜ì •: WeaponManagerì˜ InputActionsê°€ ì‚­ì œë˜ì—ˆìœ¼ë¯€ë¡œ êµ¬ë… í•´ì œ
 
-        // ¸¶¿ì½º Ä¿¼­ ¿ø»óº¹±¸
+        // ë§ˆìš°ìŠ¤ ì»¤ì„œ ì›ìƒë³µêµ¬
         if (GameManager.instance != null && GameManager.instance.cursor != null)
         {
             GameManager.instance.cursor.ChangeCursor(CursorType.Default);
@@ -70,7 +70,7 @@ public class Gun : MonoBehaviour
     {
         if (GameManager.instance.player == null) return;
 
-        // [ÅëÁ¦Å¾ ¿¬°á] ÄÆ½Å µîÀ¸·Î Á¶ÀÛÀÌ ²÷±â¸é ·¹ÀÌÀú ²ô°í Ä¿¼­ ÃÊ±âÈ­ ÈÄ ¸®ÅÏ!
+        // [í†µì œíƒ‘ ì—°ê²°] ì»·ì‹  ë“±ìœ¼ë¡œ ì¡°ì‘ì´ ëŠê¸°ë©´ ë ˆì´ì € ë„ê³  ì»¤ì„œ ì´ˆê¸°í™” í›„ ë¦¬í„´!
         if (!GameManager.instance.player.canControl)
         {
             if (lineRenderer != null) lineRenderer.enabled = false;
@@ -82,7 +82,7 @@ public class Gun : MonoBehaviour
             return;
         }
 
-        // ¡Ú ¿¡·¯ ¼öÁ¤: WeaponManager ´ë½Å Áß¾Ó ÅëÁ¦¼ÒÀÎ PlayerÀÇ InputÀ» »ç¿ëÇÕ´Ï´Ù.
+        // â˜… ì—ëŸ¬ ìˆ˜ì •: WeaponManager ëŒ€ì‹  ì¤‘ì•™ í†µì œì†Œì¸ Playerì˜ Inputì„ ì‚¬ìš©í•©ë‹ˆë‹¤.
         Vector2 mouseScreenPos = GameManager.instance.player.Input.Player.Look.ReadValue<Vector2>();
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
 
@@ -135,17 +135,17 @@ public class Gun : MonoBehaviour
         if (weaponManager.IsSwapping || GameManager.instance.player.isCharging) return;
         if (Time.time < nextFireTime) return;
 
-        // ¡Ú [ÇÇµå¹é Ãß°¡] Åº¾àÀÌ 100(1¹ßºĞ)º¸´Ù ÀûÀ¸¸é
+        // â˜… [í”¼ë“œë°± ì¶”ê°€] íƒ„ì•½ì´ 100(1ë°œë¶„)ë³´ë‹¤ ì ìœ¼ë©´
         if (GameManager.instance.stats.currentAmmo < 100)
         {
             if (sfxEmpty != null) SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
             SpawnAmmoEmptyText();
 
-            Debug.Log("Åº¾à ºÎÁ·!");
+            Debug.Log("íƒ„ì•½ ë¶€ì¡±!");
             return;
         }
 
-        // Åº¾à ÃæºĞÇÒ ¶§¸¸ ¹ß»ç
+        // íƒ„ì•½ ì¶©ë¶„í•  ë•Œë§Œ ë°œì‚¬
         GameManager.instance.stats.currentAmmo -= 100;
         Shoot();
         nextFireTime = Time.time + fireRate;
@@ -260,14 +260,14 @@ public class Gun : MonoBehaviour
     {
         if (damageTextPrefab == null) return;
 
-        // ÇöÀç ¸¶¿ì½º ¿ùµå ÁÂÇ¥(mouseWorldPos)¿¡ ÅØ½ºÆ® »ı¼º
+        // í˜„ì¬ ë§ˆìš°ìŠ¤ ì›”ë“œ ì¢Œí‘œ(mouseWorldPos)ì— í…ìŠ¤íŠ¸ ìƒì„±
         GameObject textObj = Instantiate(damageTextPrefab, mouseWorldPos, Quaternion.identity);
         DamageText dt = textObj.GetComponent<DamageText>();
 
         if (dt != null)
         {
-            // ¾Æ±î Ãß°¡ÇÑ ¹®ÀÚ¿­¿ë Setup È£Ãâ
-            dt.Setup("Åº¾à ºÎÁ·!", Color.red);
+            // ì•„ê¹Œ ì¶”ê°€í•œ ë¬¸ìì—´ìš© Setup í˜¸ì¶œ
+            dt.Setup("íƒ„ì•½ ë¶€ì¡±!", Color.red);
         }
     }
 }

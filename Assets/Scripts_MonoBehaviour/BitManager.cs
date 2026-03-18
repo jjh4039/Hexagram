@@ -48,7 +48,7 @@ public class BitManager : MonoBehaviour
         hoverCoroutines = new Coroutine[bitChoices.Length];
         isHovering = new bool[bitChoices.Length];
 
-        // ÃÊ±â »óÅÂ ¼³Á¤
+        // ì´ˆê¸° ìƒíƒœ ì„¤ì •
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0;
 
@@ -61,43 +61,43 @@ public class BitManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Bit ¿ÀºêÁ§Æ®¿¡¼­ F¸¦ ´­·¶À» ¶§ È£ÃâµÉ ÇÙ½É ÇÔ¼ö
+    /// Bit ì˜¤ë¸Œì íŠ¸ì—ì„œ Fë¥¼ ëˆŒë €ì„ ë•Œ í˜¸ì¶œë  í•µì‹¬ í•¨ìˆ˜
     /// </summary>
     public void OpenBitUI()
     {
-        // 1. »óÅÂ ¹× ºñÁÖ¾ó ¿ÏÀü ÃÊ±âÈ­
+        // 1. ìƒíƒœ ë° ë¹„ì£¼ì–¼ ì™„ì „ ì´ˆê¸°í™”
         isInitialized = false;
         selectedIndex = -1;
         usedArtifacts.Clear();
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
 
-        // ¡Ú [ÇÙ½É Ãß°¡] ¸ğµç Ä«µåÀÇ ½Ã°¢Àû »óÅÂ ¸®¼Â
+        // â˜… [í•µì‹¬ ì¶”ê°€] ëª¨ë“  ì¹´ë“œì˜ ì‹œê°ì  ìƒíƒœ ë¦¬ì…‹
         for (int i = 0; i < bitChoices.Length; i++)
         {
-            // 1) Hover »óÅÂ ¸®¼Â (À§Ä¡ ÃÊ±âÈ­)
+            // 1) Hover ìƒíƒœ ë¦¬ì…‹ (ìœ„ì¹˜ ì´ˆê¸°í™”)
             isHovering[i] = false;
             if (hoverCoroutines[i] != null) StopCoroutine(hoverCoroutines[i]);
             bitChoices[i].rect.anchoredPosition = bitChoices[i].initialAnchoredPos;
-            bitChoices[i].rect.localScale = Vector3.one; // È¤½Ã Ä¿Á³À» ½ºÄÉÀÏ ´ëºñ
+            bitChoices[i].rect.localScale = Vector3.one; // í˜¹ì‹œ ì»¤ì¡Œì„ ìŠ¤ì¼€ì¼ ëŒ€ë¹„
 
-            // 2) ¼±ÅÃ È¿°ú(Glow) ¸®¼Â
+            // 2) ì„ íƒ íš¨ê³¼(Glow) ë¦¬ì…‹
             if (bitChoices[i].choiceEffect != null)
                 bitChoices[i].choiceEffect.enabled = false;
 
-            // 3) ¾ËÆÄ°ª ¸®¼Â (µîÀå ¿¬ÃâÀ» À§ÇØ 0À¸·Î)
+            // 3) ì•ŒíŒŒê°’ ë¦¬ì…‹ (ë“±ì¥ ì—°ì¶œì„ ìœ„í•´ 0ìœ¼ë¡œ)
             if (bitChoices[i].group != null)
                 bitChoices[i].group.alpha = 0;
         }
 
-        // 2. µ¥ÀÌÅÍ ¼¼ÆÃ
+        // 2. ë°ì´í„° ì„¸íŒ…
         SetupBitChoices();
 
-        // 3. ½Ã°£ Á¤Áö
+        // 3. ì‹œê°„ ì •ì§€
         Time.timeScale = 0f;
         if (sfxIntro != null) SoundManager.instance.PlaySFX(sfxIntro, 0.15f, 0.1f);
 
-        // 4. ¿¬Ãâ ½ÃÀÛ
+        // 4. ì—°ì¶œ ì‹œì‘
         StopAllCoroutines();
         gameObject.SetActive(true);
         if (backgroundImage != null) StartCoroutine(LoopBackgroundAnimation());
@@ -121,7 +121,7 @@ public class BitManager : MonoBehaviour
 
     private IEnumerator SequenceIntro()
     {
-        // ÀüÃ¼ ¹è°æ ÆäÀÌµå ÀÎ
+        // ì „ì²´ ë°°ê²½ í˜ì´ë“œ ì¸
         float elapsed = 0;
 
         while (elapsed < 0.4f)
@@ -131,7 +131,7 @@ public class BitManager : MonoBehaviour
             yield return null;
         }
 
-        // Ä«µå ¼øÂ÷ µîÀå
+        // ì¹´ë“œ ìˆœì°¨ ë“±ì¥
         for (int i = 0; i < bitChoices.Length; i++)
         {
             StartCoroutine(IntroFlashCard(i));
@@ -185,7 +185,7 @@ public class BitManager : MonoBehaviour
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
 
-            // È®ÀÎ ¹öÆ° Å¬¸¯ Ã¼Å©
+            // í™•ì¸ ë²„íŠ¼ í´ë¦­ ì²´í¬
             if (confirmButtonImage != null && confirmButtonImage.gameObject.activeInHierarchy)
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(confirmButtonImage.rectTransform, mousePos, null))
@@ -196,7 +196,7 @@ public class BitManager : MonoBehaviour
                 }
             }
 
-            // Ä«µå Å¬¸¯ Ã¼Å©
+            // ì¹´ë“œ í´ë¦­ ì²´í¬
             for (int i = 0; i < bitChoices.Length; i++)
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(bitChoices[i].hoverSensor.rectTransform, mousePos, null))
@@ -234,7 +234,7 @@ public class BitManager : MonoBehaviour
         confirmButtonImage.gameObject.SetActive(true);
         RectTransform btnRect = confirmButtonImage.rectTransform;
 
-        // ¼±ÅÃÇÑ Ä«µå À§Ä¡¿¡ ¸ÂÃã
+        // ì„ íƒí•œ ì¹´ë“œ ìœ„ì¹˜ì— ë§ì¶¤
         btnRect.position = bitChoices[selectedIndex].hoverSensor.transform.position;
         Vector2 anchored = btnRect.anchoredPosition;
         anchored.y = buttonYOffset;
@@ -245,7 +245,7 @@ public class BitManager : MonoBehaviour
     {
         if (selectedIndex == -1) return;
 
-        // ¡Ú [ÇÙ½É] ¼±ÅÃµÈ ¾ÆÆ¼ÆÑÆ® ¸Å´ÏÀú¿¡ Àü´Ş
+        // â˜… [í•µì‹¬] ì„ íƒëœ ì•„í‹°íŒ©íŠ¸ ë§¤ë‹ˆì €ì— ì „ë‹¬
         ArtifactData selectedArtifact = bitChoices[selectedIndex].currentArtifact;
         if (selectedArtifact != null && ArtifactManager.instance != null)
         {
@@ -259,14 +259,14 @@ public class BitManager : MonoBehaviour
     {
         isInitialized = false;
 
-        // 1. ¼±ÅÃ ¾ÈµÈ Ä«µåµé & ¹öÆ° ÅğÀå
+        // 1. ì„ íƒ ì•ˆëœ ì¹´ë“œë“¤ & ë²„íŠ¼ í‡´ì¥
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         for (int i = 0; i < bitChoices.Length; i++)
         {
             if (i != selectedIndex) StartCoroutine(FadeOutCanvasGroup(bitChoices[i].group, 0.2f));
         }
 
-        // 2. ¼±ÅÃµÈ Ä«µå °­Á¶ ¹× ÀüÃ¼ ÆäÀÌµå ¾Æ¿ô
+        // 2. ì„ íƒëœ ì¹´ë“œ ê°•ì¡° ë° ì „ì²´ í˜ì´ë“œ ì•„ì›ƒ
         RectTransform selectedRect = bitChoices[selectedIndex].rect;
         Vector3 startScale = selectedRect.localScale;
         Vector3 targetScale = startScale * 1.15f;
@@ -287,10 +287,10 @@ public class BitManager : MonoBehaviour
             yield return null;
         }
 
-        // 3. ½Ã°£ º¹±¸ ¹× UI ºñÈ°¼ºÈ­
+        // 3. ì‹œê°„ ë³µêµ¬ ë° UI ë¹„í™œì„±í™”
         Time.timeScale = 1.0f;
 
-        // ½ºÄÉÀÏ ¿øº¹ (´ÙÀ½ ¿ÀÇÂÀ» À§ÇØ)
+        // ìŠ¤ì¼€ì¼ ì›ë³µ (ë‹¤ìŒ ì˜¤í”ˆì„ ìœ„í•´)
         selectedRect.localScale = Vector3.one;
         gameObject.SetActive(false);
     }
@@ -329,14 +329,14 @@ public class BitManager : MonoBehaviour
         hoverCoroutines[index] = null;
     }
 
-    // --- µ¥ÀÌÅÍ ·ÎÁ÷ ---
+    // --- ë°ì´í„° ë¡œì§ ---
     public void SetupBitChoices()
     {
         usedArtifacts.Clear();
         for (int i = 0; i < bitChoices.Length; i++)
         {
             ArtifactData artifact = GetRandomArtifactByProbability();
-            // ¡Ú ½½·Ô¿¡ µ¥ÀÌÅÍ ÇÒ´ç
+            // â˜… ìŠ¬ë¡¯ì— ë°ì´í„° í• ë‹¹
             bitChoices[i].currentArtifact = artifact;
 
             if (artifact != null) usedArtifacts.Add(artifact);
@@ -361,7 +361,7 @@ public class BitManager : MonoBehaviour
         List<ArtifactData> candidates = new List<ArtifactData>();
         foreach (var artifact in allArtifacts)
         {
-            // ÀÌ¹Ì ÀÌ È­¸é(usedArtifacts)¿¡ »ÌÈù °ÍÀº Á¦¿Ü
+            // ì´ë¯¸ ì´ í™”ë©´(usedArtifacts)ì— ë½‘íŒ ê²ƒì€ ì œì™¸
             if (artifact.grade == grade && !usedArtifacts.Contains(artifact)) candidates.Add(artifact);
         }
         return candidates.Count > 0 ? candidates[Random.Range(0, candidates.Count)] : null;
@@ -417,7 +417,7 @@ public class BitManager : MonoBehaviour
         public TextMeshProUGUI gradeText;
         public TextMeshProUGUI desText;
         [HideInInspector] public Vector2 initialAnchoredPos;
-        // ¡Ú ÇöÀç ÀÌ ½½·Ô¿¡ ÇÒ´çµÈ µ¥ÀÌÅÍ ÀúÀå¿ë
+        // â˜… í˜„ì¬ ì´ ìŠ¬ë¡¯ì— í• ë‹¹ëœ ë°ì´í„° ì €ì¥ìš©
         [HideInInspector] public ArtifactData currentArtifact;
     }
 

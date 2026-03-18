@@ -13,15 +13,15 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerStats stats;
 
     [Header("Input Control (New)")]
-    public bool canControl = true; // ¡Ú ÄÆ½Å¿¡¼­ ÀÌ °ª¸¸ false·Î ÇÏ¸é ¸ğµç Á¶ÀÛ(ÀÌµ¿, °ø°İ)ÀÌ ¸ØÃä´Ï´Ù!
-    public Vector2 mouseWorldPos { get; private set; } // ¹«±âµéÀÌ ÀÌ ÁÂÇ¥¸¦ °¡Á®´Ù ¾¹´Ï´Ù.
+    public bool canControl = true; // â˜… ì»·ì‹ ì—ì„œ ì´ ê°’ë§Œ falseë¡œ í•˜ë©´ ëª¨ë“  ì¡°ì‘(ì´ë™, ê³µê²©)ì´ ë©ˆì¶¥ë‹ˆë‹¤!
+    public Vector2 mouseWorldPos { get; private set; } // ë¬´ê¸°ë“¤ì´ ì´ ì¢Œí‘œë¥¼ ê°€ì ¸ë‹¤ ì”ë‹ˆë‹¤.
 
     [Header("Movement")]
     [SerializeField] private float defaultMoveSpeed = 5f;
     [SerializeField] private float minMoveSpeed = 1f;
     [SerializeField] private float speedChangeRate = 5f;
 
-    private float currentMoveSpeed;
+    private float _currentMoveSpeed; 
     private Vector2 moveInput;
 
     [Header("State")]
@@ -99,7 +99,7 @@ public class Player : MonoBehaviour
 
         if (spriteRenderer != null) originalMaterial = spriteRenderer.material;
 
-        currentMoveSpeed = defaultMoveSpeed;
+        _currentMoveSpeed = defaultMoveSpeed;
         rigid.gravityScale = 0;
         rigid.interpolation = RigidbodyInterpolation2D.Interpolate;
         rigid.sleepMode = RigidbodySleepMode2D.NeverSleep;
@@ -113,7 +113,7 @@ public class Player : MonoBehaviour
     private void OnEnable()
     {
         inputActions.Enable();
-        // ¡Ú ¸ğµç ÀÔ·ÂÀ» Player¿¡¼­ Áß¾Ó ÅëÁ¦ÇÕ´Ï´Ù.
+        // â˜… ëª¨ë“  ì…ë ¥ì„ Playerì—ì„œ ì¤‘ì•™ í†µì œí•©ë‹ˆë‹¤.
         inputActions.Player.Dash.performed += OnDash;
         inputActions.Player.Attack.performed += OnAttack;
         inputActions.Player.Swap.performed += OnSwap;
@@ -128,13 +128,13 @@ public class Player : MonoBehaviour
     }
 
     // ==========================================
-    // ¡Ú ÀÔ·Â ÅëÁ¦ ¼¾ÅÍ (Input Control)
+    // â˜… ì…ë ¥ í†µì œ ì„¼í„° (Input Control)
     // ==========================================
     private void OnAttack(InputAction.CallbackContext context)
     {
         if (!canControl || isDashing || isKnockedBack) return;
 
-        // ¡Ú SendMessage »èÁ¦! ´ÙÀÌ·ºÆ®·Î ºü¸£°Ô È£ÃâÇÕ´Ï´Ù.
+        // â˜… SendMessage ì‚­ì œ! ë‹¤ì´ë ‰íŠ¸ë¡œ ë¹ ë¥´ê²Œ í˜¸ì¶œí•©ë‹ˆë‹¤.
         if (weaponManager != null) weaponManager.OnAttackInput();
     }
 
@@ -142,17 +142,17 @@ public class Player : MonoBehaviour
     {
         if (!canControl || isDashing || isKnockedBack) return;
 
-        // ¡Ú SendMessage »èÁ¦!
+        // â˜… SendMessage ì‚­ì œ!
         if (weaponManager != null) weaponManager.OnSwapInput();
     }
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        // ¡Ú [º¯°æ] ÄğÅ¸ÀÓ Ã¼Å© ´ë½Å ½ºÅÃÀÌ 1 ÀÌ»óÀÎÁö È®ÀÎ
+        // â˜… [ë³€ê²½] ì¿¨íƒ€ì„ ì²´í¬ ëŒ€ì‹  ìŠ¤íƒì´ 1 ì´ìƒì¸ì§€ í™•ì¸
         if (!canControl || isAttacking || isCharging || isDashing) return;
         if (stats.currentDashStacks < 1f) return;
 
-        // ½ºÅÃ 1°³ ¼Ò¸ğÇÏ°í ´ë½Ã ½ÃÀÛ
+        // ìŠ¤íƒ 1ê°œ ì†Œëª¨í•˜ê³  ëŒ€ì‹œ ì‹œì‘
         stats.currentDashStacks -= 1f;
         StartCoroutine(DashRoutine());
     }
@@ -163,7 +163,7 @@ public class Player : MonoBehaviour
         {
             moveInput = Vector2.zero;
             UpdateBuffTimers();
-            return; // ÄÆ½Å ÁßÀÌ¸é ÀÌµ¿ ÀÔ·Â ¹«½Ã
+            return; // ì»·ì‹  ì¤‘ì´ë©´ ì´ë™ ì…ë ¥ ë¬´ì‹œ
         }
 
         if (stats.currentDashStacks < stats.maxDashStacks)
@@ -185,7 +185,7 @@ public class Player : MonoBehaviour
         spriteRenderer.flipX = mouseWorldPos.x < transform.position.x;
     }
 
-    // --- ÀÌÇÏ ·ÎÁ÷ (Move, DashRoutine, BuffManager µî)Àº ¾Æ±î µå¸° ÄÚµå¿Í 100% µ¿ÀÏÇÏ¹Ç·Î »ı·«ÇÏÁö ¾Ê°í ¸ğµÎ Æ÷ÇÔ ---
+    // --- ì´í•˜ ë¡œì§ (Move, DashRoutine, BuffManager ë“±)ì€ ì•„ê¹Œ ë“œë¦° ì½”ë“œì™€ 100% ë™ì¼í•˜ë¯€ë¡œ ìƒëµí•˜ì§€ ì•Šê³  ëª¨ë‘ í¬í•¨ ---
     private void FixedUpdate()
     {
         if (isDashing) return;
@@ -215,13 +215,13 @@ public class Player : MonoBehaviour
         {
             existingBuff.remainingTime = (existingBuff.remainingTime + data.duration) / 2f;
             existingBuff.stackCount = 2;
-            Debug.Log($"[¹öÇÁ ÁßÃ¸!] {data.diceName} ¿¬Àå. ³²Àº½Ã°£: {existingBuff.remainingTime:F1}ÃÊ, È¿°ú 2¹è!");
+            Debug.Log($"[ë²„í”„ ì¤‘ì²©!] {data.diceName} ì—°ì¥. ë‚¨ì€ì‹œê°„: {existingBuff.remainingTime:F1}ì´ˆ, íš¨ê³¼ 2ë°°!");
         }
         else
         {
             ActiveBuff newBuff = new ActiveBuff { buffData = data, remainingTime = data.duration, stackCount = 1 };
             activeBuffs.Add(newBuff);
-            Debug.Log($"[½Å±Ô ¹öÇÁ] {data.diceName} ¹ßµ¿! ½Ã°£: {data.duration}ÃÊ");
+            Debug.Log($"[ì‹ ê·œ ë²„í”„] {data.diceName} ë°œë™! ì‹œê°„: {data.duration}ì´ˆ");
         }
         RecalculateStats();
         currentDiceColor = data.particleColor;
@@ -230,7 +230,7 @@ public class Player : MonoBehaviour
 
     private void RemoveBuff(ActiveBuff expiredBuff)
     {
-        Debug.Log($"[¹öÇÁ Á¾·á] {expiredBuff.buffData.diceName}");
+        Debug.Log($"[ë²„í”„ ì¢…ë£Œ] {expiredBuff.buffData.diceName}");
         RecalculateStats();
         if (activeBuffs.Count == 0 && weaponManager != null) weaponManager.UpdateWeaponVisuals(Color.white, null);
     }
@@ -274,18 +274,18 @@ public class Player : MonoBehaviour
             }
             else
             {
-                finalSpeed *= 0f; // ¸Å´ÏÀú ¾øÀ¸¸é ¾ÈÀüÇÏ°Ô ¸ØÃã
+                finalSpeed *= 0f; // ë§¤ë‹ˆì € ì—†ìœ¼ë©´ ì•ˆì „í•˜ê²Œ ë©ˆì¶¤
             }
         }
 
-        // ÀÌÁ¦ finalSpeed°¡ 0º¸´Ù Å©¸é °ø°İ Áß¿¡µµ ¹Ì¼¼ÇÏ°Ô ¿òÁ÷ÀÔ´Ï´Ù!
+        // ì´ì œ finalSpeedê°€ 0ë³´ë‹¤ í¬ë©´ ê³µê²© ì¤‘ì—ë„ ë¯¸ì„¸í•˜ê²Œ ì›€ì§ì…ë‹ˆë‹¤!
         rigid.linearVelocity = moveInput * finalSpeed;
     }
 
     private void HandleSpeedInterpolation()
     {
         float targetSpeed = isCharging ? minMoveSpeed : defaultMoveSpeed;
-        currentMoveSpeed = Mathf.Lerp(currentMoveSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
+        _currentMoveSpeed = Mathf.Lerp(_currentMoveSpeed, targetSpeed, Time.deltaTime * speedChangeRate);
     }
 
     private void CheckContactDamage()
@@ -392,10 +392,10 @@ public class Player : MonoBehaviour
     {
         isAttacking = false; isDashing = false; isCharging = false; isInvincible = true;
         rigid.linearVelocity = Vector2.zero; rigid.simulated = false;
-        canControl = false; // ¡Ú Á×¾úÀ» ¶§µµ Á¶ÀÛ ÅëÁ¦
+        canControl = false; // â˜… ì£½ì—ˆì„ ë•Œë„ ì¡°ì‘ í†µì œ
         spriteRenderer.color = Color.gray;
         if (anim != null) anim.enabled = false;
-        Debug.Log("Player: À¸¾Ç Á×¾ú´Ù...");
+        Debug.Log("Player: ìœ¼ì•… ì£½ì—ˆë‹¤...");
     }
 
     public void SetChargingState(bool _isCharging) { isCharging = _isCharging; if (anim != null) anim.SetBool("IsCharging", isCharging); }

@@ -4,15 +4,15 @@ using System.Collections.Generic;
 
 public class BalancePanel : MonoBehaviour
 {
-    public static BalancePanel instance; // Æ®¸®°ÅµéÀÌ Ã£±â ½±°Ô ½Ì±ÛÅæ
+    public static BalancePanel instance; // íŠ¸ë¦¬ê±°ë“¤ì´ ì°¾ê¸° ì‰½ê²Œ ì‹±ê¸€í†¤
 
-    [Header("º¸¿©ÁÙ ¸ŞÀÎ ÀÌ¹ÌÁö")]
-    public Image mainStarImage; // ¡Ú ½ÇÁ¦ º° ±×¸²ÀÌ ±×·ÁÁö´Â Image ÄÄÆ÷³ÍÆ®
+    [Header("ë³´ì—¬ì¤„ ë©”ì¸ ì´ë¯¸ì§€")]
+    public Image mainStarImage; // â˜… ì‹¤ì œ ë³„ ê·¸ë¦¼ì´ ê·¸ë ¤ì§€ëŠ” Image ì»´í¬ë„ŒíŠ¸
 
-    [Header("½ºÇÁ¶óÀÌÆ® ¸ñ·Ï")]
-    public Sprite normalSprite; // ¾Æ¹«°Íµµ ¾È Ä×À» ¶§ (±âº»)
+    [Header("ìŠ¤í”„ë¼ì´íŠ¸ ëª©ë¡")]
+    public Sprite normalSprite; // ì•„ë¬´ê²ƒë„ ì•ˆ ì¼°ì„ ë•Œ (ê¸°ë³¸)
     public List<Sprite> highlightSprites;
-    // ¼ø¼­ Áß¿ä! (0: 1¹øÁ¶°¢, 1: 2¹øÁ¶°¢ ... 5: 6¹øÁ¶°¢, 6: Áß¾Ó)
+    // ìˆœì„œ ì¤‘ìš”! (0: 1ë²ˆì¡°ê°, 1: 2ë²ˆì¡°ê° ... 5: 6ë²ˆì¡°ê°, 6: ì¤‘ì•™)
 
     private void Awake()
     {
@@ -21,10 +21,10 @@ public class BalancePanel : MonoBehaviour
 
     private void OnEnable()
     {
-        ResetToNormal(); // ÄÑÁú ¶§ ÃÊ±âÈ­
+        ResetToNormal(); // ì¼œì§ˆ ë•Œ ì´ˆê¸°í™”
     }
 
-    // ¡Ú Æ¯Á¤ ¹øÈ£ÀÇ ÇÏÀÌ¶óÀÌÆ® ÀÌ¹ÌÁö·Î ±³Ã¼
+    // â˜… íŠ¹ì • ë²ˆí˜¸ì˜ í•˜ì´ë¼ì´íŠ¸ ì´ë¯¸ì§€ë¡œ êµì²´
     public void SetHighlight(int index)
     {
         if (mainStarImage != null && index >= 0 && index < highlightSprites.Count)
@@ -33,7 +33,7 @@ public class BalancePanel : MonoBehaviour
         }
     }
 
-    // ¡Ú ¿ø·¡´ë·Î º¹±¸
+    // â˜… ì›ë˜ëŒ€ë¡œ ë³µêµ¬
     public void ResetToNormal()
     {
         if (mainStarImage != null && normalSprite != null)

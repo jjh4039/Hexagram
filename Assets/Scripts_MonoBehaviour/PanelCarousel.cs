@@ -1,4 +1,4 @@
-using ChocDino.UIFX; // ¡Ú GlowFilter »ç¿ëÀ» À§ÇØ ÇÊ¼ö
+using ChocDino.UIFX; // â˜… GlowFilter ì‚¬ìš©ì„ ìœ„í•´ í•„ìˆ˜
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,14 +6,14 @@ using UnityEngine.InputSystem;
 
 public class PanelCarousel : MonoBehaviour
 {
-    [Header("ÆĞ³Î ¸ñ·Ï (¼ø¼­: ½ºÅÈ - ¾ÆÆ¼ÆÑÆ® - ¹ë·±½º)")]
+    [Header("íŒ¨ë„ ëª©ë¡ (ìˆœì„œ: ìŠ¤íƒ¯ - ì•„í‹°íŒ©íŠ¸ - ë°¸ëŸ°ìŠ¤)")]
     public List<RectTransform> panels;
 
-    [Header("UI ¿¬°á")]
+    [Header("UI ì—°ê²°")]
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI titleDesText;
 
-    // ¡Ú [º¹±¸ ¿Ï·á] GlowFilter ¿¬°á º¯¼ö
+    // â˜… [ë³µêµ¬ ì™„ë£Œ] GlowFilter ì—°ê²° ë³€ìˆ˜
     public GlowFilter titleTextGlow;
     public GlowFilter titleDesTextGlow;
 
@@ -22,23 +22,22 @@ public class PanelCarousel : MonoBehaviour
     [Header("Sound Effects")]
     [SerializeField] private AudioClip sfxSwap;
 
-    [Header("¼³Á¤")]
-    public float xOffset = 800f;
-    public float sideScale = 0.6f;
-    public float sideAlpha = 0.3f;
+    [Header("ì„¤ì •")]
+    public float xOffset = 300f;
+    public float sideScale = 0.7f;
+    public float sideAlpha = 0.1f;
 
-    // ¡Ú [ÃÖÀûÈ­ 1] Lerp ´ë½Å SmoothDamp ½Ã°£ (0.15f ÃßÃµ)
-    [Range(0.01f, 1f)] public float smoothTime = 0.15f;
+    // â˜… [ìµœì í™” 1] Lerp ëŒ€ì‹  SmoothDamp ì‹œê°„ (0.15f ì¶”ì²œ)
+    [Range(0.01f, 1f)] public float smoothTime = 0.13f;
+    
+    private bool _isIdle = false;
+    private readonly float _snapThreshold = 0.1f;
 
-    // ¡Ú [ÃÖÀûÈ­ 2] Sleep ¸ğµå º¯¼ö (µµÂøÇÏ¸é ¿¬»ê ÁßÁö)
-    private bool isIdle = false;
-    private float snapThreshold = 0.1f;
+    private int _currentIndex = 1;
+    private PlayerInput _inputActions;
+    private CanvasGroup[] _panelCanvasGroups; // ìºì‹±ìš©
 
-    private int currentIndex = 1;
-    private PlayerInput inputActions;
-    private CanvasGroup[] panelCanvasGroups; // Ä³½Ì¿ë
-
-    // SmoothDamp¿ë ¼Óµµ º¯¼öµé
+    // SmoothDampìš© ì†ë„ ë³€ìˆ˜ë“¤
     private Vector2[] velPositions;
     private Vector3[] velScales;
     private float[] velAlphas;
@@ -46,7 +45,7 @@ public class PanelCarousel : MonoBehaviour
     private struct PanelTarget { public Vector2 pos; public Vector3 scale; public float alpha; }
     private PanelTarget[] targets;
 
-    // ¡Ú ¸Ş¸ğ¸® ÃÖÀûÈ­¸¦ À§ÇÑ ÄÃ·¯ Ä³½Ì (¸Å¹ø new Color ÇÏÁö ¾ÊÀ½)
+    // â˜… ë©”ëª¨ë¦¬ ìµœì í™”ë¥¼ ìœ„í•œ ì»¬ëŸ¬ ìºì‹± (ë§¤ë²ˆ new Color í•˜ì§€ ì•ŠìŒ)
     private readonly Color statusColor = new Color(0 / 255f, 20 / 255f, 20 / 255f);
     private readonly Color artifactColor = new Color(40 / 255f, 15 / 255f, 0 / 255f);
     private readonly Color balanceColor = new Color(30 / 255f, 0 / 255f, 25 / 255f);
@@ -55,37 +54,37 @@ public class PanelCarousel : MonoBehaviour
     {
         int count = panels.Count;
         targets = new PanelTarget[count];
-        inputActions = new PlayerInput();
+        _inputActions = new PlayerInput();
 
-        // ¹è¿­ ÃÊ±âÈ­
-        panelCanvasGroups = new CanvasGroup[count];
+        // ë°°ì—´ ì´ˆê¸°í™”
+        _panelCanvasGroups = new CanvasGroup[count];
         velPositions = new Vector2[count];
         velScales = new Vector3[count];
         velAlphas = new float[count];
 
-        // ÄÄÆ÷³ÍÆ® ¹Ì¸® Ã£¾ÆµÎ±â (Update ¼º´É Çâ»ó)
+        // ì»´í¬ë„ŒíŠ¸ ë¯¸ë¦¬ ì°¾ì•„ë‘ê¸° (Update ì„±ëŠ¥ í–¥ìƒ)
         for (int i = 0; i < count; i++)
         {
-            panelCanvasGroups[i] = panels[i].GetComponent<CanvasGroup>();
-            if (panelCanvasGroups[i] == null)
-                panelCanvasGroups[i] = panels[i].gameObject.AddComponent<CanvasGroup>();
+            _panelCanvasGroups[i] = panels[i].GetComponent<CanvasGroup>();
+            if (_panelCanvasGroups[i] == null)
+                _panelCanvasGroups[i] = panels[i].gameObject.AddComponent<CanvasGroup>();
         }
     }
 
     private void OnEnable()
     {
-        inputActions.Enable();
-        inputActions.Player.Move.performed += OnMoveInput;
+        _inputActions.Enable();
+        _inputActions.Player.Move.performed += OnMoveInput;
 
         UpdateTargets();
         UpdateTitle();
-        SnapToTarget(); // ÄÑÁú ¶© Áï½Ã ÀÌµ¿
+        SnapToTarget(); // ì¼œì§ˆ ë• ì¦‰ì‹œ ì´ë™
     }
 
     private void OnDisable()
     {
-        inputActions.Player.Move.performed -= OnMoveInput;
-        inputActions.Disable();
+        _inputActions.Player.Move.performed -= OnMoveInput;
+        _inputActions.Disable();
     }
 
     private void OnMoveInput(InputAction.CallbackContext context)
@@ -97,10 +96,10 @@ public class PanelCarousel : MonoBehaviour
 
     private void MoveIndex(int direction)
     {
-        currentIndex += direction;
+        _currentIndex += direction;
 
-        if (currentIndex >= panels.Count) currentIndex = 0;
-        else if (currentIndex < 0) currentIndex = panels.Count - 1;
+        if (_currentIndex >= panels.Count) _currentIndex = 0;
+        else if (_currentIndex < 0) _currentIndex = panels.Count - 1;
 
         UpdateTargets();
         UpdateTitle();
@@ -108,39 +107,39 @@ public class PanelCarousel : MonoBehaviour
         if (hangingPhysics != null) hangingPhysics.Push(direction * -20f);
         SoundManager.instance.PlaySFX(sfxSwap, 1f);
 
-        // ¿òÁ÷ÀÓ ½ÃÀÛ! (°è»ê Àç°³)
-        isIdle = false;
+        // ì›€ì§ì„ ì‹œì‘! (ê³„ì‚° ì¬ê°œ)
+        _isIdle = false;
     }
 
     private void UpdateTitle()
     {
         if (titleText == null) return;
 
-        switch (currentIndex)
+        switch (_currentIndex)
         {
             case 0: // Status
                 titleText.text = "Status";
-                if (titleDesText) titleDesText.text = "Ä³¸¯ÅÍÀÇ ½ºÅÈÀ» È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù.";
+                if (titleDesText) titleDesText.text = "ìºë¦­í„°ì˜ ìŠ¤íƒ¯ì„ í™•ì¸í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.";
 
-                // ¡Ú [º¹±¸ ¿Ï·á] Glow »ö»ó º¯°æ
+                // â˜… [ë³µêµ¬ ì™„ë£Œ] Glow ìƒ‰ìƒ ë³€ê²½
                 if (titleTextGlow) titleTextGlow.Color = statusColor;
                 if (titleDesTextGlow) titleDesTextGlow.Color = statusColor;
                 break;
 
             case 1: // Artifact
                 titleText.text = "Artifact";
-                if (titleDesText) titleDesText.text = "º¸À¯ÇÑ ¾ÆÆ¼ÆÑÆ®µéÀÇ È¿°ú¸¦ È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù.";
+                if (titleDesText) titleDesText.text = "ë³´ìœ í•œ ì•„í‹°íŒ©íŠ¸ë“¤ì˜ íš¨ê³¼ë¥¼ í™•ì¸í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.";
 
-                // ¡Ú [º¹±¸ ¿Ï·á] Glow »ö»ó º¯°æ
+                // â˜… [ë³µêµ¬ ì™„ë£Œ] Glow ìƒ‰ìƒ ë³€ê²½
                 if (titleTextGlow) titleTextGlow.Color = artifactColor;
                 if (titleDesTextGlow) titleDesTextGlow.Color = artifactColor;
                 break;
 
             case 2: // Balance
                 titleText.text = "Balance";
-                if (titleDesText) titleDesText.text = "ÁÖ»çÀ§ ¸ğµâ¿¡ °ü·ÃµÈ Á¤º¸µéÀ» È®ÀÎÇÒ ¼ö ÀÖ½À´Ï´Ù.";
+                if (titleDesText) titleDesText.text = "ì£¼ì‚¬ìœ„ ëª¨ë“ˆì— ê´€ë ¨ëœ ì •ë³´ë“¤ì„ í™•ì¸í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.";
 
-                // ¡Ú [º¹±¸ ¿Ï·á] Glow »ö»ó º¯°æ
+                // â˜… [ë³µêµ¬ ì™„ë£Œ] Glow ìƒ‰ìƒ ë³€ê²½
                 if (titleTextGlow) titleTextGlow.Color = balanceColor;
                 if (titleDesTextGlow) titleDesTextGlow.Color = balanceColor;
                 break;
@@ -149,43 +148,43 @@ public class PanelCarousel : MonoBehaviour
 
     private void Update()
     {
-        // ¡Ú [ÃÖÀûÈ­] ÀÌ¹Ì ´Ù µµÂøÇßÀ¸¸é ¿¬»ê ÁßÁö
-        if (isIdle) return;
+        // â˜… [ìµœì í™”] ì´ë¯¸ ë‹¤ ë„ì°©í–ˆìœ¼ë©´ ì—°ì‚° ì¤‘ì§€
+        if (_isIdle) return;
 
         bool allSettled = true;
 
         for (int i = 0; i < panels.Count; i++)
         {
-            // 1. À§Ä¡ ÀÌµ¿ (SmoothDamp)
+            // 1. ìœ„ì¹˜ ì´ë™ (SmoothDamp)
             panels[i].anchoredPosition = Vector2.SmoothDamp(
                 panels[i].anchoredPosition, targets[i].pos, ref velPositions[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
             );
 
-            // 2. Å©±â º¯°æ (SmoothDamp)
+            // 2. í¬ê¸° ë³€ê²½ (SmoothDamp)
             panels[i].localScale = Vector3.SmoothDamp(
                 panels[i].localScale, targets[i].scale, ref velScales[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
             );
 
-            // 3. Åõ¸íµµ º¯°æ (SmoothDamp + Ä³½ÌµÈ ÄÄÆ÷³ÍÆ® »ç¿ë)
-            if (panelCanvasGroups[i] != null)
+            // 3. íˆ¬ëª…ë„ ë³€ê²½ (SmoothDamp + ìºì‹±ëœ ì»´í¬ë„ŒíŠ¸ ì‚¬ìš©)
+            if (_panelCanvasGroups[i])
             {
-                panelCanvasGroups[i].alpha = Mathf.SmoothDamp(
-                    panelCanvasGroups[i].alpha, targets[i].alpha, ref velAlphas[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
+                _panelCanvasGroups[i].alpha = Mathf.SmoothDamp(
+                    _panelCanvasGroups[i].alpha, targets[i].alpha, ref velAlphas[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
                 );
             }
 
-            // µµÂø Ã¼Å©
-            if (Vector2.Distance(panels[i].anchoredPosition, targets[i].pos) > snapThreshold)
+            // ë„ì°© ì²´í¬
+            if (Vector2.Distance(panels[i].anchoredPosition, targets[i].pos) > _snapThreshold)
             {
                 allSettled = false;
             }
         }
 
-        // ¸ğµÎ µµÂøÇßÀ¸¸é Sleep ¸ğµå ÀüÈ¯
+        // ëª¨ë‘ ë„ì°©í–ˆìœ¼ë©´ Sleep ëª¨ë“œ ì „í™˜
         if (allSettled)
         {
-            isIdle = true;
-            SnapToTarget(); // À§Ä¡ µü ¸ÂÃß±â
+            _isIdle = true;
+            SnapToTarget(); // ìœ„ì¹˜ ë”± ë§ì¶”ê¸°
         }
     }
 
@@ -193,17 +192,17 @@ public class PanelCarousel : MonoBehaviour
     {
         for (int i = 0; i < panels.Count; i++)
         {
-            int diff = i - currentIndex;
+            int diff = i - _currentIndex;
             if (diff == -2) diff = 1;
             if (diff == 2) diff = -1;
 
-            if (diff == 0) // Áß¾Ó
+            if (diff == 0) // ì¤‘ì•™
             {
                 targets[i].pos = Vector2.zero;
                 targets[i].scale = Vector3.one * 1.2f;
                 targets[i].alpha = 1f;
             }
-            else // »çÀÌµå
+            else // ì‚¬ì´ë“œ
             {
                 targets[i].pos = new Vector2(diff * xOffset, 0);
                 targets[i].scale = Vector3.one * sideScale;
@@ -218,9 +217,9 @@ public class PanelCarousel : MonoBehaviour
         {
             panels[i].anchoredPosition = targets[i].pos;
             panels[i].localScale = targets[i].scale;
-            if (panelCanvasGroups[i] != null) panelCanvasGroups[i].alpha = targets[i].alpha;
+            if (_panelCanvasGroups[i]) _panelCanvasGroups[i].alpha = targets[i].alpha;
 
-            // ¼Óµµ ÃÊ±âÈ­ (¾È ÇÏ¸é ´ÙÀ½¿¡ Æ¦)
+            // ì†ë„ ì´ˆê¸°í™” (ì•ˆ í•˜ë©´ ë‹¤ìŒì— íŠ)
             velPositions[i] = Vector2.zero;
             velScales[i] = Vector3.zero;
                 velAlphas[i] = 0f;

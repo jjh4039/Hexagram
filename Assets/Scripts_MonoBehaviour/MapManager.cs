@@ -7,12 +7,10 @@ using UnityEngine.InputSystem;
 
 public class MapManager : MonoBehaviour
 {
-    [Header("--- Stage Data ---")]
-    public StageData[] currentNodes;
+    [Header("--- Stage Data ---")] public StageData[] currentNodes;
     private int selectedIndex = 0;
 
-    [Header("--- UI References ---")]
-    public GameObject mapVisualRoot;
+    [Header("--- UI References ---")] public GameObject mapVisualRoot;
     public Image fadeOverlayImage;
     public RectTransform stageTextRect;
     public TextMeshProUGUI stageTitleText;
@@ -23,26 +21,26 @@ public class MapManager : MonoBehaviour
 
     [Header("--- Visual Elements (3 Each) ---")]
     public Image[] nodeVisuals;
+
     public Image[] lineVisuals;
     private CanvasGroup[] nodeCanvasGroups;
 
-    [Header("--- Glow Filters ---")]
-    public GlowFilter titleTextGlow;
+    [Header("--- Glow Filters ---")] public GlowFilter titleTextGlow;
     public GlowFilter perTextGlow;
     public GlowFilter[] nodeGlows;
     public GlowFilter[] lineGlows;
 
-    [Header("--- Animation Settings ---")]
-    [SerializeField] private float lerpSpeed = 12f;
+    [Header("--- Animation Settings ---")] [SerializeField]
+    private float lerpSpeed = 12f;
+
     [SerializeField] private float floatAmount = 15f;
     [SerializeField] private float fadeDuration = 0.4f;
     [SerializeField] private float nodeFadeSpeed = 4.5f;
     [SerializeField] private float scanInterval = 0.12f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxSelect;
+    [Header("Sound")] [SerializeField] private AudioClip sfxSelect;
     [SerializeField] private AudioClip sfxScan;
-    [SerializeField] private AudioClip sfxCount; // ¡Ú [Ãß°¡] Ä«¿îÆÃ »ç¿îµå (Æ½! ¼Ò¸®)
+    [SerializeField] private AudioClip sfxCount; // ï¿½ï¿½ [ï¿½ß°ï¿½] Ä«ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (Æ½! ï¿½Ò¸ï¿½)
 
     private int[] currentRandomPers = new int[3];
 
@@ -65,7 +63,8 @@ public class MapManager : MonoBehaviour
         if (stageTextRect != null)
         {
             stageTextCanvasGroup = stageTextRect.GetComponent<CanvasGroup>();
-            if (stageTextCanvasGroup == null) stageTextCanvasGroup = stageTextRect.gameObject.AddComponent<CanvasGroup>();
+            if (stageTextCanvasGroup == null)
+                stageTextCanvasGroup = stageTextRect.gameObject.AddComponent<CanvasGroup>();
         }
 
         for (int i = 0; i < nodeVisuals.Length; i++)
@@ -74,7 +73,8 @@ public class MapManager : MonoBehaviour
             {
                 nodeOriginPos[i] = nodeVisuals[i].rectTransform.anchoredPosition;
                 nodeCanvasGroups[i] = nodeVisuals[i].GetComponent<CanvasGroup>();
-                if (nodeCanvasGroups[i] == null) nodeCanvasGroups[i] = nodeVisuals[i].gameObject.AddComponent<CanvasGroup>();
+                if (nodeCanvasGroups[i] == null)
+                    nodeCanvasGroups[i] = nodeVisuals[i].gameObject.AddComponent<CanvasGroup>();
             }
 
             if (i < lineVisuals.Length && lineVisuals[i] != null)
@@ -84,7 +84,13 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void OnEnable() { inputActions.Enable(); inputActions.Player.Move.performed += ctx => OnNavigate(ctx.ReadValue<Vector2>()); inputActions.Player.Dash.performed += _ => OnEnterStage(); }
+    private void OnEnable()
+    {
+        inputActions.Enable();
+        inputActions.Player.Move.performed += ctx => OnNavigate(ctx.ReadValue<Vector2>());
+        inputActions.Player.Dash.performed += _ => OnEnterStage();
+    }
+
     private void OnDisable() => inputActions.Disable();
 
     private void Update()
@@ -120,6 +126,7 @@ public class MapManager : MonoBehaviour
             mapVisualRoot.SetActive(false);
             yield return StartCoroutine(FadeOverlay(1f, 0f, halfFade));
         }
+
         fadeCoroutine = null;
     }
 
@@ -153,6 +160,7 @@ public class MapManager : MonoBehaviour
                 currentRandomPers[i] = Random.Range(data.minRise, data.maxRise + 1);
             }
         }
+
         stageTextRect.anchoredPosition = new Vector2(-160f, 0);
     }
 
@@ -166,6 +174,7 @@ public class MapManager : MonoBehaviour
                 fadeOverlayImage.color = new Color(0, 0, 0, Mathf.Lerp(start, end, elapsed / duration));
             yield return null;
         }
+
         if (fadeOverlayImage != null) fadeOverlayImage.color = new Color(0, 0, 0, end);
     }
 
@@ -174,7 +183,7 @@ public class MapManager : MonoBehaviour
         for (int i = 0; i < nodeVisuals.Length; i++)
         {
             StageData data = currentNodes[i];
-            if (stageTitleText != null) stageTitleText.text = $"¸ðµâ : {data.stageName}";
+            if (stageTitleText != null) stageTitleText.text = $"ï¿½ï¿½ï¿½ : {data.stageName}";
 
             StartCoroutine(FadeInNode(i));
             if (sfxScan != null) SoundManager.instance.PlaySFX(sfxScan, 0.15f);
@@ -196,6 +205,7 @@ public class MapManager : MonoBehaviour
                 lineVisuals[index].color = new Color(inactiveColor.r, inactiveColor.g, inactiveColor.b, alpha);
             yield return null;
         }
+
         if (nodeCanvasGroups[index] != null) nodeCanvasGroups[index].alpha = 1f;
     }
 
@@ -207,7 +217,8 @@ public class MapManager : MonoBehaviour
             stageTextCanvasGroup.alpha = Mathf.Lerp(stageTextCanvasGroup.alpha, 1f, Time.deltaTime * lerpSpeed);
 
         float targetX = (selectedIndex - 1) * 160f;
-        stageTextRect.anchoredPosition = Vector2.Lerp(stageTextRect.anchoredPosition, new Vector2(targetX, 0), Time.deltaTime * lerpSpeed);
+        stageTextRect.anchoredPosition = Vector2.Lerp(stageTextRect.anchoredPosition, new Vector2(targetX, 0),
+            Time.deltaTime * lerpSpeed);
 
         for (int i = 0; i < 3; i++)
         {
@@ -220,7 +231,8 @@ public class MapManager : MonoBehaviour
                 lineVisuals[i].color = Color.Lerp(lineVisuals[i].color, targetColor, Time.deltaTime * lerpSpeed);
 
             Vector2 targetNodePos = isSelected ? nodeOriginPos[i] + Vector2.up * floatAmount : nodeOriginPos[i];
-            nodeVisuals[i].rectTransform.anchoredPosition = Vector2.Lerp(nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
+            nodeVisuals[i].rectTransform.anchoredPosition = Vector2.Lerp(nodeVisuals[i].rectTransform.anchoredPosition,
+                targetNodePos, Time.deltaTime * lerpSpeed);
 
             if (lineVisuals[i] != null)
             {
@@ -233,7 +245,12 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void OnNavigate(Vector2 direction) { if (mapVisualRoot == null || !mapVisualRoot.activeSelf || isScanning) return; if (direction.x < -0.5f) ChangeSelection(-1); else if (direction.x > 0.5f) ChangeSelection(1); }
+    private void OnNavigate(Vector2 direction)
+    {
+        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || isScanning) return;
+        if (direction.x < -0.5f) ChangeSelection(-1);
+        else if (direction.x > 0.5f) ChangeSelection(1);
+    }
 
     private void ChangeSelection(int dir)
     {
@@ -252,7 +269,7 @@ public class MapManager : MonoBehaviour
         if (currentNodes.Length == 0) return;
         StageData data = currentNodes[selectedIndex];
 
-        if (stageTitleText != null) stageTitleText.text = $"¸ðµâ : {data.stageName}";
+        if (stageTitleText != null) stageTitleText.text = $"ï¿½ï¿½ï¿½ : {data.stageName}";
 
         if (stagePerText != null)
         {
@@ -279,6 +296,7 @@ public class MapManager : MonoBehaviour
                     nodeGlows[i].enabled = isSelected;
                     if (isSelected) nodeGlows[i].Color = data.themeColor;
                 }
+
                 if (i < lineGlows.Length && lineGlows[i] != null) lineGlows[i].enabled = isSelected;
             }
         }
@@ -300,13 +318,13 @@ public class MapManager : MonoBehaviour
 
         if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
 
-        // 2. ¼ýÀÚ Ä«¿îÆÃ ¿¬Ãâ (0.5ÃÊ)
+        // 2. ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (0.5ï¿½ï¿½)
         float duration = 0.5f;
         float elapsed = 0f;
 
-        // ¡Ú [Ãß°¡] »ç¿îµå Àç»ý Å¸ÀÌ¸Ó
+        // ï¿½ï¿½ [ï¿½ß°ï¿½] ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½
         float soundTimer = 0f;
-        float soundInterval = 0.07f; // 0.07ÃÊ¸¶´Ù Æ½ ¼Ò¸®
+        float soundInterval = 0.07f; // 0.07ï¿½Ê¸ï¿½ï¿½ï¿½ Æ½ ï¿½Ò¸ï¿½
 
         while (elapsed < duration)
         {
@@ -314,7 +332,7 @@ public class MapManager : MonoBehaviour
             elapsed += dt;
             soundTimer += dt;
 
-            // ¡Ú ÀÏÁ¤ °£°Ý¸¶´Ù Ä«¿îÆÃ ¼Ò¸® Àç»ý
+            // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý¸ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½ï¿½ï¿½ ï¿½Ò¸ï¿½ ï¿½ï¿½ï¿½
             if (soundTimer >= soundInterval)
             {
                 soundTimer = 0f;
@@ -327,7 +345,8 @@ public class MapManager : MonoBehaviour
             if (stagePerText != null) stagePerText.text = $"+ {currentNodeVal}%";
 
             int currentTotalVal = (int)Mathf.Lerp(startTotalPer, targetTotalPer, t);
-            if (totalProgressText != null) totalProgressText.text = $"ÁøÇàµµ : <color=#80FF80>º½_{currentTotalVal}%</color>";
+            if (totalProgressText != null)
+                totalProgressText.text = $"ï¿½ï¿½ï¿½àµµ : <color=#80FF80>ï¿½ï¿½_{currentTotalVal}%</color>";
 
             yield return null;
         }
