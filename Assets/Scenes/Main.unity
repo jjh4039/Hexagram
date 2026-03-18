@@ -2628,7 +2628,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &349246237
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14949,10 +14949,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9a68d7ee501a6d47af8185cc820a650, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HangingUI
-  gravity: 10
+  gravity: 30
   drag: 0.98
-  maxAngle: 25
-  startPushForce: 25
+  maxAngle: 10
+  startPushForce: 15
 --- !u!222 &1403389556
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -14982,10 +14982,11 @@ MonoBehaviour:
   titleTextGlow: {fileID: 0}
   titleDesTextGlow: {fileID: 0}
   hangingPhysics: {fileID: 1403389555}
+  sfxSwap: {fileID: 0}
   xOffset: 300
-  sideScale: 0.8
-  sideAlpha: 0.15
-  smoothTime: 0.2
+  sideScale: 0.7
+  sideAlpha: 0.1
+  smoothTime: 0.13
 --- !u!1 &1407735814
 GameObject:
   m_ObjectHideFlags: 0
