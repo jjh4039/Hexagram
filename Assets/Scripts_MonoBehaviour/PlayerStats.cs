@@ -2,32 +2,32 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("--- »ıÁ¸ ½ºÅÈ (Health) ---")]
+    [Header("--- ìƒì¡´ ìŠ¤íƒ¯ (Health) ---")]
     public int maxHealth = 100;
     public int currentHealth;
 
-    [Header("--- ¾×¼Ç ÀÚ¿ø (Resources) ---")]
+    [Header("--- ì•¡ì…˜ ìì› (Resources) ---")]
     public int maxAmmo = 500;
     public int currentAmmo;
 
-    [Header("--- ÁÖ»çÀ§ ÀÚ¿ø (Dice Charge) ---")]
+    [Header("--- ì£¼ì‚¬ìœ„ ìì› (Dice Charge) ---")]
     public float maxDiceCharge = 300f;
     public float currentDiceCharge = 0f;
 
-    [Header("--- ±âº» ÀüÅõ·Â (Base ATK) ---")]
-    public float meleeAttackPower = 10f; // ±Ù°Å¸® °ø°İ·Â (Ä®)
-    public float rangeAttackPower = 7f;  // ¿ø°Å¸® °ø°İ·Â (ÃÑ)
+    [Header("--- ê¸°ë³¸ ì „íˆ¬ë ¥ (Base ATK) ---")]
+    public float meleeAttackPower = 10f; // ê·¼ê±°ë¦¬ ê³µê²©ë ¥ (ì¹¼)
+    public float rangeAttackPower = 7f;  // ì›ê±°ë¦¬ ê³µê²©ë ¥ (ì´)
 
-    [Header("--- ´ë½Ã ½ºÅÃ (Dash Stacks) ---")]
-    public int maxDashStacks = 3;       // ÃÖ´ë 3È¸ ÃæÀü
-    public float currentDashStacks = 3f; // ÇöÀç º¸À¯ ½ºÅÃ
-    public float dashRechargeRate = 1f;  // 1ÃÊ¿¡ 1½ºÅÃ ÃæÀü
+    [Header("--- ëŒ€ì‹œ ìŠ¤íƒ (Dash Stacks) ---")]
+    public int maxDashStacks = 3;       // ìµœëŒ€ 3íšŒ ì¶©ì „
+    public float currentDashStacks = 3f; // í˜„ì¬ ë³´ìœ  ìŠ¤íƒ
+    public float dashRechargeRate = 1f;  // 1ì´ˆì— 1ìŠ¤íƒ ì¶©ì „
 
-    [Header("--- ÀüÅõ·Â ÆíÂ÷ (Precision) ---")]
+    [Header("--- ì „íˆ¬ë ¥ í¸ì°¨ (Precision) ---")]
     [Range(0f, 0.5f)] public float meleeDamageVariance = 0.4f;
     [Range(0f, 0.5f)] public float rangedDamageVariance = 0.5f;
 
-    [Header("--- ¹öÇÁ ÁõÆø·ü (Buff Multipliers) ---")]
+    [Header("--- ë²„í”„ ì¦í­ë¥  (Buff Multipliers) ---")]
     public float damageMultiplier = 1.0f;
     public float moveSpeedMultiplier = 1.0f;
     public float attackSpeedMultiplier = 1.0f;
@@ -65,7 +65,7 @@ public class PlayerStats : MonoBehaviour
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
-        Debug.Log($"ÇÃ·¹ÀÌ¾î Ã¼·Â °¨¼Ò: {currentHealth}/{maxHealth}");
+        Debug.Log($"í”Œë ˆì´ì–´ ì²´ë ¥ ê°ì†Œ: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {

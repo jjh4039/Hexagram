@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d7f5daa3c5d95040933f813d3520b91, type: 3}
+  m_Name: Maintenance
+  m_EditorClassIdentifier: Assembly-CSharp::StageData
+  moduleType: 2
+  description: "\uC548\uC804\uD55C \uC815\uBE44\uC18C\uC785\uB2C8\uB2E4.\n\uACE0\uCCA0\uB85C
+    \uB2E4\uC591\uD55C \uBB3C\uD488\uC744 \uAD6C\uB9E4\uD569\uB2C8\uB2E4."
+  themeColor: {r: 0.05882353, g: 0.11764706, b: 0, a: 1}
+  minRise: 6
+  maxRise: 10
+  moduleIcon: {fileID: -7254715860072929529, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
+  seasonPrefabs:
+  - seasonLabel: "\uBD04"
+    prefabs: []
+  - seasonLabel: "\uC5EC\uB984"
+    prefabs: []
+  - seasonLabel: "\uAC00\uC744"
+    prefabs: []
+  - seasonLabel: "\uACA8\uC6B8"
+    prefabs: []

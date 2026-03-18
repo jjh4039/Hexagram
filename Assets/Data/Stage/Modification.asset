@@ -10,13 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d7f5daa3c5d95040933f813d3520b91, type: 3}
-  m_Name: Spring_Elite
+  m_Name: Modification
   m_EditorClassIdentifier: Assembly-CSharp::StageData
-  stageName: "\uC5D8\uB9AC\uD2B8"
+  moduleType: 5
   description: "\uAC15\uB825\uD55C \uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uCD5C\uC18C
-    1\uAC1C\uC758 \uC544\uD2F0\uD329\uD2B8\uB97C \uC5BB\uC2B5\uB2C8\uB2E4."
-  stagePrefabs:
-  - {fileID: 4874768350431733968, guid: 226cc13364051044780c69c54542e2eb, type: 3}
-  minRise: 12
-  maxRise: 17
-  themeColor: {r: 0.15686275, g: 0, b: 0, a: 1}
+    1\uAC1C\uC758 \uBB34\uAC8C\uCD94\uB97C \uD68D\uB4DD\uD569\uB2C8\uB2E4"
+  themeColor: {r: 0.11764706, g: 0.05882353, b: 0.11764706, a: 1}
+  minRise: 7
+  maxRise: 10
+  moduleIcon: {fileID: -8752028713342821100, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
+  seasonPrefabs:
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []

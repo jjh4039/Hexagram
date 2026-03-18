@@ -10,12 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d7f5daa3c5d95040933f813d3520b91, type: 3}
-  m_Name: Spring_Shop
+  m_Name: Critical (Boss)
   m_EditorClassIdentifier: Assembly-CSharp::StageData
-  stageName: "\uC815\uBE44\uC18C"
-  description: "\uC815\uBE44\uD560 \uC218 \uC788\uB294 \uACF5\uAC04\uC785\uB2C8\uB2E4.\n\uACE0\uCCA0\uC744
-    \uC18C\uBAA8\uD558\uC5EC \uBAA8\uB4C8\uC744 \uAC15\uD654\uD569\uB2C8\uB2E4."
-  stagePrefabs: []
-  minRise: 6
+  moduleType: 6
+  description: "\uBCF4\uC2A4\uC73C\uC73C\n"
+  themeColor: {r: 0.15686275, g: 0, b: 0, a: 1}
+  minRise: 7
   maxRise: 10
-  themeColor: {r: 0.078431375, g: 0.15686275, b: 0, a: 1}
+  seasonPrefabs:
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []

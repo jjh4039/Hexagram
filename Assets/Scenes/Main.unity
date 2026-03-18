@@ -2593,7 +2593,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 648795973803437671, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
+  m_Sprite: {fileID: -4285649491278398191, guid: 8acccb966d22c004e926df9fcc15073d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4655,7 +4655,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 483667150}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
@@ -6122,7 +6122,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 638342959}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
@@ -6693,7 +6693,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -160, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &707161107
@@ -6961,7 +6961,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 102}
+  m_AnchoredPosition: {x: 0, y: 101}
   m_SizeDelta: {x: 200, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &737838705
@@ -11892,7 +11892,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3, y: 122}
+  m_AnchoredPosition: {x: 1.5, y: 122}
   m_SizeDelta: {x: 200, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1223197796
@@ -15481,10 +15481,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbfd9f47becb870489dcee19f42a3f7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MapManager
-  currentNodes:
-  - {fileID: 11400000, guid: 3868826d6eec1e84f918e7b5aabba50d, type: 2}
-  - {fileID: 11400000, guid: 51aa017c316fe9949b6250a1d17e1b28, type: 2}
-  - {fileID: 11400000, guid: b999ad78f26a53d488e642aacbdc3c4d, type: 2}
+  stagePool:
+  - stageData: {fileID: 11400000, guid: 51aa017c316fe9949b6250a1d17e1b28, type: 2}
+    weight: 10
+  - stageData: {fileID: 11400000, guid: 0b6fbbfd59beebe4a93ee83149601ae6, type: 2}
+    weight: 10
+  - stageData: {fileID: 11400000, guid: b999ad78f26a53d488e642aacbdc3c4d, type: 2}
+    weight: 10
+  - stageData: {fileID: 11400000, guid: 723956aaeceb63044a069bd0484c88fe, type: 2}
+    weight: 10
+  - stageData: {fileID: 11400000, guid: 997465d514991854ba1faa8fdb1f12ae, type: 2}
+    weight: 10
+  - stageData: {fileID: 11400000, guid: 3868826d6eec1e84f918e7b5aabba50d, type: 2}
+    weight: 10
+  bossStageData: {fileID: 11400000, guid: 38b5a8f94ddfeeb43b4b44536ed23873, type: 2}
   mapVisualRoot: {fileID: 984542315}
   fadeOverlayImage: {fileID: 865640399}
   stageTextRect: {fileID: 706765915}
@@ -15510,8 +15520,8 @@ MonoBehaviour:
   - {fileID: 638342961}
   - {fileID: 1159492116}
   - {fileID: 2022933541}
-  lerpSpeed: 15
-  floatAmount: 7
+  lerpSpeed: 18
+  floatAmount: 9
   fadeDuration: 0.5
   nodeFadeSpeed: 3
   scanInterval: 0.15
@@ -16183,6 +16193,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1533787821}
   m_CullTransparentMesh: 1
+--- !u!1 &1580639507 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6770056987612179759, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
+  m_PrefabInstance: {fileID: 1265904411}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1586063831
 GameObject:
   m_ObjectHideFlags: 0
@@ -17294,7 +17309,7 @@ MonoBehaviour:
   attackSpeed: 1
   fadeSpeed: 10
   attackMoveSpeedMultiplier: 0.25
-  sfxSlash: {fileID: 0}
+  sfxSlash: {fileID: 8300000, guid: cf99893d66f5bad4480527cf6e4c5a94, type: 3}
 --- !u!1 &1696453523
 GameObject:
   m_ObjectHideFlags: 0
@@ -21635,9 +21650,10 @@ MonoBehaviour:
   mapManager: {fileID: 1466253468}
   bitManager: {fileID: 1797329881}
   cursor: {fileID: 1299400498}
-  currentStageObj: {fileID: 0}
+  currentStageObj: {fileID: 1580639507}
   commonScrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
   currentScrap: 0
+  currentSeason: 0
   currentProgress: 0
   maxProgress: 100
 --- !u!114 &2031720043

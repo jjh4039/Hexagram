@@ -26,8 +26,7 @@ public class PanelCarousel : MonoBehaviour
     public float xOffset = 300f;
     public float sideScale = 0.7f;
     public float sideAlpha = 0.1f;
-
-    // ★ [최적화 1] Lerp 대신 SmoothDamp 시간 (0.15f 추천)
+    
     [Range(0.01f, 1f)] public float smoothTime = 0.13f;
     
     private bool _isIdle = false;

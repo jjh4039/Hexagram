@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d7f5daa3c5d95040933f813d3520b91, type: 3}
+  m_Name: Calculation
+  m_EditorClassIdentifier: Assembly-CSharp::StageData
+  moduleType: 0
+  description: "\uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uC2A4\uD15F \uBC0F
+    \uC8FC\uC0AC\uC704\uB97C \uAC15\uD654\uD569\uB2C8\uB2E4."
+  themeColor: {r: 0.15686275, g: 0.039215688, b: 0, a: 1}
+  minRise: 7
+  maxRise: 10
+  moduleIcon: {fileID: -4202995753223041208, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
+  seasonPrefabs:
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []
+  - seasonLabel: 
+    prefabs: []

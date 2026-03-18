@@ -3,10 +3,17 @@
   <component name="Encoding" addBOMForNewFiles="with BOM under Windows, with no BOM otherwise">
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/BitManager.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/DashBoardUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/GameManager.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/GiantVine.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Gun.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/HangingUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/MapManager.cs" charset="EUC-KR" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/PanelCarousel.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Panel_Balance.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Player.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/PlayerStats.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/StageController.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/StageMessageUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_ScriptableObject/StageData.cs" charset="UTF-8" />
   </component>
 </project>

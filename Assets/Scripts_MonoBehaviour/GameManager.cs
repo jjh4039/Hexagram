@@ -2,6 +2,8 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
+public enum Season { Spring, Summer, Autumn, Winter }
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -22,25 +24,48 @@ public class GameManager : MonoBehaviour
     [Header("--- Scrap Data & UI ---")]
     public int currentScrap = 0;
 
-    private float hitStopTimer = 0f;
-    private bool isHitStopping = false;
+    private float _hitStopTimer = 0f;
+    private bool _isHitStopping = false;
 
-    private Coroutine scrapPunchRoutine;
-    private Vector3 scrapTextOriginScale;
+    private Coroutine _scrapPunchRoutine;
+    private Vector3 _scrapTextOriginScale;
+    
+    [Header("--- Season System ---")]
+    // 1. í˜„ì¬ ê³„ì ˆ (ë ˆë²¨ ì—­í• )
+    public Season currentSeason = Season.Spring; 
 
+    // 3. ì§„í–‰ë„ (0~100)
     public int currentProgress = 0;
     public int maxProgress = 100;
+    
+    [Header("--- Hit Stop ---")]
+    private Coroutine _hitStopCoroutine;
+    private float _originalFixedDeltaTime;
+    private StageController _controller;
 
-    // =========================
-    // ¡Ú HitStop System
-    // =========================
-    private Coroutine hitStopCoroutine;
-    private float originalFixedDeltaTime;
+    private void Start()
+    {
+        if (currentStageObj != null)
+        {
+            // 2. ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì™€ì„œ ë³€ìˆ˜ì— í• ë‹¹
+            _controller = currentStageObj.GetComponent<StageController>();
+
+            // 3. ì»´í¬ë„ŒíŠ¸ê°€ ì œëŒ€ë¡œ ìˆë‹¤ë©´ ì´ˆê¸°í™” ì‹¤í–‰
+            if (_controller != null)
+            {
+                _controller.InitStage();
+            }
+            else
+            {
+                Debug.LogWarning("í˜„ì¬ ìŠ¤í…Œì´ì§€ ì˜¤ë¸Œì íŠ¸ì— StageControllerê°€ ì—†ìŠµë‹ˆë‹¤!");
+            }
+        }
+    }
 
     void Awake()
     {
         instance = this;
-        originalFixedDeltaTime = Time.fixedDeltaTime;
+        _originalFixedDeltaTime = Time.fixedDeltaTime;
     }
 
     public void AddScrap(int amount)
@@ -53,65 +78,68 @@ public class GameManager : MonoBehaviour
     // =========================================================
     public void LoadStage(StageData stageData)
     {
-        if (currentStageObj != null)
+        if (currentStageObj)
             Destroy(currentStageObj);
 
-        if (mapManager != null)
+        if (mapManager)
             mapManager.mapVisualRoot.SetActive(false);
 
-        if (stageData.stagePrefabs != null && stageData.stagePrefabs.Length > 0)
+        // [ìˆ˜ì •] í˜„ì¬ ê³„ì ˆì— ë§ëŠ” í”„ë¦¬íŒ¹ ë¦¬ìŠ¤íŠ¸ë¥¼ ê°€ì ¸ì˜´
+        GameObject[] seasonPrefabs = stageData.GetCurrentSeasonPrefabs(currentSeason);
+
+        if (seasonPrefabs != null && seasonPrefabs.Length > 0)
         {
-            int randomIndex = Random.Range(0, stageData.stagePrefabs.Length);
-            GameObject selectedPrefab = stageData.stagePrefabs[randomIndex];
+            int randomIndex = Random.Range(0, seasonPrefabs.Length);
+            GameObject selectedPrefab = seasonPrefabs[randomIndex];
 
             currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity);
+        
+            // ì¸ìŠ¤í„´ìŠ¤í™” í›„ ì»¨í¬ë„ŒíŠ¸ ì¬í• ë‹¹ ë° ì´ˆê¸°í™”
+            _controller = currentStageObj.GetComponent<StageController>();
+            if (_controller != null)
+                _controller.InitStage();
 
-            StageController controller = currentStageObj.GetComponent<StageController>();
-            if (controller != null)
-                controller.InitStage();
-
-            if (CameraFollow.instance != null)
+            if (CameraFollow.instance)
                 CameraFollow.instance.SnapToTarget();
 
-            if (StageMessageUI.instance != null)
-                StageMessageUI.instance.ShowEntryMessage(stageData.stageName, stageData.description);
+            // [ìˆ˜ì •] stageData.moduleName ì‚¬ìš© (GetModuleName ìë™ ë³€í™˜ ê²°ê³¼)
+            if (StageMessageUI.instance)
+                StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description);
         }
         else
         {
-            Debug.LogError($"¿À·ù: {stageData.stageName} µ¥ÀÌÅÍ ÇÁ¸®Æé ¾øÀ½!");
+            Debug.LogError($"ì˜¤ë¥˜: {currentSeason} ê³„ì ˆì— {stageData.moduleName} í”„ë¦¬í© ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤!");
         }
     }
-
-    // =========================================================
-    // ¡Ú Hit Stop (¾ÈÁ¤ ¹öÀü)
-    // =========================================================
+    
     public void HitStop(float duration)
     {
-        // ´õ ±ä È÷Æ®½ºÅ¾ÀÌ µé¾î¿À¸é ¿¬Àå
-        hitStopTimer = Mathf.Max(hitStopTimer, duration);
+        // ë” ê¸´ íˆíŠ¸ìŠ¤íƒ‘ì´ ë“¤ì–´ì˜¤ë©´ ì—°ì¥
+        _hitStopTimer = Mathf.Max(_hitStopTimer, duration);
 
-        if (!isHitStopping)
-            StartCoroutine(HitStopRoutine());
-    }
+        if (!_isHitStopping)
+            StartCoroutine(hitStopRoutine());
+        return;
 
-    private IEnumerator HitStopRoutine()
-    {
-        isHitStopping = true;
-
-        // ¡Ú [¼öÁ¤µÊ] 0.2f(´À·ÁÁü) -> 0.05f(°ÅÀÇ ¸ØÃã)À¸·Î º¯°æ! 
-        // ÀÌÁ¦ ·ºÀÌ ¾Æ´Ï¶ó ÁøÂ¥ Å¸°İ°¨(¿ª°æÁ÷)À¸·Î ´À²¸Áı´Ï´Ù.
-        Time.timeScale = 0.05f;
-        Time.fixedDeltaTime = originalFixedDeltaTime * Time.timeScale;
-
-        while (hitStopTimer > 0f)
+        IEnumerator hitStopRoutine()
         {
-            hitStopTimer -= Time.unscaledDeltaTime;
-            yield return null;
+            _isHitStopping = true;
+
+            // â˜… [ìˆ˜ì •ë¨] 0.2f(ëŠë ¤ì§) -> 0.05f(ê±°ì˜ ë©ˆì¶¤)ìœ¼ë¡œ ë³€ê²½! 
+            // ì´ì œ ë ‰ì´ ì•„ë‹ˆë¼ ì§„ì§œ íƒ€ê²©ê°(ì—­ê²½ì§)ìœ¼ë¡œ ëŠê»´ì§‘ë‹ˆë‹¤.
+            Time.timeScale = 0.05f;
+            Time.fixedDeltaTime = _originalFixedDeltaTime * Time.timeScale;
+
+            while (_hitStopTimer > 0f)
+            {
+                _hitStopTimer -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            Time.timeScale = 1f;
+            Time.fixedDeltaTime = _originalFixedDeltaTime;
+
+            _isHitStopping = false;
         }
-
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = originalFixedDeltaTime;
-
-        isHitStopping = false;
     }
 }

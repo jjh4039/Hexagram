@@ -83,7 +83,7 @@ public class StageController : MonoBehaviour
         List<EnemySpawner> spawnersToActivate = waveSpawners[waveIndex];
         pendingSpawns = spawnersToActivate.Count;
 
-        // ¡Ú [¼öÁ¤µÊ] ¿şÀÌºê ½ÃÀÛ ½Ã¿¡´Â Á¶¿ëÈ÷ UI¸¸ °»½Å (ÀÎÀÚ ¾øÀ½ = false)
+        // â˜… [ìˆ˜ì •ë¨] ì›¨ì´ë¸Œ ì‹œì‘ ì‹œì—ëŠ” ì¡°ìš©íˆ UIë§Œ ê°±ì‹  (ì¸ì ì—†ìŒ = false)
         UpdateEnemyCountUI();
 
         foreach (var spawner in spawnersToActivate)
@@ -97,7 +97,7 @@ public class StageController : MonoBehaviour
         pendingSpawns--;
         if (newEnemy != null) activeEnemies.Add(newEnemy);
 
-        // ¡Ú [¼öÁ¤µÊ] ¸ó½ºÅÍ µîÀå ½Ã¿¡µµ Á¶¿ëÈ÷ UI¸¸ °»½Å
+        // â˜… [ìˆ˜ì •ë¨] ëª¬ìŠ¤í„° ë“±ì¥ ì‹œì—ë„ ì¡°ìš©íˆ UIë§Œ ê°±ì‹ 
         UpdateEnemyCountUI();
     }
 
@@ -117,7 +117,7 @@ public class StageController : MonoBehaviour
         if (deadCount > 0)
         {
             totalRemainingEnemies -= deadCount;
-            // ¡Ú [ÇÙ½É] ¸ó½ºÅÍ°¡ Á×¾úÀ» ¶§¸¸ playPunch = true Àü´Ş
+            // â˜… [í•µì‹¬] ëª¬ìŠ¤í„°ê°€ ì£½ì—ˆì„ ë•Œë§Œ playPunch = true ì „ë‹¬
             if (StageMessageUI.instance != null)
                 StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies, true);
         }
@@ -129,7 +129,7 @@ public class StageController : MonoBehaviour
     {
         if (StageMessageUI.instance != null)
         {
-            // ¡Ú [¼öÁ¤µÊ] ±âº» È£ÃâÀº ¿¬Ãâ ¾øÀ½ (playPunch = false)
+            // â˜… [ìˆ˜ì •ë¨] ê¸°ë³¸ í˜¸ì¶œì€ ì—°ì¶œ ì—†ìŒ (playPunch = false)
             StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies);
         }
     }

@@ -245,7 +245,7 @@ public class StageMessageUI : MonoBehaviour
         ResetAllUI();
     }
 
-    // ¡Ú [¼öÁ¤µÊ] playPunch ¸Å°³º¯¼ö Ãß°¡
+    // â˜… [ìˆ˜ì •ë¨] playPunch ë§¤ê°œë³€ìˆ˜ ì¶”ê°€
     public void UpdateEnemyCount(int totalCount, bool playPunch = false)
     {
         if (enemyCountText != null)
@@ -265,7 +265,7 @@ public class StageMessageUI : MonoBehaviour
             StartCoroutine(FadeOut(enemyCountGroup));
         }
 
-        // ¡Ú [¼öÁ¤µÊ] playPunch°¡ trueÀÏ ¶§¸¸ ¿¬Ãâ ½ÇÇà
+        // â˜… [ìˆ˜ì •ë¨] playPunchê°€ trueì¼ ë•Œë§Œ ì—°ì¶œ ì‹¤í–‰
         if (totalCount > 0 && isEnemyCountVisible && playPunch)
         {
             StartCoroutine(EnemyCountPunch());

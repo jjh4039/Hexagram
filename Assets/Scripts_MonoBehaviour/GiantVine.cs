@@ -10,7 +10,7 @@ public class GiantVine : MonoBehaviour
 
     private Collider2D col;
     private SpriteRenderer sr;
-    private float fixedWidth; // Ã³À½¿¡ ¼³Á¤µÈ °¡·Î Æø ÀúÀå¿ë
+    private float fixedWidth; // ì²˜ìŒì— ì„¤ì •ëœ ê°€ë¡œ í­ ì €ì¥ìš©
 
     private void Awake()
     {
@@ -20,7 +20,7 @@ public class GiantVine : MonoBehaviour
         if (sr != null)
         {
             sr.color = new Color(1, 1, 1, 0);
-            // ÀÎ½ºÆåÅÍ¿¡ ¼³Á¤µÈ ÃÊ±â Width¸¦ °íÁ¤°ªÀ¸·Î ±â¾ïÇÕ´Ï´Ù.
+            // ì¸ìŠ¤í™í„°ì— ì„¤ì •ëœ ì´ˆê¸° Widthë¥¼ ê³ ì •ê°’ìœ¼ë¡œ ê¸°ì–µí•©ë‹ˆë‹¤.
             fixedWidth = sr.size.x;
             sr.size = new Vector2(fixedWidth, 0f);
         }
@@ -30,15 +30,15 @@ public class GiantVine : MonoBehaviour
     public void Fire(float dmg, float targetLength)
     {
         this.damage = dmg;
-        // ½ºÄÉÀÏÀÌ 2¹è¶ó¸é, ½ÇÁ¦ ±×·ÁÁ®¾ß ÇÒ SpriteÀÇ Size´Â Àı¹İÀÌ¾î¾ß µü ¸Â½À´Ï´Ù.
+        // ìŠ¤ì¼€ì¼ì´ 2ë°°ë¼ë©´, ì‹¤ì œ ê·¸ë ¤ì ¸ì•¼ í•  Spriteì˜ SizeëŠ” ì ˆë°˜ì´ì–´ì•¼ ë”± ë§ìŠµë‹ˆë‹¤.
         float adjustedLength = targetLength / transform.localScale.y;
         StartCoroutine(Co_Strike(adjustedLength));
     }
 
     private IEnumerator Co_Strike(float targetLength)
     {
-        if (sr != null) sr.color = Color.white;
-        if (col != null) col.enabled = true;
+        if (sr) sr.color = Color.white;
+        if (col) col.enabled = true;
 
         float timer = 0f;
         while (timer < pierceSpeed)
@@ -46,7 +46,7 @@ public class GiantVine : MonoBehaviour
             timer += Time.deltaTime;
             float currentLength = Mathf.Lerp(0f, targetLength, timer / pierceSpeed);
 
-            // °¡·Î Æø(fixedWidth)Àº À¯ÁöÇÏ°í ¼¼·Î ±æÀÌ¸¸ ´Ã¸²
+            // ê°€ë¡œ í­(fixedWidth)ì€ ìœ ì§€í•˜ê³  ì„¸ë¡œ ê¸¸ì´ë§Œ ëŠ˜ë¦¼
             if (sr != null) sr.size = new Vector2(fixedWidth, currentLength);
 
             if (col is BoxCollider2D box)
