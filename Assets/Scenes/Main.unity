@@ -8330,7 +8330,7 @@ Transform:
   m_GameObject: {fileID: 843584024}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.75, y: -9.34, z: 0}
+  m_LocalPosition: {x: -0.27, y: -9.34, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10300,6 +10300,14 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1005981995883516803, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: m_ColliderPaths.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2544754014234877627, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
+      propertyPath: dropChance
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2544754014234877627, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
+      propertyPath: forcePatternIndex
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4874768350431733968, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
@@ -10308,7 +10316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4874768350431733968, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6127454702898223684, guid: a6f63f38b39e6c443a5638eef2aca028, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12843,7 +12851,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6770056987612179759, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8550526856449362156, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12887,7 +12895,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8707189956456441058, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_ColliderPaths.Array.size
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
