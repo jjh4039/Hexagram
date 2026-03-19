@@ -7,20 +7,20 @@ public class DamageText : MonoBehaviour
     private Color originalColor;
 
     [Header("Motion Settings")]
-    [SerializeField] private float moveSpeed = 2f;    // Æ¢¾î ¿À¸£´Â ¼Óµµ
-    [SerializeField] private float fadeSpeed = 3f;    // »ç¶óÁö´Â ¼Óµµ (¾ËÆÄ°ª)
-    [SerializeField] private float gravity = 2f;      // ¶³¾îÁö´Â Áß·Â ´À³¦
+    [SerializeField] private float moveSpeed = 2f;    // íŠ€ì–´ ì˜¤ë¥´ëŠ” ì†ë„
+    [SerializeField] private float fadeSpeed = 3f;    // ì‚¬ë¼ì§€ëŠ” ì†ë„ (ì•ŒíŒŒê°’)
+    [SerializeField] private float gravity = 2f;      // ë–¨ì–´ì§€ëŠ” ì¤‘ë ¥ ëŠë‚Œ
 
     [Header("Design Settings")]
     [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color criticalColor = new Color(1f, 0.6f, 0f); // ÁÖÈ²»ö
+    [SerializeField] private Color criticalColor = new Color(1f, 0.6f, 0f); // ì£¼í™©ìƒ‰
     [SerializeField] private float normalSize = 4f;
     [SerializeField] private float criticalSize = 6f;
 
     private Vector3 moveVector;
     private float alpha = 1f;
 
-    // ·»´õ¸µ ¼ø¼­ ²¿ÀÓ ¹æÁö¿ë (Á¡Á¡ Áõ°¡)
+    // ë Œë”ë§ ìˆœì„œ ê¼¬ì„ ë°©ì§€ìš© (ì ì  ì¦ê°€)
     private static int globalSortingOrder = 2000;
 
     void Awake()
@@ -28,17 +28,17 @@ public class DamageText : MonoBehaviour
         textMesh = GetComponent<TextMeshPro>();
     }
 
-    // ¡Ú ÀûÀÌ ÀÌ ÇÔ¼ö¸¦ ºÎ¸¦ ¶§ 'Ä¡¸íÅ¸ ¿©ºÎ'µµ °°ÀÌ ¹ŞÀ½
+    // â˜… ì ì´ ì´ í•¨ìˆ˜ë¥¼ ë¶€ë¥¼ ë•Œ 'ì¹˜ëª…íƒ€ ì—¬ë¶€'ë„ ê°™ì´ ë°›ìŒ
     public void Setup(float damageAmount, bool isCritical)
     {
         textMesh.text = Mathf.RoundToInt(damageAmount).ToString();
 
-        // 1. »ö»ó & Å©±â ¼³Á¤
+        // 1. ìƒ‰ìƒ & í¬ê¸° ì„¤ì •
         if (isCritical)
         {
             textMesh.fontSize = criticalSize;
             textMesh.color = criticalColor;
-            textMesh.fontStyle = FontStyles.Bold; // Ä¡¸íÅ¸´Â ±½°Ô!
+            textMesh.fontStyle = FontStyles.Bold; // ì¹˜ëª…íƒ€ëŠ” êµµê²Œ!
         }
         else
         {
@@ -50,27 +50,27 @@ public class DamageText : MonoBehaviour
         originalColor = textMesh.color;
         alpha = 1f;
 
-        // 2. Æ¢¾î ¿À¸£´Â ¹æÇâ ¼³Á¤ (·£´ı¼º Ãß°¡)
-        // ÁÂ¿ì·Î »ìÂ¦(-0.5 ~ 0.5) ÆÛÁö¸é¼­, À§·Î(1.0) ¼Ú±¸Ä§
+        // 2. íŠ€ì–´ ì˜¤ë¥´ëŠ” ë°©í–¥ ì„¤ì • (ëœë¤ì„± ì¶”ê°€)
+        // ì¢Œìš°ë¡œ ì‚´ì§(-0.5 ~ 0.5) í¼ì§€ë©´ì„œ, ìœ„ë¡œ(1.0) ì†Ÿêµ¬ì¹¨
         moveVector = new Vector3(Random.Range(-0.5f, 0.5f), 1f, 0).normalized * moveSpeed;
 
-        // 3. ¸Ç ¾Õ¿¡ º¸ÀÌ°Ô ¼ø¼­ Á¤·Ä
+        // 3. ë§¨ ì•ì— ë³´ì´ê²Œ ìˆœì„œ ì •ë ¬
         textMesh.sortingOrder = globalSortingOrder++;
-        if (globalSortingOrder > 30000) globalSortingOrder = 2000; // ÃÊ±âÈ­
+        if (globalSortingOrder > 30000) globalSortingOrder = 2000; // ì´ˆê¸°í™”
     }
 
-    // ÅØ½ºÆ® ¶ç¿ì±â ¿ë ¿À¹ö·Îµå
+    // í…ìŠ¤íŠ¸ ë„ìš°ê¸° ìš© ì˜¤ë²„ë¡œë“œ
     public void Setup(string message, Color color)
     {
         textMesh.text = message;
         textMesh.color = color;
-        textMesh.fontSize = normalSize * 0.7f; // È¤Àº ¿øÇÏ´Â Å©±â
+        textMesh.fontSize = normalSize * 0.7f; // í˜¹ì€ ì›í•˜ëŠ” í¬ê¸°
         textMesh.fontStyle = FontStyles.Bold;
 
         originalColor = textMesh.color;
         alpha = 1f;
 
-        // µ¿ÀÏÇÑ ¿¬Ãâ Àû¿ë
+        // ë™ì¼í•œ ì—°ì¶œ ì ìš©
         moveVector = new Vector3(Random.Range(-0.5f, 0.5f), 1f, 0).normalized * moveSpeed;
         textMesh.sortingOrder = globalSortingOrder++;
         if (globalSortingOrder > 30000) globalSortingOrder = 2000;
@@ -78,20 +78,20 @@ public class DamageText : MonoBehaviour
 
     void Update()
     {
-        // 1. ÀÌµ¿ (À§·Î ¼Ú¾Ò´Ù°¡ Áß·Â ¶§¹®¿¡ ÃµÃµÈ÷ ¶³¾îÁü)
+        // 1. ì´ë™ (ìœ„ë¡œ ì†Ÿì•˜ë‹¤ê°€ ì¤‘ë ¥ ë•Œë¬¸ì— ì²œì²œíˆ ë–¨ì–´ì§)
         transform.position += moveVector * Time.deltaTime;
 
-        // yÃà ¼Óµµ¸¦ °è¼Ó ÁÙÀÓ (Áß·Â È¿°ú) -> ¼Ú±¸ÃÆ´Ù°¡ ¶Ò ¶³¾îÁö´Â ´À³¦
+        // yì¶• ì†ë„ë¥¼ ê³„ì† ì¤„ì„ (ì¤‘ë ¥ íš¨ê³¼) -> ì†Ÿêµ¬ì³¤ë‹¤ê°€ ëš ë–¨ì–´ì§€ëŠ” ëŠë‚Œ
         moveVector.y -= gravity * Time.deltaTime;
 
-        // 2. ¼­¼­È÷ »ç¶óÁö±â (Fade Out)
-        // »ı¼ºµÇ°í ¾ÆÁÖ Àá±ñ µÚºÎÅÍ »ç¶óÁö±â ½ÃÀÛ
+        // 2. ì„œì„œíˆ ì‚¬ë¼ì§€ê¸° (Fade Out)
+        // ìƒì„±ë˜ê³  ì•„ì£¼ ì ê¹ ë’¤ë¶€í„° ì‚¬ë¼ì§€ê¸° ì‹œì‘
         alpha -= Time.deltaTime * fadeSpeed;
 
-        // »ö»ó ¾÷µ¥ÀÌÆ®
+        // ìƒ‰ìƒ ì—…ë°ì´íŠ¸
         textMesh.color = new Color(originalColor.r, originalColor.g, originalColor.b, alpha);
 
-        // 3. ¿ÏÀüÈ÷ Åõ¸íÇØÁö¸é »èÁ¦
+        // 3. ì™„ì „íˆ íˆ¬ëª…í•´ì§€ë©´ ì‚­ì œ
         if (alpha <= 0)
         {
             Destroy(gameObject);

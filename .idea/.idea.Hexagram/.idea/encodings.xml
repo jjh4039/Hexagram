@@ -1,8 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" addBOMForNewFiles="with BOM under Windows, with no BOM otherwise">
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/AmmoUI.cs" charset="EUC-KR" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/ArtifactManager.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/ArtifactSlot.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/BalanceTrigger.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Bit.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/BitManager.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/BossHealthUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Bullet.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/CameraFollow.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/CinematicManager.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/CursorAmmoUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/DamageText.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/DashBoardUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/DashUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Dice.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Dice_Cube.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Dice_UI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EarthSpike.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemyBee.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemyBoss.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemyDummy.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemyProjectile.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemyProjectileFlash.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemySlime.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/EnemySpawner.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/GameManager.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/GiantVine.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Gun.cs" charset="UTF-8" />
@@ -12,8 +35,17 @@
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Panel_Balance.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Player.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/PlayerStats.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/SoundManager.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/StageController.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/StageMessageUI.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Statue.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Sword.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/Sword_Effect.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/VirtualCursor.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_MonoBehaviour/WeaponManager.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_ScriptableObject/ArtifactData.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_ScriptableObject/DiceData.cs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Assets/Scripts_ScriptableObject/RewardData.cs" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Assets/Scripts_ScriptableObject/StageData.cs" charset="UTF-8" />
   </component>
 </project>

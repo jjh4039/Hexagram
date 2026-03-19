@@ -42,10 +42,10 @@ public class EnemyProjectile : MonoBehaviour
 
         RotateToDirection();
 
-        // ÇöÀç ½ºÄÉÀÏÀ» ±âÁØÀ¸·Î ÀúÀå (0.5µç 1ÀÌµç ´ëÀÀ)
+        // í˜„ì¬ ìŠ¤ì¼€ì¼ì„ ê¸°ì¤€ìœ¼ë¡œ ì €ì¥ (0.5ë“  1ì´ë“  ëŒ€ì‘)
         baseScale = transform.localScale;
 
-        // ÀÌÀü ÄÚ·çÆ¾ Á¤¸® (Ç®¸µ ´ëºñ)
+        // ì´ì „ ì½”ë£¨í‹´ ì •ë¦¬ (í’€ë§ ëŒ€ë¹„)
         if (scaleCoroutine != null)
             StopCoroutine(scaleCoroutine);
 
@@ -64,7 +64,7 @@ public class EnemyProjectile : MonoBehaviour
             hitPosition,
             Quaternion.identity);
 
-        // ÁøÇà ¹æÇâ ¹İ´ë·Î ÇâÇÏ°Ô
+        // ì§„í–‰ ë°©í–¥ ë°˜ëŒ€ë¡œ í–¥í•˜ê²Œ
         effect.transform.right = -moveDir;
     }
 
@@ -76,7 +76,7 @@ public class EnemyProjectile : MonoBehaviour
         Vector3 enlarged = baseScale * spawnScaleMultiplier;
         Vector3 undershoot = baseScale * 0.95f;
 
-        // 1´Ü°è: È®´ë ¡æ »ìÂ¦ ÀÛ°Ô
+        // 1ë‹¨ê³„: í™•ëŒ€ â†’ ì‚´ì§ ì‘ê²Œ
         while (t < halfTime)
         {
             t += Time.deltaTime;
@@ -85,7 +85,7 @@ public class EnemyProjectile : MonoBehaviour
             yield return null;
         }
 
-        // 2´Ü°è: »ìÂ¦ ÀÛ°Ô ¡æ ¿ø·¡ Å©±â
+        // 2ë‹¨ê³„: ì‚´ì§ ì‘ê²Œ â†’ ì›ë˜ í¬ê¸°
         t = 0f;
         while (t < halfTime)
         {

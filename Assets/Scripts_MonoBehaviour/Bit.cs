@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // ÃÖ½Å Input System »ç¿ë
+using UnityEngine.InputSystem; // ìµœì‹  Input System ì‚¬ìš©
 
 public class Bit : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class Bit : MonoBehaviour
 
     private void Update()
     {
-        // ÇÃ·¹ÀÌ¾î°¡ ±ÙÃ³¿¡ ÀÖ°í, F Å°¸¦ ´­·¶À» ¶§
+        // í”Œë ˆì´ì–´ê°€ ê·¼ì²˜ì— ìˆê³ , F í‚¤ë¥¼ ëˆŒë €ì„ ë•Œ
         if (isPlayerInRange && Keyboard.current.fKey.wasPressedThisFrame)
         {
             OpenBitSelection();
@@ -26,14 +26,14 @@ public class Bit : MonoBehaviour
 
     private void OpenBitSelection()
     {
-        // 1. BitManager È°¼ºÈ­
+        // 1. BitManager í™œì„±í™”
         if (GameManager.instance != null && GameManager.instance.bitManager != null)
         {
-            // BitManager¸¦ ÄÑ°í ÃÊ±âÈ­ ÇÔ¼ö È£Ãâ
+            // BitManagerë¥¼ ì¼œê³  ì´ˆê¸°í™” í•¨ìˆ˜ í˜¸ì¶œ
             GameManager.instance.bitManager.gameObject.SetActive(true);
             GameManager.instance.bitManager.OpenBitUI();
 
-            // 2. Bit ¿ÀºêÁ§Æ® ÀÚ½ÅÀº »èÁ¦ (¶Ç´Â ºñÈ°¼ºÈ­)
+            // 2. Bit ì˜¤ë¸Œì íŠ¸ ìì‹ ì€ ì‚­ì œ (ë˜ëŠ” ë¹„í™œì„±í™”)
             Destroy(gameObject);
         }
     }

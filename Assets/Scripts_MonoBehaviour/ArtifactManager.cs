@@ -1,18 +1,18 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // ¡Ú ÃÖ½Å ÀÎÇ² »ç¿ë
+using UnityEngine.InputSystem; // â˜… ìµœì‹  ì¸í’‹ ì‚¬ìš©
 using System.Collections.Generic;
 
 public class ArtifactManager : MonoBehaviour
 {
     public static ArtifactManager instance;
 
-    [Header("º¸À¯ÇÑ ¾ÆÆ¼ÆÑÆ® ¸ñ·Ï")]
+    [Header("ë³´ìœ í•œ ì•„í‹°íŒ©íŠ¸ ëª©ë¡")]
     public List<ArtifactData> myArtifacts = new List<ArtifactData>();
 
-    [Header("Å×½ºÆ®¿ë")]
+    [Header("í…ŒìŠ¤íŠ¸ìš©")]
     public ArtifactData testArtifact;
 
-    // ¡Ú ÃÖ½Å ÀÎÇ² ½Ã½ºÅÛ º¯¼ö
+    // â˜… ìµœì‹  ì¸í’‹ ì‹œìŠ¤í…œ ë³€ìˆ˜
     private PlayerInput inputActions;
 
     private void Awake()
@@ -20,26 +20,26 @@ public class ArtifactManager : MonoBehaviour
         if (instance == null) instance = this;
         else Destroy(gameObject);
 
-        // 1. ÀÎÇ² ¾×¼Ç »ı¼º
+        // 1. ì¸í’‹ ì•¡ì…˜ ìƒì„±
         inputActions = new PlayerInput();
     }
 
     private void OnEnable()
     {
-        // 2. È°¼ºÈ­ ¹× ÀÌº¥Æ® ¿¬°á
+        // 2. í™œì„±í™” ë° ì´ë²¤íŠ¸ ì—°ê²°
         inputActions.Enable();
-        // ¾Æ±î ¸¸µç Action ÀÌ¸§ÀÌ 'TestInput'ÀÌ¶ó°í °¡Á¤ÇÕ´Ï´Ù.
+        // ì•„ê¹Œ ë§Œë“  Action ì´ë¦„ì´ 'TestInput'ì´ë¼ê³  ê°€ì •í•©ë‹ˆë‹¤.
         inputActions.Player.TestInput.performed += OnTestInput;
     }
 
     private void OnDisable()
     {
-        // 3. ÇØÁ¦ (ÇÊ¼ö)
+        // 3. í•´ì œ (í•„ìˆ˜)
         inputActions.Player.TestInput.performed -= OnTestInput;
         inputActions.Disable();
     }
 
-    // ¡Ú GÅ°°¡ ´­·ÈÀ» ¶§ ½ÇÇàµÉ ÇÔ¼ö (Update¹® ÇÊ¿ä ¾øÀ½!)
+    // â˜… Gí‚¤ê°€ ëˆŒë ¸ì„ ë•Œ ì‹¤í–‰ë  í•¨ìˆ˜ (Updateë¬¸ í•„ìš” ì—†ìŒ!)
     private void OnTestInput(InputAction.CallbackContext context)
     {
         if (testArtifact != null)
@@ -50,15 +50,15 @@ public class ArtifactManager : MonoBehaviour
 
     public void AddArtifact(ArtifactData data)
     {
-        // 1. ¸®½ºÆ®¿¡ Ãß°¡
+        // 1. ë¦¬ìŠ¤íŠ¸ì— ì¶”ê°€
         myArtifacts.Add(data);
 
-        // 2. (³ªÁß¿¡) ½ºÅÈ Àû¿ë ·ÎÁ÷
+        // 2. (ë‚˜ì¤‘ì—) ìŠ¤íƒ¯ ì ìš© ë¡œì§
         // PlayerStats.Apply(data); 
 
-        Debug.Log($"¾ÆÆ¼ÆÑÆ® È¹µæ: {data.artifactName}");
+        Debug.Log($"ì•„í‹°íŒ©íŠ¸ íšë“: {data.artifactName}");
 
-        // 3. UI °»½Å ¿äÃ»
+        // 3. UI ê°±ì‹  ìš”ì²­
         if (DashboardUI.instance != null && DashboardUI.instance.isOpen)
         {
             DashboardUI.instance.RefreshArtifacts();

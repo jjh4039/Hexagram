@@ -39,7 +39,7 @@ public class EnemyBee : Enemy
     [SerializeField] private float fireRecoilForce = 0.6f;
 
     [Header("Sound")]
-    [SerializeField] private AudioClip sfxFire; // ¡Ú ¹ú ¹ß»ç »ç¿îµå Ãß°¡
+    [SerializeField] private AudioClip sfxFire; // â˜… ë²Œ ë°œì‚¬ ì‚¬ìš´ë“œ ì¶”ê°€
 
     private Transform target;
     private Rigidbody2D rigid;
@@ -53,7 +53,7 @@ public class EnemyBee : Enemy
 
     protected override void Awake()
     {
-        base.Awake(); // ºÎ¸ğ¿¡¼­ anim ¼¼ÆÃ
+        base.Awake(); // ë¶€ëª¨ì—ì„œ anim ì„¸íŒ…
         rigid = GetComponent<Rigidbody2D>();
     }
 
@@ -80,7 +80,7 @@ public class EnemyBee : Enemy
         {
             if (target == null || isStunned)
             {
-                if (rigid != null) rigid.linearVelocity = Vector2.zero; // ¸ØÃã Ã³¸®
+                if (rigid != null) rigid.linearVelocity = Vector2.zero; // ë©ˆì¶¤ ì²˜ë¦¬
                 yield return null;
                 continue;
             }
@@ -99,7 +99,7 @@ public class EnemyBee : Enemy
                 }
             }
 
-            // ¡Ú ÇÙ½É: ÇÁ·¹ÀÓÀÌ ¾Æ´Ñ ¹°¸® ÁÖ±â¿¡ ¸ÂÃç ·çÇÁ¸¦ µ¹¸² (³ìÈ­ Áß ¼Óµµ ÀúÇÏ ¹æÁö)
+            // â˜… í•µì‹¬: í”„ë ˆì„ì´ ì•„ë‹Œ ë¬¼ë¦¬ ì£¼ê¸°ì— ë§ì¶° ë£¨í”„ë¥¼ ëŒë¦¼ (ë…¹í™” ì¤‘ ì†ë„ ì €í•˜ ë°©ì§€)
             yield return new WaitForFixedUpdate();
         }
     }
@@ -111,15 +111,15 @@ public class EnemyBee : Enemy
         if (anim != null) anim.SetBool("isMoving", true);
 
         Vector2 dir = (target.position - transform.position).normalized;
-        // ¸Å ¹°¸® ÇÁ·¹ÀÓ¸¶´Ù ÀÏÁ¤ÇÑ ¼Óµµ¸¦ ÁÖÀÔ
+        // ë§¤ ë¬¼ë¦¬ í”„ë ˆì„ë§ˆë‹¤ ì¼ì •í•œ ì†ë„ë¥¼ ì£¼ì…
         rigid.linearVelocity = dir * moveSpeed;
     }
 
-    // CancelAttackÀÌ³ª Die È£Ãâ ½Ã ¼Óµµ¸¦ 0À¸·Î ¸¸µå´Â ·ÎÁ÷À» Æ÷ÇÔÇÏ¸é ´õ ±ò²ûÇÕ´Ï´Ù.
+    // CancelAttackì´ë‚˜ Die í˜¸ì¶œ ì‹œ ì†ë„ë¥¼ 0ìœ¼ë¡œ ë§Œë“œëŠ” ë¡œì§ì„ í¬í•¨í•˜ë©´ ë” ê¹”ë”í•©ë‹ˆë‹¤.
     void CancelAttack()
     {
         if (attackCoroutine != null) StopCoroutine(attackCoroutine);
-        if (rigid != null) rigid.linearVelocity = Vector2.zero; // °ø°İ Ãë¼Ò ½Ã °ü¼º Á¦°Å
+        if (rigid != null) rigid.linearVelocity = Vector2.zero; // ê³µê²© ì·¨ì†Œ ì‹œ ê´€ì„± ì œê±°
         ClearRectangles();
         isAttacking = false;
     }
@@ -143,7 +143,7 @@ public class EnemyBee : Enemy
 
         while (timer < chargeTime)
         {
-            if (isStunned)   // ÇÇ°İ ½Ã °ø°İ Ãë¼Ò
+            if (isStunned)   // í”¼ê²© ì‹œ ê³µê²© ì·¨ì†Œ
             {
                 CancelAttack();
                 yield break;
@@ -196,7 +196,7 @@ public class EnemyBee : Enemy
     {
         if (projectilePrefab == null) return;
 
-        // 1. ÇÃ·¡½Ã »ı¼º
+        // 1. í”Œë˜ì‹œ ìƒì„±
         if (projectileFlashPrefab != null)
         {
             Vector3 flashPos = headPoint.position + (Vector3)(dir.normalized * flashDistance);
@@ -209,7 +209,7 @@ public class EnemyBee : Enemy
             flash.transform.right = dir;
         }
 
-        // 2. ¹ß»ç ¹İµ¿ (°ø°İ ¹æÇâ ¹İ´ë)
+        // 2. ë°œì‚¬ ë°˜ë™ (ê³µê²© ë°©í–¥ ë°˜ëŒ€)
         if (rigid != null)
         {
             rigid.AddForce(-dir.normalized * fireRecoilForce, ForceMode2D.Impulse);
@@ -217,11 +217,11 @@ public class EnemyBee : Enemy
 
         if (sfxFire != null && SoundManager.instance != null)
         {
-            // ÇÃ·¹ÀÌ¾îÀÇ ÃÑ¼Ò¸®(0.2f)º¸´Ù´Â ¾à°£ ÀÛ°Ô ¼³Á¤ÇÏ¿© °Å¸®°¨À» Áİ´Ï´Ù.
+            // í”Œë ˆì´ì–´ì˜ ì´ì†Œë¦¬(0.2f)ë³´ë‹¤ëŠ” ì•½ê°„ ì‘ê²Œ ì„¤ì •í•˜ì—¬ ê±°ë¦¬ê°ì„ ì¤ë‹ˆë‹¤.
             SoundManager.instance.PlaySFX(sfxFire, 0.35f, 0.05f);
         }
 
-        // 3. Åõ»çÃ¼ »ı¼º
+        // 3. íˆ¬ì‚¬ì²´ ìƒì„±
         GameObject proj = Instantiate(
             projectilePrefab,
             headPoint.position,
@@ -288,7 +288,7 @@ public class EnemyBee : Enemy
 
         base.Die();
 
-        // 3. »ç¸Á ÈÄ ºÒÇÊ¿äÇÑ ¹°¸® ¿¬»ê Áß´Ü
+        // 3. ì‚¬ë§ í›„ ë¶ˆí•„ìš”í•œ ë¬¼ë¦¬ ì—°ì‚° ì¤‘ë‹¨
         if (rigid != null)
         {
             rigid.linearVelocity = Vector2.zero;

@@ -23,14 +23,14 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float aimMouseInfluence = 0.15f;
     [SerializeField] private float aimMaxMouseOffset = 2.0f;
 
-    [Tooltip("¿¡ÀÓ ½Ã È­¸éÀ» ¸î ¹è·Î ¸¸µé °ÍÀÎ°¡? (0.95 = 5% ÁÜÀÎ)")]
+    [Tooltip("ì—ìž„ ì‹œ í™”ë©´ì„ ëª‡ ë°°ë¡œ ë§Œë“¤ ê²ƒì¸ê°€? (0.95 = 5% ì¤Œì¸)")]
     [SerializeField] private float aimZoomMultiplier = 0.95f;
     [SerializeField] private float aimTransitionSpeed = 5f;
 
     [Header("Shake Settings")]
     [SerializeField] private float shakeDecaySpeed = 5f;
 
-    private float currentShakeDecay; // ÇöÀç Àû¿ë ÁßÀÎ °¨¼è ¼Óµµ
+    private float currentShakeDecay; // í˜„ìž¬ ì ìš© ì¤‘ì¸ ê°ì‡  ì†ë„
 
     private Vector3 offset;
     private Vector3 shakeOffset;
@@ -74,7 +74,7 @@ public class CameraFollow : MonoBehaviour
         currentShakeMagnitude = Mathf.Max(currentShakeMagnitude, magnitude);
         shakeTimer = Mathf.Max(shakeTimer, duration);
 
-        // Ä¿½ºÅÒ °¨¼è°ªÀÌ µé¾î¿À¸é ±×°ÍÀ» ¾²°í, ¾Æ´Ï¸é ¿ø·¡ÀÇ ºü¸¥ °¨¼è ¼Óµµ¸¦ ¾¹´Ï´Ù.
+        // ì»¤ìŠ¤í…€ ê°ì‡ ê°’ì´ ë“¤ì–´ì˜¤ë©´ ê·¸ê²ƒì„ ì“°ê³ , ì•„ë‹ˆë©´ ì›ëž˜ì˜ ë¹ ë¥¸ ê°ì‡  ì†ë„ë¥¼ ì”ë‹ˆë‹¤.
         currentShakeDecay = customDecay > 0f ? customDecay : shakeDecaySpeed;
 
         lastHitShakeTime = Time.time;
@@ -89,7 +89,7 @@ public class CameraFollow : MonoBehaviour
             float y = Random.Range(-1f, 1f) * currentShakeMagnitude;
             shakeOffset = new Vector3(x, y, 0);
 
-            // ¡Ú [¼öÁ¤µÊ] shakeDecaySpeed ´ë½Å currentShakeDecay »ç¿ë
+            // â˜… [ìˆ˜ì •ë¨] shakeDecaySpeed ëŒ€ì‹  currentShakeDecay ì‚¬ìš©
             currentShakeMagnitude = Mathf.Lerp(currentShakeMagnitude, 0f, Time.deltaTime * currentShakeDecay);
         }
         else shakeOffset = Vector3.zero;
@@ -106,7 +106,7 @@ public class CameraFollow : MonoBehaviour
         bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
         bool isAiming = isRightClickDown && isGunEquipped;
 
-        // ¡Ú [¹ö±× ÇØ°á!] ¿ìÅ¬¸¯À» ´©¸£±â ½ÃÀÛÇÑ 'Ã¹ ÇÁ·¹ÀÓ'
+        // â˜… [ë²„ê·¸ í•´ê²°!] ìš°í´ë¦­ì„ ëˆ„ë¥´ê¸° ì‹œìž‘í•œ 'ì²« í”„ë ˆìž„'
         if (isAiming && !wasAiming)
         {
             if (pixelCam == null || pixelCam.enabled)
@@ -144,9 +144,9 @@ public class CameraFollow : MonoBehaviour
         Vector3 targetPosition = player.position + offset;
 
         // ==============================================================
-        // ¡Ú [¼öÁ¤µÊ] ¸¶¿ì½º ¿µÇâ·Â °è»ê (ÄÆ½Å Áß¿¡´Â ¹«½Ã)
-        // Å¸°Ù(player º¯¼ö)ÀÌ ½ÇÁ¦ °ÔÀÓ¸Å´ÏÀúÀÇ ÇÃ·¹ÀÌ¾î°¡ ¾Æ´Ò °æ¿ì(Áï, ÄÆ½Å ÁßÀÏ °æ¿ì) 
-        // ¸¶¿ì½º ¿ÀÇÁ¼ÂÀ» °­Á¦·Î 0À¸·Î ¸¸µé¾î º¸½º¿¡°Ô Á¤È®È÷ °íÁ¤µÇµµ·Ï ÇÕ´Ï´Ù.
+        // â˜… [ìˆ˜ì •ë¨] ë§ˆìš°ìŠ¤ ì˜í–¥ë ¥ ê³„ì‚° (ì»·ì‹  ì¤‘ì—ëŠ” ë¬´ì‹œ)
+        // íƒ€ê²Ÿ(player ë³€ìˆ˜)ì´ ì‹¤ì œ ê²Œìž„ë§¤ë‹ˆì €ì˜ í”Œë ˆì´ì–´ê°€ ì•„ë‹ ê²½ìš°(ì¦‰, ì»·ì‹  ì¤‘ì¼ ê²½ìš°) 
+        // ë§ˆìš°ìŠ¤ ì˜¤í”„ì…‹ì„ ê°•ì œë¡œ 0ìœ¼ë¡œ ë§Œë“¤ì–´ ë³´ìŠ¤ì—ê²Œ ì •í™•ížˆ ê³ ì •ë˜ë„ë¡ í•©ë‹ˆë‹¤.
         // ==============================================================
         Vector3 finalOffset = Vector3.zero;
 
@@ -179,7 +179,7 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-    // ¡Ú [¼öÁ¤µÊ] Å¸°Ù º¹±¸ ½Ã ¼Óµµµµ ¿ø·¡´ë·Î º¹±¸
+    // â˜… [ìˆ˜ì •ë¨] íƒ€ê²Ÿ ë³µêµ¬ ì‹œ ì†ë„ë„ ì›ëž˜ëŒ€ë¡œ ë³µêµ¬
     public void ResetTargetToPlayer()
     {
         if (GameManager.instance != null && GameManager.instance.player != null)
@@ -188,7 +188,7 @@ public class CameraFollow : MonoBehaviour
         }
 
         smoothSpeed = (originalSmoothSpeed > 2) ? originalSmoothSpeed : 5f;
-        // º¸½º ½ÃÀÛ¿¡¼­ ¿¡·¯°¡ »ý±æ ¼ö ÀÖ¾î¼­ 2·Î ÇÏµåÄÚµù
+        // ë³´ìŠ¤ ì‹œìž‘ì—ì„œ ì—ëŸ¬ê°€ ìƒê¸¸ ìˆ˜ ìžˆì–´ì„œ 2ë¡œ í•˜ë“œì½”ë”©
     }
 
     public void SnapToTarget()

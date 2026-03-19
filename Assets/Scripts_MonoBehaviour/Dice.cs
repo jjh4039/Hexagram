@@ -20,14 +20,14 @@ public class Dice : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.stats == null) return;
         PlayerStats stats = GameManager.instance.stats;
 
-        // 1. ÆĞ½Ãºê ÃæÀü
+        // 1. íŒ¨ì‹œë¸Œ ì¶©ì „
         if (stats.currentDiceCharge < stats.maxDiceCharge)
         {
             stats.currentDiceCharge += passiveChargeRate * stats.chargeSpeedMultiplier * Time.deltaTime;
             stats.currentDiceCharge = Mathf.Clamp(stats.currentDiceCharge, 0f, stats.maxDiceCharge);
         }
 
-        // 2. ÀÔ·Â °¨Áö ¹× ½ÇÇà Á¶°Ç Ã¼Å©
+        // 2. ì…ë ¥ ê°ì§€ ë° ì‹¤í–‰ ì¡°ê±´ ì²´í¬
         HandleInput(stats);
     }
 
@@ -35,7 +35,7 @@ public class Dice : MonoBehaviour
     {
         if (Keyboard.current.eKey.wasPressedThisFrame)
         {
-            // UI°¡ ¿¬Ãâ ÁßÀÌ ¾Æ´Ò ¶§¸¸ ½ÇÇà °¡´É
+            // UIê°€ ì—°ì¶œ ì¤‘ì´ ì•„ë‹ ë•Œë§Œ ì‹¤í–‰ ê°€ëŠ¥
             if (diceUI != null && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
             {
                 RollDice(stats);
@@ -45,17 +45,17 @@ public class Dice : MonoBehaviour
 
     private void RollDice(PlayerStats stats)
     {
-        // [·ÎÁ÷] °ÔÀÌÁö Áï½Ã Â÷°¨
+        // [ë¡œì§] ê²Œì´ì§€ ì¦‰ì‹œ ì°¨ê°
         stats.currentDiceCharge -= 100f;
 
-        // [·ÎÁ÷] ·£´ı °á°ú ÃßÃâ
+        // [ë¡œì§] ëœë¤ ê²°ê³¼ ì¶”ì¶œ
         int randomIndex = Random.Range(0, diceList.Length);
         DiceData selectedData = diceList[randomIndex];
 
-        // [·ÎÁ÷] ½ÇÁ¦ ÇÃ·¹ÀÌ¾î ¹öÇÁ Àû¿ë (ÀÌ°÷¿¡ ¹öÇÁ ÇÔ¼ö È£Ãâ Ãß°¡ °¡´É)
+        // [ë¡œì§] ì‹¤ì œ í”Œë ˆì´ì–´ ë²„í”„ ì ìš© (ì´ê³³ì— ë²„í”„ í•¨ìˆ˜ í˜¸ì¶œ ì¶”ê°€ ê°€ëŠ¥)
         // ApplyBuff(selectedData);
 
-        // [ºñÁÖ¾ó] UI¿¡°Ô µ¥ÀÌÅÍ Àü´Ş ¹× ¿¬Ãâ ¸í·É
+        // [ë¹„ì£¼ì–¼] UIì—ê²Œ ë°ì´í„° ì „ë‹¬ ë° ì—°ì¶œ ëª…ë ¹
         if (diceUI != null)
         {
             diceUI.PlayRollAnimation(selectedData, randomIndex);

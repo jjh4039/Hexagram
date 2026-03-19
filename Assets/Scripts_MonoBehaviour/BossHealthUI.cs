@@ -13,10 +13,10 @@ public class BossHealthUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI hpText;
 
     [Header("Sliders (Layered)")]
-    [SerializeField] private Slider mainSlider;     // ¸ŞÀÎ ¹Ù (ÀÎ½ºÆåÅÍ¿¡¼­ #FF3131 ¼³Á¤)
-    [SerializeField] private Slider flashSlider;    // ÇÃ·¡½Ã ¹Ù (ÀÎ½ºÆåÅÍ¿¡¼­ #FFFFFF ¼³Á¤)
-    [SerializeField] private Slider bufferSlider1;  // ºü¸¥ ÀÜ»ó (ÀÎ½ºÆåÅÍ¿¡¼­ #FFD700 ¼³Á¤)
-    [SerializeField] private Slider bufferSlider2;  // ´À¸° ÀÜ»ó (ÀÎ½ºÆåÅÍ¿¡¼­ #8B0000 ¼³Á¤)
+    [SerializeField] private Slider mainSlider;     // ë©”ì¸ ë°” (ì¸ìŠ¤í™í„°ì—ì„œ #FF3131 ì„¤ì •)
+    [SerializeField] private Slider flashSlider;    // í”Œë˜ì‹œ ë°” (ì¸ìŠ¤í™í„°ì—ì„œ #FFFFFF ì„¤ì •)
+    [SerializeField] private Slider bufferSlider1;  // ë¹ ë¥¸ ì”ìƒ (ì¸ìŠ¤í™í„°ì—ì„œ #FFD700 ì„¤ì •)
+    [SerializeField] private Slider bufferSlider2;  // ëŠë¦° ì”ìƒ (ì¸ìŠ¤í™í„°ì—ì„œ #8B0000 ì„¤ì •)
 
     private float maxHP;
     private Coroutine bufferCoroutine;
@@ -35,7 +35,7 @@ public class BossHealthUI : MonoBehaviour
 
         if (hpText != null) hpText.text = $"0 / {maxHP:N0}";
 
-        // ¡Ú Åõ¸íµµ¸¦ 0À¸·Î µĞ »óÅÂ·Î ÄÚ·çÆ¾ ½ÃÀÛ
+        // â˜… íˆ¬ëª…ë„ë¥¼ 0ìœ¼ë¡œ ë‘” ìƒíƒœë¡œ ì½”ë£¨í‹´ ì‹œì‘
         bossCanvasGroup.alpha = 0f;
 
         StartCoroutine(Co_IntroFill());
@@ -44,14 +44,14 @@ public class BossHealthUI : MonoBehaviour
     private IEnumerator Co_IntroFill()
     {
         float elapsed = 0f;
-        float duration = 1.5f; // ÀüÃ¼ ¿¬Ãâ ½Ã°£
+        float duration = 1.5f; // ì „ì²´ ì—°ì¶œ ì‹œê°„
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            // ¡Ú ÃÊ¹İ 0.5ÃÊ µ¿¾È Ã¼·Â¹Ù UI ÀÚÃ¼°¡ ½º¸£¸¤ ³ªÅ¸³²
+            // â˜… ì´ˆë°˜ 0.5ì´ˆ ë™ì•ˆ ì²´ë ¥ë°” UI ìì²´ê°€ ìŠ¤ë¥´ë¥µ ë‚˜íƒ€ë‚¨
             bossCanvasGroup.alpha = Mathf.Clamp01(elapsed / 0.5f);
 
             bufferSlider2.value = Mathf.Lerp(0, 1f, t * 1.5f);
@@ -80,31 +80,31 @@ public class BossHealthUI : MonoBehaviour
     {
         float targetFill = currentHP / maxHP;
 
-        // ÅØ½ºÆ® ¾÷µ¥ÀÌÆ®
+        // í…ìŠ¤íŠ¸ ì—…ë°ì´íŠ¸
         if (hpText != null)
             hpText.text = $"{Mathf.Max(0, currentHP):N0} / {maxHP:N0}";
 
-        // 1. ¸ŞÀÎ ¹Ù´Â Áï°¢ ¹İÀÀ
+        // 1. ë©”ì¸ ë°”ëŠ” ì¦‰ê° ë°˜ì‘
         mainSlider.value = targetFill;
 
-        // 2. Èò»ö ÇÃ·¡½Ã ¿¬Ãâ
+        // 2. í°ìƒ‰ í”Œë˜ì‹œ ì—°ì¶œ
         StartCoroutine(Co_FlashEffect(targetFill));
 
-        // 3. ÀÜ»ó ÄÚ·çÆ¾ (ÁßÃ¸ ¹æÁö)
+        // 3. ì”ìƒ ì½”ë£¨í‹´ (ì¤‘ì²© ë°©ì§€)
         if (bufferCoroutine != null) StopCoroutine(bufferCoroutine);
         bufferCoroutine = StartCoroutine(Co_BufferFollow(targetFill));
     }
 
     private IEnumerator Co_FlashEffect(float target)
     {
-        flashSlider.value = target + 0.005f; // ¾ÆÁÖ ¹Ì¼¼ÇÏ°Ô ³ô°Ô Àâ¾Æ °ãÄ§ ¹æÁö
+        flashSlider.value = target + 0.005f; // ì•„ì£¼ ë¯¸ì„¸í•˜ê²Œ ë†’ê²Œ ì¡ì•„ ê²¹ì¹¨ ë°©ì§€
         yield return new WaitForSeconds(0.1f);
         flashSlider.value = target;
     }
 
     private IEnumerator Co_BufferFollow(float target)
     {
-        // Lerp ¼Óµµ´Â ±âÈ£¿¡ µû¶ó ÀÎ½ºÆåÅÍ º¯¼ö·Î »©¼Åµµ ÁÁ½À´Ï´Ù.
+        // Lerp ì†ë„ëŠ” ê¸°í˜¸ì— ë”°ë¼ ì¸ìŠ¤í™í„° ë³€ìˆ˜ë¡œ ë¹¼ì…”ë„ ì¢‹ìŠµë‹ˆë‹¤.
         while (Mathf.Abs(bufferSlider2.value - target) > 0.001f)
         {
             bufferSlider1.value = Mathf.Lerp(bufferSlider1.value, target, Time.deltaTime * 5f);

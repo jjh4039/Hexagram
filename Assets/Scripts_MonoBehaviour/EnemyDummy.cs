@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class EnemyDummy : Enemy
 {
-    // ¡Ú [»èÁ¦µÊ] hpBarRoot º¯¼ö´Â ºÎ¸ğ(Enemy)·Î ÀÌµ¿Çß½À´Ï´Ù.
-    // ±âÁ¸¿¡ [Header("UI Fix")] µµ ÀÌÁ¦ ÇÊ¿ä ¾ø½À´Ï´Ù.
+    // â˜… [ì‚­ì œë¨] hpBarRoot ë³€ìˆ˜ëŠ” ë¶€ëª¨(Enemy)ë¡œ ì´ë™í–ˆìŠµë‹ˆë‹¤.
+    // ê¸°ì¡´ì— [Header("UI Fix")] ë„ ì´ì œ í•„ìš” ì—†ìŠµë‹ˆë‹¤.
 
     private Rigidbody2D rigid;
 

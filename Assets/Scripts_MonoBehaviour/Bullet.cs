@@ -125,7 +125,7 @@ public class Bullet : MonoBehaviour
     {
         PlayerStats stats = GameManager.instance.stats;
 
-        // ¡Ú [¹ö±× ¼öÁ¤ ¿Ï·á] stats.damageMultiplier Ãß°¡!
+        // â˜… [ë²„ê·¸ ìˆ˜ì • ì™„ë£Œ] stats.damageMultiplier ì¶”ê°€!
         float baseDamage = stats.rangeAttackPower * damageMultiplier * stats.damageMultiplier;
 
         float variance = stats.rangedDamageVariance;
@@ -134,11 +134,11 @@ public class Bullet : MonoBehaviour
 
         bool isCritical = Random.value < 0.2f;
 
-        // ¡Ú [¹ö±× ¼öÁ¤ ¿Ï·á] stats.remainingStrongAttacks È®ÀÎ ÈÄ Â÷°¨!
+        // â˜… [ë²„ê·¸ ìˆ˜ì • ì™„ë£Œ] stats.remainingStrongAttacks í™•ì¸ í›„ ì°¨ê°!
         if (stats.remainingStrongAttacks > 0)
         {
             isCritical = true;
-            stats.remainingStrongAttacks--; // ÅºÈ¯ÀÌ ¸ÂÀ» ¶§ È½¼ö Â÷°¨!
+            stats.remainingStrongAttacks--; // íƒ„í™˜ì´ ë§ì„ ë•Œ íšŸìˆ˜ ì°¨ê°!
         }
 
         if (isCritical)

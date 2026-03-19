@@ -16,8 +16,8 @@ public class Sword : MonoBehaviour
     [Header("Stats")]
     [SerializeField] private float attackSpeed = 1.0f;
     [SerializeField] private float fadeSpeed = 10f;
-    [SerializeField] private float attackMoveSpeedMultiplier = 0.4f; // °Ë °ø°İ ½Ã ½½·Î¿ì Á¤µµ
-    public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier; // À§ º¯¼ö ¿ÜºÎ ³ëÃâ¿ë
+    [SerializeField] private float attackMoveSpeedMultiplier = 0.4f; // ê²€ ê³µê²© ì‹œ ìŠ¬ë¡œìš° ì •ë„
+    public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier; // ìœ„ ë³€ìˆ˜ ì™¸ë¶€ ë…¸ì¶œìš©
 
     [Header("Audio")]
     [SerializeField] private AudioClip sfxSlash;
@@ -106,7 +106,7 @@ public class Sword : MonoBehaviour
         {
             currentDmgMultiplier *= 2.0f;
             GameManager.instance.stats.remainingStrongAttacks--;
-            Debug.Log("°­È­ °ø°İ ¹ßµ¿!");
+            Debug.Log("ê°•í™” ê³µê²© ë°œë™!");
         }
 
         if (sfxSlash != null)
@@ -122,15 +122,15 @@ public class Sword : MonoBehaviour
 
     private void ApplyPhysics()
     {
-        // 1. °ø°İ »óÅÂÀÓÀ» ¾Ë¸²
+        // 1. ê³µê²© ìƒíƒœì„ì„ ì•Œë¦¼
         GameManager.instance.player.isAttacking = true;
 
-        // 2. °ø°İ ½ÃÀÛ ½Ã ±âÁ¸ ¼Óµµ¸¦ ÃÊ±âÈ­ÇÏ¿© °ü¼º Á¦°Å
+        // 2. ê³µê²© ì‹œì‘ ì‹œ ê¸°ì¡´ ì†ë„ë¥¼ ì´ˆê¸°í™”í•˜ì—¬ ê´€ì„± ì œê±°
         GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
 
-        // ¡Ú [¼öÁ¤] ÀüÁø¼º(AddForce) ·ÎÁ÷À» ¿ÏÀüÈ÷ »èÁ¦Çß½À´Ï´Ù. ÀÌÁ¦ Á¦ÀÚ¸®¿¡¼­ °ø°İÇÕ´Ï´Ù.
+        // â˜… [ìˆ˜ì •] ì „ì§„ì„±(AddForce) ë¡œì§ì„ ì™„ì „íˆ ì‚­ì œí–ˆìŠµë‹ˆë‹¤. ì´ì œ ì œìë¦¬ì—ì„œ ê³µê²©í•©ë‹ˆë‹¤.
 
-        // 3. °ø°İ Á¾·á ÆÇÁ¤ Å¸ÀÌ¹Ö
+        // 3. ê³µê²© ì¢…ë£Œ íŒì • íƒ€ì´ë°
         CancelInvoke("ResetAttackStatus");
         Invoke("ResetAttackStatus", 0.3f / attackSpeed);
     }

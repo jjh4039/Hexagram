@@ -15,10 +15,10 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private Transform gunSpriteTransform;
 
     [Space]
-    [SerializeField] private float swapDuration = 0.15f;    // ÀüÈ¯ ¼Óµµ
+    [SerializeField] private float swapDuration = 0.15f;    // ì „í™˜ ì†ë„
 
     public bool IsAiming => CurrentWeapon == WeaponType.Gun && !IsSwapping;
-    // ¡Ú µ¶ÀÚÀûÀÎ PlayerInput º¯¼ö¿Í Awake, OnEnable, OnDisable ¿ÏÀü »èÁ¦! (Player.cs¿¡¼­ ÅëÁ¦)
+    // â˜… ë…ìì ì¸ PlayerInput ë³€ìˆ˜ì™€ Awake, OnEnable, OnDisable ì™„ì „ ì‚­ì œ! (Player.csì—ì„œ í†µì œ)
 
     public enum WeaponType
     {
@@ -26,7 +26,7 @@ public class WeaponManager : MonoBehaviour
         Gun
     }
 
-    public bool IsSwapping { get; private set; } // ±³Ã¼ ÁßÀÎ°¡?
+    public bool IsSwapping { get; private set; } // êµì²´ ì¤‘ì¸ê°€?
     public WeaponType CurrentWeapon { get; private set; } = WeaponType.Sword;
 
     private Coroutine swapCoroutine;
@@ -65,16 +65,16 @@ public class WeaponManager : MonoBehaviour
 
     private void Update()
     {
-        // ¡Ú [°¡Àå Áß¿ä] Player.cs¿¡¼­ ÅëÁ¦±ÇÀÌ ²¨Á®ÀÖÀ¸¸é ¹¯Áöµµ µûÁöÁöµµ ¾Ê°í ½º¿Ò ÁßÁö!
+        // â˜… [ê°€ì¥ ì¤‘ìš”] Player.csì—ì„œ í†µì œê¶Œì´ êº¼ì ¸ìˆìœ¼ë©´ ë¬»ì§€ë„ ë”°ì§€ì§€ë„ ì•Šê³  ìŠ¤ì™‘ ì¤‘ì§€!
         if (GameManager.instance.player != null && !GameManager.instance.player.canControl) return;
         if (GameManager.instance.player != null && GameManager.instance.player.isCharging) return;
 
-        // ¡Ú µ¶¸³ÀûÀÎ InputActions ´ë½Å Mouse ¿ìÅ¬¸¯(È¦µå) »óÅÂ¸¦ Á÷Á¢ È®ÀÎ
+        // â˜… ë…ë¦½ì ì¸ InputActions ëŒ€ì‹  Mouse ìš°í´ë¦­(í™€ë“œ) ìƒíƒœë¥¼ ì§ì ‘ í™•ì¸
         bool isHolding = Mouse.current != null && Mouse.current.rightButton.isPressed;
 
         if (IsSwapping) return;
 
-        // È¦µå À¯Áö ¾Ø °Ç ½º¿Ò ¾Ö´Ï¸ŞÀÌ¼Ç ·ÎÁ÷ ¿Ïº® À¯Áö!
+        // í™€ë“œ ìœ ì§€ ì•¤ ê±´ ìŠ¤ì™‘ ì• ë‹ˆë©”ì´ì…˜ ë¡œì§ ì™„ë²½ ìœ ì§€!
         if (isHolding && CurrentWeapon == WeaponType.Sword)
         {
             if (swapCoroutine != null) StopCoroutine(swapCoroutine);
@@ -91,7 +91,7 @@ public class WeaponManager : MonoBehaviour
     {
         if (IsSwapping) return;
 
-        // ¡Ú ¸Å¹ø GetComponent ÇÏ´ø °É Áö¿ì°í, ±â¾ïÇØµĞ ³à¼®À» Áï½Ã È£ÃâÇÕ´Ï´Ù! (¼Óµµ 100¹è »ó½Â)
+        // â˜… ë§¤ë²ˆ GetComponent í•˜ë˜ ê±¸ ì§€ìš°ê³ , ê¸°ì–µí•´ë‘” ë…€ì„ì„ ì¦‰ì‹œ í˜¸ì¶œí•©ë‹ˆë‹¤! (ì†ë„ 100ë°° ìƒìŠ¹)
         if (CurrentWeapon == WeaponType.Sword && cachedSword != null)
         {
             cachedSword.TriggerAttack();
@@ -114,7 +114,7 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    // ... (ÀÌÇÏ SwapToGun, SwapToSword, SetAlpha, InitializeWeapon ÇÔ¼ö´Â 100% ¿øº»°ú µ¿ÀÏ) ...
+    // ... (ì´í•˜ SwapToGun, SwapToSword, SetAlpha, InitializeWeapon í•¨ìˆ˜ëŠ” 100% ì›ë³¸ê³¼ ë™ì¼) ...
     private IEnumerator SwapToGun()
     {
         IsSwapping = true;
@@ -198,7 +198,7 @@ public class WeaponManager : MonoBehaviour
             return cachedSword.AttackMoveSpeedMultiplier;
         }
 
-        // ÃÑÀÌ³ª ´Ù¸¥ ¹«±âÀÏ ¶§´Â ±âº»ÀûÀ¸·Î ÀÌµ¿À» ¸·°Å³ª(0) È¤Àº 1·Î ¼³Á¤ °¡´É
+        // ì´ì´ë‚˜ ë‹¤ë¥¸ ë¬´ê¸°ì¼ ë•ŒëŠ” ê¸°ë³¸ì ìœ¼ë¡œ ì´ë™ì„ ë§‰ê±°ë‚˜(0) í˜¹ì€ 1ë¡œ ì„¤ì • ê°€ëŠ¥
         return 0f;
     }
 

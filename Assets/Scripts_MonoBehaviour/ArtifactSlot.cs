@@ -5,14 +5,14 @@ using UnityEngine.EventSystems;
 public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image iconImage;
-    [SerializeField] private GameObject outlineObj; // ¡Ú [Ãß°¡] ¾Æ¿ô¶óÀÎ ¿ÀºêÁ§Æ®
+    [SerializeField] private GameObject outlineObj; // â˜… [ì¶”ê°€] ì•„ì›ƒë¼ì¸ ì˜¤ë¸Œì íŠ¸
 
     private ArtifactData _data;
 
     public void Setup(ArtifactData data)
     {
         _data = data;
-        if (outlineObj != null) outlineObj.SetActive(false); // ½ÃÀÛÇÒ ¶© ²ô±â
+        if (outlineObj != null) outlineObj.SetActive(false); // ì‹œì‘í•  ë• ë„ê¸°
 
         if (_data != null)
         {
@@ -27,7 +27,7 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // ¡Ú ¸¶¿ì½º µé¾î¿À¸é ¾Æ¿ô¶óÀÎ ÄÑ±â
+        // â˜… ë§ˆìš°ìŠ¤ ë“¤ì–´ì˜¤ë©´ ì•„ì›ƒë¼ì¸ ì¼œê¸°
         if (outlineObj != null) outlineObj.SetActive(true);
 
         if (_data != null)
@@ -38,7 +38,7 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // ¡Ú ¸¶¿ì½º ³ª°¡¸é ¾Æ¿ô¶óÀÎ ²ô±â
+        // â˜… ë§ˆìš°ìŠ¤ ë‚˜ê°€ë©´ ì•„ì›ƒë¼ì¸ ë„ê¸°
         if (outlineObj != null) outlineObj.SetActive(false);
 
         DashboardUI.instance.HideTooltip();

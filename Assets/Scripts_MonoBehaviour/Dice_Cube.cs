@@ -4,7 +4,7 @@ public class Dice_Cube : MonoBehaviour
 {
     [Header("--- Roll Settings ---")]
     [SerializeField] private float rollSpeed = 1000f;
-    [SerializeField] private float minRotationThreshold = 0.5f; // ÃàÀÇ ÃÖ¼Ò °ª º¸Á¤Ä¡
+    [SerializeField] private float minRotationThreshold = 0.5f; // ì¶•ì˜ ìµœì†Œ ê°’ ë³´ì •ì¹˜
 
     private Vector3 currentAxis;
 
@@ -21,10 +21,10 @@ public class Dice_Cube : MonoBehaviour
 
     void Update()
     {
-        // ¿ùµå ÁÂÇ¥ ±âÁØ È¸Àü
+        // ì›”ë“œ ì¢Œí‘œ ê¸°ì¤€ íšŒì „
         transform.Rotate(currentAxis * rollSpeed * Time.deltaTime, Space.World);
 
-        // ·ÎÄÃ ÁÂÇ¥ ±âÁØ Ãß°¡ È¸Àü (´ú±×·°°Å¸®´Â ´À³¦)
+        // ë¡œì»¬ ì¢Œí‘œ ê¸°ì¤€ ì¶”ê°€ íšŒì „ (ëœê·¸ëŸ­ê±°ë¦¬ëŠ” ëŠë‚Œ)
         transform.Rotate(new Vector3(1.2f, 0.5f, 0.8f) * (rollSpeed * 0.5f) * Time.deltaTime, Space.Self);
     }
 }

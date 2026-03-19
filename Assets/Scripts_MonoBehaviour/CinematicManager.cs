@@ -9,29 +9,29 @@ public class CinematicManager : MonoBehaviour
     public static CinematicManager instance;
 
     [Header("Cinematic Bars UI")]
-    [SerializeField] private RectTransform topBar;      // »ó´Ü °ËÀº ÁÙ
-    [SerializeField] private RectTransform bottomBar;   // ÇÏ´Ü °ËÀº ÁÙ
-    [SerializeField] private float barHeight = 40f;    // ÃÖÁ¾ °ËÀº ÁÙÀÇ µÎ²²
-    [SerializeField] private float barAnimTime = 1.5f;  // ½º¸£¸¤ ³ª¿À´Â ½Ã°£
+    [SerializeField] private RectTransform topBar;      // ìƒë‹¨ ê²€ì€ ì¤„
+    [SerializeField] private RectTransform bottomBar;   // í•˜ë‹¨ ê²€ì€ ì¤„
+    [SerializeField] private float barHeight = 40f;    // ìµœì¢… ê²€ì€ ì¤„ì˜ ë‘ê»˜
+    [SerializeField] private float barAnimTime = 1.5f;  // ìŠ¤ë¥´ë¥µ ë‚˜ì˜¤ëŠ” ì‹œê°„
 
     [Header("Environment Sunset")]
-    [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f); // Àú³á »ö»ó
-    [SerializeField] private float sunsetDuration = 2f; // ÇØ°¡ Áö´Â ½Ã°£
-    [SerializeField] private float holdDuration = 2f;   // ÇØ°¡ Áö°í ³­ µÚ ¸Ó¹«´Â ½Ã°£
-    [SerializeField] private float cinematicCameraSpeed = 1.5f; // ÄÆ½Å Áß Ä«¸Ş¶ó ÀÌµ¿ ¼Óµµ
+    [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f); // ì €ë… ìƒ‰ìƒ
+    [SerializeField] private float sunsetDuration = 2f; // í•´ê°€ ì§€ëŠ” ì‹œê°„
+    [SerializeField] private float holdDuration = 2f;   // í•´ê°€ ì§€ê³  ë‚œ ë’¤ ë¨¸ë¬´ëŠ” ì‹œê°„
+    [SerializeField] private float cinematicCameraSpeed = 1.5f; // ì»·ì‹  ì¤‘ ì¹´ë©”ë¼ ì´ë™ ì†ë„
 
     [Header("Death Cinematic")]
-    [Tooltip("È­¸éÀ» ÇÏ¾é°Ô µ¤À» ÆĞ³Î (CanvasGroup Æ÷ÇÔ)")]
+    [Tooltip("í™”ë©´ì„ í•˜ì–—ê²Œ ë®ì„ íŒ¨ë„ (CanvasGroup í¬í•¨)")]
     [SerializeField] private CanvasGroup whiteScreenGroup;
-    [SerializeField] private float slowMotionScale = 0.2f; // ¾ó¸¶³ª ´À·ÁÁú °ÍÀÎ°¡? (0.2¹è¼Ó)
-    [SerializeField] private float whiteOutDuration = 2.0f; // È­¸éÀÌ ÇÏ¾é°Ô µ¤ÀÌ´Â µ¥ °É¸®´Â ½Ã°£
+    [SerializeField] private float slowMotionScale = 0.2f; // ì–¼ë§ˆë‚˜ ëŠë ¤ì§ˆ ê²ƒì¸ê°€? (0.2ë°°ì†)
+    [SerializeField] private float whiteOutDuration = 2.0f; // í™”ë©´ì´ í•˜ì–—ê²Œ ë®ì´ëŠ” ë° ê±¸ë¦¬ëŠ” ì‹œê°„
 
     public float SunsetDuration => sunsetDuration;
 
     [Header("UI to Hide During Cinematic")]
-    [Tooltip("ÄÆ½Å Áß ¼û±æ UI ¿ÀºêÁ§Æ®µéÀ» ³ÖÀ¸¼¼¿ä (Dice, Player_Info, Weapon µî)")]
+    [Tooltip("ì»·ì‹  ì¤‘ ìˆ¨ê¸¸ UI ì˜¤ë¸Œì íŠ¸ë“¤ì„ ë„£ìœ¼ì„¸ìš” (Dice, Player_Info, Weapon ë“±)")]
     [SerializeField] private GameObject[] uiElementsToHide;
-    [SerializeField] private float uiFadeTime = 0.3f; // UI°¡ »ç¶óÁö°í ³ªÅ¸³ª´Â ¼Óµµ
+    [SerializeField] private float uiFadeTime = 0.3f; // UIê°€ ì‚¬ë¼ì§€ê³  ë‚˜íƒ€ë‚˜ëŠ” ì†ë„
 
     private List<CanvasGroup> hiddenUIGroups = new List<CanvasGroup>();
 
@@ -71,7 +71,7 @@ public class CinematicManager : MonoBehaviour
 
         CameraFollow.instance.ResetTargetToPlayer();
 
-        // ¡Ú [¿ø»óº¹±¸] ·¹ÅÍ¹Ú½º°¡ ´Ù ¿Ã¶ó°¥ ¶§±îÁö ±â´Ù¸®Áö ¾Ê°í(StartCoroutine) ¹Ù·Î Á¶ÀÛ±ÇÀ» Áİ´Ï´Ù.
+        // â˜… [ì›ìƒë³µêµ¬] ë ˆí„°ë°•ìŠ¤ê°€ ë‹¤ ì˜¬ë¼ê°ˆ ë•Œê¹Œì§€ ê¸°ë‹¤ë¦¬ì§€ ì•Šê³ (StartCoroutine) ë°”ë¡œ ì¡°ì‘ê¶Œì„ ì¤ë‹ˆë‹¤.
         StartCoroutine(Co_AnimateLetterBox(false));
         StartCoroutine(Co_FadeGameplayUI(true));
 
@@ -220,6 +220,6 @@ public class CinematicManager : MonoBehaviour
             whiteScreenGroup.gameObject.SetActive(false);
         }
 
-        Debug.Log("º¸½º Ã³Ä¡ ¿¬Ãâ ¿ÏÀü Á¾·á!");
+        Debug.Log("ë³´ìŠ¤ ì²˜ì¹˜ ì—°ì¶œ ì™„ì „ ì¢…ë£Œ!");
     }
 }

@@ -1,17 +1,17 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; // Queue¸¦ »ç¿ëÇÏ±â À§ÇØ Ãß°¡
+using System.Collections.Generic; // Queueë¥¼ ì‚¬ìš©í•˜ê¸° ìœ„í•´ ì¶”ê°€
 
 public class EnemyBoss : Enemy
 {
     [Header("Debug / Testing")]
-    [Tooltip("0: ·£´ı(1~4), 1~4: ÇØ´ç ÆĞÅÏ¸¸ ¹«ÇÑ ¹İº¹")]
+    [Tooltip("0: ëœë¤(1~4), 1~4: í•´ë‹¹ íŒ¨í„´ë§Œ ë¬´í•œ ë°˜ë³µ")]
     [SerializeField][Range(0, 4)] private int forcePatternIndex = 1;
-    [Tooltip("Ã¼·Â°ú »ó°ü¾øÀÌ °­Á¦·Î ÆøÁÖ(Phase 2) ÆĞÅÏÀ» ÄÕ´Ï´Ù.")]
+    [Tooltip("ì²´ë ¥ê³¼ ìƒê´€ì—†ì´ ê°•ì œë¡œ í­ì£¼(Phase 2) íŒ¨í„´ì„ ì¼­ë‹ˆë‹¤.")]
     [SerializeField] private bool forceEnrage = false;
 
     [Header("Boss Specific Stats")]
-    [SerializeField] private string bossName = "½£ÀÇ °ü¸®ÀÚ";
+    [SerializeField] private string bossName = "ìˆ²ì˜ ê´€ë¦¬ì";
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float spriteScale = 1f;
 
@@ -65,7 +65,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private GameObject aoeEffectPrefab;
 
-    [Header("Pattern 2: AoE Indicator (ÀÚ³à ¿ÀºêÁ§Æ® ¿¬°á)")]
+    [Header("Pattern 2: AoE Indicator (ìë…€ ì˜¤ë¸Œì íŠ¸ ì—°ê²°)")]
     [SerializeField] private GameObject attackMaxRangeObj;
     [SerializeField] private GameObject attackRangeObj;
     [SerializeField] private float aoeVisualScale = 4.5f;
@@ -111,7 +111,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private AudioClip sfxEnrageRoar;
 
     [Header("Death Settings")]
-    [SerializeField] private Sprite deadStatueSprite; // Ã³Ä¡ ½Ã º¯ÇÒ ¼®»ó ÀÌ¹ÌÁö
+    [SerializeField] private Sprite deadStatueSprite; // ì²˜ì¹˜ ì‹œ ë³€í•  ì„ìƒ ì´ë¯¸ì§€
 
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
@@ -126,7 +126,7 @@ public class EnemyBoss : Enemy
     private Queue<GameObject> trailPool = new Queue<GameObject>();
     private GameObject trailContainer;
 
-    // ¡Ú [ÇÙ½É Ãß°¡] ¸ğµç ÀåÆÇÀ» ¹­¾îµÑ Àü¿ë Æú´õ!
+    // â˜… [í•µì‹¬ ì¶”ê°€] ëª¨ë“  ì¥íŒì„ ë¬¶ì–´ë‘˜ ì „ìš© í´ë”!
     private Transform telegraphContainer;
 
     public bool IsDashing => isDashing;
@@ -141,7 +141,7 @@ public class EnemyBoss : Enemy
 
         InitializeTrailPool();
 
-        // ¡Ú ½ÃÀÛÇÒ ¶§ ÀåÆÇ Àü¿ë ÄÁÅ×ÀÌ³Ê »ı¼º
+        // â˜… ì‹œì‘í•  ë•Œ ì¥íŒ ì „ìš© ì»¨í…Œì´ë„ˆ ìƒì„±
         telegraphContainer = new GameObject($"Guardian_Telegraphs").transform;
     }
 
@@ -218,14 +218,14 @@ public class EnemyBoss : Enemy
 
         if (forceEnrage)
         {
-            Debug.Log("Å×½ºÆ® ¸ğµå: ÄÆ½Å Á¾·á ÈÄ º¸½º Ã¼·Â °­Á¦ 50% »è°¨!");
+            Debug.Log("í…ŒìŠ¤íŠ¸ ëª¨ë“œ: ì»·ì‹  ì¢…ë£Œ í›„ ë³´ìŠ¤ ì²´ë ¥ ê°•ì œ 50% ì‚­ê°!");
             currentHealth = maxHealth * 0.5f;
 
             yield return new WaitForSeconds(0.5f);
             if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
         }
 
-        // ±âµ¿ ¿Ï·á ÈÄ ±âº» ÆÄÆ¼Å¬ ÄÑ±â
+        // ê¸°ë™ ì™„ë£Œ í›„ ê¸°ë³¸ íŒŒí‹°í´ ì¼œê¸°
         if (auraParticle != null)
         {
             var main = auraParticle.main;
@@ -251,7 +251,7 @@ public class EnemyBoss : Enemy
         {
             isEnraged = false;
             if (spriteRenderer != null) spriteRenderer.color = Color.white;
-            Debug.Log("º¸½º ÆøÁÖ °­Á¦ ÇØÁ¦!");
+            Debug.Log("ë³´ìŠ¤ í­ì£¼ ê°•ì œ í•´ì œ!");
         }
     }
 
@@ -265,7 +265,7 @@ public class EnemyBoss : Enemy
 
     private IEnumerator Co_EnragePattern()
     {
-        Debug.Log("º¸½º ÆøÁÖ ÆĞÅÏ ½ÃÀÛ! Æ÷È¿ ¹× ³Ë¹é ¹ßµ¿!");
+        Debug.Log("ë³´ìŠ¤ í­ì£¼ íŒ¨í„´ ì‹œì‘! í¬íš¨ ë° ë„‰ë°± ë°œë™!");
         isEnraged = true;
         isAttacking = true;
         rigid.linearVelocity = Vector2.zero;
@@ -311,7 +311,7 @@ public class EnemyBoss : Enemy
         }
 
         isAttacking = false;
-        Debug.Log("ÆøÁÖ Æ÷È¿ ¿Ï·á! ±¤ÆøÈ­ ÀüÅõ µ¹ÀÔ.");
+        Debug.Log("í­ì£¼ í¬íš¨ ì™„ë£Œ! ê´‘í­í™” ì „íˆ¬ ëŒì….");
     }
 
     private void KnockbackPlayer()
@@ -402,7 +402,7 @@ public class EnemyBoss : Enemy
             if (dashCurrentRangeOrigin != null)
                 currentRectInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
 
-            // ¡Ú ºÎ¸ğ¸¦ telegraphContainer·Î ¼³Á¤
+            // â˜… ë¶€ëª¨ë¥¼ telegraphContainerë¡œ ì„¤ì •
             if (maxRectInstance != null) { maxRectInstance.transform.SetParent(telegraphContainer); maxRectInstance.SetActive(true); }
             if (currentRectInstance != null) { currentRectInstance.transform.SetParent(telegraphContainer); currentRectInstance.SetActive(true); }
 
@@ -561,7 +561,7 @@ public class EnemyBoss : Enemy
             float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
             wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
 
-            // ¡Ú ºÎ¸ğ¸¦ telegraphContainer·Î ¼³Á¤
+            // â˜… ë¶€ëª¨ë¥¼ telegraphContainerë¡œ ì„¤ì •
             if (dashMaxRangeOrigin != null)
             {
                 GameObject maxObj = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
@@ -616,7 +616,7 @@ public class EnemyBoss : Enemy
                     Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
                     reverseDirections.Add(toPlayerDir);
 
-                    // ¡Ú ºÎ¸ğ¸¦ telegraphContainer·Î ¼³Á¤
+                    // â˜… ë¶€ëª¨ë¥¼ telegraphContainerë¡œ ì„¤ì •
                     if (dashMaxRangeOrigin != null)
                     {
                         GameObject maxObj = Instantiate(dashMaxRangeOrigin, startPos, Quaternion.identity);
@@ -683,7 +683,7 @@ public class EnemyBoss : Enemy
 
         if (isEnraged || forceEnrage)
         {
-            // ¡Ú ºÎ¸ğ¸¦ telegraphContainer·Î ¼³Á¤
+            // â˜… ë¶€ëª¨ë¥¼ telegraphContainerë¡œ ì„¤ì •
             if (dashMaxRangeOrigin != null)
             {
                 sniperMaxInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
@@ -793,7 +793,7 @@ public class EnemyBoss : Enemy
                 var data = GetLineData(true, index);
 
                 GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
-                // ¡Ú ºÎ¸ğ¸¦ telegraphContainer·Î ¼³Á¤
+                // â˜… ë¶€ëª¨ë¥¼ telegraphContainerë¡œ ì„¤ì •
                 telegraph.transform.SetParent(telegraphContainer);
                 telegraph.transform.localScale = Vector3.one;
                 telegraph.SetActive(true);
@@ -818,7 +818,7 @@ public class EnemyBoss : Enemy
                 var data = GetLineData(false, index);
 
                 GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
-                // ¡Ú ºÎ¸ğ¸¦ telegraphContainer·Î ¼³Á¤
+                // â˜… ë¶€ëª¨ë¥¼ telegraphContainerë¡œ ì„¤ì •
                 telegraph.transform.SetParent(telegraphContainer);
                 telegraph.transform.localScale = Vector3.one;
                 telegraph.SetActive(true);
@@ -1096,13 +1096,13 @@ public class EnemyBoss : Enemy
         }
     }
 
-    // ¡Ú [ÇÙ½É ¼öÁ¤] ³²¾ÆÀÖ´Â ¸ğµç ÀåÆÇµéÀ» Æú´õÂ°·Î ½Ï Áö¿ó´Ï´Ù!
+    // â˜… [í•µì‹¬ ìˆ˜ì •] ë‚¨ì•„ìˆëŠ” ëª¨ë“  ì¥íŒë“¤ì„ í´ë”ì§¸ë¡œ ì‹¹ ì§€ì›ë‹ˆë‹¤!
     void ClearRectangles()
     {
         if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
         if (attackRangeObj != null) attackRangeObj.SetActive(false);
 
-        // ÄÁÅ×ÀÌ³Ê ¾È¿¡ Âî²¨±âÃ³·³ ³²¾ÆÀÖ´Â ¸ğµç Å¬·Ğ ÀåÆÇµéÀ» ¿Ïº®ÇÏ°Ô ÆÄ±«
+        // ì»¨í…Œì´ë„ˆ ì•ˆì— ì°Œêº¼ê¸°ì²˜ëŸ¼ ë‚¨ì•„ìˆëŠ” ëª¨ë“  í´ë¡  ì¥íŒë“¤ì„ ì™„ë²½í•˜ê²Œ íŒŒê´´
         if (telegraphContainer != null)
         {
             foreach (Transform child in telegraphContainer)
@@ -1133,7 +1133,7 @@ public class EnemyBoss : Enemy
 
         StopAllCoroutines();
 
-        // Á×´Â Áï½Ã ¸Ê¿¡ ±ò¸° ¸ğµç ÀåÆÇÀ» ÈçÀûµµ ¾øÀÌ ¼Ò¸ê½ÃÅµ´Ï´Ù.
+        // ì£½ëŠ” ì¦‰ì‹œ ë§µì— ê¹”ë¦° ëª¨ë“  ì¥íŒì„ í”ì ë„ ì—†ì´ ì†Œë©¸ì‹œí‚µë‹ˆë‹¤.
         ClearRectangles();
 
         if (auraParticle != null) auraParticle.Stop();
@@ -1150,11 +1150,11 @@ public class EnemyBoss : Enemy
         if (trailContainer != null)
             Destroy(trailContainer, trailLifeTime);
 
-        // ¡Ú [Ãß°¡] ÀåÆÇÀ» ´ã¾ÆµĞ ºó Æú´õ °´Ã¼µµ ¸Ş¸ğ¸®¿¡¼­ ³¯·Á¹ö¸³´Ï´Ù.
+        // â˜… [ì¶”ê°€] ì¥íŒì„ ë‹´ì•„ë‘” ë¹ˆ í´ë” ê°ì²´ë„ ë©”ëª¨ë¦¬ì—ì„œ ë‚ ë ¤ë²„ë¦½ë‹ˆë‹¤.
         if (telegraphContainer != null)
             Destroy(telegraphContainer.gameObject);
 
-        // ¸ÓÆ¼¸®¾ó °­Á¦ º¹±¸ (ÇÏ¾é°Ô ±»¾î¹ö¸®´Â Çö»ó ¹æÁö)
+        // ë¨¸í‹°ë¦¬ì–¼ ê°•ì œ ë³µêµ¬ (í•˜ì–—ê²Œ êµ³ì–´ë²„ë¦¬ëŠ” í˜„ìƒ ë°©ì§€)
         if (spriteRenderer != null && originalMaterial != null)
         {
             spriteRenderer.material = originalMaterial;
@@ -1168,7 +1168,7 @@ public class EnemyBoss : Enemy
             CinematicManager.instance.PlayBossDeathCinematic(this);
         }
 
-        Debug.Log("½£ÀÇ °ü¸®ÀÚ°¡ Ã³Ä¡µÇ¾ú½À´Ï´Ù. ½Ã³×¸¶Æ½ ½ÃÀÛ!");
+        Debug.Log("ìˆ²ì˜ ê´€ë¦¬ìê°€ ì²˜ì¹˜ë˜ì—ˆìŠµë‹ˆë‹¤. ì‹œë„¤ë§ˆí‹± ì‹œì‘!");
     }
 
     public void TurnIntoStatue()

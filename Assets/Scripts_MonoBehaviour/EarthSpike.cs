@@ -10,7 +10,7 @@ public class EarthSpike : MonoBehaviour
     [SerializeField] private float destroyTime = 1.0f;
 
     [Header("Visual Effects")]
-    [SerializeField] private GameObject debrisPrefab; // ¡Ú Èë¸ÕÁö ÆÄÆ¼Å¬ ¿¬°áÇÒ °÷
+    [SerializeField] private GameObject debrisPrefab; // â˜… í™ë¨¼ì§€ íŒŒí‹°í´ ì—°ê²°í•  ê³³
 
     private Collider2D col;
 
@@ -32,7 +32,7 @@ public class EarthSpike : MonoBehaviour
         if (debrisPrefab != null)
         {
             GameObject vfx = Instantiate(debrisPrefab, transform.position, Quaternion.identity);
-            Destroy(vfx, 1f); // ÆÄÆ¼Å¬Àº 1ÃÊ µÚ ÀÚµ¿ »èÁ¦
+            Destroy(vfx, 1f); // íŒŒí‹°í´ì€ 1ì´ˆ ë’¤ ìë™ ì‚­ì œ
         }
 
         if (col != null) col.enabled = true;

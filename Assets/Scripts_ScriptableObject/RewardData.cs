@@ -7,8 +7,8 @@ using UnityEngine;
 public class RewardData : ScriptableObject
 {
     [Header("UI")]
-    public string titleText;          // °ø°İ·Â, °ø°İ¼Óµµ µî
-    public string valueText;     // +10%, +1.5ÃÊ µî
-    public Color valueTextColor;        // Å¸ÀÌÆ² »ö»ó
-    // ÃßÈÄ¿¡ ¼öÄ¡ ¹İ¿µÇÒ ¶§ »ç¿ë
+    public string titleText;          // ê³µê²©ë ¥, ê³µê²©ì†ë„ ë“±
+    public string valueText;     // +10%, +1.5ì´ˆ ë“±
+    public Color valueTextColor;        // íƒ€ì´í‹€ ìƒ‰ìƒ
+    // ì¶”í›„ì— ìˆ˜ì¹˜ ë°˜ì˜í•  ë•Œ ì‚¬ìš©
 }

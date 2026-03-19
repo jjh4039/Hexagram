@@ -65,10 +65,10 @@ public class Sword_Effect : MonoBehaviour
     {
         PlayerStats stats = GameManager.instance.stats;
 
-        // ¡Ú [¹ö±× ¼öÁ¤ ¿Ï·á] stats.damageMultiplier ·Î ¼öÁ¤
+        // â˜… [ë²„ê·¸ ìˆ˜ì • ì™„ë£Œ] stats.damageMultiplier ë¡œ ìˆ˜ì •
         float currentDmg = stats.meleeAttackPower * damageMultiplier * stats.damageMultiplier;
 
-        // ¡Ú [¹ö±× ¼öÁ¤ ¿Ï·á] stats.remainingStrongAttacks ·Î ¼öÁ¤
+        // â˜… [ë²„ê·¸ ìˆ˜ì • ì™„ë£Œ] stats.remainingStrongAttacks ë¡œ ìˆ˜ì •
         if (stats.remainingStrongAttacks > 0)
         {
             currentDmg *= 2.0f;

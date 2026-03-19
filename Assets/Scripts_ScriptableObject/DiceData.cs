@@ -1,35 +1,35 @@
 using UnityEngine;
 
-// ÁÖ»çÀ§ È¿°ú Á¾·ù (¿ÀÅ¸ ¹æÁö¿ë ¸ñ·Ï)
+// ì£¼ì‚¬ìœ„ íš¨ê³¼ ì¢…ë¥˜ (ì˜¤íƒ€ ë°©ì§€ìš© ëª©ë¡)
 public enum DiceEffectType
 {
-    AttackBuff,     // »¡°­: °ø°İ·Â
-    CriticalBuff,   // ÁÖÈ²: Ä¡¸íÅ¸
-    GrowthBuff,     // ³ë¶û: ¼ºÀå(°ñµå/Ã¼·Â)
-    Heal,           // ÃÊ·Ï: È¸º¹
-    SpeedBuff,      // ÆÄ¶û: ¼Óµµ
-    ChargingBuff    // º¸¶ó: ÃæÀü¼Óµµ
+    AttackBuff,     // ë¹¨ê°•: ê³µê²©ë ¥
+    CriticalBuff,   // ì£¼í™©: ì¹˜ëª…íƒ€
+    GrowthBuff,     // ë…¸ë‘: ì„±ì¥(ê³¨ë“œ/ì²´ë ¥)
+    Heal,           // ì´ˆë¡: íšŒë³µ
+    SpeedBuff,      // íŒŒë‘: ì†ë„
+    ChargingBuff    // ë³´ë¼: ì¶©ì „ì†ë„
 }
 
-// [CreateAssetMenu] : ÀÌ ÄÚµå°¡ ÀÖÀ¸¸é À¯´ÏÆ¼ ¿ìÅ¬¸¯ ¸Ş´º¿¡ 'Dice Data'°¡ »ı±é´Ï´Ù!
+// [CreateAssetMenu] : ì´ ì½”ë“œê°€ ìˆìœ¼ë©´ ìœ ë‹ˆí‹° ìš°í´ë¦­ ë©”ë‰´ì— 'Dice Data'ê°€ ìƒê¹ë‹ˆë‹¤!
 [CreateAssetMenu(fileName = "New Dice Data", menuName = "Hexagram/DiceData")]
 public class DiceData : ScriptableObject
 {
-    [Header("--- ±âº» Á¤º¸ ---")]
-    public string diceName;          // ÁÖ»çÀ§ ÀÌ¸§ (¿¹: ±¤Àü»çÀÇ ´«)
-    [TextArea] public string description; // ¼³¸í
-    [TextArea] public string shortDescription; // ¼³¸í (UI¿¡ ¶ã ÅØ½ºÆ®)
+    [Header("--- ê¸°ë³¸ ì •ë³´ ---")]
+    public string diceName;          // ì£¼ì‚¬ìœ„ ì´ë¦„ (ì˜ˆ: ê´‘ì „ì‚¬ì˜ ëˆˆ)
+    [TextArea] public string description; // ì„¤ëª…
+    [TextArea] public string shortDescription; // ì„¤ëª… (UIì— ëœ° í…ìŠ¤íŠ¸)
 
-    [Header("--- ºñÁÖ¾ó ---")]
-    public Sprite icon;              // UI ¾ÆÀÌÄÜ (I, II, III...)
-    public Color32 particleColor;    // ÆÄÆ¼Å¬ »ö (ÁøÇÑ »ö)
-    public Color32 uiGlowColor;      // UI ¹è°æ »ö (¿¬ÇÑ »ö)
+    [Header("--- ë¹„ì£¼ì–¼ ---")]
+    public Sprite icon;              // UI ì•„ì´ì½˜ (I, II, III...)
+    public Color32 particleColor;    // íŒŒí‹°í´ ìƒ‰ (ì§„í•œ ìƒ‰)
+    public Color32 uiGlowColor;      // UI ë°°ê²½ ìƒ‰ (ì—°í•œ ìƒ‰)
 
-    [Header("--- ´É·ÂÄ¡ ---")]
-    public DiceEffectType effectType; // È¿°ú Á¾·ù (À§¿¡¼­ ¸¸µç ¸ñ·Ï Áß ¼±ÅÃ)
-    public float effectValue;         // È¿°ú ¼öÄ¡ (¿¹: 10)
-    public float duration;            // Áö¼Ó ½Ã°£ (¿¹: 10ÃÊ)
+    [Header("--- ëŠ¥ë ¥ì¹˜ ---")]
+    public DiceEffectType effectType; // íš¨ê³¼ ì¢…ë¥˜ (ìœ„ì—ì„œ ë§Œë“  ëª©ë¡ ì¤‘ ì„ íƒ)
+    public float effectValue;         // íš¨ê³¼ ìˆ˜ì¹˜ (ì˜ˆ: 10)
+    public float duration;            // ì§€ì† ì‹œê°„ (ì˜ˆ: 10ì´ˆ)
 
-    [Header("--- ÃÑ¾Ë ÆÄÆ¼Å¬ ---")]
+    [Header("--- ì´ì•Œ íŒŒí‹°í´ ---")]
     public Material muzzleFlashMaterial;
 }

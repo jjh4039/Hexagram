@@ -7,8 +7,8 @@ using ChocDino.UIFX;
 public class Dice_UI : MonoBehaviour
 {
     [Header("--- Sound Settings ---")]
-    [SerializeField] private AudioClip rollSound;    // ÁÖ»çÀ§°¡ ±¼·¯°¡´Â ¼Ò¸®
-    [SerializeField] private AudioClip resultSound;  // °á°ú°¡ ÆÅ ÅÍÁú ¶§ ¼Ò¸®
+    [SerializeField] private AudioClip rollSound;    // ì£¼ì‚¬ìœ„ê°€ êµ´ëŸ¬ê°€ëŠ” ì†Œë¦¬
+    [SerializeField] private AudioClip resultSound;  // ê²°ê³¼ê°€ íŒ í„°ì§ˆ ë•Œ ì†Œë¦¬
 
     [Header("--- UI References ---")]
     [SerializeField] private Image diceFillImage;
@@ -100,17 +100,17 @@ public class Dice_UI : MonoBehaviour
         if (resultDiceSprites != null && diceIndex < resultDiceSprites.Length)
             resultDiceImage.sprite = resultDiceSprites[diceIndex];
 
-        // 1. ÁÖ»çÀ§ UI »ç¶óÁü
+        // 1. ì£¼ì‚¬ìœ„ UI ì‚¬ë¼ì§
         if (diceObject != null)
         {
             yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale, originalDiceObjectScale * 1.2f, 10f));
             yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale * 1.2f, Vector3.zero, 8f));
         }
 
-        // 2. 3D ÁÖ»çÀ§ µîÀå ¹× È¸Àü ¿¬Ãâ
+        // 2. 3D ì£¼ì‚¬ìœ„ ë“±ì¥ ë° íšŒì „ ì—°ì¶œ
         if (dice3DObject != null)
         {
-            // [»ç¿îµå] ÁÖ»çÀ§ ±¼·¯°¡´Â ¼Ò¸® Àç»ı (ÇÇÄ¡ º¯È­¸¦ ÁÖ¾î ¸Å¹ø ´Ù¸£°Ô µé¸®°Ô ÇÔ)
+            // [ì‚¬ìš´ë“œ] ì£¼ì‚¬ìœ„ êµ´ëŸ¬ê°€ëŠ” ì†Œë¦¬ ì¬ìƒ (í”¼ì¹˜ ë³€í™”ë¥¼ ì£¼ì–´ ë§¤ë²ˆ ë‹¤ë¥´ê²Œ ë“¤ë¦¬ê²Œ í•¨)
             if (SoundManager.instance != null)
                 SoundManager.instance.PlaySFX(rollSound, 1.9f, 0.1f);
 
@@ -139,7 +139,7 @@ public class Dice_UI : MonoBehaviour
             dice3DObject.SetActive(false);
         }
 
-        // 3. °á°úÃ¢ ÆäÀÌµå ÀÎ ¹× È®´ë
+        // 3. ê²°ê³¼ì°½ í˜ì´ë“œ ì¸ ë° í™•ëŒ€
         fadeInGroup.gameObject.SetActive(true);
         fadeOutGroup.gameObject.SetActive(true);
         fadeInGroup.alpha = 0f;
@@ -148,7 +148,7 @@ public class Dice_UI : MonoBehaviour
         Transform imgTransform = resultDiceImage.transform;
         Transform txtTransform = resultDiceText.transform;
 
-        // [»ç¿îµå] °á°ú°¡ ÆÅ! ÅÍÁö´Â ÀÓÆÑÆ® ¼Ò¸®
+        // [ì‚¬ìš´ë“œ] ê²°ê³¼ê°€ íŒ! í„°ì§€ëŠ” ì„íŒ©íŠ¸ ì†Œë¦¬
         if (SoundManager.instance != null)
             SoundManager.instance.PlaySFX(resultSound, 1.7f, 0.3f);
 

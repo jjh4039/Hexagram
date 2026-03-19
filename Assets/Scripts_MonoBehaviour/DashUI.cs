@@ -5,8 +5,8 @@ public class DashUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Image[] dashFillImages;
-    [SerializeField] private Color chargingColor = new Color(1, 1, 1, 0.5f); // ÃæÀü Áß »ö»ó
-    [SerializeField] private Color fullColor = Color.white;                 // ¿ÏÃæ »ö»ó
+    [SerializeField] private Color chargingColor = new Color(1, 1, 1, 0.5f); // ì¶©ì „ ì¤‘ ìƒ‰ìƒ
+    [SerializeField] private Color fullColor = Color.white;                 // ì™„ì¶© ìƒ‰ìƒ
 
     void Update()
     {
@@ -14,18 +14,18 @@ public class DashUI : MonoBehaviour
 
         for (int i = 0; i < dashFillImages.Length; i++)
         {
-            // i¹øÂ° ½ºÅÃÀÌ ÀÌ¹Ì ²Ë Ã¡´ÂÁö, ¾Æ´Ï¸é Áö±İ Â÷¿À¸£´Â ÁßÀÎÁö ÆÇº°
+            // ië²ˆì§¸ ìŠ¤íƒì´ ì´ë¯¸ ê½‰ ì°¼ëŠ”ì§€, ì•„ë‹ˆë©´ ì§€ê¸ˆ ì°¨ì˜¤ë¥´ëŠ” ì¤‘ì¸ì§€ íŒë³„
             if (i < (int)currentStacks)
             {
-                dashFillImages[i].fillAmount = 1f; // ¿ÏÃæ »óÅÂ
+                dashFillImages[i].fillAmount = 1f; // ì™„ì¶© ìƒíƒœ
             }
             else if (i == (int)currentStacks)
             {
-                dashFillImages[i].fillAmount = currentStacks % 1f; // Â÷¿À¸£´Â »óÅÂ
+                dashFillImages[i].fillAmount = currentStacks % 1f; // ì°¨ì˜¤ë¥´ëŠ” ìƒíƒœ
             }
             else
             {
-                dashFillImages[i].fillAmount = 0f; // ¾ÆÁ÷ ½ÃÀÛ Àü
+                dashFillImages[i].fillAmount = 0f; // ì•„ì§ ì‹œì‘ ì „
             }
         }
     }

@@ -29,7 +29,7 @@ public class EnemyProjectileFlash : MonoBehaviour
             startScale * 0.8f,
             t);
 
-        // Á¡Á¡ Åõ¸íÇØÁü
+        // ì ì  íˆ¬ëª…í•´ì§
         if (spriteRenderer != null)
         {
             Color c = startColor;

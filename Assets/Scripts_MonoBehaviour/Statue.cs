@@ -1,35 +1,35 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // Å°º¸µå ÀÔ·ÂÀ» À§ÇØ ÇÊ¿ä
+using UnityEngine.InputSystem; // í‚¤ë³´ë“œ ì…ë ¥ì„ ìœ„í•´ í•„ìš”
 
 public class Statue : MonoBehaviour
 {
     [Header("--- Settings ---")]
-    public GameObject interactEffect; // »óÈ£ÀÛ¿ë °¡´ÉÇÒ ¶§ ¶ç¿ï Ç¥½Ã (¿¹: 'F' ¾ÆÀÌÄÜ)
-    public Material[] outLineMaterial;   // ¼®»ó ¿Ü°û¼± ÀçÁú (0Àº ±âº», 1Àº ºû³ª´Â ÀçÁú)
-    public SpriteRenderer statueWomanRenderer; // ¼®»ó ½ºÇÁ¶óÀÌÆ® ·»´õ·¯ (ÇÊ¿ä½Ã »ç¿ë)
+    public GameObject interactEffect; // ìƒí˜¸ì‘ìš© ê°€ëŠ¥í•  ë•Œ ë„ìš¸ í‘œì‹œ (ì˜ˆ: 'F' ì•„ì´ì½˜)
+    public Material[] outLineMaterial;   // ì„ìƒ ì™¸ê³½ì„  ì¬ì§ˆ (0ì€ ê¸°ë³¸, 1ì€ ë¹›ë‚˜ëŠ” ì¬ì§ˆ)
+    public SpriteRenderer statueWomanRenderer; // ì„ìƒ ìŠ¤í”„ë¼ì´íŠ¸ ë Œë”ëŸ¬ (í•„ìš”ì‹œ ì‚¬ìš©)
 
-    private bool isPlayerNearby = false; // ÇÃ·¹ÀÌ¾î°¡ ±ÙÃ³¿¡ ÀÖ³ª?
-    private bool isActivated = false;    // ½ºÅ×ÀÌÁö°¡ Å¬¸®¾îµÇ¾î È°¼ºÈ­µÇ¾ú³ª?
+    private bool isPlayerNearby = false; // í”Œë ˆì´ì–´ê°€ ê·¼ì²˜ì— ìˆë‚˜?
+    private bool isActivated = false;    // ìŠ¤í…Œì´ì§€ê°€ í´ë¦¬ì–´ë˜ì–´ í™œì„±í™”ë˜ì—ˆë‚˜?
 
     private void Start()
     {
-        // Ã³À½¿£ »óÈ£ÀÛ¿ë ºÒ°¡´ÉÇÏ°Ô ²¨µÎ±â
+        // ì²˜ìŒì—” ìƒí˜¸ì‘ìš© ë¶ˆê°€ëŠ¥í•˜ê²Œ êº¼ë‘ê¸°
         if (interactEffect != null) interactEffect.SetActive(false);
     }
 
-    // StageController°¡ È£ÃâÇÒ ÇÔ¼ö: "ÀüÅõ ³¡³µ´Ù! ¼®»ó ÄÑ!"
+    // StageControllerê°€ í˜¸ì¶œí•  í•¨ìˆ˜: "ì „íˆ¬ ëë‚¬ë‹¤! ì„ìƒ ì¼œ!"
     public void ActivateStatue()
     {
         isActivated = true;
-        // ¿©±â¿¡ ¼®»óÀÌ ºû³ª´Â È¿°ú µîÀ» ³ÖÀ¸¸é ÁÁ½À´Ï´Ù.
+        // ì—¬ê¸°ì— ì„ìƒì´ ë¹›ë‚˜ëŠ” íš¨ê³¼ ë“±ì„ ë„£ìœ¼ë©´ ì¢‹ìŠµë‹ˆë‹¤.
     }
 
     private void Update()
     {
-        // È°¼ºÈ­ ¾È µÆ°Å³ª, ÇÃ·¹ÀÌ¾î°¡ ¸Ö¸® ÀÖÀ¸¸é ¹«½Ã
+        // í™œì„±í™” ì•ˆ ëê±°ë‚˜, í”Œë ˆì´ì–´ê°€ ë©€ë¦¬ ìˆìœ¼ë©´ ë¬´ì‹œ
         if (!isActivated || !isPlayerNearby) return;
 
-        // FÅ°¸¦ ´©¸£¸é Áöµµ ¿­±â
+        // Fí‚¤ë¥¼ ëˆ„ë¥´ë©´ ì§€ë„ ì—´ê¸°
         if (Keyboard.current.fKey.wasPressedThisFrame)
         {
             if (GameManager.instance != null && GameManager.instance.mapManager != null)
@@ -39,25 +39,25 @@ public class Statue : MonoBehaviour
         }
     }
 
-    // ÇÃ·¹ÀÌ¾î°¡ ±ÙÃ³¿¡ ¿ÔÀ» ¶§
+    // í”Œë ˆì´ì–´ê°€ ê·¼ì²˜ì— ì™”ì„ ë•Œ
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player") && isActivated)
         {
             isPlayerNearby = true;
-            if (interactEffect != null) interactEffect.SetActive(true); // 'F' Ç¥½Ã ÄÑ±â
-            statueWomanRenderer.material = outLineMaterial[1]; // ºû³ª´Â ÀçÁú·Î º¯°æ
+            if (interactEffect != null) interactEffect.SetActive(true); // 'F' í‘œì‹œ ì¼œê¸°
+            statueWomanRenderer.material = outLineMaterial[1]; // ë¹›ë‚˜ëŠ” ì¬ì§ˆë¡œ ë³€ê²½
         }
     }
 
-    // ÇÃ·¹ÀÌ¾î°¡ ¸Ö¾îÁ³À» ¶§
+    // í”Œë ˆì´ì–´ê°€ ë©€ì–´ì¡Œì„ ë•Œ
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
             isPlayerNearby = false;
-            if (interactEffect != null) interactEffect.SetActive(false); // 'F' Ç¥½Ã ²ô±â
-            statueWomanRenderer.material = outLineMaterial[0]; // ±âº» ÀçÁú·Î º¯°æ
+            if (interactEffect != null) interactEffect.SetActive(false); // 'F' í‘œì‹œ ë„ê¸°
+            statueWomanRenderer.material = outLineMaterial[0]; // ê¸°ë³¸ ì¬ì§ˆë¡œ ë³€ê²½
         }
     }
 }

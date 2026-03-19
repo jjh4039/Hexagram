@@ -137,15 +137,15 @@ public class EnemySlime : Enemy
 
             Vector2 dir = (target.position - transform.position).normalized;
 
-            // ¡Ú ¼öÁ¤: AddForce ´ë½Å linearVelocity¸¦ »ç¿ëÇÏ¿© ºÎÇÏ »óÈ²¿¡¼­µµ ÀÏÁ¤ÇÑ ¼Óµµ º¸Àå
+            // â˜… ìˆ˜ì •: AddForce ëŒ€ì‹  linearVelocityë¥¼ ì‚¬ìš©í•˜ì—¬ ë¶€í•˜ ìƒí™©ì—ì„œë„ ì¼ì •í•œ ì†ë„ ë³´ì¥
             if (rigid != null)
                 rigid.linearVelocity = dir * moveSpeed;
 
-            timer += Time.fixedDeltaTime; // fixed ÁÖ±âÀÌ¹Ç·Î fixedDeltaTime »ç¿ë
-            yield return new WaitForFixedUpdate(); // ¹°¸® ÁÖ±â¿¡ ¸ÂÃã
+            timer += Time.fixedDeltaTime; // fixed ì£¼ê¸°ì´ë¯€ë¡œ fixedDeltaTime ì‚¬ìš©
+            yield return new WaitForFixedUpdate(); // ë¬¼ë¦¬ ì£¼ê¸°ì— ë§ì¶¤
         }
 
-        if (rigid != null) rigid.linearVelocity = Vector2.zero; // ÀÌµ¿ Á¾·á ÈÄ ¹Ì²ô·¯Áü ¹æÁö
+        if (rigid != null) rigid.linearVelocity = Vector2.zero; // ì´ë™ ì¢…ë£Œ í›„ ë¯¸ë„ëŸ¬ì§ ë°©ì§€
         if (anim != null) anim.SetBool("isMoving", false);
     }
 
@@ -156,7 +156,7 @@ public class EnemySlime : Enemy
         if (anim != null)
             anim.SetBool("isMoving", false);
 
-        // ===== Â÷Â¡ ¿¬Ãâ º¹±¸ =====
+        // ===== ì°¨ì§• ì—°ì¶œ ë³µêµ¬ =====
         if (rangeBackground != null)
         {
             rangeBackground.SetActive(true);

@@ -3,22 +3,22 @@ using UnityEngine.EventSystems;
 
 public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("¼³Á¤")]
-    public int highlightIndex; // ¸î ¹øÂ° ½ºÇÁ¶óÀÌÆ®¸¦ º¸¿©ÁÙÁö (0~6)
+    [Header("ì„¤ì •")]
+    public int highlightIndex; // ëª‡ ë²ˆì§¸ ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ ë³´ì—¬ì¤„ì§€ (0~6)
 
-    [Header("ÅøÆÁ ³»¿ë")]
-    public string title;       // ¿¹: "Áú¼­ÀÇ ¿µ¿ª (I)"
-    [TextArea] public string description; // ¿¹: "È®·ü 16%"
+    [Header("íˆ´íŒ ë‚´ìš©")]
+    public string title;       // ì˜ˆ: "ì§ˆì„œì˜ ì˜ì—­ (I)"
+    [TextArea] public string description; // ì˜ˆ: "í™•ë¥  16%"
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 1. ÀÌ¹ÌÁö ±³Ã¼ ¿äÃ»
+        // 1. ì´ë¯¸ì§€ êµì²´ ìš”ì²­
         if (BalancePanel.instance != null)
         {
             BalancePanel.instance.SetHighlight(highlightIndex);
         }
 
-        // 2. ÅøÆÁ ¶ç¿ì±â
+        // 2. íˆ´íŒ ë„ìš°ê¸°
         if (DashboardUI.instance != null)
         {
             DashboardUI.instance.ShowTooltipCommon(title, description);
@@ -27,13 +27,13 @@ public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // 1. ÀÌ¹ÌÁö ¿ø»óº¹±¸ ¿äÃ»
+        // 1. ì´ë¯¸ì§€ ì›ìƒë³µêµ¬ ìš”ì²­
         if (BalancePanel.instance != null)
         {
             BalancePanel.instance.ResetToNormal();
         }
 
-        // 2. ÅøÆÁ ²ô±â
+        // 2. íˆ´íŒ ë„ê¸°
         if (DashboardUI.instance != null)
         {
             DashboardUI.instance.HideTooltip();

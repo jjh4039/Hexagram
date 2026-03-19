@@ -9,7 +9,7 @@ public class EnemySpawner : MonoBehaviour
     public GameObject warningPrefab;
     public float spawnDelay = 1f;
 
-    // ¡Ú [Ãß°¡ 1] ¸ó½ºÅÍ°¡ µîÀåÇÒ ¶§ ÅÍÁú ÆÄÆ¼Å¬(ÀÌÆåÆ®) ÇÁ¸®ÆÕ
+    // â˜… [ì¶”ê°€ 1] ëª¬ìŠ¤í„°ê°€ ë“±ì¥í•  ë•Œ í„°ì§ˆ íŒŒí‹°í´(ì´í™íŠ¸) í”„ë¦¬íŒ¹
     [Header("--- Effects ---")]
     public GameObject spawnEffectPrefab;
 
@@ -23,26 +23,26 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnSequence(Action<Enemy> onSpawnFinished)
     {
-        // 1. ´À³¦Ç¥ »ı¼º
+        // 1. ëŠë‚Œí‘œ ìƒì„±
         GameObject warningEffect = null;
         if (warningPrefab != null)
         {
             warningEffect = Instantiate(warningPrefab, transform.position, Quaternion.identity);
         }
 
-        // 2. ´ë±â ½Ã°£
+        // 2. ëŒ€ê¸° ì‹œê°„
         yield return new WaitForSeconds(spawnDelay);
 
-        // 3. ´À³¦Ç¥ ÆÄ±«
+        // 3. ëŠë‚Œí‘œ íŒŒê´´
         if (warningEffect != null) Destroy(warningEffect);
 
-        // ¡Ú [Ãß°¡ 2] ¸ó½ºÅÍ »ı¼º°ú µ¿½Ã¿¡ ÀÌÆåÆ® Æã! »ı¼º
+        // â˜… [ì¶”ê°€ 2] ëª¬ìŠ¤í„° ìƒì„±ê³¼ ë™ì‹œì— ì´í™íŠ¸ í‘! ìƒì„±
         if (spawnEffectPrefab != null)
         {
             Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity);
         }
 
-        // 4. ÁøÂ¥ ¸ó½ºÅÍ »ı¼º
+        // 4. ì§„ì§œ ëª¬ìŠ¤í„° ìƒì„±
         if (enemyPrefab != null)
         {
             GameObject spawnedObj = Instantiate(enemyPrefab, transform.position, Quaternion.identity);

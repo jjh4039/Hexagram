@@ -14,19 +14,19 @@ public class CursorAmmoUI : MonoBehaviour
 
     void Update()
     {
-        // 1. ÇöÀç ¹«±â°¡ ÃÑÀÏ ¶§¸¸ º¸¿©ÁÜ
+        // 1. í˜„ì¬ ë¬´ê¸°ê°€ ì´ì¼ ë•Œë§Œ ë³´ì—¬ì¤Œ
         bool isGun = GameManager.instance.weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun;
         ammoDisplayText.gameObject.SetActive(isGun);
 
         if (!isGun) return;
 
-        // 2. Åº¾à ¼öÄ¡ °è»ê (ÇöÀç 500ÀÌ ÃÖ´ë¶ó¸é 5¹ßºĞ)
+        // 2. íƒ„ì•½ ìˆ˜ì¹˜ ê³„ì‚° (í˜„ì¬ 500ì´ ìµœëŒ€ë¼ë©´ 5ë°œë¶„)
         int current = GameManager.instance.stats.currentAmmo / 100;
         int max = GameManager.instance.stats.maxAmmo / 100;
 
         ammoDisplayText.text = $"{current} / {max}";
 
-        // 3. ÇÑ ¹ßµµ ¾øÀ» ¶§ »ö»ó º¯°æ ÇÇµå¹é
+        // 3. í•œ ë°œë„ ì—†ì„ ë•Œ ìƒ‰ìƒ ë³€ê²½ í”¼ë“œë°±
         ammoDisplayText.color = (current <= 0) ? warningColor : normalColor;
     }
 }

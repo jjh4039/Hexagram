@@ -6,13 +6,13 @@ using System.Collections;
 
 public class AmmoUI : MonoBehaviour
 {
-    [Header("Ammo Visuals")] public Image[] bulletPanels; // 5���� Fill �̹���
-    public TextMeshProUGUI[] ammoText; // [0]:����, [1]:�Ҽ�, [2]:MAX �ؽ�Ʈ
+    [Header("Ammo Visuals")] public Image[] bulletPanels;
+    public TextMeshProUGUI[] ammoText;
 
     [Header("Ammo Sprites (New)")] [SerializeField]
-    private Sprite normalAmmoSprite; // ���� �Ͼ� �Ѿ� ��������Ʈ
+    private Sprite normalAmmoSprite;
 
-    [SerializeField] private Sprite maxAmmoSprite; // �� [�߰�] ���� á�� ���� ��Ȳ�� ���� ��������Ʈ
+    [SerializeField] private Sprite maxAmmoSprite; 
 
     [Header("Scrap Visuals")] [SerializeField]
     private RectTransform scrapGroup;
@@ -51,8 +51,7 @@ public class AmmoUI : MonoBehaviour
         if (uiRoot == null) uiRoot = GetComponent<RectTransform>();
         if (scrapText != null) scrapTextOriginScale = scrapText.transform.localScale;
         if (scrapGroup != null) scrapOriginPos = scrapGroup.anchoredPosition;
-
-        // ������ �� �⺻ ��������Ʈ ��� (�ν����Ϳ��� �� �־��� ��� ���)
+        
         if (normalAmmoSprite == null && bulletPanels.Length > 0) normalAmmoSprite = bulletPanels[0].sprite;
     }
 
@@ -76,8 +75,7 @@ public class AmmoUI : MonoBehaviour
     {
         int currentAmmo = GameManager.instance.stats.currentAmmo;
         int maxAmmoValue = GameManager.instance.stats.maxAmmo;
-
-        // --- 1. �ؽ�Ʈ ������Ʈ (���� ����) ---
+        
         ammoText[0].text = (currentAmmo / 100).ToString();
         ammoText[1].text = "." + (currentAmmo % 100).ToString("D2");
 
@@ -96,9 +94,7 @@ public class AmmoUI : MonoBehaviour
             ammoText[2].gameObject.SetActive(isMax);
             if (isMax) ammoText[2].color = maxAmmoTextColor;
         }
-
-        // --- 2. �Ѿ� �̹��� �� ��������Ʈ ��ü ���� ---
-        // �� [�ٽ�] ź���� �ִ�ġ�� �� �� ��������Ʈ�� ����
+        
         Sprite targetAmmoSprite = isMax ? maxAmmoSprite : normalAmmoSprite;
 
         for (int i = 0; i < bulletPanels.Length; i++)
@@ -109,17 +105,14 @@ public class AmmoUI : MonoBehaviour
             if (threshold <= currentAmmo) bulletPanels[i].fillAmount = 1f;
             else if (currentAmmo > threshold - 100) bulletPanels[i].fillAmount = (currentAmmo % 100) / 100f;
             else bulletPanels[i].fillAmount = 0f;
-
-            // �� ��������Ʈ ���� ��ü
-            // image.color�� �ǵ帮�� �ʰ�, �̹����� ���� �ҽ�(sprite)�� ���Ƴ���ϴ�.
+            
             if (bulletPanels[i].sprite != targetAmmoSprite)
             {
                 bulletPanels[i].sprite = targetAmmoSprite;
             }
         }
     }
-
-    // ... (Co_ScaleAnimation, UpdateScrapVisuals, Co_ScrapPunch ���� ���� ����) ...
+    
     private IEnumerator Co_ScaleAnimation(bool isAiming)
     {
         Vector3 startScale = uiRoot.localScale;

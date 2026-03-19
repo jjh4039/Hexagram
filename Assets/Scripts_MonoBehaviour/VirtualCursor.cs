@@ -22,14 +22,14 @@ public class VirtualCursor : MonoBehaviour
     {
         inputActions = new PlayerInput();
         rectTransform = GetComponent<RectTransform>();
-        cursorImage = GetComponent<Image>(); // Image ÄÄÆ÷³ÍÆ® ÂüÁ¶
+        cursorImage = GetComponent<Image>(); // Image ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
 
         Cursor.visible = false;
 
-        // ¸¶¿ì½º Àá±×±â
+        // ë§ˆìš°ìŠ¤ ì ê·¸ê¸°
         // Cursor.lockState = CursorLockMode.Confined; 
 
-        // ½ÃÀÛÇÒ ¶§ ±âº» Ä¿¼­·Î ÃÊ±âÈ­
+        // ì‹œì‘í•  ë•Œ ê¸°ë³¸ ì»¤ì„œë¡œ ì´ˆê¸°í™”
         ChangeCursor(CursorType.Default);
     }
 
@@ -45,10 +45,10 @@ public class VirtualCursor : MonoBehaviour
 
     private void Update()
     {
-        // ¸¶¿ì½º È­¸é ÁÂÇ¥ °¡Á®¿À±â
+        // ë§ˆìš°ìŠ¤ í™”ë©´ ì¢Œí‘œ ê°€ì ¸ì˜¤ê¸°
         Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
 
-        // ÁÂÇ¥ º¯È¯ ¾øÀÌ ¹Ù·Î Àû¿ë (Screen Space - Overlay ±âÁØ)
+        // ì¢Œí‘œ ë³€í™˜ ì—†ì´ ë°”ë¡œ ì ìš© (Screen Space - Overlay ê¸°ì¤€)
         if (rectTransform != null)
         {
             rectTransform.position = mouseScreenPos;
@@ -59,7 +59,7 @@ public class VirtualCursor : MonoBehaviour
         }
     }
 
-    // 2. ¿ÜºÎ¿¡¼­ È£ÃâÇÏ¿© Ä¿¼­ ¸ğ¾ç°ú ÇÇ¹şÀ» ¹Ù²Ù´Â ¸Ş¼­µå
+    // 2. ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•˜ì—¬ ì»¤ì„œ ëª¨ì–‘ê³¼ í”¼ë²—ì„ ë°”ê¾¸ëŠ” ë©”ì„œë“œ
     public void ChangeCursor(CursorType type)
     {
         if (cursorImage == null || cursorSprites.Length == 0) return;
@@ -77,7 +77,7 @@ public class VirtualCursor : MonoBehaviour
                 break;
 
             default:
-                Debug.Log("Á¤ÀÇµÇÁö ¾ÊÀº Ä¿¼­ Å¸ÀÔÀÔ´Ï´Ù.");
+                Debug.Log("ì •ì˜ë˜ì§€ ì•Šì€ ì»¤ì„œ íƒ€ì…ì…ë‹ˆë‹¤.");
                 break;
         }
     }

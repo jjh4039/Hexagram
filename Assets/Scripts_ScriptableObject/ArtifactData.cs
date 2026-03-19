@@ -1,72 +1,72 @@
 using UnityEngine;
 
-// 1. ¾ÆÆ¼ÆÑÆ®ÀÇ ÀÛµ¿ ¹æ½Ä (°¡Àå Å« ºĞ·ù)
+// 1. ì•„í‹°íŒ©íŠ¸ì˜ ì‘ë™ ë°©ì‹ (ê°€ì¥ í° ë¶„ë¥˜)
 public enum ArtifactType
 {
-    Stat,           // ¿µ±¸ ½ºÅÈ (È¹µæ Áï½Ã Àû¿ë) -> ¿¹: ÄíÅ°(Ã¼·Â), ±³º»(°ø°İ·Â)
-    Conditional,    // Á¶°ÇºÎ ½ºÅÈ (Æ¯Á¤ »óÈ²¿¡¼­¸¸ Àû¿ë) -> ¿¹: À¯¸®Ã¢(¾È ¸ÂÀ¸¸é °øÁõ)
-    Trigger         // Æ¯Á¤ Çàµ¿ ½Ã ¹ßµ¿ (ÀÌº¥Æ®) -> ¿¹: ¸â¹ö½Ê(µ· ¾µ ¶§ È¯±Ş), ¹ÏÀ½(¸ÂÀ» ¶§ ¹«È¿)
+    Stat,           // ì˜êµ¬ ìŠ¤íƒ¯ (íšë“ ì¦‰ì‹œ ì ìš©) -> ì˜ˆ: ì¿ í‚¤(ì²´ë ¥), êµë³¸(ê³µê²©ë ¥)
+    Conditional,    // ì¡°ê±´ë¶€ ìŠ¤íƒ¯ (íŠ¹ì • ìƒí™©ì—ì„œë§Œ ì ìš©) -> ì˜ˆ: ìœ ë¦¬ì°½(ì•ˆ ë§ìœ¼ë©´ ê³µì¦)
+    Trigger         // íŠ¹ì • í–‰ë™ ì‹œ ë°œë™ (ì´ë²¤íŠ¸) -> ì˜ˆ: ë©¤ë²„ì‹­(ëˆ ì“¸ ë•Œ í™˜ê¸‰), ë¯¿ìŒ(ë§ì„ ë•Œ ë¬´íš¨)
 }
 
-// 2. ¾ÆÆ¼ÆÑÆ® µî±Ş (»ö»ó ¹× Èñ±Íµµ)
+// 2. ì•„í‹°íŒ©íŠ¸ ë“±ê¸‰ (ìƒ‰ìƒ ë° í¬ê·€ë„)
 public enum ArtifactGrade
 {
-    Common,     // Èò»ö (ÀÏ¹İ)
-    Rare,       // ³ë¶õ»ö (Èñ±Í)
-    Epic,       // º¸¶ó»ö (¿µ¿õ) - *ÇÊ¿äÇÒ °Í °°¾Æ¼­ Ãß°¡Çß½À´Ï´Ù!
-    Legendary   // »¡°£»ö (Àü¼³)
+    Common,     // í°ìƒ‰ (ì¼ë°˜)
+    Rare,       // ë…¸ë€ìƒ‰ (í¬ê·€)
+    Epic,       // ë³´ë¼ìƒ‰ (ì˜ì›…) - *í•„ìš”í•  ê²ƒ ê°™ì•„ì„œ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤!
+    Legendary   // ë¹¨ê°„ìƒ‰ (ì „ì„¤)
 }
 
-// 3. È¿°ú Å¸ÀÔ (¾î¶² ´É·ÂÀ» °Çµå¸®´Â°¡?)
+// 3. íš¨ê³¼ íƒ€ì… (ì–´ë–¤ ëŠ¥ë ¥ì„ ê±´ë“œë¦¬ëŠ”ê°€?)
 public enum ArtifactEffectType
 {
     None,
-    // --- ±âº» ½ºÅÈ ---
-    MaxHP,          // ÃÖ´ë Ã¼·Â
-    AttackPower,    // °ø°İ·Â
-    AttackSpeed,    // °ø°İ ¼Óµµ
-    MoveSpeed,      // ÀÌµ¿ ¼Óµµ
-    ScrapGain,      // °íÃ¶ È¹µæ·®
-    DiceSpeed,      // ÁÖ»çÀ§ ±¼¸² ¼Óµµ
-    ChargeSpeed,    // ÃæÀü ¼Óµµ (¿ø°Å¸®)
+    // --- ê¸°ë³¸ ìŠ¤íƒ¯ ---
+    MaxHP,          // ìµœëŒ€ ì²´ë ¥
+    AttackPower,    // ê³µê²©ë ¥
+    AttackSpeed,    // ê³µê²© ì†ë„
+    MoveSpeed,      // ì´ë™ ì†ë„
+    ScrapGain,      // ê³ ì²  íšë“ëŸ‰
+    DiceSpeed,      // ì£¼ì‚¬ìœ„ êµ´ë¦¼ ì†ë„
+    ChargeSpeed,    // ì¶©ì „ ì†ë„ (ì›ê±°ë¦¬)
 
-    // --- Æ¯¼ö ´É·Â (Trigger/Conditional¿ë) ---
-    Defense_FirstHit,   // Ã¹ ÇÇÇØ ¹«½Ã (¹ÏÀ½)
-    Damage_GlassCannon, // ÇÇ°İ Àü±îÁö °ø°İ·Â Áõ°¡ (À¯¸®Ã¢)
-    Payback_Scrap,      // °íÃ¶ »ç¿ë ½Ã È¯±Ş (¸â¹ö½Ê)
-    Dice_Reroll,        // ÁÖ»çÀ§ ¸®·Ñ ±ÇÇÑ
-    Buff_Infinity       // ¹öÇÁ ¹«ÇÑ À¯Áö (ÃµÄª)
+    // --- íŠ¹ìˆ˜ ëŠ¥ë ¥ (Trigger/Conditionalìš©) ---
+    Defense_FirstHit,   // ì²« í”¼í•´ ë¬´ì‹œ (ë¯¿ìŒ)
+    Damage_GlassCannon, // í”¼ê²© ì „ê¹Œì§€ ê³µê²©ë ¥ ì¦ê°€ (ìœ ë¦¬ì°½)
+    Payback_Scrap,      // ê³ ì²  ì‚¬ìš© ì‹œ í™˜ê¸‰ (ë©¤ë²„ì‹­)
+    Dice_Reroll,        // ì£¼ì‚¬ìœ„ ë¦¬ë¡¤ ê¶Œí•œ
+    Buff_Infinity       // ë²„í”„ ë¬´í•œ ìœ ì§€ (ì²œì¹­)
 }
 
-// 4. ¹ßµ¿ Á¶°Ç (¾ğÁ¦ ¹ßµ¿ÇÏ´Â°¡?)
+// 4. ë°œë™ ì¡°ê±´ (ì–¸ì œ ë°œë™í•˜ëŠ”ê°€?)
 public enum ConditionType
 {
-    None,               // Á¶°Ç ¾øÀ½ (Stat Å¸ÀÔÀº Ç×»ó None)
-    HP_Below_5_Percent, // Ã¼·Â 5% ÀÌÇÏ
-    No_Damage_Taken,    // ÇØ´ç ½ºÅ×ÀÌÁö¿¡¼­ ÇÇ°İ ¾øÀ½
-    Dice_Face_1,        // ÁÖ»çÀ§ 1¹ø È¿°ú ¹ßµ¿ Áß
-    On_Scrap_Use,       // °íÃ¶À» ¼Ò¸ğÇßÀ» ¶§
-    On_Stage_Start,     // ½ºÅ×ÀÌÁö ½ÃÀÛ ½Ã
-    Twice_Same_Dice_Face, // ÁÖ»çÀ§°¡ ¿¬¼ÓÀ¸·Î °°Àº °ªÀÌ ³ª¿ÔÀ» ¶§ (¿¹: 3-3)
-    On_Buff_End         // ¹öÇÁ°¡ ³¡³¯ ¶§ (ÃµÄª)
+    None,               // ì¡°ê±´ ì—†ìŒ (Stat íƒ€ì…ì€ í•­ìƒ None)
+    HP_Below_5_Percent, // ì²´ë ¥ 5% ì´í•˜
+    No_Damage_Taken,    // í•´ë‹¹ ìŠ¤í…Œì´ì§€ì—ì„œ í”¼ê²© ì—†ìŒ
+    Dice_Face_1,        // ì£¼ì‚¬ìœ„ 1ë²ˆ íš¨ê³¼ ë°œë™ ì¤‘
+    On_Scrap_Use,       // ê³ ì² ì„ ì†Œëª¨í–ˆì„ ë•Œ
+    On_Stage_Start,     // ìŠ¤í…Œì´ì§€ ì‹œì‘ ì‹œ
+    Twice_Same_Dice_Face, // ì£¼ì‚¬ìœ„ê°€ ì—°ì†ìœ¼ë¡œ ê°™ì€ ê°’ì´ ë‚˜ì™”ì„ ë•Œ (ì˜ˆ: 3-3)
+    On_Buff_End         // ë²„í”„ê°€ ëë‚  ë•Œ (ì²œì¹­)
 }
 
 [CreateAssetMenu(fileName = "New Artifact", menuName = "Hexagram/ArtifactData")]
 public class ArtifactData : ScriptableObject
 {
-    [Header("±âº» Á¤º¸")]
-    public string artifactName;       // ÀÌ¸§
-    [TextArea] public string description; // ¼³¸í
-    public Sprite icon;               // ¾ÆÀÌÄÜ
-    public ArtifactGrade grade;       // µî±Ş
-    public int basePrice = 100;       // »óÁ¡ °¡°İ
+    [Header("ê¸°ë³¸ ì •ë³´")]
+    public string artifactName;       // ì´ë¦„
+    [TextArea] public string description; // ì„¤ëª…
+    public Sprite icon;               // ì•„ì´ì½˜
+    public ArtifactGrade grade;       // ë“±ê¸‰
+    public int basePrice = 100;       // ìƒì  ê°€ê²©
 
-    [Header("¸ŞÄ¿´ÏÁò ¼³Á¤ : ¿µ±¸ / Á¶°ÇºÎ / Æ¯Á¤ Çàµ¿ ½Ã")]
-    public ArtifactType type;         // ÀÛµ¿ ¹æ½Ä (Stat / Conditional / Trigger)
-    public ArtifactEffectType effectType; // È¿°ú Á¾·ù
-    public ConditionType condition;   // ¹ßµ¿ Á¶°Ç
+    [Header("ë©”ì»¤ë‹ˆì¦˜ ì„¤ì • : ì˜êµ¬ / ì¡°ê±´ë¶€ / íŠ¹ì • í–‰ë™ ì‹œ")]
+    public ArtifactType type;         // ì‘ë™ ë°©ì‹ (Stat / Conditional / Trigger)
+    public ArtifactEffectType effectType; // íš¨ê³¼ ì¢…ë¥˜
+    public ConditionType condition;   // ë°œë™ ì¡°ê±´
 
-    [Header("¼öÄ¡ ¼³Á¤")]
-    public float value;               // ¼öÄ¡ (¿¹: 5, 10, 0.2 ...)
-    public bool isPercent;            // % ¿¬»ê ¿©ºÎ (Ã¼Å©=°ö¿¬»ê, ÇØÁ¦=ÇÕ¿¬»ê)
+    [Header("ìˆ˜ì¹˜ ì„¤ì •")]
+    public float value;               // ìˆ˜ì¹˜ (ì˜ˆ: 5, 10, 0.2 ...)
+    public bool isPercent;            // % ì—°ì‚° ì—¬ë¶€ (ì²´í¬=ê³±ì—°ì‚°, í•´ì œ=í•©ì—°ì‚°)
 }
