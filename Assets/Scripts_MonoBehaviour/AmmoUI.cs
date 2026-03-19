@@ -12,7 +12,7 @@ public class AmmoUI : MonoBehaviour
     [Header("Ammo Sprites (New)")] [SerializeField]
     private Sprite normalAmmoSprite;
 
-    [SerializeField] private Sprite maxAmmoSprite; 
+    [SerializeField] private Sprite maxAmmoSprite;
 
     [Header("Scrap Visuals")] [SerializeField]
     private RectTransform scrapGroup;
@@ -24,7 +24,7 @@ public class AmmoUI : MonoBehaviour
     private Coroutine scrapPunchRoutine;
 
     [Header("Ammo Status Colors")] [SerializeField]
-    private Color emptyTextColor = Color.red; // 0~99 (�ؽ�Ʈ ����)
+    private Color emptyTextColor = Color.red; // 0~99
 
     [SerializeField] private Color normalTextColor = Color.white; // 100~499
     [SerializeField] private Color maxAmmoTextColor = new Color(1f, 0.5f, 0f); // 500
@@ -51,7 +51,7 @@ public class AmmoUI : MonoBehaviour
         if (uiRoot == null) uiRoot = GetComponent<RectTransform>();
         if (scrapText != null) scrapTextOriginScale = scrapText.transform.localScale;
         if (scrapGroup != null) scrapOriginPos = scrapGroup.anchoredPosition;
-        
+
         if (normalAmmoSprite == null && bulletPanels.Length > 0) normalAmmoSprite = bulletPanels[0].sprite;
     }
 
@@ -75,7 +75,7 @@ public class AmmoUI : MonoBehaviour
     {
         int currentAmmo = GameManager.instance.stats.currentAmmo;
         int maxAmmoValue = GameManager.instance.stats.maxAmmo;
-        
+
         ammoText[0].text = (currentAmmo / 100).ToString();
         ammoText[1].text = "." + (currentAmmo % 100).ToString("D2");
 
@@ -94,7 +94,7 @@ public class AmmoUI : MonoBehaviour
             ammoText[2].gameObject.SetActive(isMax);
             if (isMax) ammoText[2].color = maxAmmoTextColor;
         }
-        
+
         Sprite targetAmmoSprite = isMax ? maxAmmoSprite : normalAmmoSprite;
 
         for (int i = 0; i < bulletPanels.Length; i++)
@@ -105,14 +105,14 @@ public class AmmoUI : MonoBehaviour
             if (threshold <= currentAmmo) bulletPanels[i].fillAmount = 1f;
             else if (currentAmmo > threshold - 100) bulletPanels[i].fillAmount = (currentAmmo % 100) / 100f;
             else bulletPanels[i].fillAmount = 0f;
-            
+
             if (bulletPanels[i].sprite != targetAmmoSprite)
             {
                 bulletPanels[i].sprite = targetAmmoSprite;
             }
         }
     }
-    
+
     private IEnumerator Co_ScaleAnimation(bool isAiming)
     {
         Vector3 startScale = uiRoot.localScale;

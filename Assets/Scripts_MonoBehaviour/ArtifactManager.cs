@@ -6,11 +6,9 @@ public class ArtifactManager : MonoBehaviour
 {
     public static ArtifactManager instance;
 
-    [Header("보유한 아티팩트 목록")]
-    public List<ArtifactData> myArtifacts = new List<ArtifactData>();
+    [Header("보유한 아티팩트 목록")] public List<ArtifactData> myArtifacts = new List<ArtifactData>();
 
-    [Header("테스트용")]
-    public ArtifactData testArtifact;
+    [Header("테스트용")] public ArtifactData testArtifact;
 
     // ★ 최신 인풋 시스템 변수
     private PlayerInput inputActions;

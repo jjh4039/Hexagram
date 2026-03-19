@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using System.Collections; // 코루틴 사용을 위해 필수
-using System.Collections.Generic;
 
 public class DashboardUI : MonoBehaviour
 {
