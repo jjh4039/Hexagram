@@ -35,6 +35,7 @@ MonoBehaviour:
     - e5c73573bfe3e0f458378d8d0c6ce7aa
     - 510cb554d4de9444ea40509ba493b46b
     - e231f4bbb4523cd4692f0cbad66b9e50
+    - fc449503f3d60ab4b99a8c20271e589e
     values:
     - iconNameOrGuid: Texture Icon
       colorIndex: 6
@@ -118,6 +119,10 @@ MonoBehaviour:
       isColorRecursive: 0
     - iconNameOrGuid: WheelCollider Icon
       colorIndex: 0
+      isIconRecursive: 0
+      isColorRecursive: 0
+    - iconNameOrGuid: 
+      colorIndex: 7
       isIconRecursive: 0
       isColorRecursive: 0
   bookmarks: []

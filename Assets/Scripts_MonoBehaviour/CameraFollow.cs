@@ -29,23 +29,26 @@ public class CameraFollow : MonoBehaviour
 
     [Header("Shake Settings")]
     [SerializeField] private float shakeDecaySpeed = 5f;
+    [SerializeField] private float uiOffsetSmoothSpeed = 10f; // 상점 열고 닫을 때
+    
+    private float _currentShakeDecay; // 현재 적용 중인 감쇠 속도
 
-    private float currentShakeDecay; // 현재 적용 중인 감쇠 속도
-
-    private Vector3 offset;
-    private Vector3 shakeOffset;
-    private float shakeTimer = 0f;
-    private float currentShakeMagnitude = 0f;
-    private float lastHitShakeTime = -1f;
+    private Vector3 _offset;
+    private Vector3 _uiOffset;
+    private Vector3 _currentUiOffset;
+    private Vector3 _shakeOffset;
+    private float _shakeTimer = 0f;
+    private float _currentShakeMagnitude = 0f;
+    private float _lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
 
-    private float originalSmoothSpeed;
-    private float currentInfluence;
-    private float currentMaxOffset;
+    private float _originalSmoothSpeed;
+    private float _currentInfluence;
+    private float _currentMaxOffset;
     private Camera cam;
 
-    private bool wasAiming = false;
-    private float dynamicBaseOrthoSize = 5f;
+    private bool _wasAiming = false;
+    private float _dynamicBaseOrthoSize = 5f;
 
     private void Awake()
     {
@@ -55,119 +58,118 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        currentInfluence = mouseInfluence;
-        currentMaxOffset = maxMouseOffset;
-        originalSmoothSpeed = smoothSpeed;
+        _currentInfluence = mouseInfluence;
+        _currentMaxOffset = maxMouseOffset;
+        _originalSmoothSpeed = smoothSpeed;
 
         if (player == null) return;
 
-        offset = transform.position - player.position;
-        offset.x = 0;
-        offset.y = 0;
+        _offset = transform.position - player.position;
+        _offset.x = 0;
+        _offset.y = 0;
     }
 
     public void HitShake(float duration, float magnitude, float customDecay = -1f)
     {
-        if (magnitude <= currentShakeMagnitude && Time.time - lastHitShakeTime < hitShakeCooldown)
+        if (magnitude <= _currentShakeMagnitude && Time.time - _lastHitShakeTime < hitShakeCooldown)
             return;
 
-        currentShakeMagnitude = Mathf.Max(currentShakeMagnitude, magnitude);
-        shakeTimer = Mathf.Max(shakeTimer, duration);
+        _currentShakeMagnitude = Mathf.Max(_currentShakeMagnitude, magnitude);
+        _shakeTimer = Mathf.Max(_shakeTimer, duration);
 
         // 커스텀 감쇠값이 들어오면 그것을 쓰고, 아니면 원래의 빠른 감쇠 속도를 씁니다.
-        currentShakeDecay = customDecay > 0f ? customDecay : shakeDecaySpeed;
+        _currentShakeDecay = customDecay > 0f ? customDecay : shakeDecaySpeed;
 
-        lastHitShakeTime = Time.time;
+        _lastHitShakeTime = Time.time;
     }
 
     private void UpdateShake()
     {
-        if (shakeTimer > 0f)
+        if (_shakeTimer > 0f)
         {
-            shakeTimer -= Time.deltaTime;
-            float x = Random.Range(-1f, 1f) * currentShakeMagnitude;
-            float y = Random.Range(-1f, 1f) * currentShakeMagnitude;
-            shakeOffset = new Vector3(x, y, 0);
+            _shakeTimer -= Time.deltaTime;
+            float x = Random.Range(-1f, 1f) * _currentShakeMagnitude;
+            float y = Random.Range(-1f, 1f) * _currentShakeMagnitude;
+            _shakeOffset = new Vector3(x, y, 0);
 
             // ★ [수정됨] shakeDecaySpeed 대신 currentShakeDecay 사용
-            currentShakeMagnitude = Mathf.Lerp(currentShakeMagnitude, 0f, Time.deltaTime * currentShakeDecay);
+            _currentShakeMagnitude = Mathf.Lerp(_currentShakeMagnitude, 0f, Time.deltaTime * _currentShakeDecay);
         }
-        else shakeOffset = Vector3.zero;
+        else _shakeOffset = Vector3.zero;
     }
 
     void LateUpdate()
+{
+    if (player == null) return;
+    if (Mouse.current == null) return;
+
+    UpdateShake();
+
+    bool isRightClickDown = Mouse.current.rightButton.isPressed;
+    bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
+    bool isAiming = isRightClickDown && isGunEquipped;
+
+    if (isAiming && !_wasAiming)
     {
-        if (player == null) return;
-        if (Mouse.current == null) return;
-
-        UpdateShake();
-
-        bool isRightClickDown = Mouse.current.rightButton.isPressed;
-        bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
-        bool isAiming = isRightClickDown && isGunEquipped;
-
-        // ★ [버그 해결!] 우클릭을 누르기 시작한 '첫 프레임'
-        if (isAiming && !wasAiming)
+        if (pixelCam == null || pixelCam.enabled)
         {
-            if (pixelCam == null || pixelCam.enabled)
-            {
-                dynamicBaseOrthoSize = cam.orthographicSize;
-            }
+            _dynamicBaseOrthoSize = cam.orthographicSize;
         }
-        wasAiming = isAiming;
-
-        if (pixelCam != null)
-        {
-            if (isAiming)
-            {
-                pixelCam.enabled = false;
-            }
-            else if (!pixelCam.enabled && Mathf.Abs(cam.orthographicSize - dynamicBaseOrthoSize) < 0.01f)
-            {
-                cam.orthographicSize = dynamicBaseOrthoSize;
-                pixelCam.enabled = true;
-            }
-        }
-
-        float targetInfluence = isAiming ? aimMouseInfluence : mouseInfluence;
-        float targetMaxOffset = isAiming ? aimMaxMouseOffset : maxMouseOffset;
-        float targetOrthoSize = isAiming ? (dynamicBaseOrthoSize * aimZoomMultiplier) : dynamicBaseOrthoSize;
-
-        currentInfluence = Mathf.Lerp(currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
-        currentMaxOffset = Mathf.Lerp(currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
-
-        if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
-        {
-            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, aimTransitionSpeed * Time.deltaTime);
-        }
-
-        Vector3 targetPosition = player.position + offset;
-
-        // ==============================================================
-        // ★ [수정됨] 마우스 영향력 계산 (컷신 중에는 무시)
-        // 타겟(player 변수)이 실제 게임매니저의 플레이어가 아닐 경우(즉, 컷신 중일 경우) 
-        // 마우스 오프셋을 강제로 0으로 만들어 보스에게 정확히 고정되도록 합니다.
-        // ==============================================================
-        Vector3 finalOffset = Vector3.zero;
-
-        bool isTrackingRealPlayer = (GameManager.instance != null && player == GameManager.instance.player.transform);
-
-        if (isTrackingRealPlayer)
-        {
-            Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-            Vector3 directionToMouse = mouseWorldPos - player.position;
-            directionToMouse.z = 0;
-
-            finalOffset = directionToMouse * currentInfluence;
-            finalOffset = Vector3.ClampMagnitude(finalOffset, currentMaxOffset);
-        }
-
-        targetPosition += finalOffset;
-
-        Vector3 smoothedPos = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
-        transform.position = smoothedPos + shakeOffset;
     }
+    _wasAiming = isAiming;
+
+    if (pixelCam != null)
+    {
+        if (isAiming)
+        {
+            pixelCam.enabled = false;
+        }
+        else if (!pixelCam.enabled && Mathf.Abs(cam.orthographicSize - _dynamicBaseOrthoSize) < 0.01f)
+        {
+            cam.orthographicSize = _dynamicBaseOrthoSize;
+            pixelCam.enabled = true;
+        }
+    }
+
+    float targetInfluence = isAiming ? aimMouseInfluence : mouseInfluence;
+    float targetMaxOffset = isAiming ? aimMaxMouseOffset : maxMouseOffset;
+    float targetOrthoSize = isAiming ? (_dynamicBaseOrthoSize * aimZoomMultiplier) : _dynamicBaseOrthoSize;
+
+    _currentInfluence = Mathf.Lerp(_currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
+    _currentMaxOffset = Mathf.Lerp(_currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
+
+    if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
+    {
+        cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, aimTransitionSpeed * Time.deltaTime);
+    }
+
+    _currentUiOffset = Vector3.Lerp(
+        _currentUiOffset,
+        _uiOffset,
+        uiOffsetSmoothSpeed * Time.deltaTime
+    );
+
+    Vector3 targetPosition = player.position + _offset + _currentUiOffset;
+    Vector3 finalOffset = Vector3.zero;
+
+    bool isTrackingRealPlayer = (GameManager.instance && player == GameManager.instance.player.transform);
+
+    if (isTrackingRealPlayer)
+    {
+        Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        Vector3 directionToMouse = mouseWorldPos - player.position;
+        directionToMouse.z = 0;
+
+        finalOffset = directionToMouse * _currentInfluence;
+        finalOffset = Vector3.ClampMagnitude(finalOffset, _currentMaxOffset);
+    }
+
+    targetPosition += finalOffset;
+
+    Vector3 smoothedPos = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime);
+    transform.position = smoothedPos + _shakeOffset;
+}
 
     public void SetTarget(Transform newTarget, float customSpeed = -1f)
     {
@@ -187,16 +189,28 @@ public class CameraFollow : MonoBehaviour
             player = GameManager.instance.player.transform;
         }
 
-        smoothSpeed = (originalSmoothSpeed > 2) ? originalSmoothSpeed : 5f;
+        smoothSpeed = (_originalSmoothSpeed > 2) ? _originalSmoothSpeed : 5f;
         // 보스 시작에서 에러가 생길 수 있어서 2로 하드코딩
     }
 
     public void SnapToTarget()
     {
         if (player == null) return;
-        Vector3 targetPos = player.position + offset;
+        _currentUiOffset = _uiOffset;
+        Vector3 targetPos = player.position + _offset + _currentUiOffset;
         transform.position = targetPos;
-        shakeOffset = Vector3.zero;
-        shakeTimer = 0f; currentShakeMagnitude = 0f;
+        _shakeOffset = Vector3.zero;
+        _shakeTimer = 0f;
+        _currentShakeMagnitude = 0f;
+    }
+    
+    public void SetUIOffset(Vector3 offset)
+    {
+        _uiOffset = offset;
+    }
+
+    public void ResetUIOffset()
+    {
+        _uiOffset = Vector3.zero;
     }
 }

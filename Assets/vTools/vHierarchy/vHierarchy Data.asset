@@ -56,6 +56,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1875051469-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1933139546-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-7948204977122636316-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1383836548-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -162,8 +163,8 @@ MonoBehaviour:
           isIconRecursive: 0
           isColorRecursive: 0
         - colorIndex: 6
-          iconNameOrGuid: sv_icon_dot9_pix16_gizmo
-          isIconRecursive: 1
+          iconNameOrGuid: sv_icon_dot10_pix16_gizmo
+          isIconRecursive: 0
           isColorRecursive: 1
         - colorIndex: 5
           iconNameOrGuid: sv_icon_dot11_pix16_gizmo
@@ -209,6 +210,10 @@ MonoBehaviour:
           iconNameOrGuid: PreMatQuad
           isIconRecursive: 1
           isColorRecursive: 0
+        - colorIndex: 7
+          iconNameOrGuid: sv_icon_dot9_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 1
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity

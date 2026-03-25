@@ -9,7 +9,7 @@ public class Scrap : MonoBehaviour
     [SerializeField] private float rotateSpeed = 360f;
     [SerializeField] private float magnetDelay = 0.5f;
 
-    [Header("Sound")] [SerializeField] private AudioClip sfxCollect; // �� [�߰�] ȹ�� ����
+    [Header("Sound")] [SerializeField] private AudioClip sfxCollect;
 
     private Transform target;
     private bool isCollected = false;
@@ -53,14 +53,12 @@ public class Scrap : MonoBehaviour
         {
             GameManager.instance.AddScrap(value);
         }
-
-        // �� [�߰�] ȹ�� ���� ���
+        
         if (sfxCollect != null)
         {
             SoundManager.instance.PlaySFX(sfxCollect, 1f);
         }
-
-        Debug.Log($"��ö ȹ��! (+{value})");
+        
         Destroy(gameObject);
     }
 
