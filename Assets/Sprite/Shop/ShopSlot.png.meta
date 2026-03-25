@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 97fe76185ca4a7a4abce370b33425cb6
+guid: ca464e2e43c49f34a953217a9f63a5ec
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3267708370620931129
-    second: Atri_4_0
+      213: 5377668274903623490
+    second: ShopSlot_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 138
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,23 +113,67 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Atri_4_0
+      name: ShopSlot_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 31
-        height: 32
-      alignment: 9
-      pivot: {x: 0.4969877, y: 0.5188468}
+        x: 8
+        y: 495
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 93c5e64337b395d20800000000000000
-      internalID: 3267708370620931129
+      spriteID: 247a48dcdc051aa40800000000000000
+      internalID: 5377668274903623490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_1
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 462
+        width: 154
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8ab95ba9881bc6045bd041bec7669a7b
+      internalID: 1942910413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_2
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 462
+        width: 25
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 044eb2ca773c1c64b94a316ccf59ec4f
+      internalID: 859434604
       vertices: []
       indices: 
       edges: []
@@ -138,7 +182,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 189bc18d62829054c8c680825eb95f60
+    spriteID: 3fbb452b170ac0149a78a4ef697618c1
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +192,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Atri_4_0: 3267708370620931129
+      ShopSlot_0: 5377668274903623490
+      ShopSlot_1: 1942910413
+      ShopSlot_2: 859434604
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
