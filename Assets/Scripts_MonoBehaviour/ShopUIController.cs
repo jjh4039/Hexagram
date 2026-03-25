@@ -45,9 +45,9 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private float contentFadeOutDuration = 0.15f;
     [SerializeField] private float screenFadeOutDelay = 0.05f;
     [SerializeField] private float screenFadeOutDuration = 0.15f;
-
-    private PlayerInput _inputActions;
+    
     private bool _isOpen;
+    public bool IsOpen => _isOpen;
     private bool _isAnimating;
 
     private RectTransform _shopRect;
@@ -59,22 +59,8 @@ public class ShopUIController : MonoBehaviour
 
     private void Awake()
     {
-        _inputActions = new PlayerInput();
-
         if (shopRoot != null)
             _shopRect = shopRoot.GetComponent<RectTransform>();
-    }
-
-    private void OnEnable()
-    {
-        _inputActions.Player.Enable();
-        _inputActions.Player.Interaction.performed += OnInteractionPressed;
-    }
-
-    private void OnDisable()
-    {
-        _inputActions.Player.Interaction.performed -= OnInteractionPressed;
-        _inputActions.Player.Disable();
     }
 
     private void Start()
@@ -95,17 +81,6 @@ public class ShopUIController : MonoBehaviour
         SetAllLedsAlpha(0f);
 
         shopRoot.SetActive(false);
-    }
-
-    private void OnInteractionPressed(InputAction.CallbackContext context)
-    {
-        if (_isAnimating)
-            return;
-
-        if (_isOpen)
-            CloseShop();
-        else
-            OpenShop();
     }
 
     public void OpenShop()
