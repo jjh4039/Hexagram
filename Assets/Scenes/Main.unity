@@ -14535,6 +14535,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1218919080}
   - component: {fileID: 1218919082}
+  - component: {fileID: 1218919083}
+  - component: {fileID: 1218919084}
   m_Layer: 5
   m_Name: Slot_2
   m_TagString: Untagged
@@ -14551,7 +14553,7 @@ RectTransform:
   m_GameObject: {fileID: 1218919079}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1399735668}
@@ -14572,6 +14574,58 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1218919079}
   m_CullTransparentMesh: 1
+--- !u!114 &1218919083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218919079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e823b2d2f266751489375458ef4d9ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverSystem
+  slotBackgroundGroup: {fileID: 1399735671}
+  artifactRect: {fileID: 480187626}
+  artifactImage: {fileID: 480187627}
+  normalSlotAlpha: 0.2
+  hoverSlotAlpha: 0.5
+  hoverScale: 1.03
+  floatOffsetY: 2
+  transitionDuration: 0.12
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 1.08, g: 1.08, b: 1.08, a: 1}
+--- !u!114 &1218919084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218919079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 2100000, guid: e35ce7cfea2f2b044bae0c61f6bad64b, type: 2}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 2021325517, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &1223197794
 GameObject:
   m_ObjectHideFlags: 0
@@ -17487,6 +17541,7 @@ GameObject:
   - component: {fileID: 1399735668}
   - component: {fileID: 1399735670}
   - component: {fileID: 1399735669}
+  - component: {fileID: 1399735671}
   m_Layer: 5
   m_Name: Slot_Image
   m_TagString: Untagged
@@ -17510,7 +17565,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000011444092, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1399735669
@@ -17526,14 +17581,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: e35ce7cfea2f2b044bae0c61f6bad64b, type: 2}
-  m_Color: {r: 0.64, g: 0.78112817, b: 0.8, a: 0.18431373}
+  m_Color: {r: 1, g: 0.9768116, b: 0.6, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5377668274903623490, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
+  m_Sprite: {fileID: 2021325517, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -17551,6 +17606,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1399735667}
   m_CullTransparentMesh: 1
+--- !u!225 &1399735671
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1399735667}
+  m_Enabled: 1
+  m_Alpha: 0.2
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1401088101
 GameObject:
   m_ObjectHideFlags: 0
@@ -18194,6 +18261,7 @@ GameObject:
   - component: {fileID: 1432915912}
   - component: {fileID: 1432915914}
   - component: {fileID: 1432915913}
+  - component: {fileID: 1432915915}
   m_Layer: 5
   m_Name: Slot_Image
   m_TagString: Untagged
@@ -18233,14 +18301,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 2100000, guid: e35ce7cfea2f2b044bae0c61f6bad64b, type: 2}
-  m_Color: {r: 0.8, g: 0.64, b: 0.64, a: 0.18431373}
+  m_Color: {r: 0.6, g: 0.8748603, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5377668274903623490, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
+  m_Sprite: {fileID: 2021325517, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -18258,6 +18326,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1432915911}
   m_CullTransparentMesh: 1
+--- !u!225 &1432915915
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432915911}
+  m_Enabled: 1
+  m_Alpha: 0.2
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1436701906
 GameObject:
   m_ObjectHideFlags: 0
@@ -26923,7 +27003,7 @@ GameObject:
   - component: {fileID: 2098692108}
   - component: {fileID: 2098692110}
   - component: {fileID: 2098692112}
-  - component: {fileID: 2098692111}
+  - component: {fileID: 2098692113}
   m_Layer: 5
   m_Name: Slot_1
   m_TagString: Untagged
@@ -26961,28 +27041,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2098692107}
   m_CullTransparentMesh: 1
---- !u!114 &2098692111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2098692107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e823b2d2f266751489375458ef4d9ad7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverSystem
-  slotBackgroundGroup: {fileID: 0}
-  artifactRect: {fileID: 0}
-  artifactImage: {fileID: 0}
-  normalSlotAlpha: 0.2
-  hoverSlotAlpha: 0.5
-  hoverScale: 1.06
-  floatOffsetY: 6
-  transitionDuration: 0.12
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  hoverColor: {r: 1.08, g: 1.08, b: 1.08, a: 1}
 --- !u!114 &2098692112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27013,6 +27071,28 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2098692113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2098692107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e823b2d2f266751489375458ef4d9ad7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverSystem
+  slotBackgroundGroup: {fileID: 1432915915}
+  artifactRect: {fileID: 218469431}
+  artifactImage: {fileID: 218469432}
+  normalSlotAlpha: 0.2
+  hoverSlotAlpha: 0.5
+  hoverScale: 1.03
+  floatOffsetY: 2
+  transitionDuration: 0.12
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 1.08, g: 1.08, b: 1.08, a: 1}
 --- !u!1 &2100195770
 GameObject:
   m_ObjectHideFlags: 0
