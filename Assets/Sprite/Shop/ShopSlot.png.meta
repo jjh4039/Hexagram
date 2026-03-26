@@ -143,7 +143,7 @@ TextureImporter:
         width: 154
         height: 26
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -160,12 +160,12 @@ TextureImporter:
       name: ShopSlot_2
       rect:
         serializedVersion: 2
-        x: 163
+        x: 165
         y: 462
         width: 25
         height: 26
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -174,6 +174,72 @@ TextureImporter:
       bones: []
       spriteID: 044eb2ca773c1c64b94a316ccf59ec4f
       internalID: 859434604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_0 (OutLine)
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 495
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 92752775cde723c4793fe2087f37296a
+      internalID: 2021325517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_1 (OutLine)
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 433
+        width: 153
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d241d15d09685e6409e6bc67f260f6f0
+      internalID: 647161918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_2 (OutLine)
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 433
+        width: 25
+        height: 26
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e364f02f8be8fe49a0ca4b3de6776d3
+      internalID: 506916883
       vertices: []
       indices: 
       edges: []
@@ -193,8 +259,11 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       ShopSlot_0: 5377668274903623490
+      ShopSlot_0 (OutLine): 2021325517
       ShopSlot_1: 1942910413
+      ShopSlot_1 (OutLine): 647161918
       ShopSlot_2: 859434604
+      ShopSlot_2 (OutLine): 506916883
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

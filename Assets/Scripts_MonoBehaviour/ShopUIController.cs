@@ -48,7 +48,7 @@ public class ShopUIController : MonoBehaviour
     
     private bool _isOpen;
     public bool IsOpen => _isOpen;
-    private bool _isAnimating;
+    // private bool _isAnimating;
 
     private RectTransform _shopRect;
     private Vector2 _closedAnchoredPos;
@@ -141,7 +141,7 @@ public class ShopUIController : MonoBehaviour
 
     private IEnumerator SlideRoutine(bool isOpening)
     {
-        _isAnimating = true;
+       // _isAnimating = true;
 
         float elapsed = 0f;
         float duration = isOpening ? openSlideDuration : closeSlideDuration;
@@ -263,7 +263,7 @@ public class ShopUIController : MonoBehaviour
         if (!isOpening)
             shopRoot.SetActive(false);
 
-        _isAnimating = false;
+       // _isAnimating = false;
         _slideRoutine = null;
     }
 
