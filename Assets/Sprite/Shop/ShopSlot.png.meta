@@ -266,6 +266,94 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: ShopSlot_4
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 357
+        width: 41
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a87a1ca1097c29d4ba70e91b7cc07521
+      internalID: -238810486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_5
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 357
+        width: 41
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9d415993fda4d8b4e943307ccc9e07b2
+      internalID: -1444832688
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_6
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 311
+        width: 41
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be0890fceddad86409e3aa8a50f589b8
+      internalID: 1092486028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ShopSlot_7
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 311
+        width: 41
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6af2d8973c18e00458879a35a9387a79
+      internalID: -1750331706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -287,6 +375,10 @@ TextureImporter:
       ShopSlot_2: 859434604
       ShopSlot_2 (OutLine): 506916883
       ShopSlot_3: -252999476
+      ShopSlot_4: -238810486
+      ShopSlot_5: -1444832688
+      ShopSlot_6: 1092486028
+      ShopSlot_7: -1750331706
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

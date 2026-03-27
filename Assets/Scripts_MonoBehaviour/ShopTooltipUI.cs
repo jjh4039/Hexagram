@@ -5,6 +5,12 @@ using UnityEngine.UI;
 
 public class ShopTooltipUI : MonoBehaviour
 {
+    public enum TooltipAnchorType
+    {
+        TopLeft,
+        BottomLeft
+    }
+
     public static ShopTooltipUI Instance { get; private set; }
 
     [Header("Root")]
@@ -13,12 +19,15 @@ public class ShopTooltipUI : MonoBehaviour
 
     [Header("Texts")]
     [SerializeField] private TextMeshProUGUI titleText;
-    [SerializeField] private TextMeshProUGUI rarityText;
     [SerializeField] private TextMeshProUGUI descriptionText;
 
     [Header("Background")]
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Color defaultBackgroundColor = new Color(0.23f, 0.07f, 0.28f, 1f);
+
+    [Header("Anchor Positions")]
+    [SerializeField] private Vector2 topLeftAnchoredPos = new Vector2(-210f, 110f);
+    [SerializeField] private Vector2 bottomLeftAnchoredPos = new Vector2(-210f, -120f);
 
     [Header("Show Motion")]
     [SerializeField] private float showDuration = 0.12f;
@@ -36,8 +45,8 @@ public class ShopTooltipUI : MonoBehaviour
     [SerializeField] private float hideDelay = 0.03f;
 
     private Coroutine _routine;
-    private Vector2 _baseAnchoredPos;
     private bool _isVisible;
+    private Vector2 _currentBaseAnchoredPos;
 
     private void Awake()
     {
@@ -49,8 +58,7 @@ public class ShopTooltipUI : MonoBehaviour
 
         Instance = this;
 
-        if (tooltipRect != null)
-            _baseAnchoredPos = tooltipRect.anchoredPosition;
+        _currentBaseAnchoredPos = topLeftAnchoredPos;
 
         if (backgroundImage != null)
             backgroundImage.color = defaultBackgroundColor;
@@ -58,19 +66,30 @@ public class ShopTooltipUI : MonoBehaviour
         HideImmediate();
     }
 
-    public void ShowTooltip(string title, string rarity, string description)
+    public void ShowTooltip(string title, string description)
     {
-        ShowTooltip(title, rarity, description, defaultBackgroundColor);
+        ShowTooltip(title, description, defaultBackgroundColor, TooltipAnchorType.TopLeft);
     }
 
-    public void ShowTooltip(string title, string rarity, string description, Color backgroundColor)
+    public void ShowTooltip(string title, string description, Color backgroundColor)
+    {
+        ShowTooltip(title, description, backgroundColor, TooltipAnchorType.TopLeft);
+    }
+
+    public void ShowTooltip(
+        string title,
+        string description,
+        Color backgroundColor,
+        TooltipAnchorType anchorType)
     {
         bool wasVisible = _isVisible;
 
-        SetTexts(title, rarity, description);
+        SetTexts(title, description);
 
         if (backgroundImage != null)
             backgroundImage.color = backgroundColor;
+
+        _currentBaseAnchoredPos = GetAnchorPosition(anchorType);
 
         if (_routine != null)
             StopCoroutine(_routine);
@@ -112,19 +131,29 @@ public class ShopTooltipUI : MonoBehaviour
             canvasGroup.alpha = 0f;
 
         if (tooltipRect != null)
-            tooltipRect.anchoredPosition = _baseAnchoredPos + showStartOffset;
+            tooltipRect.anchoredPosition = _currentBaseAnchoredPos + showStartOffset;
     }
 
-    private void SetTexts(string title, string rarity, string description)
+    private void SetTexts(string title, string description)
     {
         if (titleText != null)
             titleText.text = title;
 
-        if (rarityText != null)
-            rarityText.text = rarity;
-
         if (descriptionText != null)
             descriptionText.text = description;
+    }
+
+    private Vector2 GetAnchorPosition(TooltipAnchorType anchorType)
+    {
+        switch (anchorType)
+        {
+            case TooltipAnchorType.BottomLeft:
+                return bottomLeftAnchoredPos;
+
+            case TooltipAnchorType.TopLeft:
+            default:
+                return topLeftAnchoredPos;
+        }
     }
 
     private IEnumerator ShowRoutine()
@@ -132,8 +161,8 @@ public class ShopTooltipUI : MonoBehaviour
         _isVisible = true;
 
         float elapsed = 0f;
-        Vector2 startPos = _baseAnchoredPos + showStartOffset;
-        Vector2 endPos = _baseAnchoredPos;
+        Vector2 startPos = _currentBaseAnchoredPos + showStartOffset;
+        Vector2 endPos = _currentBaseAnchoredPos;
 
         while (elapsed < showDuration)
         {
@@ -154,7 +183,7 @@ public class ShopTooltipUI : MonoBehaviour
             canvasGroup.alpha = 1f;
 
         if (tooltipRect != null)
-            tooltipRect.anchoredPosition = _baseAnchoredPos;
+            tooltipRect.anchoredPosition = _currentBaseAnchoredPos;
 
         _routine = null;
     }
@@ -164,8 +193,8 @@ public class ShopTooltipUI : MonoBehaviour
         _isVisible = true;
 
         float elapsed = 0f;
-        Vector2 startPos = _baseAnchoredPos + swapOffset;
-        Vector2 endPos = _baseAnchoredPos;
+        Vector2 startPos = _currentBaseAnchoredPos + swapOffset;
+        Vector2 endPos = _currentBaseAnchoredPos;
 
         if (canvasGroup != null)
             canvasGroup.alpha = 1f;
@@ -186,7 +215,7 @@ public class ShopTooltipUI : MonoBehaviour
         }
 
         if (tooltipRect != null)
-            tooltipRect.anchoredPosition = _baseAnchoredPos;
+            tooltipRect.anchoredPosition = _currentBaseAnchoredPos;
 
         _routine = null;
     }
@@ -194,8 +223,8 @@ public class ShopTooltipUI : MonoBehaviour
     private IEnumerator HideRoutine()
     {
         float elapsed = 0f;
-        Vector2 startPos = _baseAnchoredPos;
-        Vector2 endPos = _baseAnchoredPos + hideOffset;
+        Vector2 startPos = _currentBaseAnchoredPos;
+        Vector2 endPos = _currentBaseAnchoredPos + hideOffset;
 
         while (elapsed < hideDuration)
         {
@@ -215,7 +244,7 @@ public class ShopTooltipUI : MonoBehaviour
             canvasGroup.alpha = 0f;
 
         if (tooltipRect != null)
-            tooltipRect.anchoredPosition = _baseAnchoredPos + showStartOffset;
+            tooltipRect.anchoredPosition = _currentBaseAnchoredPos + showStartOffset;
 
         _isVisible = false;
         _routine = null;

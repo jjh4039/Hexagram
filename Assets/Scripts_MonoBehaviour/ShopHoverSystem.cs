@@ -11,7 +11,6 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     [Header("Preview Text")]
     [SerializeField] private string itemTitle = "트럼프 카드";
-    [SerializeField] private string itemRarity = "[ Epic ]";
     [SerializeField][TextArea(2, 4)] private string itemDescription = "연속으로 같은 면이 나왔을 때\n공격력이 10% 상승한다.";
 
     [Header("Tooltip Color")]
@@ -94,9 +93,9 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
         {
             ShopTooltipUI.Instance.ShowTooltip(
                 itemTitle,
-                itemRarity,
                 itemDescription,
-                tooltipBackgroundColor
+                tooltipBackgroundColor,
+                ShopTooltipUI.TooltipAnchorType.TopLeft
             );
         }
     }
