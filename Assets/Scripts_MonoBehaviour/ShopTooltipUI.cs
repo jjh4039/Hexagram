@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShopTooltipUI : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class ShopTooltipUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI rarityText;
     [SerializeField] private TextMeshProUGUI descriptionText;
 
+    [Header("Background")]
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private Color defaultBackgroundColor = new Color(0.23f, 0.07f, 0.28f, 1f);
+
     [Header("Show Motion")]
     [SerializeField] private float showDuration = 0.12f;
     [SerializeField] private Vector2 showStartOffset = new Vector2(3f, -5f);
@@ -27,6 +32,7 @@ public class ShopTooltipUI : MonoBehaviour
     [SerializeField] private float swapDuration = 0.08f;
     [SerializeField] private Vector2 swapOffset = new Vector2(4f, -1f);
 
+    [Header("Hide Delay")]
     [SerializeField] private float hideDelay = 0.03f;
 
     private Coroutine _routine;
@@ -46,14 +52,25 @@ public class ShopTooltipUI : MonoBehaviour
         if (tooltipRect != null)
             _baseAnchoredPos = tooltipRect.anchoredPosition;
 
+        if (backgroundImage != null)
+            backgroundImage.color = defaultBackgroundColor;
+
         HideImmediate();
     }
 
     public void ShowTooltip(string title, string rarity, string description)
     {
+        ShowTooltip(title, rarity, description, defaultBackgroundColor);
+    }
+
+    public void ShowTooltip(string title, string rarity, string description, Color backgroundColor)
+    {
         bool wasVisible = _isVisible;
 
         SetTexts(title, rarity, description);
+
+        if (backgroundImage != null)
+            backgroundImage.color = backgroundColor;
 
         if (_routine != null)
             StopCoroutine(_routine);
@@ -78,10 +95,8 @@ public class ShopTooltipUI : MonoBehaviour
     private IEnumerator HideDelayedRoutine()
     {
         yield return new WaitForSecondsRealtime(hideDelay);
-
         _routine = StartCoroutine(HideRoutine());
     }
-
 
     public void HideImmediate()
     {

@@ -392,11 +392,13 @@ MonoBehaviour:
   titleText: {fileID: 1204970871}
   rarityText: {fileID: 0}
   descriptionText: {fileID: 283993795}
+  backgroundImage: {fileID: 41736322}
+  defaultBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
   showDuration: 0.12
   showStartOffset: {x: 3, y: -5}
   hideDuration: 0.08
   hideOffset: {x: 0, y: 0}
-  swapDuration: 0.15
+  swapDuration: 0.1
   swapOffset: {x: 5, y: 0}
   hideDelay: 0.03
 --- !u!1 &56559998
@@ -1299,7 +1301,6 @@ GameObject:
   m_Component:
   - component: {fileID: 144069009}
   - component: {fileID: 144069011}
-  - component: {fileID: 144069010}
   - component: {fileID: 144069012}
   m_Layer: 5
   m_Name: Choice_0
@@ -1331,36 +1332,6 @@ RectTransform:
   m_AnchoredPosition: {x: -25, y: 40}
   m_SizeDelta: {x: 112, y: 18.84058}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &144069010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 144069008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 647161918, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &144069011
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1381,20 +1352,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 414344416814cbc4db94e34865f87c63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopStatOptionHoverSystem
-  caseRect: {fileID: 0}
-  caseImage: {fileID: 0}
-  descriptionText: {fileID: 0}
-  rerollRect: {fileID: 0}
-  rerollImage: {fileID: 0}
-  mainHoverScale: 1.02
-  transitionDuration: 0.04
-  normalCaseColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
-  hoverCaseColor: {r: 0.72, g: 0.82, b: 0.84, a: 1}
-  normalTextColor: {r: 0.9, g: 0.9, b: 0.9, a: 1}
+  caseRect: {fileID: 362627241}
+  caseImage: {fileID: 362627242}
+  descriptionText: {fileID: 1604439821}
+  rerollRect: {fileID: 1676162651}
+  rerollImage: {fileID: 1676162652}
+  mainHoverScale: 1.015
+  transitionDuration: 0.05
+  normalCaseColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  hoverCaseColor: {r: 0.6, g: 0.92941177, b: 1, a: 1}
+  normalTextColor: {r: 0.92156863, g: 0.92156863, b: 0.92156863, a: 1}
   hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   rerollHoverScale: 1.05
-  normalRerollColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
-  hoverRerollColor: {r: 1, g: 1, b: 1, a: 1}
+  normalRerollColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverRerollColor: {r: 0.6, g: 0.92941177, b: 1, a: 1}
 --- !u!1 &156670691
 GameObject:
   m_ObjectHideFlags: 0
@@ -3681,6 +3652,7 @@ GameObject:
   - component: {fileID: 362627241}
   - component: {fileID: 362627243}
   - component: {fileID: 362627242}
+  - component: {fileID: 362627244}
   m_Layer: 5
   m_Name: Case_0
   m_TagString: Untagged
@@ -3721,7 +3693,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -3745,6 +3717,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 362627240}
   m_CullTransparentMesh: 1
+--- !u!114 &362627244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 362627240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff0943af80114543a31b49000b50191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverAreaRelay
+  owner: {fileID: 144069012}
+  areaType: 0
 --- !u!1 &376957508
 GameObject:
   m_ObjectHideFlags: 0
@@ -6401,6 +6387,7 @@ MonoBehaviour:
   itemRarity: '[ Epic ]'
   itemDescription: "<color=#D070FB>[ Epic ]</color>\n\n\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740
     \uBA74\uC774 \uB098\uC654\uC744 \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
+  tooltipBackgroundColor: {r: 0.8156863, g: 0.4392157, b: 0.9843137, a: 1}
   normalSlotAlpha: 0.1
   hoverSlotAlpha: 0.5
   hoverScale: 1.03
@@ -8457,8 +8444,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4293717228
+  m_fontColor: {r: 0.9254902, g: 0.9254902, b: 0.9254902, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -8475,8 +8462,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -12343,8 +12330,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4293717228
+  m_fontColor: {r: 0.9254902, g: 0.9254902, b: 0.9254902, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -12361,8 +12348,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -12678,7 +12665,6 @@ GameObject:
   m_Component:
   - component: {fileID: 972735670}
   - component: {fileID: 972735672}
-  - component: {fileID: 972735671}
   - component: {fileID: 972735673}
   m_Layer: 5
   m_Name: Choice_1
@@ -12710,36 +12696,6 @@ RectTransform:
   m_AnchoredPosition: {x: -25, y: 15}
   m_SizeDelta: {x: 112, y: 18.84058}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &972735671
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 972735669}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 647161918, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &972735672
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -12760,20 +12716,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 414344416814cbc4db94e34865f87c63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopStatOptionHoverSystem
-  caseRect: {fileID: 0}
-  caseImage: {fileID: 0}
-  descriptionText: {fileID: 0}
-  rerollRect: {fileID: 0}
-  rerollImage: {fileID: 0}
-  mainHoverScale: 1.02
-  transitionDuration: 0.1
-  normalCaseColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
-  hoverCaseColor: {r: 0.72, g: 0.82, b: 0.84, a: 1}
-  normalTextColor: {r: 0.88, g: 0.88, b: 0.88, a: 1}
+  caseRect: {fileID: 980694955}
+  caseImage: {fileID: 980694956}
+  descriptionText: {fileID: 958551876}
+  rerollRect: {fileID: 1510071227}
+  rerollImage: {fileID: 1510071228}
+  mainHoverScale: 1.015
+  transitionDuration: 0.05
+  normalCaseColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  hoverCaseColor: {r: 0.6, g: 0.92941177, b: 1, a: 1}
+  normalTextColor: {r: 0.92156863, g: 0.92156863, b: 0.92156863, a: 1}
   hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   rerollHoverScale: 1.05
-  normalRerollColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
-  hoverRerollColor: {r: 1, g: 1, b: 1, a: 1}
+  normalRerollColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverRerollColor: {r: 0.6, g: 0.92941177, b: 1, a: 1}
 --- !u!1 &976330095
 GameObject:
   m_ObjectHideFlags: 0
@@ -12860,6 +12816,7 @@ GameObject:
   - component: {fileID: 980694955}
   - component: {fileID: 980694957}
   - component: {fileID: 980694956}
+  - component: {fileID: 980694958}
   m_Layer: 5
   m_Name: Case_1
   m_TagString: Untagged
@@ -12900,7 +12857,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -12924,6 +12881,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980694954}
   m_CullTransparentMesh: 1
+--- !u!114 &980694958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980694954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff0943af80114543a31b49000b50191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverAreaRelay
+  owner: {fileID: 972735673}
+  areaType: 0
 --- !u!1 &984542315
 GameObject:
   m_ObjectHideFlags: 0
@@ -15190,10 +15161,12 @@ MonoBehaviour:
   slotBackgroundGroup: {fileID: 1399735671}
   artifactRect: {fileID: 480187626}
   artifactImage: {fileID: 480187627}
-  itemTitle: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
-  itemRarity: '[ Epic ]'
-  itemDescription: "<color=#D070FB>[ Epic ]</color>\n\n\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740
-    \uBA74\uC774 \uB098\uC654\uC744 \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
+  itemTitle: "\uD074\uB85C\uBC84 \uADC0\uAC78\uC774"
+  itemRarity: 
+  itemDescription: "<color=#FFF88E>[ Legendary ]</color>\n\n\uC5F0\uC18D\uC73C\uB85C
+    \uAC19\uC740 \uBA74\uC774 \uB098\uC654\uC744 \uB54C\n\uACF5\uACA9\uB825\uC774
+    10% \uC0C1\uC2B9\uD55C\uB2E4."
+  tooltipBackgroundColor: {r: 1, g: 0.972549, b: 0.5568628, a: 1}
   normalSlotAlpha: 0.1
   hoverSlotAlpha: 0.5
   hoverScale: 1.03
@@ -18146,6 +18119,7 @@ GameObject:
   - component: {fileID: 1393908480}
   - component: {fileID: 1393908482}
   - component: {fileID: 1393908481}
+  - component: {fileID: 1393908483}
   m_Layer: 5
   m_Name: Case_2
   m_TagString: Untagged
@@ -18186,7 +18160,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -18210,6 +18184,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1393908479}
   m_CullTransparentMesh: 1
+--- !u!114 &1393908483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393908479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff0943af80114543a31b49000b50191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverAreaRelay
+  owner: {fileID: 1445443149}
+  areaType: 0
 --- !u!1 &1399735667
 GameObject:
   m_ObjectHideFlags: 0
@@ -19178,7 +19166,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1445443146}
   - component: {fileID: 1445443148}
-  - component: {fileID: 1445443147}
   - component: {fileID: 1445443149}
   m_Layer: 5
   m_Name: Choice_2
@@ -19210,36 +19197,6 @@ RectTransform:
   m_AnchoredPosition: {x: -25, y: -10}
   m_SizeDelta: {x: 112, y: 18.84058}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1445443147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1445443145}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 647161918, guid: ca464e2e43c49f34a953217a9f63a5ec, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1445443148
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -19260,20 +19217,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 414344416814cbc4db94e34865f87c63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopStatOptionHoverSystem
-  caseRect: {fileID: 0}
-  caseImage: {fileID: 0}
-  descriptionText: {fileID: 0}
-  rerollRect: {fileID: 0}
-  rerollImage: {fileID: 0}
-  mainHoverScale: 1.02
-  transitionDuration: 0.1
-  normalCaseColor: {r: 0.62, g: 0.62, b: 0.62, a: 1}
-  hoverCaseColor: {r: 0.72, g: 0.82, b: 0.84, a: 1}
-  normalTextColor: {r: 0.88, g: 0.88, b: 0.88, a: 1}
+  caseRect: {fileID: 1393908480}
+  caseImage: {fileID: 1393908481}
+  descriptionText: {fileID: 660621795}
+  rerollRect: {fileID: 1692911102}
+  rerollImage: {fileID: 1692911103}
+  mainHoverScale: 1.015
+  transitionDuration: 0.05
+  normalCaseColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  hoverCaseColor: {r: 0.6, g: 0.92941177, b: 1, a: 1}
+  normalTextColor: {r: 0.92156863, g: 0.92156863, b: 0.92156863, a: 1}
   hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   rerollHoverScale: 1.05
-  normalRerollColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
-  hoverRerollColor: {r: 1, g: 1, b: 1, a: 1}
+  normalRerollColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverRerollColor: {r: 0.6, g: 0.92941177, b: 1, a: 1}
 --- !u!1 &1461658421
 GameObject:
   m_ObjectHideFlags: 0
@@ -19646,6 +19603,7 @@ GameObject:
   - component: {fileID: 1510071227}
   - component: {fileID: 1510071229}
   - component: {fileID: 1510071228}
+  - component: {fileID: 1510071230}
   m_Layer: 5
   m_Name: Re_1
   m_TagString: Untagged
@@ -19710,6 +19668,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1510071226}
   m_CullTransparentMesh: 1
+--- !u!114 &1510071230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1510071226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff0943af80114543a31b49000b50191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverAreaRelay
+  owner: {fileID: 972735673}
+  areaType: 1
 --- !u!1 &1518548025
 GameObject:
   m_ObjectHideFlags: 0
@@ -20711,8 +20683,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4293717228
+  m_fontColor: {r: 0.9254902, g: 0.9254902, b: 0.9254902, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -20729,8 +20701,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -21540,6 +21512,7 @@ GameObject:
   - component: {fileID: 1676162651}
   - component: {fileID: 1676162653}
   - component: {fileID: 1676162652}
+  - component: {fileID: 1676162654}
   m_Layer: 5
   m_Name: Re_0
   m_TagString: Untagged
@@ -21580,7 +21553,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -21604,6 +21577,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1676162650}
   m_CullTransparentMesh: 1
+--- !u!114 &1676162654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1676162650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff0943af80114543a31b49000b50191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverAreaRelay
+  owner: {fileID: 144069012}
+  areaType: 1
 --- !u!1 &1682138965
 GameObject:
   m_ObjectHideFlags: 0
@@ -21807,6 +21794,7 @@ GameObject:
   - component: {fileID: 1692911102}
   - component: {fileID: 1692911104}
   - component: {fileID: 1692911103}
+  - component: {fileID: 1692911105}
   m_Layer: 5
   m_Name: Re_2
   m_TagString: Untagged
@@ -21871,6 +21859,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1692911101}
   m_CullTransparentMesh: 1
+--- !u!114 &1692911105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692911101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ff0943af80114543a31b49000b50191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopHoverAreaRelay
+  owner: {fileID: 1445443149}
+  areaType: 1
 --- !u!1 &1696453523
 GameObject:
   m_ObjectHideFlags: 0
@@ -27794,10 +27796,11 @@ MonoBehaviour:
   slotBackgroundGroup: {fileID: 1432915915}
   artifactRect: {fileID: 218469431}
   artifactImage: {fileID: 218469432}
-  itemTitle: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
-  itemRarity: '[ Epic ]'
-  itemDescription: "<color=#D070FB>[ Epic ]</color>\n\n\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740
+  itemTitle: "\uBAA8\uB4C8 : \uAC15\uD654"
+  itemRarity: 
+  itemDescription: "<color=#99DFFF>[ Rare ]</color>\n\n\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740
     \uBA74\uC774 \uB098\uC654\uC744 \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
+  tooltipBackgroundColor: {r: 0.6, g: 0.8745098, b: 1, a: 1}
   normalSlotAlpha: 0.1
   hoverSlotAlpha: 0.5
   hoverScale: 1.03

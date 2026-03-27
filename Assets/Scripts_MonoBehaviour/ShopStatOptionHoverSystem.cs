@@ -14,13 +14,13 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
     [SerializeField] private Image rerollImage;
 
     [Header("Main Motion")]
-    [SerializeField] private float mainHoverScale = 1.02f;
-    [SerializeField] private float transitionDuration = 0.1f;
+    [SerializeField] private float mainHoverScale = 1.015f;
+    [SerializeField] private float transitionDuration = 0.05f;
 
     [Header("Main Color")]
     [SerializeField] private Color normalCaseColor = new Color(0.62f, 0.62f, 0.62f, 1f);
-    [SerializeField] private Color hoverCaseColor = new Color(0.72f, 0.82f, 0.84f, 1f);
-    [SerializeField] private Color normalTextColor = new Color(0.88f, 0.88f, 0.88f, 1f);
+    [SerializeField] private Color hoverCaseColor = new Color(0.6f, 0.93f, 1f, 1f);
+    [SerializeField] private Color normalTextColor = new Color(0.92f, 0.92f, 0.92f, 1f);
     [SerializeField] private Color hoverTextColor = Color.white;
 
     [Header("Reroll Motion")]
