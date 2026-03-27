@@ -196,8 +196,11 @@ public class ShopTooltipUI : MonoBehaviour
         Vector2 startPos = _currentBaseAnchoredPos + swapOffset;
         Vector2 endPos = _currentBaseAnchoredPos;
 
+        float startAlpha = 0.85f;
+        float endAlpha = 1f;
+
         if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
+            canvasGroup.alpha = startAlpha;
 
         if (tooltipRect != null)
             tooltipRect.anchoredPosition = startPos;
@@ -211,11 +214,17 @@ public class ShopTooltipUI : MonoBehaviour
             if (tooltipRect != null)
                 tooltipRect.anchoredPosition = Vector2.Lerp(startPos, endPos, eased);
 
+            if (canvasGroup != null)
+                canvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, eased);
+
             yield return null;
         }
 
         if (tooltipRect != null)
             tooltipRect.anchoredPosition = _currentBaseAnchoredPos;
+
+        if (canvasGroup != null)
+            canvasGroup.alpha = 1f;
 
         _routine = null;
     }
