@@ -9,6 +9,11 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [SerializeField] private RectTransform artifactRect;
     [SerializeField] private Image artifactImage;
 
+    [Header("Preview Text")]
+    [SerializeField] private string itemTitle = "트럼프 카드";
+    [SerializeField] private string itemRarity = "[ Epic ]";
+    [SerializeField][TextArea(2, 4)] private string itemDescription = "<color=#D070FB>[ Epic ]</color>\r\n\r\n연속으로 같은 면이 나왔을 때\r\n공격력이 10% 상승한다.";
+
     [Header("Slot Alpha")]
     [SerializeField] private float normalSlotAlpha = 0.2f;
     [SerializeField] private float hoverSlotAlpha = 0.5f;
@@ -81,14 +86,24 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("ENTER");
         _isHovering = true;
+
+        if (ShopTooltipUI.Instance != null)
+        {
+            ShopTooltipUI.Instance.ShowTooltip(
+                itemTitle,
+                itemRarity,
+                itemDescription
+            );
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Debug.Log("EXIT");
         _isHovering = false;
+
+        if (ShopTooltipUI.Instance != null)
+            ShopTooltipUI.Instance.HideTooltip();
     }
 
     private void OnDisable()
