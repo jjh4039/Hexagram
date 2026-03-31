@@ -57,6 +57,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1933139546-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-7948204977122636316-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1383836548-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-734233308-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -212,6 +213,10 @@ MonoBehaviour:
           isColorRecursive: 0
         - colorIndex: 7
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 1
+        - colorIndex: 1
+          iconNameOrGuid: Favorite
           isIconRecursive: 1
           isColorRecursive: 1
   bookmarks: []

@@ -26,7 +26,7 @@ public class StageMessageUI : MonoBehaviour
     [SerializeField] private RewardItem[] rewardItems;
     [SerializeField] private float rewardSlideDistance = 50f;
     [SerializeField] private float rewardInterval = 0.15f;
-    [SerializeField] private RewardData[] rewardDatas;
+    [SerializeField] private ModuleData[] rewardDatas;
 
     [Header("--- Enemy Count UI (New) ---")]
     [SerializeField] private CanvasGroup enemyCountGroup;
@@ -147,7 +147,7 @@ public class StageMessageUI : MonoBehaviour
         for (int i = 0; i < rewardItems.Length; i++)
         {
             if (i >= indices.Length) break;
-            RewardData data = rewardDatas[indices[i]];
+            ModuleData data = rewardDatas[indices[i]];
             if (rewardItems[i].titleText != null) rewardItems[i].titleText.text = data.titleText;
             if (rewardItems[i].valueText != null) rewardItems[i].valueText.text = data.valueText;
             if (rewardItems[i].valueText != null) rewardItems[i].valueText.color = data.valueTextColor;
