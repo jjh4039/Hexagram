@@ -9,13 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80fea84e9711ebe468b348a6a7623937, type: 3}
-  m_Name: New Risk Data
-  m_EditorClassIdentifier: Assembly-CSharp::RiskData
-  riskName: 
+  m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
+  m_Name: Artifact
+  m_EditorClassIdentifier: Assembly-CSharp::RewardData
+  rewardName: Artifact
   description: 
-  riskType: 1
+  rewardType: 3
   stageValues:
-    stage1: 1
-    stage2: 2
-    stage3: 3
+    stage1: 0
+    stage2: 1
+    stage3: 2

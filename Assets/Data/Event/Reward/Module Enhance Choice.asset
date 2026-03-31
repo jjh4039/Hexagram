@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
-  m_Name: New Reward Data
+  m_Name: Module Enhance Choice
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: 
+  rewardName: Module Enhance Choice
   description: 
-  rewardType: 1
+  rewardType: 5
   stageValues:
-    stage1: 2
+    stage1: 1
     stage2: 3
-    stage3: 4
+    stage3: 6
