@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
   m_Name: Module Enhance Choice
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: Module Enhance Choice
-  description: 
+  rewardName: "\uC740\uCD1D"
+  description: []
   rewardType: 5
   stageValues:
     stage1: 1

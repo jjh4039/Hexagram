@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
   m_Name: Scrap
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: Scrap
-  description: 
+  rewardName: "\uC7AC\uBB3C"
+  description: []
   rewardType: 1
   stageValues:
     stage1: 20

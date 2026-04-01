@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fea84e9711ebe468b348a6a7623937, type: 3}
   m_Name: Dice Charge Reduction
   m_EditorClassIdentifier: Assembly-CSharp::RiskData
-  riskName: Dice Charge Reduction
-  description: 
+  riskName: "\uC1E0\uB77D"
+  description:
+  - "\uC8FC\uC0AC\uC704 \uCDA9\uC804\uB7C9 \uAC10\uC18C 25%"
   riskType: 4
   stageValues:
     stage1: 0

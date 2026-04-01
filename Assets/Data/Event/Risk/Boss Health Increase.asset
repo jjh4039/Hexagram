@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fea84e9711ebe468b348a6a7623937, type: 3}
   m_Name: Boss Health Increase
   m_EditorClassIdentifier: Assembly-CSharp::RiskData
-  riskName: Boss Health Increase
-  description: 
+  riskName: "\uD749\uC870"
+  description:
+  - "\uBCF4\uC2A4 \uCCB4\uB825 0% \uC99D\uAC00 "
+  - "\uBCF4\uC2A4 \uCCB4\uB825 15% \uC99D\uAC00 "
+  - "\uBCF4\uC2A4 \uCCB4\uB825 40% \uC99D\uAC00 "
   riskType: 1
   stageValues:
     stage1: 0

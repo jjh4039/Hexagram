@@ -4,14 +4,14 @@ using UnityEngine;
 public class RewardData : ScriptableObject
 {
     [Header("기본 정보")]
-    public string rewardName;               // 보상 이름
-    [TextArea] public string description;   // 설명
+    public string rewardName;
+    [TextArea] public string[] description;
 
     [Header("메커니즘 설정")]
-    public RewardType rewardType;           // 보상 종류
+    public RewardType rewardType;
 
     [Header("수치 설정")]
-    public StageValueData stageValues;      // 1 / 2 / 3단계 값
+    public StageValueData stageValues;
 
     public float GetValue(int stage)
     {
@@ -38,6 +38,17 @@ public class RewardData : ScriptableObject
             default:
                 return value.ToString("0");
         }
+    }
+
+    public string GetDescription(int index)
+    {
+        if (description == null || description.Length == 0)
+            return string.Empty;
+
+        if (index < 0 || index >= description.Length)
+            return description[0];
+
+        return description[index];
     }
 
     private string GetArtifactGradeText(int stage)

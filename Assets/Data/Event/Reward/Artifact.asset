@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
   m_Name: Artifact
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: Artifact
-  description: 
+  rewardName: "\uACC4\uC2DC"
+  description: []
   rewardType: 3
   stageValues:
     stage1: 0

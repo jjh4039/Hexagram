@@ -215,7 +215,7 @@ MonoBehaviour:
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 1
-        - colorIndex: 1
+        - colorIndex: 9
           iconNameOrGuid: Favorite
           isIconRecursive: 1
           isColorRecursive: 1

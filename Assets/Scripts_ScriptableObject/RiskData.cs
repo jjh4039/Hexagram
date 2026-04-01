@@ -4,14 +4,14 @@ using UnityEngine;
 public class RiskData : ScriptableObject
 {
     [Header("기본 정보")]
-    public string riskName;                 // 리스크 이름
-    [TextArea] public string description;   // 설명
+    public string riskName;
+    [TextArea] public string[] description;
 
     [Header("메커니즘 설정")]
-    public RiskType riskType;               // 리스크 종류
+    public RiskType riskType;
 
     [Header("수치 설정")]
-    public StageValueData stageValues;      // 1 / 2 / 3단계 값
+    public StageValueData stageValues;
 
     public float GetValue(int stage)
     {
@@ -36,5 +36,16 @@ public class RiskData : ScriptableObject
             default:
                 return value.ToString("0");
         }
+    }
+
+    public string GetDescription(int index)
+    {
+        if (description == null || description.Length == 0)
+            return string.Empty;
+
+        if (index < 0 || index >= description.Length)
+            return description[0];
+
+        return description[index];
     }
 }

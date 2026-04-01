@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fea84e9711ebe468b348a6a7623937, type: 3}
   m_Name: Current Hp Cost
   m_EditorClassIdentifier: Assembly-CSharp::RiskData
-  riskName: Current Hp Cost
-  description: 
+  riskName: "\uB300\uAC00"
+  description:
+  - "\uD604\uC7AC \uCCB4\uB825 0% \uC18C\uBE44"
   riskType: 5
   stageValues:
     stage1: 0

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
   m_Name: Dice Face Chance Up
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: Dice Face Chance Up
-  description: 
+  rewardName: "\uAC1C\uC548"
+  description: []
   rewardType: 2
   stageValues:
     stage1: 1

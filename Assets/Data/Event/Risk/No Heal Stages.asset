@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fea84e9711ebe468b348a6a7623937, type: 3}
   m_Name: No Heal Stages
   m_EditorClassIdentifier: Assembly-CSharp::RiskData
-  riskName: No Heal Stages
-  description: 
+  riskName: "\uAE08\uAE30"
+  description:
+  - "\uB2E4\uC74C 0\uC2A4\uD14C\uC774\uC9C0 \uD68C\uBCF5 \uBD88\uAC00"
   riskType: 3
   stageValues:
     stage1: 0

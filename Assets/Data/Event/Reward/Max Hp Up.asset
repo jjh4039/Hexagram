@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db479c4e25959674cb7d874b05bdcd2b, type: 3}
   m_Name: Max Hp Up
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
-  rewardName: Max Hp Up
-  description: 
+  rewardName: "\uCD95\uBCF5"
+  description: []
   rewardType: 4
   stageValues:
     stage1: 4

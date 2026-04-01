@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80fea84e9711ebe468b348a6a7623937, type: 3}
   m_Name: Next Stage Damage Increase
   m_EditorClassIdentifier: Assembly-CSharp::RiskData
-  riskName: Next Stage Damage Increase
-  description: 
+  riskName: "\uD30C\uBA78"
+  description:
+  - "\uB2E4\uC74C \uC804\uD22C \uC2A4\uD14C\uC774\uC9C0 \uBC1B\uB294 \uD53C\uD574
+    0% \uC99D\uAC00"
   riskType: 2
   stageValues:
     stage1: 0
