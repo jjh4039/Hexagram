@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Scrap
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   rewardName: "\uC7AC\uBB3C"
-  description: []
+  description:
+  - "\uC2A4\uD06C\uB7A9 <color=#81D4FA>20</color> \uD68D\uB4DD"
+  - "\uC2A4\uD06C\uB7A9 <color=#29B6F6>100</color> \uD68D\uB4DD"
+  - "\uC2A4\uD06C\uB7A9 <color=#0288D1>210</color> \uD68D\uB4DD"
+  symbolSprite: {fileID: -346715691, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   rewardType: 1
   stageValues:
     stage1: 20

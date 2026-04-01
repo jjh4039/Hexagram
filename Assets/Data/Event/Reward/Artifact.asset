@@ -13,7 +13,14 @@ MonoBehaviour:
   m_Name: Artifact
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   rewardName: "\uACC4\uC2DC"
-  description: []
+  description:
+  - "\uBB34\uC791\uC704 <color=#81D4FA>\uC77C\uBC18</color> \uC544\uD2F0\uD329\uD2B8
+    \uD68D\uB4DD\n"
+  - "\uBB34\uC791\uC704 <color=#29B6F6>\uD76C\uADC0</color> \uC544\uD2F0\uD329\uD2B8
+    \uD68D\uB4DD\n"
+  - "\uBB34\uC791\uC704 <color=#0288D1>\uC601\uC6C5</color> \uC544\uD2F0\uD329\uD2B8
+    \uD68D\uB4DD\n"
+  symbolSprite: {fileID: 122856387, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   rewardType: 3
   stageValues:
     stage1: 0

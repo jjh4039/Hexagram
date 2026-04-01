@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Module Enhance Choice
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   rewardName: "\uC740\uCD1D"
-  description: []
+  description:
+  - "\uAC15\uD654 \uC120\uD0DD\uC9C0 <color=#81D4FA>1\uD68C</color> \uBD80\uC5EC"
+  - "\uAC15\uD654 \uC120\uD0DD\uC9C0 <color=#29B6F6>3\uD68C</color> \uBD80\uC5EC"
+  - "\uAC15\uD654 \uC120\uD0DD\uC9C0 <color=#0288D1>6\uD68C</color> \uBD80\uC5EC"
+  symbolSprite: {fileID: -1103078026, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   rewardType: 5
   stageValues:
     stage1: 1

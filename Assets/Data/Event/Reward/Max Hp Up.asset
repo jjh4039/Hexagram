@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Max Hp Up
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   rewardName: "\uCD95\uBCF5"
-  description: []
+  description:
+  - "\uCD5C\uB300 \uCCB4\uB825 <color=#81D4FA>3%</color> \uC0C1\uC2B9"
+  - "\uCD5C\uB300 \uCCB4\uB825 <color=#29B6F6>6%</color> \uC0C1\uC2B9"
+  - "\uCD5C\uB300 \uCCB4\uB825 <color=#0288D1>10%</color> \uC0C1\uC2B9"
+  symbolSprite: {fileID: 1029026393, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   rewardType: 4
   stageValues:
     stage1: 4

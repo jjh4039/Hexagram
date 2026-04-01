@@ -6,6 +6,7 @@ public class RewardData : ScriptableObject
     [Header("기본 정보")]
     public string rewardName;
     [TextArea] public string[] description;
+    public Sprite symbolSprite;
 
     [Header("메커니즘 설정")]
     public RewardType rewardType;

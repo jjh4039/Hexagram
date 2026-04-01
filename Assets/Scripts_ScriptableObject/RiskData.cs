@@ -6,6 +6,7 @@ public class RiskData : ScriptableObject
     [Header("기본 정보")]
     public string riskName;
     [TextArea] public string[] description;
+    public Sprite symbolSprite;
 
     [Header("메커니즘 설정")]
     public RiskType riskType;

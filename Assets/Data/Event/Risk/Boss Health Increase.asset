@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RiskData
   riskName: "\uD749\uC870"
   description:
-  - "\uBCF4\uC2A4 \uCCB4\uB825 0% \uC99D\uAC00 "
-  - "\uBCF4\uC2A4 \uCCB4\uB825 15% \uC99D\uAC00 "
-  - "\uBCF4\uC2A4 \uCCB4\uB825 40% \uC99D\uAC00 "
+  - "\uBCF4\uC2A4 \uCCB4\uB825 <color=#E57373>0%</color> \uC99D\uAC00 "
+  - "\uBCF4\uC2A4 \uCCB4\uB825 <color=#E53935>15%</color> \uC99D\uAC00 "
+  - "\uBCF4\uC2A4 \uCCB4\uB825 <color=#D32F2F>40%</color> \uC99D\uAC00 "
+  symbolSprite: {fileID: 76921831, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   riskType: 1
   stageValues:
     stage1: 0

@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Dice Face Chance Up
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   rewardName: "\uAC1C\uC548"
-  description: []
+  description:
+  - "\uC8FC\uC0AC\uC704 \uD655\uB960 \uC870\uC815 <color=#81D4FA>+1%</color>"
+  - "\uC8FC\uC0AC\uC704 \uD655\uB960 \uC870\uC815 <color=#29B6F6>+3%</color>"
+  - "\uC8FC\uC0AC\uC704 \uD655\uB960 \uC870\uC815 <color=#0288D1>+6%</color>"
+  symbolSprite: {fileID: -2138435705, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   rewardType: 2
   stageValues:
     stage1: 1

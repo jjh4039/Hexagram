@@ -117,9 +117,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 81
-        y: 25
+        y: 14
         width: 799
-        height: 214
+        height: 234
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -139,9 +139,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 70
-        y: 361
+        y: 293
         width: 67
-        height: 95
+        height: 94
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -160,12 +160,12 @@ TextureImporter:
       name: Event_1
       rect:
         serializedVersion: 2
-        x: 128
-        y: 317
-        width: 244
-        height: 37
+        x: 130
+        y: 251
+        width: 238
+        height: 33
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 6, y: 6, z: 6, w: 6}
       customData: 
       outline: []
@@ -174,6 +174,380 @@ TextureImporter:
       bones: []
       spriteID: ca110abb1cd6ba94e82b90a95b9017bb
       internalID: -1944338350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_3
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 293
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d41263ae920849a44b16b8613836520c
+      internalID: 76921831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_4
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 293
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce1ff668f422261489842349964d6a48
+      internalID: 484154410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_5
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 293
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d0cf0ba46a4c38f4a93be3ee98b8990c
+      internalID: -1808322676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_6
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 293
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd76099d6a9b3ac408c0fba8f2cdbc78
+      internalID: 1747346322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_7
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 293
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 479522ca8f2c464438eed022f34ba226
+      internalID: -1475494500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_8
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 387
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bb571dfc6a40f3b4a95c71fc646ffe21
+      internalID: -346715691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_9
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 387
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e376e97aa03c8c34d8c07edab0fd5281
+      internalID: -1103078026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_10
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 387
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ab871dfa3d27f1849b0d4ffe7cdaa08c
+      internalID: 122856387
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_11
+      rect:
+        serializedVersion: 2
+        x: 352
+        y: 387
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 73fed100bc9908a428478cb9d911e611
+      internalID: -2138435705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_12
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 387
+        width: 67
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26695e69a4475334084826b29e009ecc
+      internalID: 1029026393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_13
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 464
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 21de58bef14a4254abe1b43c49f19648
+      internalID: 2138704603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_14
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 406
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 09b9679366e983840afda61fd6d79365
+      internalID: -1010395157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_15
+      rect:
+        serializedVersion: 2
+        x: 762
+        y: 464
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6171914580795f64d8a81fa0046ff225
+      internalID: 1862139831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_16
+      rect:
+        serializedVersion: 2
+        x: 762
+        y: 406
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bc29d9e7047f8844b48c9c2a8a39c6f
+      internalID: -163391337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_17
+      rect:
+        serializedVersion: 2
+        x: 824
+        y: 464
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c827413512bccf24fbf7dff58b4f6cad
+      internalID: 1060719446
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_18
+      rect:
+        serializedVersion: 2
+        x: 824
+        y: 406
+        width: 50
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a52b5ed69b7fd0b49abedbf8b7419f9f
+      internalID: 2026856501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Event_19
+      rect:
+        serializedVersion: 2
+        x: 728
+        y: 359
+        width: 128
+        height: 7
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dc780824e0e98c74d92f1e0c44f236ad
+      internalID: 1365614634
       vertices: []
       indices: 
       edges: []
@@ -194,7 +568,24 @@ TextureImporter:
     nameFileIdTable:
       Event_0: -2273958870705210090
       Event_1: -1944338350
+      Event_10: 122856387
+      Event_11: -2138435705
+      Event_12: 1029026393
+      Event_13: 2138704603
+      Event_14: -1010395157
+      Event_15: 1862139831
+      Event_16: -163391337
+      Event_17: 1060719446
+      Event_18: 2026856501
+      Event_19: 1365614634
       Event_2: 1327072553
+      Event_3: 76921831
+      Event_4: 484154410
+      Event_5: -1808322676
+      Event_6: 1747346322
+      Event_7: -1475494500
+      Event_8: -346715691
+      Event_9: -1103078026
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
