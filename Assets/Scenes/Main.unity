@@ -1007,6 +1007,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 96496144}
   m_CullTransparentMesh: 1
+--- !u!1 &108775911 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6770056987612179759, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
+  m_PrefabInstance: {fileID: 1335235347}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &110785378
 GameObject:
   m_ObjectHideFlags: 0
@@ -10890,7 +10895,7 @@ MonoBehaviour:
   rewardText: {fileID: 554886361}
   riskDescriptionText: {fileID: 1583162660}
   rewardDescriptionText: {fileID: 1758889185}
-  rouletteDuration: 0.8
+  rouletteDuration: 0.6
   delayBetweenRiskAndReward: 0.18
   rouletteStartInterval: 0.018
   rouletteEndInterval: 0.18
@@ -30671,7 +30676,7 @@ MonoBehaviour:
   bitManager: {fileID: 1797329881}
   cursor: {fileID: 1299400498}
   shopUIController: {fileID: 1383836550}
-  currentStageObj: {fileID: 0}
+  currentStageObj: {fileID: 108775911}
   commonScrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
   currentScrap: 0
   currentSeason: 0
