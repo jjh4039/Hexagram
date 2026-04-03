@@ -38,9 +38,9 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI riskDescriptionText;
     [SerializeField] private TextMeshProUGUI rewardDescriptionText;
     [SerializeField] private float rouletteDuration = 0.7f;
-    [SerializeField] private float delayBetweenRiskAndReward = 0.35f;
-    [SerializeField] private float rouletteStartInterval = 0.03f;
-    [SerializeField] private float rouletteEndInterval = 0.12f;
+    [SerializeField] private float delayBetweenRiskAndReward = 0.15f;
+    [SerializeField] private float rouletteStartInterval = 0.02f;
+    [SerializeField] private float rouletteEndInterval = 0.2f;
     [SerializeField] private float textDefaultScale = 0.63f;
 
     [Header("Roulette Impact")]
@@ -48,7 +48,7 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float heavySlowMultiplier = 1.5f;
     [SerializeField] private float finalLockFreeze = 0.05f;
     [SerializeField] private float finalImagePopScale = 1.1f;
-    [SerializeField] private float finalImagePopDuration = 0.12f;
+    [SerializeField] private float finalImagePopDuration = 0.3f;
 
     [Header("Card Image")]
     [SerializeField] private Image riskCardImage;
@@ -78,8 +78,8 @@ public class EventUIController : MonoBehaviour
     [Header("Destiny")]
     [SerializeField] private CanvasGroup destinyGroup;
     [SerializeField] private float destinyFadeDuration = 0.2f;
-    [SerializeField] private float destinyHoverScale = 1.05f;
-    [SerializeField] private float destinyScaleDuration = 0.08f;
+    [SerializeField] private float destinyHoverScale = 1.1f;
+    [SerializeField] private float destinyScaleDuration = 0.2f;
     [SerializeField] private Image[] destinyOptionImages;
 
     [Header("Destiny Sprites")]
@@ -92,11 +92,11 @@ public class EventUIController : MonoBehaviour
 
     [Header("Text Emphasis")]
     [SerializeField] private float descriptionPopScale = 1.06f;
-    [SerializeField] private float descriptionPopDuration = 0.12f;
+    [SerializeField] private float descriptionPopDuration = 0.2f;
 
     [Header("Card Emphasis")]
     [SerializeField] private float destinyCardPopScale = 1.03f;
-    [SerializeField] private float destinyCardPopDuration = 0.1f;
+    [SerializeField] private float destinyCardPopDuration = 0.2f;
 
     [Header("SFX")]
     [SerializeField] private AudioClip sfxRouletteTick;
@@ -106,8 +106,8 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float sfxRouletteLockVolume = 1f;
     [SerializeField] private float sfxRouletteLockPitchVariation = 0.03f;
     [SerializeField] private AudioClip sfxDestinyClick;
-    [SerializeField] private float sfxDestinyClickVolume = 0.95f;
-    [SerializeField] private float sfxDestinyClickPitchVariation = 0.05f;
+    [SerializeField] private float sfxDestinyClickVolume = 0.6f;
+    [SerializeField] private float sfxDestinyClickPitchVariation = 0.08f;
 
     [Header("Optional")]
     [SerializeField] private bool closeWithEscape = true;
