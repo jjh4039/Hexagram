@@ -10890,16 +10890,20 @@ MonoBehaviour:
   rewardText: {fileID: 554886361}
   riskDescriptionText: {fileID: 1583162660}
   rewardDescriptionText: {fileID: 1758889185}
-  rouletteDuration: 0.7
-  delayBetweenRiskAndReward: 0.15
-  rouletteStartInterval: 0.03
-  rouletteEndInterval: 0.12
+  rouletteDuration: 0.8
+  delayBetweenRiskAndReward: 0.18
+  rouletteStartInterval: 0.018
+  rouletteEndInterval: 0.18
   textDefaultScale: 0.63
   heavySlowCount: 3
-  heavySlowMultiplier: 1.5
-  finalLockFreeze: 0.05
-  finalImagePopScale: 1.1
-  finalImagePopDuration: 0.3
+  heavySlowMultiplier: 1.65
+  finalPreviewCount: 2
+  finalPreviewInterval: 0.1
+  finalLockFreeze: 0.1
+  finalImagePopScale: 1.12
+  finalImagePopDuration: 0.26
+  finalTextPopScale: 1.07
+  finalTextPopDuration: 0.22
   riskCardImage: {fileID: 561162653}
   rewardCardImage: {fileID: 1130120947}
   defaultDescriptionIndex: 0
@@ -10920,7 +10924,9 @@ MonoBehaviour:
   destinyGroup: {fileID: 1264047296}
   destinyFadeDuration: 0.2
   destinyHoverScale: 1.1
+  destinySelectedScale: 1.12
   destinyScaleDuration: 0.2
+  destinyHoverLeaveDelay: 0.08
   destinyOptionImages:
   - {fileID: 1179429262}
   - {fileID: 188770389}
@@ -10931,10 +10937,26 @@ MonoBehaviour:
   destiny1SelectedSprite: {fileID: -163391337, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   destiny2NormalSprite: {fileID: 1060719446, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   destiny2SelectedSprite: {fileID: 2026856501, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
-  descriptionPopScale: 1.06
-  descriptionPopDuration: 0.2
-  destinyCardPopScale: 1.03
-  destinyCardPopDuration: 0.2
+  confirmButtonGroup: {fileID: 1903215621}
+  confirmButtonImages:
+  - {fileID: 1903215619}
+  confirmButtonFadeDuration: 0.2
+  confirmButtonHoverScale: 1.08
+  confirmButtonClickScale: 1.03
+  confirmButtonScaleDuration: 0.14
+  hoverDescriptionPopScale: 1.035
+  hoverDescriptionPopDuration: 0.12
+  clickDescriptionPopScale: 1.06
+  clickDescriptionPopDuration: 0.2
+  hoverCardPopScale: 1.02
+  hoverCardPopDuration: 0.12
+  clickCardPopScale: 1.04
+  clickCardPopDuration: 0.2
+  enableIdlePulse: 1
+  idlePulseAmplitude: 0.018
+  idlePulseSpeed: 2.2
+  idleCardPulseAmplitude: 0.012
+  idleCardPulseSpeed: 1.8
   sfxRouletteTick: {fileID: 8300000, guid: 2ba23ebe313745749afd6eb6c192ecb7, type: 3}
   sfxRouletteTickVolume: 0.9
   sfxRouletteTickPitchVariation: 0.06
@@ -13947,7 +13969,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &956686558
 RectTransform:
   m_ObjectHideFlags: 0
@@ -25166,8 +25188,6 @@ GameObject:
   - component: {fileID: 1694383562}
   - component: {fileID: 1694383566}
   - component: {fileID: 1694383565}
-  - component: {fileID: 1694383564}
-  - component: {fileID: 1694383563}
   m_Layer: 5
   m_Name: TitleText
   m_TagString: Untagged
@@ -25194,114 +25214,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 21.6}
   m_SizeDelta: {x: 200, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1694383563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1694383561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.3
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 2
-  _maxDistance: 128
-  _reuseDistanceMap: 0
-  _falloffMode: 0
-  _expFalloffEnergy: 5
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 28
-  _noiseScale: 0
-  _additive: 1
-  _sourceAlpha: 1
---- !u!114 &1694383564
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1694383561}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35fc49e13720d6c4fb056bc4d105e6af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX.TMP::ChocDino.UIFX.FilterStackTextMeshPro
-  _applyToSprites: 1
-  _updateOnTransform: 0
-  _relativeToTransformScale: 0
-  _renderSpace: 0
-  _relativeFontSize: 0
-  _filters:
-  - {fileID: 1694383563}
 --- !u!114 &1694383565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28635,6 +28547,7 @@ GameObject:
   - component: {fileID: 1903215618}
   - component: {fileID: 1903215620}
   - component: {fileID: 1903215619}
+  - component: {fileID: 1903215621}
   m_Layer: 5
   m_Name: ChoiceButton
   m_TagString: Untagged
@@ -28700,6 +28613,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1903215617}
   m_CullTransparentMesh: 1
+--- !u!225 &1903215621
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903215617}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1912490555
 GameObject:
   m_ObjectHideFlags: 0
