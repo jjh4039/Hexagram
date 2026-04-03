@@ -10937,12 +10937,10 @@ MonoBehaviour:
   destiny1SelectedSprite: {fileID: -163391337, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   destiny2NormalSprite: {fileID: 1060719446, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   destiny2SelectedSprite: {fileID: 2026856501, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
-  confirmButtonGroup: {fileID: 1903215621}
-  confirmButtonImages:
-  - {fileID: 1903215619}
-  confirmButtonFadeDuration: 0.2
-  confirmButtonHoverScale: 1.08
-  confirmButtonClickScale: 1.03
+  confirmButtonImage: {fileID: 1903215619}
+  confirmButtonDefaultScale: 0.4
+  confirmButtonHoverScale: 0.44
+  confirmButtonClickScale: 0.42
   confirmButtonScaleDuration: 0.14
   hoverDescriptionPopScale: 1.035
   hoverDescriptionPopDuration: 0.12
