@@ -2786,7 +2786,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_Color: {r: 0, g: 0.8166666, b: 1, a: 0.2}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10895,7 +10895,7 @@ MonoBehaviour:
   rewardText: {fileID: 554886361}
   riskDescriptionText: {fileID: 1583162660}
   rewardDescriptionText: {fileID: 1758889185}
-  rouletteDuration: 0.6
+  rouletteDuration: 0.5
   delayBetweenRiskAndReward: 0.18
   rouletteStartInterval: 0.018
   rouletteEndInterval: 0.18
@@ -10947,6 +10947,7 @@ MonoBehaviour:
   confirmButtonHoverScale: 0.44
   confirmButtonClickScale: 0.42
   confirmButtonScaleDuration: 0.14
+  confirmCloseDelay: 0.02
   hoverDescriptionPopScale: 1.035
   hoverDescriptionPopDuration: 0.12
   clickDescriptionPopScale: 1.06
@@ -10960,7 +10961,7 @@ MonoBehaviour:
   idlePulseSpeed: 2.2
   idleCardPulseAmplitude: 0.012
   idleCardPulseSpeed: 1.8
-  sfxRouletteTick: {fileID: 8300000, guid: 2ba23ebe313745749afd6eb6c192ecb7, type: 3}
+  sfxRouletteTick: {fileID: 8300000, guid: 1458efcc94e2a1445a04358e2463ddff, type: 3}
   sfxRouletteTickVolume: 0.9
   sfxRouletteTickPitchVariation: 0.06
   sfxRouletteLock: {fileID: 8300000, guid: 31ffc7ad4f1460f479fed3d52fcdb45a, type: 3}
@@ -10969,6 +10970,9 @@ MonoBehaviour:
   sfxDestinyClick: {fileID: 8300000, guid: 8c807295efadfd84a99f29b04a71cd55, type: 3}
   sfxDestinyClickVolume: 0.6
   sfxDestinyClickPitchVariation: 0.08
+  sfxSelect: {fileID: 8300000, guid: 1d74880bed4586644a16a79a2d9dc8af, type: 3}
+  sfxSelectVolume: 0.8
+  sfxSelectPitchVariation: 0.04
   closeWithEscape: 1
 --- !u!1 &737838703
 GameObject:
@@ -13972,7 +13976,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &956686558
 RectTransform:
   m_ObjectHideFlags: 0
