@@ -21,7 +21,7 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private RectTransform panelRect;
     [SerializeField] private float slideDistanceY = 25f;
     [SerializeField] private float openSlideDuration = 0.5f;
-    [SerializeField] private float closeSlideDuration = 0.35f;
+    [SerializeField] private float closeSlideDuration = 0.2f;
 
     [Header("Fade")]
     [SerializeField] private float backgroundStartAlpha = 0f;
@@ -101,7 +101,8 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float confirmButtonDefaultScale = 0.4f;
     [SerializeField] private float confirmButtonHoverScale = 0.44f;
     [SerializeField] private float confirmButtonClickScale = 0.42f;
-    [SerializeField] private float confirmButtonScaleDuration = 0.14f;
+    [SerializeField] private float confirmButtonScaleDuration = 0.1f;
+    [SerializeField] private float confirmCloseDelay = 0.02f;
 
     [Header("Description Emphasis")]
     [SerializeField] private float hoverDescriptionPopScale = 1.035f;
@@ -132,6 +133,9 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private AudioClip sfxDestinyClick;
     [SerializeField] private float sfxDestinyClickVolume = 0.6f;
     [SerializeField] private float sfxDestinyClickPitchVariation = 0.08f;
+    [SerializeField] private AudioClip sfxSelect;
+    [SerializeField] private float sfxSelectVolume = 1f;
+    [SerializeField] private float sfxSelectPitchVariation = 0.04f;
 
     [Header("Optional")]
     [SerializeField] private bool closeWithEscape = true;
@@ -1069,7 +1073,10 @@ public class EventUIController : MonoBehaviour
 
         _isClosingFromConfirm = true;
         canConfirmSelection = false;
+        canDestinyInteract = false;
         SetConfirmButtonInteractable(false);
+        SetDestinyInteractable(false);
+        StopIdleEffects();
 
         string riskName = riskText != null ? riskText.text : "Unknown Risk";
         string rewardName = rewardText != null ? rewardText.text : "Unknown Reward";
@@ -1078,7 +1085,7 @@ public class EventUIController : MonoBehaviour
                   ", Risk: " + riskName +
                   ", Reward: " + rewardName);
 
-        PlaySFX(sfxDestinyClick, sfxDestinyClickVolume, sfxDestinyClickPitchVariation);
+        PlaySFX(sfxSelect, sfxSelectVolume, sfxSelectPitchVariation);
 
         if (_confirmButtonRoutine != null)
             StopCoroutineSafe(ref _confirmButtonRoutine);
@@ -1091,11 +1098,12 @@ public class EventUIController : MonoBehaviour
         if (confirmButtonImage != null)
         {
             RectTransform target = confirmButtonImage.rectTransform;
-            yield return StartCoroutine(ScaleToRoutine(target, confirmButtonHoverScale * 1.02f, 0.06f));
-            yield return StartCoroutine(ScaleToRoutine(target, confirmButtonClickScale, 0.06f));
+            yield return StartCoroutine(ScaleToRoutine(target, confirmButtonClickScale, 0.05f));
         }
 
-        yield return new WaitForSecondsRealtime(0.04f);
+        if (confirmCloseDelay > 0f)
+            yield return new WaitForSecondsRealtime(confirmCloseDelay);
+
         CloseEvent();
         _confirmButtonRoutine = null;
     }

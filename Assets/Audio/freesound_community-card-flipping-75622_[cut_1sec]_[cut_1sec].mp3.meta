@@ -1,12 +1,5 @@
 fileFormatVersion: 2
-guid: 1d74880bed4586644a16a79a2d9dc8af
-AssetOrigin:
-  serializedVersion: 1
-  productId: 227708
-  packageName: RPG Essentials Sound Effects - FREE!
-  packageVersion: 1.0
-  assetPath: Assets/Leohpaz/RPG_Essentials_Free/8_Atk_Magic_SFX/13_Ice_explosion_01.wav
-  uploadId: 516368
+guid: 1458efcc94e2a1445a04358e2463ddff
 AudioImporter:
   externalObjects: {}
   serializedVersion: 8
@@ -18,7 +11,7 @@ AudioImporter:
     compressionFormat: 1
     quality: 1
     conversionMode: 0
-    preloadAudioData: 1
+    preloadAudioData: 0
   platformSettingOverrides: {}
   forceToMono: 1
   normalize: 1
