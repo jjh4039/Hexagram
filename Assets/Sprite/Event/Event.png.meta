@@ -138,7 +138,7 @@ TextureImporter:
       name: Event_2
       rect:
         serializedVersion: 2
-        x: 70
+        x: 72
         y: 293
         width: 67
         height: 94
@@ -226,7 +226,7 @@ TextureImporter:
       name: Event_5
       rect:
         serializedVersion: 2
-        x: 284
+        x: 282
         y: 293
         width: 67
         height: 94
@@ -270,7 +270,7 @@ TextureImporter:
       name: Event_7
       rect:
         serializedVersion: 2
-        x: 424
+        x: 422
         y: 293
         width: 67
         height: 94
@@ -336,7 +336,7 @@ TextureImporter:
       name: Event_10
       rect:
         serializedVersion: 2
-        x: 284
+        x: 282
         y: 387
         width: 67
         height: 94
@@ -380,7 +380,7 @@ TextureImporter:
       name: Event_12
       rect:
         serializedVersion: 2
-        x: 424
+        x: 422
         y: 387
         width: 67
         height: 94
