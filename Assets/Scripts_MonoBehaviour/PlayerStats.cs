@@ -24,8 +24,8 @@ public class PlayerStats : MonoBehaviour
     public float dashRechargeRate = 1f;  // 1초에 1스택 충전
 
     [Header("--- 전투력 편차 (Precision) ---")]
-    [Range(0f, 0.5f)] public float meleeDamageVariance = 0.4f;
-    [Range(0f, 0.5f)] public float rangedDamageVariance = 0.5f;
+    [Range(0f, 0.5f)] public float meleeDamageVariance = 0.2f;
+    [Range(0f, 0.5f)] public float rangedDamageVariance = 0.1f;
 
     [Header("--- 버프 증폭률 (Buff Multipliers) ---")]
     public float damageMultiplier = 1.0f;
@@ -34,8 +34,8 @@ public class PlayerStats : MonoBehaviour
     public float chargeSpeedMultiplier = 1.0f;
     public int remainingStrongAttacks = 0;
 
-    float testTimer = 0f;
-    float testTimer2 = 0f;
+    private float _testTimer = 0f;
+    private float _testTimer2 = 0f;
 
     private void Start()
     {
@@ -46,22 +46,22 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        testTimer += Time.deltaTime;
-        testTimer2 += Time.deltaTime;
+        _testTimer += Time.deltaTime;
+        _testTimer2 += Time.deltaTime;
 
-        if (testTimer >= 2f)
+        if (_testTimer >= 2f)
         {
-            testTimer = 0f;
+            _testTimer = 0f;
             currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
         }
 
-        if (testTimer2 >= 0.01f)
+        if (_testTimer2 >= 0.01f)
         {
-            testTimer2 = 0f;
+            _testTimer2 = 0f;
             currentAmmo = Mathf.Min(currentAmmo + 1, maxAmmo);
         }
     }
-
+    
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
