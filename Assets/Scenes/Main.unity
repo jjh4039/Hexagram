@@ -12595,11 +12595,7 @@ MonoBehaviour:
   anim: {fileID: 110785380}
   stats: {fileID: 843584030}
   canControl: 1
-  defaultMoveSpeed: 4
-  minMoveSpeed: 6
-  speedChangeRate: 5
   isAttacking: 0
-  isCharging: 0
   isKnockedBack: 0
   isInvincible: 0
   invincibleTime: 0.8
@@ -12646,6 +12642,7 @@ MonoBehaviour:
   currentDiceCharge: 0
   meleeAttackPower: 10
   rangeAttackPower: 8
+  moveSpeed: 5
   maxDashStacks: 3
   currentDashStacks: 3
   dashRechargeRate: 1
@@ -13378,7 +13375,6 @@ MonoBehaviour:
   gunRecoilDuration: 0.2
   shakeDuration: 0.05
   shakeMagnitude: 0.02
-  fadeSpeed: 10
   sfxShoot: {fileID: 8300000, guid: f8f3a8347d84bbe4f8a46fda53926978, type: 3}
   sfxEmpty: {fileID: 8300000, guid: c8670a08157ae6e4c949f8652814c4c2, type: 3}
   damageTextPrefab: {fileID: 642625774705958115, guid: 5fa2cbeba5bfdfe4ebbde5ccb77f303f, type: 3}
@@ -25091,7 +25087,6 @@ MonoBehaviour:
   activeDuration: 0.25
   inputBufferTime: 0.5
   attackSpeed: 1
-  fadeSpeed: 10
   attackMoveSpeedMultiplier: 0.25
   sfxSlash: {fileID: 8300000, guid: cf99893d66f5bad4480527cf6e4c5a94, type: 3}
 --- !u!1 &1692911101

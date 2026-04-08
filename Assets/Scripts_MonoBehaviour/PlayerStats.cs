@@ -17,6 +17,9 @@ public class PlayerStats : MonoBehaviour
     [Header("--- 기본 전투력 (Base ATK) ---")]
     public float meleeAttackPower = 10f; // 근거리 공격력 (칼)
     public float rangeAttackPower = 7f;  // 원거리 공격력 (총)
+    
+    [Header("--- 이동 스탯 (Movement) ---")]
+    public float moveSpeed = 6f;
 
     [Header("--- 대시 스택 (Dash Stacks) ---")]
     public int maxDashStacks = 3;       // 최대 3회 충전
@@ -62,6 +65,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
     
+    // ReSharper disable Unity.PerformanceAnalysis
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
@@ -74,6 +78,7 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     private void Die()
     {
         Debug.Log("!!! GAME OVER !!!");

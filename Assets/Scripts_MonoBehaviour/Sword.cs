@@ -15,9 +15,8 @@ public class Sword : MonoBehaviour
 
     [Header("Stats")]
     [SerializeField] private float attackSpeed = 1.0f;
-    [SerializeField] private float fadeSpeed = 10f;
-    [SerializeField] private float attackMoveSpeedMultiplier = 0.4f; // 검 공격 시 슬로우 정도
-    public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier; // 위 변수 외부 노출용
+    [SerializeField] private float attackMoveSpeedMultiplier = 0.25f;
+    public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier;
 
     [Header("Audio")]
     [SerializeField] private AudioClip sfxSlash;
@@ -60,31 +59,29 @@ public class Sword : MonoBehaviour
                 anim.speed = 1f;
                 anim.ResetTrigger("Attack");
             }
+
             RotateWeapon();
         }
 
         TryAttack();
-        HandleChargingVisuals();
-    }
-
-    private void HandleChargingVisuals()
-    {
-        if (GameManager.instance.player == null) return;
-        bool isCharging = GameManager.instance.player.isCharging;
-        float targetAlpha = isCharging ? 0f : 1f;
-        Color currentColor = spriteRenderer.color;
-        float newAlpha = Mathf.Lerp(currentColor.a, targetAlpha, Time.deltaTime * fadeSpeed);
-        spriteRenderer.color = new Color(currentColor.r, currentColor.g, currentColor.b, newAlpha);
     }
 
     private void TryAttack()
     {
-        if (GameManager.instance.player.isCharging) return;
-        if (Time.time - lastInputTime > inputBufferTime) return;
-        if (weaponManager.IsSwapping) return;
-        if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Sword) return;
-        if (comboStep >= 3) return;
-        if (Time.time < nextAttackUnlockTime) return;
+        if (Time.time - lastInputTime > inputBufferTime)
+            return;
+
+        if (weaponManager.IsSwapping)
+            return;
+
+        if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Sword)
+            return;
+
+        if (comboStep >= 3)
+            return;
+
+        if (Time.time < nextAttackUnlockTime)
+            return;
 
         ExecuteAttack();
     }
@@ -92,9 +89,14 @@ public class Sword : MonoBehaviour
     private void ExecuteAttack()
     {
         lastInputTime = -10f;
+
         float resetThreshold = 0.33f / attackSpeed;
-        if (Time.time - lastAttackStartTime > resetThreshold) comboStep = 0;
-        if (comboStep >= 3) comboStep = 0;
+        if (Time.time - lastAttackStartTime > resetThreshold)
+            comboStep = 0;
+
+        if (comboStep >= 3)
+            comboStep = 0;
+
         comboStep++;
         lastAttackStartTime = Time.time;
         anim.speed = attackSpeed;
@@ -112,8 +114,17 @@ public class Sword : MonoBehaviour
         if (sfxSlash != null)
             SoundManager.instance.PlaySFX(sfxSlash, 0.8f, 0.2f);
 
-        if (comboStep == 1) { anim.Play("Sword_Attack", -1, 0f); anim.ResetTrigger("Attack"); }
-        else { anim.ResetTrigger("Attack"); anim.SetInteger("comboStep", comboStep); anim.SetTrigger("Attack"); }
+        if (comboStep == 1)
+        {
+            anim.Play("Sword_Attack", -1, 0f);
+            anim.ResetTrigger("Attack");
+        }
+        else
+        {
+            anim.ResetTrigger("Attack");
+            anim.SetInteger("comboStep", comboStep);
+            anim.SetTrigger("Attack");
+        }
 
         RotateWeapon();
         ApplyPhysics();
@@ -122,15 +133,9 @@ public class Sword : MonoBehaviour
 
     private void ApplyPhysics()
     {
-        // 1. 공격 상태임을 알림
         GameManager.instance.player.isAttacking = true;
-
-        // 2. 공격 시작 시 기존 속도를 초기화하여 관성 제거
         GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
 
-        // ★ [수정] 전진성(AddForce) 로직을 완전히 삭제했습니다. 이제 제자리에서 공격합니다.
-
-        // 3. 공격 종료 판정 타이밍
         CancelInvoke("ResetAttackStatus");
         Invoke("ResetAttackStatus", 0.3f / attackSpeed);
     }
@@ -140,12 +145,19 @@ public class Sword : MonoBehaviour
         Vector2 dir = (mouseWorldPos - (Vector2)transform.position).normalized;
         GameObject currentEffect = slashEffects[comboStep - 1];
         float spawnOffset = 0.4f + (comboStep * 0.25f);
+
         currentEffect.transform.position = (Vector2)transform.position + (dir * spawnOffset);
+
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        if (transform.localScale.y < 0) currentEffect.transform.rotation = Quaternion.Euler(0, 0, angle + 95f);
-        else currentEffect.transform.rotation = Quaternion.Euler(0, 0, angle - 95f);
+        if (transform.localScale.y < 0f)
+            currentEffect.transform.rotation = Quaternion.Euler(0f, 0f, angle + 95f);
+        else
+            currentEffect.transform.rotation = Quaternion.Euler(0f, 0f, angle - 95f);
+
         Vector3 effectScale = Vector3.one * 1.5f;
-        if (transform.localScale.y < 0) effectScale.y *= -1;
+        if (transform.localScale.y < 0f)
+            effectScale.y *= -1f;
+
         currentEffect.transform.localScale = effectScale;
         currentEffect.SetActive(false);
         currentEffect.SetActive(true);
@@ -156,19 +168,19 @@ public class Sword : MonoBehaviour
         float offset = 0f;
         Vector2 lookDir = mouseWorldPos - (Vector2)transform.position;
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
         Vector3 pivotScale = Vector3.one;
 
-        if (angle > 90 || angle < -90)
+        if (angle > 90f || angle < -90f)
         {
             pivotScale.y = 1f;
-            spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0);
+            spriteRenderer.transform.localPosition = new Vector3(offset, 0f, 0f);
         }
         else
         {
             pivotScale.y = -1f;
-            spriteRenderer.transform.localPosition = new Vector3(offset, 0, 0);
+            spriteRenderer.transform.localPosition = new Vector3(offset, 0f, 0f);
         }
 
         transform.localScale = pivotScale;
