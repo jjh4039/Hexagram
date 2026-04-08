@@ -2,50 +2,52 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("--- Survival Stats (생존) ---")]
+    [Header("Survival Stats")]
     public int maxHealth = 100;
     public int currentHealth;
 
-    [Header("--- Resource Stats (자원) ---")]
+    [Header("Resource Stats")]
     public int maxAmmo = 500;
     public int currentAmmo;
     public float ammoRechargeRate = 100f;
 
-    [Header("--- Dice Charge Stats (주사위) ---")]
+    [Header("Dice Charge Stats")]
     public float maxDiceCharge = 300f;
     public float currentDiceCharge = 0f;
     public float dicePassiveChargeRate = 25f;
     public float diceHitChargeAmount = 2f;
 
-    [Header("--- Attack Power Stats (공격력) ---")]
+    [Header("Attack Power Stats")]
     public float meleeAttackPower = 10f;
     public float rangeAttackPower = 8f;
 
-    [Header("--- Critical Stats (치명타) ---")]
+    [Header("Critical Stats")]
     [Range(0f, 1f)] public float criticalChance = 0.2f;
     public float criticalDamageMultiplier = 1.5f;
 
-    [Header("--- Movement Stats (이동) ---")]
+    [Header("Movement Stats")]
     public float moveSpeed = 5f;
 
-    [Header("--- Attack Speed Stats (공속) ---")]
+    [Header("Attack Speed Stats")]
     public float attackSpeed = 1.0f;
 
-    [Header("--- Dash Stats (대시) ---")]
+    [Header("Dash Stats")]
     public int maxDashStacks = 3;
     public float currentDashStacks = 3f;
     public float dashRechargeRate = 1f;
 
-    [Header("--- Damage Variance (편차) ---")]
+    [Header("Damage Variance")]
     [Range(0f, 0.5f)] public float meleeDamageVariance = 0.2f;
     [Range(0f, 0.5f)] public float rangedDamageVariance = 0.1f;
 
-    [Header("--- Multipliers (배수) ---")]
-    public float damageMultiplier = 1.0f;
-    public float moveSpeedMultiplier = 1.0f;
-    public float attackSpeedMultiplier = 1.0f;
-    public float chargeSpeedMultiplier = 1.0f;
-    public int remainingStrongAttacks = 0;
+    [Header("Dice Runtime Multipliers")]
+    public float diceDamageMultiplier = 1.0f;
+    public float diceMoveSpeedMultiplier = 1.0f;
+    public float diceAttackSpeedMultiplier = 1.0f;
+    public float diceChargeSpeedMultiplier = 1.0f;
+    public float diceCritDamageBonus = 0f;
+    public float diceRangedDamageMultiplier = 1.0f;
+    public int diceStrongAttackStacks = 0;
 
     private float ammoRechargeTimer = 0f;
 
@@ -67,7 +69,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (currentDiceCharge >= maxDiceCharge) return;
 
-        currentDiceCharge += dicePassiveChargeRate * chargeSpeedMultiplier * Time.deltaTime;
+        currentDiceCharge += dicePassiveChargeRate * diceChargeSpeedMultiplier * Time.deltaTime;
         currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);
     }
 
@@ -85,6 +87,22 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    public void ResetDiceRuntimeStats()
+    {
+        diceDamageMultiplier = 1.0f;
+        diceMoveSpeedMultiplier = 1.0f;
+        diceAttackSpeedMultiplier = 1.0f;
+        diceChargeSpeedMultiplier = 1.0f;
+        diceCritDamageBonus = 0f;
+        diceRangedDamageMultiplier = 1.0f;
+        diceStrongAttackStacks = 0;
+    }
+
+    public float GetFinalCriticalDamageMultiplier()
+    {
+        return criticalDamageMultiplier + diceCritDamageBonus;
+    }
+
     public void AddDiceCharge(float amount)
     {
         currentDiceCharge += amount;
@@ -93,7 +111,7 @@ public class PlayerStats : MonoBehaviour
 
     public void AddDiceChargeFromHit()
     {
-        AddDiceCharge(diceHitChargeAmount * chargeSpeedMultiplier);
+        AddDiceCharge(diceHitChargeAmount * diceChargeSpeedMultiplier);
     }
 
     public void TakeDamage(int amount)
@@ -111,6 +129,7 @@ public class PlayerStats : MonoBehaviour
     private void Die()
     {
         Debug.Log("GAME OVER");
+
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
             GameManager.instance.player.OnDie();

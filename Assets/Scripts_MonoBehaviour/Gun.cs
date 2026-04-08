@@ -151,7 +151,7 @@ public class Gun : MonoBehaviour
                 SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
 
             SpawnAmmoEmptyText();
-            Debug.Log("탄약 부족!");
+            Debug.Log("Out of ammo");
             return;
         }
 
@@ -165,7 +165,8 @@ public class Gun : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.stats == null)
             return 1f;
 
-        float finalAttackSpeed = GameManager.instance.stats.attackSpeed * GameManager.instance.stats.attackSpeedMultiplier;
+        PlayerStats stats = GameManager.instance.stats;
+        float finalAttackSpeed = stats.attackSpeed * stats.diceAttackSpeedMultiplier;
         return Mathf.Max(0.01f, finalAttackSpeed);
     }
 
@@ -174,12 +175,34 @@ public class Gun : MonoBehaviour
         if (bulletPrefab == null || muzzlePoint == null)
             return;
 
+        Player player = GameManager.instance.player;
+        PlayerStats stats = GameManager.instance.stats;
+
+        float strongAttackMultiplier = 1f;
+        if (player != null)
+        {
+            bool consumed = player.TryConsumeStrongAttack(out float consumedMultiplier);
+            if (consumed)
+            {
+                strongAttackMultiplier = consumedMultiplier;
+            }
+        }
+
         GameObject bulletObj = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
         Bullet bulletScript = bulletObj.GetComponent<Bullet>();
 
         if (bulletScript != null)
         {
             bulletScript.SetupVisuals(currentBulletColor, currentBulletMaterial);
+            bulletScript.SetupCombatData(
+                stats.rangeAttackPower,
+                stats.rangedDamageVariance,
+                stats.criticalChance,
+                stats.GetFinalCriticalDamageMultiplier(),
+                stats.diceDamageMultiplier,
+                stats.diceRangedDamageMultiplier,
+                strongAttackMultiplier
+            );
         }
 
         if (sfxShoot != null)
@@ -203,7 +226,7 @@ public class Gun : MonoBehaviour
     {
         if (GameManager.instance.player != null)
         {
-            var player = GameManager.instance.player;
+            Player player = GameManager.instance.player;
             player.isAttacking = true;
             player.rigid.AddForce(-transform.right * playerKnockbackForce, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f);
@@ -283,7 +306,7 @@ public class Gun : MonoBehaviour
 
         if (dt != null)
         {
-            dt.Setup("탄약 부족!", Color.red);
+            dt.Setup("Out of ammo", Color.red);
         }
     }
 }

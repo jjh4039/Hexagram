@@ -16,21 +16,21 @@ public class EnemyBee : Enemy
     [Header("Rectangle Indicator (World Space)")]
     [SerializeField] private GameObject maxRangeRectPrefab;
     [SerializeField] private GameObject currentRectPrefab;
-    [SerializeField] private float rectWidth = 0.3f;
-    [SerializeField] private float rectLength = 6f;
+    [SerializeField] private float rectWidth = 0.05f;
+    [SerializeField] private float rectLength = 1.5f;
 
     [Header("Spawn Point")]
     [SerializeField] private Transform headPoint;
 
     [Header("Projectile")]
     [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private float projectileSpeed = 8f;
+    [SerializeField] private float projectileSpeed = 10f;
 
     [Header("Homing")]
     [SerializeField] private float homingStrength = 5f;
 
     [Header("Hit Reaction")]
-    [SerializeField] private float knockbackForce = 4f;
+    [SerializeField] private float knockbackForce = 1.5f;
     [SerializeField] private float stunTime = 0.25f;
 
     [Header("Muzzle Flash")]

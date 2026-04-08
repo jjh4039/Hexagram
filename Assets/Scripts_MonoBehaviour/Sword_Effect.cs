@@ -22,10 +22,32 @@ public class Sword_Effect : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private CapsuleCollider2D capsule;
 
+    private float cachedMeleeAttackPower = 0f;
+    private float cachedMeleeVariance = 0f;
+    private float cachedCriticalChance = 0f;
+    private float cachedCriticalDamageMultiplier = 1.5f;
+    private float cachedDiceDamageMultiplier = 1f;
+    private float cachedStrongAttackMultiplier = 1f;
+
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         capsule = GetComponent<CapsuleCollider2D>();
+    }
+
+    public void SetupAttackData(float strongAttackMultiplier)
+    {
+        if (GameManager.instance == null || GameManager.instance.stats == null)
+            return;
+
+        PlayerStats stats = GameManager.instance.stats;
+
+        cachedMeleeAttackPower = stats.meleeAttackPower;
+        cachedMeleeVariance = stats.meleeDamageVariance;
+        cachedCriticalChance = stats.criticalChance;
+        cachedCriticalDamageMultiplier = stats.GetFinalCriticalDamageMultiplier();
+        cachedDiceDamageMultiplier = stats.diceDamageMultiplier;
+        cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
 
     private void OnEnable()
@@ -45,6 +67,7 @@ public class Sword_Effect : MonoBehaviour
     private void ProcessHit()
     {
         if (capsule == null) return;
+
         Physics2D.SyncTransforms();
 
         ContactFilter2D filter = new ContactFilter2D();
@@ -71,28 +94,25 @@ public class Sword_Effect : MonoBehaviour
     {
         PlayerStats stats = GameManager.instance.stats;
 
-        float baseDamage = stats.meleeAttackPower * damageMultiplier * stats.damageMultiplier;
-        float variance = stats.meleeDamageVariance;
+        float baseDamage =
+            cachedMeleeAttackPower *
+            damageMultiplier *
+            cachedDiceDamageMultiplier *
+            cachedStrongAttackMultiplier;
 
         for (int i = 0; i < hitCount; i++)
         {
             if (enemy == null || !enemy.gameObject.activeSelf)
                 yield break;
 
-            float randomMultiplier = Random.Range(1.1f - variance, 1.1f);
+            float randomMultiplier = Random.Range(1.1f - cachedMeleeVariance, 1.1f);
             float finalDamage = baseDamage * randomMultiplier;
 
-            bool isCritical = Random.value < stats.criticalChance;
-
-            if (stats.remainingStrongAttacks > 0)
-            {
-                isCritical = true;
-                stats.remainingStrongAttacks--;
-            }
+            bool isCritical = Random.value < cachedCriticalChance;
 
             if (isCritical)
             {
-                finalDamage *= stats.criticalDamageMultiplier;
+                finalDamage *= cachedCriticalDamageMultiplier;
             }
 
             int damageInt = Mathf.RoundToInt(finalDamage);

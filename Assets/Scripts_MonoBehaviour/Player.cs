@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
     public bool isAttacking = false;
     public bool isKnockedBack = false;
 
-    [Header("Hit & Invincibility")]
+    [Header("Hit And Invincibility")]
     [SerializeField] private bool isInvincible = false;
     [SerializeField] private float invincibleTime = 0.8f;
     [SerializeField] private float blinkSpeed = 0.2f;
@@ -59,6 +59,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.05f;
     [SerializeField] private float shakeMagnitude = 0.02f;
 
+    [Header("Strong Attack")]
+    [SerializeField] private float defaultStrongAttackMultiplier = 2f;
+
     private bool _isDashing = false;
     private float _lastDashTime = -99f;
     private Color _currentDiceColor = Color.white;
@@ -76,9 +79,11 @@ public class Player : MonoBehaviour
         public DiceData buffData;
         public float remainingTime;
         public int stackCount;
+        public int remainingCount;
+        public bool instantApplied;
     }
 
-    [Header("--- Buff Manager ---")]
+    [Header("Buff Manager")]
     public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
 
     private void Awake()
@@ -103,6 +108,11 @@ public class Player : MonoBehaviour
         _contactFilter.SetLayerMask(enemyLayer);
         _contactFilter.useLayerMask = true;
         _contactFilter.useTriggers = true;
+
+        if (stats != null)
+        {
+            stats.ResetDiceRuntimeStats();
+        }
     }
 
     private void OnEnable()
@@ -193,53 +203,98 @@ public class Player : MonoBehaviour
     {
         for (int i = activeBuffs.Count - 1; i >= 0; i--)
         {
-            activeBuffs[i].remainingTime -= Time.deltaTime;
+            ActiveBuff buff = activeBuffs[i];
 
-            if (activeBuffs[i].remainingTime <= 0)
+            if (buff.remainingTime > 0f)
             {
-                RemoveBuff(activeBuffs[i]);
-                activeBuffs.RemoveAt(i);
+                buff.remainingTime -= Time.deltaTime;
+            }
+
+            bool expiredByTime = buff.remainingTime <= 0f;
+            bool expiredByCount = buff.buffData != null &&
+                                  buff.buffData.effectType == DiceEffectType.StrongAttackBuff &&
+                                  buff.remainingCount <= 0;
+
+            if (expiredByTime || expiredByCount)
+            {
+                RemoveBuffAt(i);
             }
         }
     }
 
     public void ApplyDiceBuff(DiceData data)
     {
-        ActiveBuff existingBuff = activeBuffs.Find(b => b.buffData.effectType == data.effectType);
+        if (data == null || stats == null)
+            return;
+
+        float safeDuration = Mathf.Max(data.duration, 0.01f);
+
+        if (data.effectType == DiceEffectType.Heal)
+        {
+            ActiveBuff healBuff = new ActiveBuff
+            {
+                buffData = data,
+                remainingTime = safeDuration,
+                stackCount = 1,
+                remainingCount = 0,
+                instantApplied = false
+            };
+
+            activeBuffs.Add(healBuff);
+            RecalculateStats();
+            UpdateDiceBuffVisuals();
+            return;
+        }
+
+        ActiveBuff existingBuff = activeBuffs.Find(b => b.buffData != null && b.buffData.effectType == data.effectType);
 
         if (existingBuff != null)
         {
-            existingBuff.remainingTime = (existingBuff.remainingTime + data.duration) / 2f;
-            existingBuff.stackCount = 2;
-            Debug.Log($"[버프 중첩!] {data.diceName} 연장. 남은시간: {existingBuff.remainingTime:F1}초, 효과 2배!");
+            int nextStackCount = existingBuff.stackCount + 1;
+            existingBuff.remainingTime = ((existingBuff.remainingTime * existingBuff.stackCount) + safeDuration) / nextStackCount;
+            existingBuff.stackCount = nextStackCount;
+
+            if (data.effectType == DiceEffectType.StrongAttackBuff)
+            {
+                existingBuff.remainingCount += Mathf.Max(1, Mathf.RoundToInt(data.effectValue));
+            }
+
+            Debug.Log($"[Buff Stacked] {data.diceName} / Stack: {existingBuff.stackCount} / Time: {existingBuff.remainingTime:F2}");
         }
         else
         {
             ActiveBuff newBuff = new ActiveBuff
             {
                 buffData = data,
-                remainingTime = data.duration,
-                stackCount = 1
+                remainingTime = safeDuration,
+                stackCount = 1,
+                remainingCount = data.effectType == DiceEffectType.StrongAttackBuff ? Mathf.Max(1, Mathf.RoundToInt(data.effectValue)) : 0,
+                instantApplied = false
             };
 
             activeBuffs.Add(newBuff);
-            Debug.Log($"[신규 버프] {data.diceName} 발동! 시간: {data.duration}초");
+            Debug.Log($"[Buff Added] {data.diceName} / Time: {safeDuration:F2}");
         }
 
         RecalculateStats();
-        _currentDiceColor = data.particleColor;
-
-        if (weaponManager != null)
-            weaponManager.UpdateWeaponVisuals(data.particleColor, data.muzzleFlashMaterial);
+        UpdateDiceBuffVisuals();
     }
 
-    private void RemoveBuff(ActiveBuff expiredBuff)
+    private void RemoveBuffAt(int index)
     {
-        Debug.Log($"[버프 종료] {expiredBuff.buffData.diceName}");
-        RecalculateStats();
+        if (index < 0 || index >= activeBuffs.Count)
+            return;
 
-        if (activeBuffs.Count == 0 && weaponManager != null)
-            weaponManager.UpdateWeaponVisuals(Color.white, null);
+        ActiveBuff removedBuff = activeBuffs[index];
+        activeBuffs.RemoveAt(index);
+
+        if (removedBuff != null && removedBuff.buffData != null)
+        {
+            Debug.Log($"[Buff Removed] {removedBuff.buffData.diceName}");
+        }
+
+        RecalculateStats();
+        UpdateDiceBuffVisuals();
     }
 
     private void RecalculateStats()
@@ -247,46 +302,127 @@ public class Player : MonoBehaviour
         if (stats == null)
             return;
 
-        stats.damageMultiplier = 1.0f;
-        stats.moveSpeedMultiplier = 1.0f;
-        stats.attackSpeedMultiplier = 1.0f;
-        stats.chargeSpeedMultiplier = 1.0f;
+        stats.ResetDiceRuntimeStats();
 
-        foreach (var buff in activeBuffs)
+        float rangedDiceTotal = 0f;
+
+        for (int i = 0; i < activeBuffs.Count; i++)
         {
+            ActiveBuff buff = activeBuffs[i];
+
+            if (buff == null || buff.buffData == null)
+                continue;
+
             float finalEffectValue = buff.buffData.effectValue * buff.stackCount;
 
             switch (buff.buffData.effectType)
             {
                 case DiceEffectType.AttackBuff:
-                    stats.damageMultiplier += (finalEffectValue / 100f);
+                    stats.diceDamageMultiplier += finalEffectValue / 100f;
+                    break;
+
+                case DiceEffectType.CritDamageBuff:
+                    stats.diceCritDamageBonus += finalEffectValue / 100f;
                     break;
 
                 case DiceEffectType.SpeedBuff:
-                    stats.moveSpeedMultiplier += (finalEffectValue / 100f);
-                    stats.attackSpeedMultiplier += (finalEffectValue / 100f);
+                    stats.diceMoveSpeedMultiplier += finalEffectValue / 100f;
+                    stats.diceAttackSpeedMultiplier += finalEffectValue / 100f;
                     break;
 
-                case DiceEffectType.GrowthBuff:
-                    float growthFactor = 1.0f + (finalEffectValue / 100f);
-                    stats.meleeAttackPower *= growthFactor;
-                    stats.rangeAttackPower *= growthFactor;
+                case DiceEffectType.RangedMegaBuff:
+                    rangedDiceTotal += finalEffectValue;
                     break;
 
-                case DiceEffectType.CriticalBuff:
-                    stats.remainingStrongAttacks += (int)finalEffectValue;
-                    break;
-
-                case DiceEffectType.ChargingBuff:
-                    stats.chargeSpeedMultiplier += finalEffectValue;
+                case DiceEffectType.StrongAttackBuff:
+                    stats.diceStrongAttackStacks += buff.remainingCount;
                     break;
 
                 case DiceEffectType.Heal:
-                    stats.currentHealth = Mathf.Min(stats.currentHealth + (int)finalEffectValue, stats.maxHealth);
-                    buff.remainingTime = 0;
+                    if (!buff.instantApplied)
+                    {
+                        int healAmount = Mathf.RoundToInt(buff.buffData.effectValue);
+                        stats.currentHealth = Mathf.Min(stats.currentHealth + healAmount, stats.maxHealth);
+                        buff.instantApplied = true;
+                    }
                     break;
             }
         }
+
+        stats.diceRangedDamageMultiplier = rangedDiceTotal > 0f ? rangedDiceTotal : 1f;
+    }
+
+    private void UpdateDiceBuffVisuals()
+    {
+        DiceData latestVisualBuff = null;
+
+        for (int i = activeBuffs.Count - 1; i >= 0; i--)
+        {
+            if (activeBuffs[i] == null || activeBuffs[i].buffData == null)
+                continue;
+
+            if (activeBuffs[i].buffData.effectType == DiceEffectType.Heal)
+                continue;
+
+            latestVisualBuff = activeBuffs[i].buffData;
+            break;
+        }
+
+        if (latestVisualBuff != null)
+        {
+            _currentDiceColor = latestVisualBuff.particleColor;
+
+            if (weaponManager != null)
+                weaponManager.UpdateWeaponVisuals(latestVisualBuff.particleColor, latestVisualBuff.muzzleFlashMaterial);
+        }
+        else
+        {
+            _currentDiceColor = Color.white;
+
+            if (weaponManager != null)
+                weaponManager.UpdateWeaponVisuals(Color.white, null);
+        }
+    }
+
+    public float GetDiceRangedDamageMultiplier()
+    {
+        if (stats == null)
+            return 1f;
+
+        return stats.diceRangedDamageMultiplier;
+    }
+
+    public bool TryConsumeStrongAttack(out float strongAttackMultiplier)
+    {
+        strongAttackMultiplier = 1f;
+
+        for (int i = 0; i < activeBuffs.Count; i++)
+        {
+            ActiveBuff buff = activeBuffs[i];
+
+            if (buff == null || buff.buffData == null)
+                continue;
+
+            if (buff.buffData.effectType != DiceEffectType.StrongAttackBuff)
+                continue;
+
+            if (buff.remainingCount <= 0)
+                continue;
+
+            buff.remainingCount -= 1;
+            strongAttackMultiplier = buff.buffData.secondaryValue > 1f ? buff.buffData.secondaryValue : defaultStrongAttackMultiplier;
+
+            RecalculateStats();
+
+            if (buff.remainingCount <= 0)
+            {
+                RemoveBuffAt(i);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private void Move()
@@ -294,7 +430,7 @@ public class Player : MonoBehaviour
         if (!canControl)
             return;
 
-        float finalSpeed = stats.moveSpeed * stats.moveSpeedMultiplier;
+        float finalSpeed = stats.moveSpeed * stats.diceMoveSpeedMultiplier;
 
         if (isAttacking)
         {
@@ -414,7 +550,7 @@ public class Player : MonoBehaviour
 
             timer += Time.fixedDeltaTime;
             float t = timer / duration;
-            float speedDecay = Mathf.Pow(1 - t, 2);
+            float speedDecay = Mathf.Pow(1 - t, 2f);
 
             rigid.linearVelocity = dir * (maxSpeed * speedDecay);
 
@@ -454,8 +590,14 @@ public class Player : MonoBehaviour
         if (dashDustPrefab != null)
         {
             GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity);
-            var mainModule = dust.GetComponent<ParticleSystem>().main;
-            mainModule.startColor = _currentDiceColor;
+            ParticleSystem ps = dust.GetComponent<ParticleSystem>();
+
+            if (ps != null)
+            {
+                var main = ps.main;
+                main.startColor = _currentDiceColor;
+            }
+
             Destroy(dust, 1.0f);
         }
 
@@ -529,7 +671,7 @@ public class Player : MonoBehaviour
         if (anim != null)
             anim.enabled = false;
 
-        Debug.Log("Player: 으악 죽었다...");
+        Debug.Log("Player: Dead");
     }
 
     private void OnDrawGizmosSelected()

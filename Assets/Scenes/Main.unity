@@ -12629,6 +12629,7 @@ MonoBehaviour:
   dashDustPrefab: {fileID: 1933968925968223398, guid: 608a931a078dc09488fb087538f82d1d, type: 3}
   shakeDuration: 0.05
   shakeMagnitude: 0.02
+  defaultStrongAttackMultiplier: 2
   sfxDash: {fileID: 8300000, guid: 4a2c29d5818e2504e981ddbebf392795, type: 3}
   sfxHit: {fileID: 8300000, guid: e9c204003edf21347898b01351220b65, type: 3}
   activeBuffs: []
@@ -12664,11 +12665,13 @@ MonoBehaviour:
   dashRechargeRate: 1
   meleeDamageVariance: 0.2
   rangedDamageVariance: 0.1
-  damageMultiplier: 1
-  moveSpeedMultiplier: 1
-  attackSpeedMultiplier: 1
-  chargeSpeedMultiplier: 1
-  remainingStrongAttacks: 0
+  diceDamageMultiplier: 1
+  diceMoveSpeedMultiplier: 1
+  diceAttackSpeedMultiplier: 1
+  diceChargeSpeedMultiplier: 1
+  diceCritDamageBonus: 0
+  diceRangedDamageMultiplier: 1
+  diceStrongAttackStacks: 0
 --- !u!70 &843584031
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -20207,7 +20210,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6158512840722743431, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6770056987612179759, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_Name
@@ -23108,11 +23111,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7236966838155770310, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.279
+      value: 1.39
       objectReference: {fileID: 0}
     - target: {fileID: 7236966838155770310, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.852
+      value: 4.79
       objectReference: {fileID: 0}
     - target: {fileID: 7236966838155770310, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: m_LocalPosition.z
@@ -23148,7 +23151,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7536773200586401938, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: maxHealth
-      value: 5000
+      value: 30000
       objectReference: {fileID: 0}
     - target: {fileID: 8794176841949738511, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: m_IsActive

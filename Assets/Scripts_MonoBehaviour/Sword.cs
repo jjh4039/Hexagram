@@ -103,13 +103,14 @@ public class Sword : MonoBehaviour
         anim.speed = finalAttackSpeed;
         nextAttackUnlockTime = Time.time + (activeDuration / finalAttackSpeed);
 
-        float currentDmgMultiplier = GameManager.instance.stats.damageMultiplier;
-
-        if (GameManager.instance.stats.remainingStrongAttacks > 0)
+        float strongAttackMultiplier = 1f;
+        if (GameManager.instance != null && GameManager.instance.player != null)
         {
-            currentDmgMultiplier *= 2.0f;
-            GameManager.instance.stats.remainingStrongAttacks--;
-            Debug.Log("강화 공격 발동!");
+            bool consumed = GameManager.instance.player.TryConsumeStrongAttack(out float consumedMultiplier);
+            if (consumed)
+            {
+                strongAttackMultiplier = consumedMultiplier;
+            }
         }
 
         if (sfxSlash != null)
@@ -129,7 +130,7 @@ public class Sword : MonoBehaviour
 
         RotateWeapon();
         ApplyPhysics(finalAttackSpeed);
-        SpawnSlashEffect();
+        SpawnSlashEffect(strongAttackMultiplier);
     }
 
     private float GetFinalAttackSpeed()
@@ -137,7 +138,8 @@ public class Sword : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.stats == null)
             return 1f;
 
-        float finalAttackSpeed = GameManager.instance.stats.attackSpeed * GameManager.instance.stats.attackSpeedMultiplier;
+        PlayerStats stats = GameManager.instance.stats;
+        float finalAttackSpeed = stats.attackSpeed * stats.diceAttackSpeedMultiplier;
         return Mathf.Max(0.01f, finalAttackSpeed);
     }
 
@@ -150,7 +152,7 @@ public class Sword : MonoBehaviour
         Invoke("ResetAttackStatus", 0.3f / finalAttackSpeed);
     }
 
-    private void SpawnSlashEffect()
+    private void SpawnSlashEffect(float strongAttackMultiplier)
     {
         Vector2 dir = (mouseWorldPos - (Vector2)transform.position).normalized;
         GameObject currentEffect = slashEffects[comboStep - 1];
@@ -169,6 +171,13 @@ public class Sword : MonoBehaviour
             effectScale.y *= -1f;
 
         currentEffect.transform.localScale = effectScale;
+
+        Sword_Effect swordEffect = currentEffect.GetComponent<Sword_Effect>();
+        if (swordEffect != null)
+        {
+            swordEffect.SetupAttackData(strongAttackMultiplier);
+        }
+
         currentEffect.SetActive(false);
         currentEffect.SetActive(true);
     }

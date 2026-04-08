@@ -19,6 +19,14 @@ public class Bullet : MonoBehaviour
 
     private bool hasHit = false;
 
+    private float cachedRangeAttackPower = 0f;
+    private float cachedRangedVariance = 0f;
+    private float cachedCriticalChance = 0f;
+    private float cachedCriticalDamageMultiplier = 1.5f;
+    private float cachedDiceDamageMultiplier = 1f;
+    private float cachedDiceRangedDamageMultiplier = 1f;
+    private float cachedStrongAttackMultiplier = 1f;
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -28,7 +36,8 @@ public class Bullet : MonoBehaviour
 
     public void SetupVisuals(Color color, Material material)
     {
-        if (spriteRenderer != null) spriteRenderer.color = color;
+        if (spriteRenderer != null)
+            spriteRenderer.color = color;
 
         ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
         foreach (ParticleSystem ps in particles)
@@ -39,6 +48,25 @@ public class Bullet : MonoBehaviour
 
         myColor = color;
         myMaterial = material;
+    }
+
+    public void SetupCombatData(
+        float rangeAttackPower,
+        float rangedVariance,
+        float criticalChance,
+        float criticalDamageMultiplier,
+        float diceDamageMultiplier,
+        float diceRangedDamageMultiplier,
+        float strongAttackMultiplier
+    )
+    {
+        cachedRangeAttackPower = rangeAttackPower;
+        cachedRangedVariance = rangedVariance;
+        cachedCriticalChance = criticalChance;
+        cachedCriticalDamageMultiplier = criticalDamageMultiplier;
+        cachedDiceDamageMultiplier = diceDamageMultiplier;
+        cachedDiceRangedDamageMultiplier = diceRangedDamageMultiplier;
+        cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
 
     private void Start()
@@ -54,12 +82,14 @@ public class Bullet : MonoBehaviour
         if (collision.CompareTag("Enemy"))
         {
             hasHit = true;
+
             Enemy enemy = collision.GetComponent<Enemy>();
             if (enemy != null)
             {
                 CalculateAndDealDamage(enemy);
                 SpawnHitEffect(transform.position);
             }
+
             HideAndDelayDestroy();
         }
         else if (collision.CompareTag("Wall"))
@@ -72,8 +102,11 @@ public class Bullet : MonoBehaviour
 
     private void HideAndDelayDestroy()
     {
-        if (spriteRenderer != null) spriteRenderer.enabled = false;
-        if (col != null) col.enabled = false;
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = false;
+
+        if (col != null)
+            col.enabled = false;
 
         if (rigid != null)
         {
@@ -100,7 +133,7 @@ public class Bullet : MonoBehaviour
     {
         if (hitEffectPrefab == null) return;
 
-        Quaternion reverseRotation = transform.rotation * Quaternion.Euler(0, 0, 180f);
+        Quaternion reverseRotation = transform.rotation * Quaternion.Euler(0f, 0f, 180f);
         GameObject vfx = Instantiate(hitEffectPrefab, position, reverseRotation);
 
         ParticleSystem ps = vfx.GetComponent<ParticleSystem>();
@@ -123,25 +156,21 @@ public class Bullet : MonoBehaviour
 
     private void CalculateAndDealDamage(Enemy enemy)
     {
-        PlayerStats stats = GameManager.instance.stats;
+        float baseDamage =
+            cachedRangeAttackPower *
+            damageMultiplier *
+            cachedDiceDamageMultiplier *
+            cachedDiceRangedDamageMultiplier *
+            cachedStrongAttackMultiplier;
 
-        float baseDamage = stats.rangeAttackPower * damageMultiplier * stats.damageMultiplier;
-
-        float variance = stats.rangedDamageVariance;
-        float randomMultiplier = Random.Range(1.1f - variance, 1.1f);
+        float randomMultiplier = Random.Range(1.1f - cachedRangedVariance, 1.1f);
         float finalDamage = baseDamage * randomMultiplier;
 
-        bool isCritical = Random.value < stats.criticalChance;
-
-        if (stats.remainingStrongAttacks > 0)
-        {
-            isCritical = true;
-            stats.remainingStrongAttacks--;
-        }
+        bool isCritical = Random.value < cachedCriticalChance;
 
         if (isCritical)
         {
-            finalDamage *= stats.criticalDamageMultiplier;
+            finalDamage *= cachedCriticalDamageMultiplier;
         }
 
         int damageInt = Mathf.RoundToInt(finalDamage);

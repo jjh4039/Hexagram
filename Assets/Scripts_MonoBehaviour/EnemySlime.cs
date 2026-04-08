@@ -4,7 +4,7 @@ using UnityEngine;
 public class EnemySlime : Enemy
 {
     [Header("AI Movement")]
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 1f;
     [SerializeField] private float idleTime = 1.0f;
     [SerializeField] private float moveTime = 2.0f;
     [SerializeField] private float spriteScale = 1.4f;
