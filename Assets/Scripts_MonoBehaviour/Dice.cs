@@ -43,14 +43,15 @@ public class Dice : MonoBehaviour
         int randomIndex = Random.Range(0, diceList.Length);
         DiceData selectedData = diceList[randomIndex];
 
-        if (player != null && selectedData != null)
-        {
-            player.ApplyDiceBuff(selectedData);
-        }
-
         if (diceUI != null && selectedData != null)
         {
-            diceUI.PlayRollAnimation(selectedData, randomIndex);
+            diceUI.PlayRollAnimation(selectedData, randomIndex, () =>
+            {
+                if (player != null)
+                {
+                    player.ApplyDiceBuff(selectedData);
+                }
+            });
         }
     }
 
