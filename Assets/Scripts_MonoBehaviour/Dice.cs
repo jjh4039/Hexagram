@@ -11,23 +11,11 @@ public class Dice : MonoBehaviour
     [SerializeField] public DiceData[] diceList;
     [SerializeField] public DiceData defaultData;
 
-    [Header("--- Charge Economy ---")]
-    [SerializeField] private float passiveChargeRate = 30f;
-    [SerializeField] private float hitChargeAmount = 15f;
-
     private void Update()
     {
         if (GameManager.instance == null || GameManager.instance.stats == null) return;
         PlayerStats stats = GameManager.instance.stats;
 
-        // 1. 패시브 충전
-        if (stats.currentDiceCharge < stats.maxDiceCharge)
-        {
-            stats.currentDiceCharge += passiveChargeRate * stats.chargeSpeedMultiplier * Time.deltaTime;
-            stats.currentDiceCharge = Mathf.Clamp(stats.currentDiceCharge, 0f, stats.maxDiceCharge);
-        }
-
-        // 2. 입력 감지 및 실행 조건 체크
         HandleInput(stats);
     }
 
@@ -36,7 +24,7 @@ public class Dice : MonoBehaviour
         if (Keyboard.current.eKey.wasPressedThisFrame)
         {
             // UI가 연출 중이 아닐 때만 실행 가능
-            if (diceUI != null && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
+            if (diceUI && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
             {
                 RollDice(stats);
             }
@@ -65,9 +53,6 @@ public class Dice : MonoBehaviour
     public void AddChargeFromHit()
     {
         if (GameManager.instance == null || GameManager.instance.stats == null) return;
-        PlayerStats stats = GameManager.instance.stats;
-
-        stats.currentDiceCharge += hitChargeAmount * stats.chargeSpeedMultiplier;
-        stats.currentDiceCharge = Mathf.Clamp(stats.currentDiceCharge, 0f, stats.maxDiceCharge);
+        GameManager.instance.stats.AddDiceChargeFromHit();
     }
 }

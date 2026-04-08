@@ -19,7 +19,7 @@ public class Bullet : MonoBehaviour
 
     private bool hasHit = false;
 
-    void Awake()
+    private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -41,13 +41,13 @@ public class Bullet : MonoBehaviour
         myMaterial = material;
     }
 
-    void Start()
+    private void Start()
     {
         rigid.linearVelocity = transform.right * speed;
         Destroy(gameObject, lifeTime);
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (hasHit) return;
 
@@ -125,25 +125,23 @@ public class Bullet : MonoBehaviour
     {
         PlayerStats stats = GameManager.instance.stats;
 
-        // ★ [버그 수정 완료] stats.damageMultiplier 추가!
         float baseDamage = stats.rangeAttackPower * damageMultiplier * stats.damageMultiplier;
 
         float variance = stats.rangedDamageVariance;
         float randomMultiplier = Random.Range(1.1f - variance, 1.1f);
         float finalDamage = baseDamage * randomMultiplier;
 
-        bool isCritical = Random.value < 0.2f;
+        bool isCritical = Random.value < stats.criticalChance;
 
-        // ★ [버그 수정 완료] stats.remainingStrongAttacks 확인 후 차감!
         if (stats.remainingStrongAttacks > 0)
         {
             isCritical = true;
-            stats.remainingStrongAttacks--; // 탄환이 맞을 때 횟수 차감!
+            stats.remainingStrongAttacks--;
         }
 
         if (isCritical)
         {
-            finalDamage *= 1.5f;
+            finalDamage *= stats.criticalDamageMultiplier;
         }
 
         int damageInt = Mathf.RoundToInt(finalDamage);

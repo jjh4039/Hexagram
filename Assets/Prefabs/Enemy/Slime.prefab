@@ -533,7 +533,7 @@ MonoBehaviour:
   indicatorScale: 0.45
   chargeTime: 1
   attackDelay: 0.15
-  knockbackForce: 4
+  knockbackForce: 2.5
   stunTime: 0.4
 --- !u!1 &4549265805919899004
 GameObject:

@@ -835,8 +835,8 @@ MonoBehaviour:
   projectilePrefab: {fileID: 3884799456776141231, guid: 18c109b2ce949254d8c94016553be8c7, type: 3}
   projectileSpeed: 10
   homingStrength: 5
-  knockbackForce: 4
-  stunTime: 0.3
+  knockbackForce: 1.5
+  stunTime: 0.25
   projectileFlashPrefab: {fileID: 4735906407627503139, guid: a6dd218cd6b418249a8db5f956d727a8, type: 3}
   flashDistance: 0.3
   fireRecoilForce: 0.6

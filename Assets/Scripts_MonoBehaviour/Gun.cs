@@ -10,7 +10,7 @@ public class Gun : MonoBehaviour
     [Header("Aiming Settings")]
     [SerializeField] private Transform muzzlePoint;
     [SerializeField] private LineRenderer lineRenderer;
-    [SerializeField] private float laserLength = 50f;
+    [SerializeField] private float laserLength = 100f;
     [SerializeField] private LayerMask obstacleLayer;
 
     [Header("Shooting Settings")]
@@ -20,8 +20,9 @@ public class Gun : MonoBehaviour
 
     [Header("Recoil Settings")]
     [SerializeField] private float playerKnockbackForce = 3f;
-    [SerializeField] private float gunRecoilDistance = 0.5f;
+    [SerializeField] private float gunRecoilDistance = 0.3f;
     [SerializeField] private float gunRecoilDuration = 0.2f;
+    [SerializeField] private float minRecoilDuration = 0.05f;
 
     [Header("VFX Settings")]
     [SerializeField] private float shakeDuration = 0.05f;
@@ -136,6 +137,11 @@ public class Gun : MonoBehaviour
         if (weaponManager.IsSwapping)
             return;
 
+        float finalAttackSpeed = GetFinalAttackSpeed();
+        float attackSpeedAdjustedFireRate = fireRate / finalAttackSpeed;
+        float recoilDurationAdjusted = Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAttackSpeed);
+        float finalFireInterval = Mathf.Max(attackSpeedAdjustedFireRate, recoilDurationAdjusted);
+
         if (Time.time < nextFireTime)
             return;
 
@@ -150,11 +156,20 @@ public class Gun : MonoBehaviour
         }
 
         GameManager.instance.stats.currentAmmo -= 100;
-        Shoot();
-        nextFireTime = Time.time + fireRate;
+        Shoot(recoilDurationAdjusted);
+        nextFireTime = Time.time + finalFireInterval;
     }
 
-    private void Shoot()
+    private float GetFinalAttackSpeed()
+    {
+        if (GameManager.instance == null || GameManager.instance.stats == null)
+            return 1f;
+
+        float finalAttackSpeed = GameManager.instance.stats.attackSpeed * GameManager.instance.stats.attackSpeedMultiplier;
+        return Mathf.Max(0.01f, finalAttackSpeed);
+    }
+
+    private void Shoot(float recoilDurationAdjusted)
     {
         if (bulletPrefab == null || muzzlePoint == null)
             return;
@@ -170,16 +185,16 @@ public class Gun : MonoBehaviour
         if (sfxShoot != null)
             SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
 
-        Recoil();
+        Recoil(recoilDurationAdjusted);
 
         if (CameraFollow.instance != null)
             CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
     }
 
-    private void Recoil()
+    private void Recoil(float recoilDurationAdjusted)
     {
         StopCoroutine("VisualRecoilRoutine");
-        StartCoroutine("VisualRecoilRoutine");
+        StartCoroutine(VisualRecoilRoutine(recoilDurationAdjusted));
         StopCoroutine("KnockbackRoutine");
         StartCoroutine("KnockbackRoutine");
     }
@@ -197,19 +212,19 @@ public class Gun : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator VisualRecoilRoutine()
+    private System.Collections.IEnumerator VisualRecoilRoutine(float recoilDuration)
     {
         Vector3 originalLocalPos = new Vector3(0.05f, 0f, 0f);
         Vector3 recoilOffset = transform.right * -gunRecoilDistance;
 
-        transform.position += recoilOffset;
+        transform.localPosition += recoilOffset;
         Vector3 recoilLocalPos = transform.localPosition;
 
         float elapsed = 0f;
-        while (elapsed < gunRecoilDuration)
+        while (elapsed < recoilDuration)
         {
             elapsed += Time.deltaTime;
-            transform.localPosition = Vector3.Lerp(recoilLocalPos, originalLocalPos, elapsed / gunRecoilDuration);
+            transform.localPosition = Vector3.Lerp(recoilLocalPos, originalLocalPos, elapsed / recoilDuration);
             yield return null;
         }
 

@@ -39,7 +39,7 @@ public class EnemyBee : Enemy
     [SerializeField] private float fireRecoilForce = 0.6f;
 
     [Header("Sound")]
-    [SerializeField] private AudioClip sfxFire; // ★ 벌 발사 사운드 추가
+    [SerializeField] private AudioClip sfxFire;
 
     private Transform target;
     private Rigidbody2D rigid;
@@ -50,10 +50,11 @@ public class EnemyBee : Enemy
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
     private Coroutine attackCoroutine;
+    private Coroutine stunCoroutine;
 
     protected override void Awake()
     {
-        base.Awake(); // 부모에서 anim 세팅
+        base.Awake();
         rigid = GetComponent<Rigidbody2D>();
     }
 
@@ -78,10 +79,18 @@ public class EnemyBee : Enemy
     {
         while (!isDead)
         {
-            if (target == null || isStunned)
+            if (target == null)
             {
-                if (rigid != null) rigid.linearVelocity = Vector2.zero; // 멈춤 처리
-                yield return null;
+                if (rigid != null)
+                    rigid.linearVelocity = Vector2.zero;
+
+                yield return new WaitForFixedUpdate();
+                continue;
+            }
+
+            if (isStunned)
+            {
+                yield return new WaitForFixedUpdate();
                 continue;
             }
 
@@ -99,29 +108,37 @@ public class EnemyBee : Enemy
                 }
             }
 
-            // ★ 핵심: 프레임이 아닌 물리 주기에 맞춰 루프를 돌림 (녹화 중 속도 저하 방지)
             yield return new WaitForFixedUpdate();
         }
     }
 
     void MoveToTarget()
     {
-        if (isStunned || rigid == null) return;
+        if (isStunned || rigid == null || target == null) return;
 
-        if (anim != null) anim.SetBool("isMoving", true);
+        if (anim != null)
+            anim.SetBool("isMoving", true);
 
         Vector2 dir = (target.position - transform.position).normalized;
-        // 매 물리 프레임마다 일정한 속도를 주입
         rigid.linearVelocity = dir * moveSpeed;
     }
 
-    // CancelAttack이나 Die 호출 시 속도를 0으로 만드는 로직을 포함하면 더 깔끔합니다.
     void CancelAttack()
     {
-        if (attackCoroutine != null) StopCoroutine(attackCoroutine);
-        if (rigid != null) rigid.linearVelocity = Vector2.zero; // 공격 취소 시 관성 제거
+        if (attackCoroutine != null)
+        {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        if (rigid != null)
+            rigid.linearVelocity = Vector2.zero;
+
         ClearRectangles();
         isAttacking = false;
+
+        if (anim != null)
+            anim.SetBool("isMoving", false);
     }
 
     IEnumerator Co_AttackSequence()
@@ -133,17 +150,23 @@ public class EnemyBee : Enemy
 
         Vector2 currentDir = (target.position - headPoint.position).normalized;
 
-        maxRectInstance = Instantiate(maxRangeRectPrefab);
-        currentRectInstance = Instantiate(currentRectPrefab);
-    
-        maxRectInstance.SetActive(true);
-        currentRectInstance.SetActive(true);
+        if (maxRangeRectPrefab != null)
+        {
+            maxRectInstance = Instantiate(maxRangeRectPrefab);
+            maxRectInstance.SetActive(true);
+        }
+
+        if (currentRectPrefab != null)
+        {
+            currentRectInstance = Instantiate(currentRectPrefab);
+            currentRectInstance.SetActive(true);
+        }
 
         float timer = 0f;
 
         while (timer < chargeTime)
         {
-            if (isStunned)   // 피격 시 공격 취소
+            if (isStunned || isDead || target == null)
             {
                 CancelAttack();
                 yield break;
@@ -152,11 +175,7 @@ public class EnemyBee : Enemy
             timer += Time.deltaTime;
 
             Vector2 targetDir = (target.position - headPoint.position).normalized;
-
-            currentDir = Vector2.Lerp(
-                currentDir,
-                targetDir,
-                Time.deltaTime * homingStrength);
+            currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * homingStrength);
 
             UpdateRectangle(maxRectInstance, currentDir, rectLength);
             UpdateRectangle(currentRectInstance, currentDir, rectLength * (timer / chargeTime));
@@ -166,7 +185,7 @@ public class EnemyBee : Enemy
 
         yield return new WaitForSeconds(attackDelay);
 
-        if (!isStunned)
+        if (!isStunned && !isDead)
         {
             if (anim != null)
                 anim.SetTrigger("Attack");
@@ -178,6 +197,7 @@ public class EnemyBee : Enemy
 
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
+        attackCoroutine = null;
     }
 
     void UpdateRectangle(GameObject rect, Vector2 dir, float length)
@@ -196,7 +216,6 @@ public class EnemyBee : Enemy
     {
         if (projectilePrefab == null) return;
 
-        // 1. 플래시 생성
         if (projectileFlashPrefab != null)
         {
             Vector3 flashPos = headPoint.position + (Vector3)(dir.normalized * flashDistance);
@@ -204,28 +223,23 @@ public class EnemyBee : Enemy
             GameObject flash = Instantiate(
                 projectileFlashPrefab,
                 flashPos,
-                Quaternion.identity);
+                Quaternion.identity
+            );
 
             flash.transform.right = dir;
         }
 
-        // 2. 발사 반동 (공격 방향 반대)
         if (rigid != null)
-        {
             rigid.AddForce(-dir.normalized * fireRecoilForce, ForceMode2D.Impulse);
-        }
 
         if (sfxFire != null && SoundManager.instance != null)
-        {
-            // 플레이어의 총소리(0.2f)보다는 약간 작게 설정하여 거리감을 줍니다.
             SoundManager.instance.PlaySFX(sfxFire, 0.35f, 0.05f);
-        }
 
-        // 3. 투사체 생성
         GameObject proj = Instantiate(
             projectilePrefab,
             headPoint.position,
-            Quaternion.identity);
+            Quaternion.identity
+        );
 
         EnemyProjectile projectile = proj.GetComponent<EnemyProjectile>();
         if (projectile != null)
@@ -237,49 +251,59 @@ public class EnemyBee : Enemy
         float dirX = target.position.x - transform.position.x;
 
         if (dirX > 0)
-            transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
+            transform.localScale = new Vector3(-spriteScale, spriteScale, 1f);
         else
-            transform.localScale = new Vector3(spriteScale, spriteScale, 1);
+            transform.localScale = new Vector3(spriteScale, spriteScale, 1f);
     }
 
     protected override void OnHit()
     {
         if (isDead) return;
 
-        if (!isStunned)
-            StartCoroutine(Co_Stun());
+        isStunned = true;
+
+        CancelAttack();
 
         if (anim != null)
             anim.Play("Enemy_Hit", -1, 0f);
 
-        if (target != null)
+        if (rigid != null && target != null)
         {
-            Vector2 dir = (transform.position - target.position).normalized;
-            rigid.AddForce(dir * knockbackForce, ForceMode2D.Impulse);
+            rigid.linearVelocity = Vector2.zero;
+            Vector2 knockbackDir = (transform.position - target.position).normalized;
+            rigid.AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
         }
+
+        if (stunCoroutine != null)
+            StopCoroutine(stunCoroutine);
+
+        stunCoroutine = StartCoroutine(Co_Stun());
     }
 
     IEnumerator Co_Stun()
     {
-        isStunned = true;
-
         if (anim != null)
             anim.SetBool("isMoving", false);
-
-        CancelAttack();
 
         yield return new WaitForSeconds(stunTime);
 
         isStunned = false;
+        stunCoroutine = null;
     }
 
     void ClearRectangles()
     {
         if (maxRectInstance != null)
+        {
             Destroy(maxRectInstance);
+            maxRectInstance = null;
+        }
 
         if (currentRectInstance != null)
+        {
             Destroy(currentRectInstance);
+            currentRectInstance = null;
+        }
     }
 
     protected override void Die()
@@ -288,7 +312,6 @@ public class EnemyBee : Enemy
 
         base.Die();
 
-        // 3. 사망 후 불필요한 물리 연산 중단
         if (rigid != null)
         {
             rigid.linearVelocity = Vector2.zero;

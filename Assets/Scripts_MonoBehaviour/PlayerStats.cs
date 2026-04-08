@@ -2,74 +2,104 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("--- 생존 스탯 (Health) ---")]
+    [Header("--- Survival Stats (생존) ---")]
     public int maxHealth = 100;
     public int currentHealth;
 
-    [Header("--- 액션 자원 (Resources) ---")]
+    [Header("--- Resource Stats (자원) ---")]
     public int maxAmmo = 500;
     public int currentAmmo;
+    public float ammoRechargeRate = 100f;
 
-    [Header("--- 주사위 자원 (Dice Charge) ---")]
+    [Header("--- Dice Charge Stats (주사위) ---")]
     public float maxDiceCharge = 300f;
     public float currentDiceCharge = 0f;
+    public float dicePassiveChargeRate = 25f;
+    public float diceHitChargeAmount = 2f;
 
-    [Header("--- 기본 전투력 (Base ATK) ---")]
-    public float meleeAttackPower = 10f; // 근거리 공격력 (칼)
-    public float rangeAttackPower = 7f;  // 원거리 공격력 (총)
-    
-    [Header("--- 이동 스탯 (Movement) ---")]
-    public float moveSpeed = 6f;
+    [Header("--- Attack Power Stats (공격력) ---")]
+    public float meleeAttackPower = 10f;
+    public float rangeAttackPower = 8f;
 
-    [Header("--- 대시 스택 (Dash Stacks) ---")]
-    public int maxDashStacks = 3;       // 최대 3회 충전
-    public float currentDashStacks = 3f; // 현재 보유 스택
-    public float dashRechargeRate = 1f;  // 1초에 1스택 충전
+    [Header("--- Critical Stats (치명타) ---")]
+    [Range(0f, 1f)] public float criticalChance = 0.2f;
+    public float criticalDamageMultiplier = 1.5f;
 
-    [Header("--- 전투력 편차 (Precision) ---")]
+    [Header("--- Movement Stats (이동) ---")]
+    public float moveSpeed = 5f;
+
+    [Header("--- Attack Speed Stats (공속) ---")]
+    public float attackSpeed = 1.0f;
+
+    [Header("--- Dash Stats (대시) ---")]
+    public int maxDashStacks = 3;
+    public float currentDashStacks = 3f;
+    public float dashRechargeRate = 1f;
+
+    [Header("--- Damage Variance (편차) ---")]
     [Range(0f, 0.5f)] public float meleeDamageVariance = 0.2f;
     [Range(0f, 0.5f)] public float rangedDamageVariance = 0.1f;
 
-    [Header("--- 버프 증폭률 (Buff Multipliers) ---")]
+    [Header("--- Multipliers (배수) ---")]
     public float damageMultiplier = 1.0f;
     public float moveSpeedMultiplier = 1.0f;
     public float attackSpeedMultiplier = 1.0f;
     public float chargeSpeedMultiplier = 1.0f;
     public int remainingStrongAttacks = 0;
 
-    private float _testTimer = 0f;
-    private float _testTimer2 = 0f;
+    private float ammoRechargeTimer = 0f;
 
     private void Start()
     {
         currentHealth = maxHealth;
         currentAmmo = maxAmmo;
         currentDiceCharge = 0f;
+        currentDashStacks = maxDashStacks;
     }
 
     private void Update()
     {
-        _testTimer += Time.deltaTime;
-        _testTimer2 += Time.deltaTime;
+        UpdateDiceCharge();
+        UpdateAmmoRecharge();
+    }
 
-        if (_testTimer >= 2f)
-        {
-            _testTimer = 0f;
-            currentHealth = Mathf.Min(currentHealth + 1, maxHealth);
-        }
+    private void UpdateDiceCharge()
+    {
+        if (currentDiceCharge >= maxDiceCharge) return;
 
-        if (_testTimer2 >= 0.01f)
+        currentDiceCharge += dicePassiveChargeRate * chargeSpeedMultiplier * Time.deltaTime;
+        currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);
+    }
+
+    private void UpdateAmmoRecharge()
+    {
+        if (currentAmmo >= maxAmmo) return;
+
+        ammoRechargeTimer += ammoRechargeRate * Time.deltaTime;
+
+        if (ammoRechargeTimer >= 1f)
         {
-            _testTimer2 = 0f;
-            currentAmmo = Mathf.Min(currentAmmo + 1, maxAmmo);
+            int amountToRecover = Mathf.FloorToInt(ammoRechargeTimer);
+            ammoRechargeTimer -= amountToRecover;
+            currentAmmo = Mathf.Min(currentAmmo + amountToRecover, maxAmmo);
         }
     }
-    
-    // ReSharper disable Unity.PerformanceAnalysis
+
+    public void AddDiceCharge(float amount)
+    {
+        currentDiceCharge += amount;
+        currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);
+    }
+
+    public void AddDiceChargeFromHit()
+    {
+        AddDiceCharge(diceHitChargeAmount * chargeSpeedMultiplier);
+    }
+
     public void TakeDamage(int amount)
     {
         currentHealth -= amount;
-        Debug.Log($"플레이어 체력 감소: {currentHealth}/{maxHealth}");
+        Debug.Log($"Player health reduced: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
         {
@@ -78,10 +108,9 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // ReSharper disable Unity.PerformanceAnalysis
     private void Die()
     {
-        Debug.Log("!!! GAME OVER !!!");
+        Debug.Log("GAME OVER");
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
             GameManager.instance.player.OnDie();

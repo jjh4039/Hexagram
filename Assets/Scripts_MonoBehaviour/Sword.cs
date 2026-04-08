@@ -14,7 +14,6 @@ public class Sword : MonoBehaviour
     [SerializeField] private float inputBufferTime = 0.5f;
 
     [Header("Stats")]
-    [SerializeField] private float attackSpeed = 1.0f;
     [SerializeField] private float attackMoveSpeedMultiplier = 0.25f;
     public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier;
 
@@ -88,9 +87,11 @@ public class Sword : MonoBehaviour
 
     private void ExecuteAttack()
     {
+        float finalAttackSpeed = GetFinalAttackSpeed();
+
         lastInputTime = -10f;
 
-        float resetThreshold = 0.33f / attackSpeed;
+        float resetThreshold = 0.33f / finalAttackSpeed;
         if (Time.time - lastAttackStartTime > resetThreshold)
             comboStep = 0;
 
@@ -99,8 +100,8 @@ public class Sword : MonoBehaviour
 
         comboStep++;
         lastAttackStartTime = Time.time;
-        anim.speed = attackSpeed;
-        nextAttackUnlockTime = Time.time + (activeDuration / attackSpeed);
+        anim.speed = finalAttackSpeed;
+        nextAttackUnlockTime = Time.time + (activeDuration / finalAttackSpeed);
 
         float currentDmgMultiplier = GameManager.instance.stats.damageMultiplier;
 
@@ -127,17 +128,26 @@ public class Sword : MonoBehaviour
         }
 
         RotateWeapon();
-        ApplyPhysics();
+        ApplyPhysics(finalAttackSpeed);
         SpawnSlashEffect();
     }
 
-    private void ApplyPhysics()
+    private float GetFinalAttackSpeed()
+    {
+        if (GameManager.instance == null || GameManager.instance.stats == null)
+            return 1f;
+
+        float finalAttackSpeed = GameManager.instance.stats.attackSpeed * GameManager.instance.stats.attackSpeedMultiplier;
+        return Mathf.Max(0.01f, finalAttackSpeed);
+    }
+
+    private void ApplyPhysics(float finalAttackSpeed)
     {
         GameManager.instance.player.isAttacking = true;
         GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
 
         CancelInvoke("ResetAttackStatus");
-        Invoke("ResetAttackStatus", 0.3f / attackSpeed);
+        Invoke("ResetAttackStatus", 0.3f / finalAttackSpeed);
     }
 
     private void SpawnSlashEffect()

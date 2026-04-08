@@ -8,16 +8,14 @@ public class Player : MonoBehaviour
     [Header("Components")]
     [SerializeField] public Rigidbody2D rigid;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private PlayerInput inputActions;
     [SerializeField] private Animator anim;
     [SerializeField] private PlayerStats stats;
 
     [Header("Input Control")]
     public bool canControl = true;
-    public Vector2 mouseWorldPos { get; private set; }
-
-    [Header("Movement")]
+    private Vector2 mouseWorldPos { get; set; }
     private Vector2 _moveInput;
+    private PlayerInput _inputActions;
 
     [Header("State")]
     public bool isAttacking = false;
@@ -70,7 +68,7 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioClip sfxHit;
 
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
-    public PlayerInput Input => inputActions;
+    public PlayerInput Input => _inputActions;
 
     [System.Serializable]
     public class ActiveBuff
@@ -87,7 +85,7 @@ public class Player : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        inputActions = new PlayerInput();
+        _inputActions = new PlayerInput();
 
         if (stats == null)
             stats = GetComponent<PlayerStats>();
@@ -109,18 +107,18 @@ public class Player : MonoBehaviour
 
     private void OnEnable()
     {
-        inputActions.Enable();
-        inputActions.Player.Dash.performed += OnDash;
-        inputActions.Player.Attack.performed += OnAttack;
-        inputActions.Player.Swap.performed += OnSwap;
+        _inputActions.Enable();
+        _inputActions.Player.Dash.performed += OnDash;
+        _inputActions.Player.Attack.performed += OnAttack;
+        _inputActions.Player.Swap.performed += OnSwap;
     }
 
     private void OnDisable()
     {
-        inputActions.Disable();
-        inputActions.Player.Dash.performed -= OnDash;
-        inputActions.Player.Attack.performed -= OnAttack;
-        inputActions.Player.Swap.performed -= OnSwap;
+        _inputActions.Disable();
+        _inputActions.Player.Dash.performed -= OnDash;
+        _inputActions.Player.Attack.performed -= OnAttack;
+        _inputActions.Player.Swap.performed -= OnSwap;
     }
 
     private void OnAttack(InputAction.CallbackContext context)
@@ -168,14 +166,14 @@ public class Player : MonoBehaviour
             stats.currentDashStacks = Mathf.Min(stats.currentDashStacks, stats.maxDashStacks);
         }
 
-        _moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+        _moveInput = _inputActions.Player.Move.ReadValue<Vector2>();
         LookAtMouse();
         UpdateBuffTimers();
     }
 
     private void LookAtMouse()
     {
-        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+        Vector2 mouseScreenPos = _inputActions.Player.Look.ReadValue<Vector2>();
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         spriteRenderer.flipX = mouseWorldPos.x < transform.position.x;
     }
