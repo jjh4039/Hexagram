@@ -49,7 +49,16 @@ public class Dice : MonoBehaviour
             {
                 if (player != null)
                 {
-                    player.ApplyDiceBuff(selectedData);
+                    // Player에 있는 BuffManager를 찾아서 적용
+                    BuffManager buffManager = player.GetComponent<BuffManager>();
+                    if (buffManager != null)
+                    {
+                        buffManager.ApplyDiceBuff(selectedData);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Player에 BuffManager 컴포넌트가 없습니다!");
+                    }
                 }
             });
         }

@@ -11,6 +11,10 @@ public class Player : MonoBehaviour
     [SerializeField] private Animator anim;
     [SerializeField] private PlayerStats stats;
 
+    [Header("Manager Link")]
+    [SerializeField] public BuffManager buffManager; // 추가됨
+    [SerializeField] private WeaponManager weaponManager;
+
     [Header("Input Control")]
     public bool canControl = true;
     private Vector2 mouseWorldPos { get; set; }
@@ -42,9 +46,6 @@ public class Player : MonoBehaviour
     private ContactFilter2D _contactFilter;
     private readonly Collider2D[] _contactResults = new Collider2D[8];
 
-    [Header("Weapon Link")]
-    [SerializeField] private WeaponManager weaponManager;
-
     [Header("Dash Settings")]
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.1f;
@@ -60,11 +61,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float shakeMagnitude = 0.02f;
 
     [Header("Strong Attack")]
-    [SerializeField] private float defaultStrongAttackMultiplier = 2f;
+    [SerializeField] public float defaultStrongAttackMultiplier = 2f;
 
     private bool _isDashing = false;
     private float _lastDashTime = -99f;
-    private Color _currentDiceColor = Color.white;
 
     [Header("Sound")]
     [SerializeField] private AudioClip sfxDash;
@@ -73,27 +73,14 @@ public class Player : MonoBehaviour
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
     public PlayerInput Input => _inputActions;
 
-    [System.Serializable]
-    public class ActiveBuff
-    {
-        public DiceData buffData;
-        public float remainingTime;
-        public int stackCount;
-        public int remainingCount;
-        public bool instantApplied;
-    }
-
-    [Header("Buff Manager")]
-    public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
-
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _inputActions = new PlayerInput();
 
-        if (stats == null)
-            stats = GetComponent<PlayerStats>();
+        if (stats == null) stats = GetComponent<PlayerStats>();
+        if (buffManager == null) buffManager = GetComponent<BuffManager>();
 
         anim = GetComponentInChildren<Animator>();
 
@@ -133,29 +120,20 @@ public class Player : MonoBehaviour
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (!canControl || _isDashing || isKnockedBack)
-            return;
-
-        if (weaponManager != null)
-            weaponManager.OnAttackInput();
+        if (!canControl || _isDashing || isKnockedBack) return;
+        if (weaponManager != null) weaponManager.OnAttackInput();
     }
 
     private void OnSwap(InputAction.CallbackContext context)
     {
-        if (!canControl || _isDashing || isKnockedBack)
-            return;
-
-        if (weaponManager != null)
-            weaponManager.OnSwapInput();
+        if (!canControl || _isDashing || isKnockedBack) return;
+        if (weaponManager != null) weaponManager.OnSwapInput();
     }
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (!canControl || isAttacking || _isDashing)
-            return;
-
-        if (stats.currentDashStacks < 1f)
-            return;
+        if (!canControl || isAttacking || _isDashing) return;
+        if (stats.currentDashStacks < 1f) return;
 
         stats.currentDashStacks -= 1f;
         StartCoroutine(DashRoutine());
@@ -166,7 +144,6 @@ public class Player : MonoBehaviour
         if (!canControl)
         {
             _moveInput = Vector2.zero;
-            UpdateBuffTimers();
             return;
         }
 
@@ -178,7 +155,6 @@ public class Player : MonoBehaviour
 
         _moveInput = _inputActions.Player.Move.ReadValue<Vector2>();
         LookAtMouse();
-        UpdateBuffTimers();
     }
 
     private void LookAtMouse()
@@ -190,254 +166,39 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_isDashing)
-            return;
+        if (_isDashing) return;
 
-        if (!isKnockedBack)
-            Move();
-
+        if (!isKnockedBack) Move();
         CheckContactDamage();
     }
 
-    private void UpdateBuffTimers()
-    {
-        for (int i = activeBuffs.Count - 1; i >= 0; i--)
-        {
-            ActiveBuff buff = activeBuffs[i];
-
-            if (buff.remainingTime > 0f)
-            {
-                buff.remainingTime -= Time.deltaTime;
-            }
-
-            bool expiredByTime = buff.remainingTime <= 0f;
-            bool expiredByCount = buff.buffData != null &&
-                                  buff.buffData.effectType == DiceEffectType.StrongAttackBuff &&
-                                  buff.remainingCount <= 0;
-
-            if (expiredByTime || expiredByCount)
-            {
-                RemoveBuffAt(i);
-            }
-        }
-    }
-
-    public void ApplyDiceBuff(DiceData data)
-    {
-        if (data == null || stats == null)
-            return;
-
-        float safeDuration = Mathf.Max(data.duration, 0.01f);
-
-        if (data.effectType == DiceEffectType.Heal)
-        {
-            ActiveBuff healBuff = new ActiveBuff
-            {
-                buffData = data,
-                remainingTime = safeDuration,
-                stackCount = 1,
-                remainingCount = 0,
-                instantApplied = false
-            };
-
-            activeBuffs.Add(healBuff);
-            RecalculateStats();
-            UpdateDiceBuffVisuals();
-            return;
-        }
-
-        ActiveBuff existingBuff = activeBuffs.Find(b => b.buffData != null && b.buffData.effectType == data.effectType);
-
-        if (existingBuff != null)
-        {
-            int nextStackCount = existingBuff.stackCount + 1;
-            existingBuff.remainingTime = ((existingBuff.remainingTime * existingBuff.stackCount) + safeDuration) / nextStackCount;
-            existingBuff.stackCount = nextStackCount;
-
-            if (data.effectType == DiceEffectType.StrongAttackBuff)
-            {
-                existingBuff.remainingCount += Mathf.Max(1, Mathf.RoundToInt(data.effectValue));
-            }
-
-            Debug.Log($"[Buff Stacked] {data.diceName} / Stack: {existingBuff.stackCount} / Time: {existingBuff.remainingTime:F2}");
-        }
-        else
-        {
-            ActiveBuff newBuff = new ActiveBuff
-            {
-                buffData = data,
-                remainingTime = safeDuration,
-                stackCount = 1,
-                remainingCount = data.effectType == DiceEffectType.StrongAttackBuff ? Mathf.Max(1, Mathf.RoundToInt(data.effectValue)) : 0,
-                instantApplied = false
-            };
-
-            activeBuffs.Add(newBuff);
-            Debug.Log($"[Buff Added] {data.diceName} / Time: {safeDuration:F2}");
-        }
-
-        RecalculateStats();
-        UpdateDiceBuffVisuals();
-    }
-
-    private void RemoveBuffAt(int index)
-    {
-        if (index < 0 || index >= activeBuffs.Count)
-            return;
-
-        ActiveBuff removedBuff = activeBuffs[index];
-        activeBuffs.RemoveAt(index);
-
-        if (removedBuff != null && removedBuff.buffData != null)
-        {
-            Debug.Log($"[Buff Removed] {removedBuff.buffData.diceName}");
-        }
-
-        RecalculateStats();
-        UpdateDiceBuffVisuals();
-    }
-
-    private void RecalculateStats()
-    {
-        if (stats == null)
-            return;
-
-        stats.ResetDiceRuntimeStats();
-
-        float rangedDiceTotal = 0f;
-
-        for (int i = 0; i < activeBuffs.Count; i++)
-        {
-            ActiveBuff buff = activeBuffs[i];
-
-            if (buff == null || buff.buffData == null)
-                continue;
-
-            float finalEffectValue = buff.buffData.effectValue * buff.stackCount;
-
-            switch (buff.buffData.effectType)
-            {
-                case DiceEffectType.AttackBuff:
-                    stats.diceDamageMultiplier += finalEffectValue / 100f;
-                    break;
-
-                case DiceEffectType.CritDamageBuff:
-                    stats.diceCritDamageBonus += finalEffectValue / 100f;
-                    break;
-
-                case DiceEffectType.SpeedBuff:
-                    stats.diceMoveSpeedMultiplier += finalEffectValue / 100f;
-                    stats.diceAttackSpeedMultiplier += finalEffectValue / 100f;
-                    break;
-
-                case DiceEffectType.RangedMegaBuff:
-                    rangedDiceTotal += finalEffectValue;
-                    break;
-
-                case DiceEffectType.StrongAttackBuff:
-                    stats.diceStrongAttackStacks += buff.remainingCount;
-                    break;
-
-                case DiceEffectType.Heal:
-                    if (!buff.instantApplied)
-                    {
-                        int healAmount = Mathf.RoundToInt(buff.buffData.effectValue);
-                        stats.currentHealth = Mathf.Min(stats.currentHealth + healAmount, stats.maxHealth);
-                        buff.instantApplied = true;
-                    }
-                    break;
-            }
-        }
-
-        stats.diceRangedDamageMultiplier = rangedDiceTotal > 0f ? rangedDiceTotal : 1f;
-    }
-
-    private void UpdateDiceBuffVisuals()
-    {
-        DiceData latestVisualBuff = null;
-
-        for (int i = activeBuffs.Count - 1; i >= 0; i--)
-        {
-            if (activeBuffs[i] == null || activeBuffs[i].buffData == null)
-                continue;
-
-            if (activeBuffs[i].buffData.effectType == DiceEffectType.Heal)
-                continue;
-
-            latestVisualBuff = activeBuffs[i].buffData;
-            break;
-        }
-
-        if (latestVisualBuff != null)
-        {
-            _currentDiceColor = latestVisualBuff.particleColor;
-
-            if (weaponManager != null)
-                weaponManager.UpdateWeaponVisuals(latestVisualBuff.particleColor, latestVisualBuff.muzzleFlashMaterial);
-        }
-        else
-        {
-            _currentDiceColor = Color.white;
-
-            if (weaponManager != null)
-                weaponManager.UpdateWeaponVisuals(Color.white, null);
-        }
-    }
-
+    // 무기 등에서 Ranged Multiplier를 가져갈 때 사용
     public float GetDiceRangedDamageMultiplier()
     {
-        if (stats == null)
-            return 1f;
-
-        return stats.diceRangedDamageMultiplier;
+        return stats != null ? stats.diceRangedDamageMultiplier : 1f;
     }
 
+    // 무기 등에서 Strong Attack 스택을 소모할 때 사용 (BuffManager로 연결)
     public bool TryConsumeStrongAttack(out float strongAttackMultiplier)
     {
-        strongAttackMultiplier = 1f;
-
-        for (int i = 0; i < activeBuffs.Count; i++)
+        if (buffManager != null)
         {
-            ActiveBuff buff = activeBuffs[i];
-
-            if (buff == null || buff.buffData == null)
-                continue;
-
-            if (buff.buffData.effectType != DiceEffectType.StrongAttackBuff)
-                continue;
-
-            if (buff.remainingCount <= 0)
-                continue;
-
-            buff.remainingCount -= 1;
-            strongAttackMultiplier = buff.buffData.secondaryValue > 1f ? buff.buffData.secondaryValue : defaultStrongAttackMultiplier;
-
-            RecalculateStats();
-
-            if (buff.remainingCount <= 0)
-            {
-                RemoveBuffAt(i);
-            }
-
-            return true;
+            return buffManager.TryConsumeStrongAttack(out strongAttackMultiplier);
         }
-
+        strongAttackMultiplier = 1f;
         return false;
     }
 
     private void Move()
     {
-        if (!canControl)
-            return;
+        if (!canControl) return;
 
         float finalSpeed = stats.moveSpeed * stats.diceMoveSpeedMultiplier;
 
         if (isAttacking)
         {
-            if (weaponManager)
-                finalSpeed *= weaponManager.GetCurrentAttackMoveMultiplier();
-            else
-                finalSpeed *= 0f;
+            if (weaponManager) finalSpeed *= weaponManager.GetCurrentAttackMoveMultiplier();
+            else finalSpeed *= 0f;
         }
 
         rigid.linearVelocity = _moveInput * finalSpeed;
@@ -445,8 +206,7 @@ public class Player : MonoBehaviour
 
     private void CheckContactDamage()
     {
-        if (isInvincible)
-            return;
+        if (isInvincible) return;
 
         int hitCount = Physics2D.OverlapCircle(transform.position, contactCheckRadius, _contactFilter, _contactResults);
 
@@ -459,9 +219,7 @@ public class Player : MonoBehaviour
             if (boss != null)
             {
                 finalDamage = boss.BaseContactDamage;
-
-                if (boss.IsDashing)
-                    finalDamage *= boss.DashDamageMultiplier;
+                if (boss.IsDashing) finalDamage *= boss.DashDamageMultiplier;
             }
 
             OnDamage(finalDamage);
@@ -470,20 +228,13 @@ public class Player : MonoBehaviour
 
     public void OnDamage(float damage)
     {
-        if (isInvincible)
-            return;
+        if (isInvincible) return;
 
-        if (stats != null)
-            stats.TakeDamage((int)damage);
+        if (stats != null) stats.TakeDamage((int)damage);
 
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
-
-        if (GameManager.instance != null)
-            GameManager.instance.HitStop(playerHitStopDuration);
-
-        if (sfxHit != null && SoundManager.instance != null)
-            SoundManager.instance.PlaySFX(sfxHit, 0.9f);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
+        if (GameManager.instance != null) GameManager.instance.HitStop(playerHitStopDuration);
+        if (sfxHit != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxHit, 0.9f);
 
         StartCoroutine(Co_OnHit());
     }
@@ -523,9 +274,7 @@ public class Player : MonoBehaviour
 
     public void ApplyKnockback(Vector2 direction, float maxSpeed, float duration)
     {
-        if (stats != null && stats.currentHealth <= 0)
-            return;
-
+        if (stats != null && stats.currentHealth <= 0) return;
         StartCoroutine(Co_KnockbackRoutine(direction, maxSpeed, duration));
     }
 
@@ -555,7 +304,6 @@ public class Player : MonoBehaviour
             rigid.linearVelocity = dir * (maxSpeed * speedDecay);
 
             ghostTimer += Time.fixedDeltaTime;
-
             if (ghostTimer > ghostInterval)
             {
                 CreateGhost();
@@ -570,8 +318,7 @@ public class Player : MonoBehaviour
 
     private void RestoreMaterial()
     {
-        if (spriteRenderer != null)
-            spriteRenderer.material = _originalMaterial;
+        if (spriteRenderer != null) spriteRenderer.material = _originalMaterial;
     }
 
     private IEnumerator DashRoutine()
@@ -582,10 +329,11 @@ public class Player : MonoBehaviour
 
         Vector2 dashDir;
 
-        if (_moveInput.magnitude > 0)
-            dashDir = _moveInput.normalized;
-        else
-            dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
+        if (_moveInput.magnitude > 0) dashDir = _moveInput.normalized;
+        else dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
+
+        // BuffManager에서 색상을 가져옵니다
+        Color dashColor = buffManager != null ? buffManager.GetCurrentDiceColor() : Color.white;
 
         if (dashDustPrefab != null)
         {
@@ -595,17 +343,14 @@ public class Player : MonoBehaviour
             if (ps != null)
             {
                 var main = ps.main;
-                main.startColor = _currentDiceColor;
+                main.startColor = dashColor;
             }
 
             Destroy(dust, 1.0f);
         }
 
-        if (sfxDash != null)
-            SoundManager.instance.PlaySFX(sfxDash, 0.4f);
-
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
+        if (sfxDash != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxDash, 0.4f);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
 
         rigid.linearVelocity = dashDir * dashSpeed;
         StartCoroutine(DashGhostRoutine());
@@ -668,8 +413,7 @@ public class Player : MonoBehaviour
         canControl = false;
         spriteRenderer.color = Color.gray;
 
-        if (anim != null)
-            anim.enabled = false;
+        if (anim != null) anim.enabled = false;
 
         Debug.Log("Player: Dead");
     }
