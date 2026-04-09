@@ -53,7 +53,7 @@ public class BuffSlotUI : MonoBehaviour
                 stackText.text = $"+{finalEffectValue:0}%";
                 break;
 
-            case DiceEffectType.RangedMegaBuff:
+            case DiceEffectType.RangedMegaBuff: // 6번 주사위의 경우 6으로 표기 -> 600%로 표기 하드코딩
                 stackText.text = $"+{finalEffectValue:0}00%";
                 break;
 
