@@ -16,10 +16,12 @@ public class PlayerStats : MonoBehaviour
     public float currentDiceCharge = 0f;
     public float dicePassiveChargeRate = 25f;
     public float diceHitChargeAmount = 2f;
+    public float finalDicePower = 0f;
 
     [Header("Attack Power Stats")]
     public float meleeAttackPower = 10f;
     public float rangeAttackPower = 8f;
+    public float finalAttackPower = 0f;
 
     [Header("Critical Stats")]
     [Range(0f, 1f)] public float criticalChance = 0.2f;
