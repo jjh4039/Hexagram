@@ -195,17 +195,23 @@ public class PanelCarousel : MonoBehaviour
             if (diff == -2) diff = 1;
             if (diff == 2) diff = -1;
 
-            if (diff == 0) // 중앙
+            if (diff == 0) // 중앙 (메인)
             {
                 targets[i].pos = Vector2.zero;
                 targets[i].scale = Vector3.one * 1.2f;
                 targets[i].alpha = 1f;
+                
+                // ★ [추가] 중앙 패널만 마우스 호버 및 클릭 허용
+                if (_panelCanvasGroups[i]) _panelCanvasGroups[i].blocksRaycasts = true; 
             }
-            else // 사이드
+            else // 사이드 (비활성)
             {
                 targets[i].pos = new Vector2(diff * xOffset, 0);
                 targets[i].scale = Vector3.one * sideScale;
                 targets[i].alpha = sideAlpha;
+                
+                // ★ [추가] 사이드 패널은 마우스 감지 완벽 차단 (툴팁 안 뜸)
+                if (_panelCanvasGroups[i]) _panelCanvasGroups[i].blocksRaycasts = false;
             }
         }
     }

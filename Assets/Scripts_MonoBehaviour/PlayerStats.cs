@@ -14,14 +14,14 @@ public class PlayerStats : MonoBehaviour
     [Header("Dice Charge Stats")]
     public float maxDiceCharge = 300f;
     public float currentDiceCharge = 0f;
-    public float dicePassiveChargeRate = 25f;
+    public float dicePassiveChargeRate = 5f;
     public float diceHitChargeAmount = 2f;
-    public float finalDicePower = 0f;
+    public float finalDicePower = 1f;
 
     [Header("Attack Power Stats")]
     public float meleeAttackPower = 10f;
     public float rangeAttackPower = 8f;
-    public float finalAttackPower = 0f;
+    public float finalAttackPower = 1f;
 
     [Header("Critical Stats")]
     [Range(0f, 1f)] public float criticalChance = 0.2f;

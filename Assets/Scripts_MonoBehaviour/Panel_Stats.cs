@@ -31,20 +31,20 @@ public class Panel_Stats : MonoBehaviour
 
         // 1. 생존 및 이동 (10 / 10, 100% 형태)
         hpText.text = $"{playerStats.currentHealth} / {playerStats.maxHealth}";
-        moveSpeedText.text = $"{playerStats.moveSpeed * 100f}%";
+        moveSpeedText.text = $"{(playerStats.moveSpeed / 5f) * 100f:F0}%";
 
         // 2. 기본 공격
-        meleeAtkText.text = $"{playerStats.meleeAttackPower}";
-        rangedAtkText.text = $"{playerStats.rangeAttackPower}";
+        meleeAtkText.text = $"{playerStats.meleeAttackPower:F1}";
+        rangedAtkText.text = $"{playerStats.rangeAttackPower:F1}";
         atkSpeedText.text = $"{playerStats.attackSpeed * 100f}%";
 
         // 3. 치명타 및 증폭
         critChanceText.text = $"{playerStats.criticalChance * 100f}%";
         critDamageText.text = $"{playerStats.GetFinalCriticalDamageMultiplier() * 100f}%";
-        finalDamageText.text = $"{playerStats.finalAttackPower}%"; // 임시 (최종 피해 증폭값으로 수정 필요)
+        finalDamageText.text = $"{playerStats.finalAttackPower * 100f}%"; // 임시 (최종 피해 증폭값으로 수정 필요)
 
         // 4. 주사위 (소수점 등 필요한 형태로 가공하기 쉽게 기본값만 세팅)
         diceChargeText.text = $"{playerStats.dicePassiveChargeRate}/s";
-        diceAmpText.text = $"{playerStats.diceDamageMultiplier * 100f}%"; 
+        diceAmpText.text = $"{playerStats.finalDicePower * 100f}%"; 
     }
 }
