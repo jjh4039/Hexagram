@@ -1464,8 +1464,8 @@ MonoBehaviour:
   hoverArea: {fileID: 370527463}
   selectImage: {fileID: 370527465}
   statTitle: "\uACF5\uACA9\uC18D\uB3C4"
-  statDesc: "<color=#FFFFFF>Attack Speed</color>\n\n\uBAA8\uB4E0 <color=#FFD000>\uACF5\uACA9\uC758
-    \uC18D\uB3C4,</color>\n<color=#FFD000>\uCD5C\uB300 200%\uAE4C\uC9C0</color> \uC0C1\uC2B9\uD569\uB2C8\uB2E4."
+  statDesc: "<color=#FFFFFF>Attack Speed</color>\n\n\uBAA8\uB4E0 <color=#FFD000>\uACF5\uACA9
+    \uBC30\uC18D,</color>\n<color=#FFD000>\uCD5C\uB300 200%\uAE4C\uC9C0</color> \uC0C1\uC2B9\uD569\uB2C8\uB2E4."
 --- !u!1 &132918792
 GameObject:
   m_ObjectHideFlags: 0
