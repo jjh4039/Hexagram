@@ -4,7 +4,7 @@ public class Dice_Cube : MonoBehaviour
 {
     [Header("--- Roll Settings ---")]
     [SerializeField] private float rollSpeed = 1000f;
-    [SerializeField] private float minRotationThreshold = 0.5f; // 축의 최소 값 보정치
+    [SerializeField] private float minRotationThreshold = 0.5f; // 축의 최소 값 보정치  
 
     private Vector3 currentAxis;
 

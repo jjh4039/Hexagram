@@ -2,13 +2,14 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using TMPro;
 
 public class BalanceManager : MonoBehaviour
 {
     public static BalanceManager instance;
 
     [SerializeField] private CanvasGroup mainCanvasGroup;
-    [SerializeField] private float fadeDuration = 0.3f; // 페이드 인/아웃에 공통으로 사용할 시간
+    [SerializeField] private float fadeDuration = 0.3f;
 
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Image mainFaceImage;
@@ -29,8 +30,25 @@ public class BalanceManager : MonoBehaviour
     [Header("Face Zone Settings")]
     [SerializeField] private FaceChoice[] faceChoices;
 
-    [Header("Confirm Button Settings")]
+    [Header("Probability UI Settings (6 Texts)")]
+    [SerializeField] private TextMeshProUGUI[] probabilityTexts;
+    [SerializeField] private Color normalTextColor = new Color(0.88f, 0.88f, 0.88f);
+    [SerializeField] private Color increaseTextColor = new Color(0.5f, 0.78f, 0.52f);
+    [SerializeField] private Color decreaseTextColor = new Color(0.9f, 0.45f, 0.45f);
+
+    [Header("Right Info Panel Settings")]
+    [SerializeField] private GameObject infoPanelObject;
+    [SerializeField] private TextMeshProUGUI faceDescText;
+    [SerializeField] private Image diceIconImage;
+    [SerializeField] private Image diceIconBackground;
+    [SerializeField] private TextMeshProUGUI transitionProbText;
     [SerializeField] private Image confirmButtonImage;
+
+    [Header("Default Info State")]
+    [SerializeField] private string defaultDescription = "확률을 높일 주사위의 면을 선택하세요.";
+    [SerializeField] private Color defaultColor = Color.gray; // 빈 케이스를 위해 다시 추가됨
+
+    private float currentWeightPercent = 5f;
 
     private int selectedIndex = -1;
     private int currentHoverIndex = -1;
@@ -49,8 +67,10 @@ public class BalanceManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void OpenBalanceUI()
+    public void OpenBalanceUI(float incomingWeightPercent)
     {
+        currentWeightPercent = incomingWeightPercent;
+
         isInitialized = false;
         selectedIndex = -1;
         currentHoverIndex = -1;
@@ -59,6 +79,8 @@ public class BalanceManager : MonoBehaviour
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0f;
 
         UpdateMainImage();
+        UpdateProbabilityUI();
+        UpdateInfoPanel();
 
         Time.timeScale = 0f;
 
@@ -66,9 +88,7 @@ public class BalanceManager : MonoBehaviour
         gameObject.SetActive(true);
 
         if (backgroundImage != null) StartCoroutine(LoopBackgroundAnimation());
-
-        if (mainFaceImage != null)
-            floatCoroutine = StartCoroutine(FloatMainImage());
+        if (mainFaceImage != null) floatCoroutine = StartCoroutine(FloatMainImage());
 
         StartCoroutine(FadeInUI());
     }
@@ -83,7 +103,6 @@ public class BalanceManager : MonoBehaviour
                 mainCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
-
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 1f;
         isInitialized = true;
     }
@@ -117,6 +136,7 @@ public class BalanceManager : MonoBehaviour
         {
             currentHoverIndex = newHoverIndex;
             UpdateMainImage();
+            // 호버 시 정보창 업데이트 안함
         }
     }
 
@@ -153,8 +173,8 @@ public class BalanceManager : MonoBehaviour
 
         selectedIndex = newIndex;
         UpdateMainImage();
-
-        if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(true);
+        UpdateProbabilityUI();
+        UpdateInfoPanel();
     }
 
     private void UpdateMainImage()
@@ -175,20 +195,112 @@ public class BalanceManager : MonoBehaviour
         }
     }
 
+    private void UpdateProbabilityUI()
+    {
+        if (GameManager.instance == null || GameManager.instance.dice == null) return;
+        if (probabilityTexts == null || probabilityTexts.Length < 6) return;
+
+        float[] currentPercentages = GameManager.instance.dice.displayPercentages;
+
+        if (selectedIndex == -1)
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                if (probabilityTexts[i] != null)
+                {
+                    probabilityTexts[i].text = currentPercentages[i].ToString("F1") + "%";
+                    probabilityTexts[i].color = normalTextColor;
+                }
+            }
+        }
+        else
+        {
+            float[] predictedPercentages = GameManager.instance.dice.GetPredictedPercentages(selectedIndex, currentWeightPercent);
+
+            for (int i = 0; i < 6; i++)
+            {
+                if (probabilityTexts[i] != null)
+                {
+                    probabilityTexts[i].text = predictedPercentages[i].ToString("F1") + "%";
+
+                    if (i == selectedIndex)
+                        probabilityTexts[i].color = increaseTextColor;
+                    else
+                        probabilityTexts[i].color = decreaseTextColor;
+                }
+            }
+        }
+    }
+
+    private void UpdateInfoPanel()
+    {
+        if (infoPanelObject == null) return;
+
+        infoPanelObject.SetActive(true);
+
+        // 1. 특정 면이 클릭(선택) 되었을 때
+        if (selectedIndex != -1 && GameManager.instance != null && GameManager.instance.dice != null)
+        {
+            DiceData currentData = GameManager.instance.dice.diceList[selectedIndex];
+
+            float currentPercent = GameManager.instance.dice.displayPercentages[selectedIndex];
+            float[] predicted = GameManager.instance.dice.GetPredictedPercentages(selectedIndex, currentWeightPercent);
+            float predictedPercent = predicted[selectedIndex];
+
+            if (currentData != null)
+            {
+                if (faceDescText != null) faceDescText.text = currentData.shortDescription;
+
+                // 안쪽 주사위 아이콘 활성화
+                if (diceIconImage != null)
+                {
+                    diceIconImage.gameObject.SetActive(true);
+                    diceIconImage.sprite = currentData.icon;
+                }
+
+                // 바깥쪽 케이스 활성화 및 색상 지정
+                if (diceIconBackground != null)
+                {
+                    diceIconBackground.gameObject.SetActive(true);
+                    diceIconBackground.color = currentData.particleColor;
+                }
+            }
+
+            if (transitionProbText != null)
+            {
+                transitionProbText.text = $"{currentPercent:F1}% -> <color=#{ColorUtility.ToHtmlStringRGB(increaseTextColor)}>{predictedPercent:F1}%</color>";
+            }
+
+            if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(true);
+        }
+        // 2. 아무것도 선택되지 않은 디폴트 상태
+        else
+        {
+            if (faceDescText != null) faceDescText.text = defaultDescription;
+
+            // ★ 안쪽 주사위 아이콘만 비활성화 ★
+            if (diceIconImage != null) diceIconImage.gameObject.SetActive(false);
+
+            // ★ 바깥쪽 케이스는 켜두고 기본 색상 적용 ★
+            if (diceIconBackground != null)
+            {
+                diceIconBackground.gameObject.SetActive(true);
+                diceIconBackground.color = defaultColor;
+            }
+
+            if (transitionProbText != null) transitionProbText.text = "";
+
+            if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+        }
+    }
+
     public void OnConfirmButtonClick()
     {
         if (selectedIndex == -1) return;
 
         if (GameManager.instance != null && GameManager.instance.dice != null)
         {
-            // 이제 가중치(티켓 수)가 아니라 퍼센트(%)를 넘겨줍니다.
-            float percentAmount = 5f;
-            GameManager.instance.dice.AddPercentToFace(selectedIndex, percentAmount);
-            Debug.Log($"[무게추] {selectedIndex + 1}번 면 확률 {percentAmount}% 증가 처리");
-        }
-        else
-        {
-            Debug.LogError("GameManager 또는 Dice 스크립트를 찾을 수 없습니다!");
+            GameManager.instance.dice.AddPercentToFace(selectedIndex, currentWeightPercent);
         }
 
         CloseBalanceUI();
@@ -201,20 +313,16 @@ public class BalanceManager : MonoBehaviour
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
 
-        // 꺼질 때는 페이드아웃 코루틴 실행
         StartCoroutine(FadeOutUI());
     }
 
-    // 부드럽게 사라지는 페이드아웃 코루틴
     private IEnumerator FadeOutUI()
     {
-        // 페이드 아웃이 시작됨과 동시에 게임 시간을 다시 흐르게 합니다.
         Time.timeScale = 1.0f;
-
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
-            elapsed += Time.unscaledDeltaTime; // timeScale이 1.0이 되어도 unscaledDeltaTime은 영향을 받지 않습니다.
+            elapsed += Time.unscaledDeltaTime;
             if (mainCanvasGroup != null)
                 mainCanvasGroup.alpha = Mathf.Clamp01(1f - (elapsed / fadeDuration));
             yield return null;

@@ -85,10 +85,9 @@ public class Dice : MonoBehaviour
     }
 
     // =========================================================
-    // 확률 및 무게추 관련 로직 (퍼센트 기반으로 개편)
+    // 확률 및 무게추 관련 로직 (퍼센트 기반)
     // =========================================================
 
-    // 특정 면의 확률을 원하는 퍼센트(%)만큼 정확히 상승시킵니다.
     public void AddPercentToFace(int faceIndex, float percentIncrease)
     {
         if (faceIndex < 0 || faceIndex >= faceWeights.Length)
@@ -102,15 +101,11 @@ public class Dice : MonoBehaviour
 
         if (totalWeight == 0) return;
 
-        // 현재 퍼센트와 목표 퍼센트 계산
         float currentPercent = (float)faceWeights[faceIndex] / totalWeight;
         float targetPercent = currentPercent + (percentIncrease / 100f);
 
-        // 확률이 100% 이상이 되는 것을 방지
         if (targetPercent >= 1f) targetPercent = 0.999f;
 
-        // 목표 퍼센트에 도달하기 위해 필요한 추가 티켓 수 역산 공식
-        // x = (목표확률 * 전체합 - 현재가중치) / (1 - 목표확률)
         float requiredWeightFloat = ((targetPercent * totalWeight) - faceWeights[faceIndex]) / (1f - targetPercent);
         int addedWeight = Mathf.Max(0, Mathf.RoundToInt(requiredWeightFloat));
 
@@ -118,6 +113,37 @@ public class Dice : MonoBehaviour
         CalculatePercentages();
 
         Debug.Log($"[{faceIndex + 1}번 면] {percentIncrease}% 증가를 위해 가중치 {addedWeight} 추가됨");
+    }
+
+    // 실제 스탯 변경 없이 UI에 보여줄 예측 퍼센트만 계산해서 반환하는 함수
+    public float[] GetPredictedPercentages(int faceIndex, float percentIncrease)
+    {
+        float[] predicted = new float[6];
+        int totalWeight = 0;
+
+        for (int i = 0; i < faceWeights.Length; i++)
+            totalWeight += faceWeights[i];
+
+        if (totalWeight == 0) return predicted;
+
+        float currentPercent = (float)faceWeights[faceIndex] / totalWeight;
+        float targetPercent = currentPercent + (percentIncrease / 100f);
+
+        if (targetPercent >= 1f) targetPercent = 0.999f;
+
+        float requiredWeightFloat = ((targetPercent * totalWeight) - faceWeights[faceIndex]) / (1f - targetPercent);
+        int addedWeight = Mathf.Max(0, Mathf.RoundToInt(requiredWeightFloat));
+
+        int newTotalWeight = totalWeight + addedWeight;
+
+        for (int i = 0; i < faceWeights.Length; i++)
+        {
+            int tempWeight = faceWeights[i];
+            if (i == faceIndex) tempWeight += addedWeight;
+            predicted[i] = ((float)tempWeight / newTotalWeight) * 100f;
+        }
+
+        return predicted;
     }
 
     private void CalculatePercentages()

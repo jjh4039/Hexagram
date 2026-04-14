@@ -3,6 +3,10 @@ using UnityEngine.InputSystem;
 
 public class Balance : MonoBehaviour
 {
+    // 필드 아이템이 가질 확률 증가치 (인스펙터에서 하급 2, 중급 5 등으로 설정)
+    [Header("Item Settings")]
+    [SerializeField] private float weightPercent = 5f;
+
     [SerializeField] private Material[] outLineMaterial;
     private SpriteRenderer spriteRenderer;
     public GameObject keyGuide;
@@ -25,16 +29,15 @@ public class Balance : MonoBehaviour
 
     private void OpenBalanceSelection()
     {
-        // 1. GameManager를 통해 BalanceManager 접근
         if (GameManager.instance != null && GameManager.instance.balanceManager != null)
         {
             if (!GameManager.instance.balanceManager.gameObject.activeInHierarchy)
             {
-                // BalanceManager를 켜고 초기화 함수 호출
                 GameManager.instance.balanceManager.gameObject.SetActive(true);
-                GameManager.instance.balanceManager.OpenBalanceUI();
 
-                // 2. 사용된 무게추 오브젝트 삭제
+                // ★ 매니저를 열 때, 이 아이템이 가진 퍼센트 수치를 함께 넘겨줍니다.
+                GameManager.instance.balanceManager.OpenBalanceUI(weightPercent);
+
                 Destroy(gameObject);
             }
         }
