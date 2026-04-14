@@ -7279,7 +7279,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BalanceManager
   mainCanvasGroup: {fileID: 1041529985}
-  fadeInDuration: 0.3
+  fadeDuration: 0.3
   backgroundImage: {fileID: 89987179}
   mainFaceImage: {fileID: 469148644}
   normalSprite: {fileID: -8242288906163346375, guid: 90781a4e5b714f346bb784c0aeecb380, type: 3}
@@ -9317,7 +9317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.5019608}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.6}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -35875,7 +35875,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   _falloffCurveGamma: 2.2
   _fillMode: 0
-  _color: {r: 0, g: 0.11764706, b: 0.11764706, a: 1}
+  _color: {r: 0.0004273583, g: 0.11764706, b: 0, a: 1}
   _gradientTexture: {fileID: 0}
   _gradient:
     serializedVersion: 2
