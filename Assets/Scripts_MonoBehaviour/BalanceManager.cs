@@ -8,7 +8,9 @@ public class BalanceManager : MonoBehaviour
 {
     public static BalanceManager instance;
 
-    [SerializeField] private CanvasGroup mainCanvasGroup;
+    [Header("UI Fade Settings")]
+    [SerializeField] private CanvasGroup mainCanvasGroup; // 전체 배경 캔버스 그룹
+    [SerializeField] private CanvasGroup contentCanvasGroup; // 헥사그램, 우측 패널 등 내부 컨텐츠 캔버스 그룹
     [SerializeField] private float fadeDuration = 0.3f;
 
     [SerializeField] private Image backgroundImage;
@@ -46,7 +48,13 @@ public class BalanceManager : MonoBehaviour
 
     [Header("Default Info State")]
     [SerializeField] private string defaultDescription = "확률을 높일 주사위의 면을 선택하세요.";
-    [SerializeField] private Color defaultColor = Color.gray; // 빈 케이스를 위해 다시 추가됨
+    [SerializeField] private Color defaultColor = Color.gray; 
+
+    // 사운드 관련 변수 추가
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxIntro;
+    [SerializeField] private AudioClip sfxSelect;
+    [SerializeField] private AudioClip sfxDecision;
 
     private float currentWeightPercent = 5f;
 
@@ -60,6 +68,7 @@ public class BalanceManager : MonoBehaviour
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0f;
+        if (contentCanvasGroup != null) contentCanvasGroup.alpha = 0f;
 
         if (mainFaceImage != null)
             mainImageInitialPos = mainFaceImage.rectTransform.anchoredPosition;
@@ -77,12 +86,17 @@ public class BalanceManager : MonoBehaviour
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0f;
+        if (contentCanvasGroup != null) contentCanvasGroup.alpha = 0f;
 
         UpdateMainImage();
         UpdateProbabilityUI();
         UpdateInfoPanel();
 
         Time.timeScale = 0f;
+
+        // UI 오픈 사운드 재생
+        if (sfxIntro != null && SoundManager.instance != null) 
+            SoundManager.instance.PlaySFX(sfxIntro, 0.6f, 0.1f);
 
         StopAllCoroutines();
         gameObject.SetActive(true);
@@ -93,6 +107,7 @@ public class BalanceManager : MonoBehaviour
         StartCoroutine(FadeInUI());
     }
 
+    // 배경이 먼저 켜지고, 이후에 컨텐츠가 나타나는 순차 페이드인
     private IEnumerator FadeInUI()
     {
         float elapsed = 0f;
@@ -104,6 +119,17 @@ public class BalanceManager : MonoBehaviour
             yield return null;
         }
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 1f;
+
+        elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            if (contentCanvasGroup != null)
+                contentCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            yield return null;
+        }
+        if (contentCanvasGroup != null) contentCanvasGroup.alpha = 1f;
+
         isInitialized = true;
     }
 
@@ -136,7 +162,6 @@ public class BalanceManager : MonoBehaviour
         {
             currentHoverIndex = newHoverIndex;
             UpdateMainImage();
-            // 호버 시 정보창 업데이트 안함
         }
     }
 
@@ -172,6 +197,11 @@ public class BalanceManager : MonoBehaviour
         if (selectedIndex == newIndex) return;
 
         selectedIndex = newIndex;
+
+        // 선택 변경 시 사운드 재생
+        if (sfxSelect != null && SoundManager.instance != null) 
+            SoundManager.instance.PlaySFX(sfxSelect, 0.6f, 0.1f);
+
         UpdateMainImage();
         UpdateProbabilityUI();
         UpdateInfoPanel();
@@ -238,7 +268,6 @@ public class BalanceManager : MonoBehaviour
 
         infoPanelObject.SetActive(true);
 
-        // 1. 특정 면이 클릭(선택) 되었을 때
         if (selectedIndex != -1 && GameManager.instance != null && GameManager.instance.dice != null)
         {
             DiceData currentData = GameManager.instance.dice.diceList[selectedIndex];
@@ -251,14 +280,12 @@ public class BalanceManager : MonoBehaviour
             {
                 if (faceDescText != null) faceDescText.text = currentData.shortDescription;
 
-                // 안쪽 주사위 아이콘 활성화
                 if (diceIconImage != null)
                 {
                     diceIconImage.gameObject.SetActive(true);
                     diceIconImage.sprite = currentData.icon;
                 }
 
-                // 바깥쪽 케이스 활성화 및 색상 지정
                 if (diceIconBackground != null)
                 {
                     diceIconBackground.gameObject.SetActive(true);
@@ -266,22 +293,21 @@ public class BalanceManager : MonoBehaviour
                 }
             }
 
+            // 고정 초록색 대신 currentData의 고유 색상(particleColor) 적용
             if (transitionProbText != null)
             {
-                transitionProbText.text = $"{currentPercent:F1}% -> <color=#{ColorUtility.ToHtmlStringRGB(increaseTextColor)}>{predictedPercent:F1}%</color>";
+                Color highlightColor = currentData != null ? currentData.particleColor : increaseTextColor;
+                transitionProbText.text = $"{currentPercent:F1}% -> <color=#{ColorUtility.ToHtmlStringRGB(highlightColor)}>{predictedPercent:F1}%</color>";
             }
 
             if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(true);
         }
-        // 2. 아무것도 선택되지 않은 디폴트 상태
         else
         {
             if (faceDescText != null) faceDescText.text = defaultDescription;
 
-            // ★ 안쪽 주사위 아이콘만 비활성화 ★
             if (diceIconImage != null) diceIconImage.gameObject.SetActive(false);
 
-            // ★ 바깥쪽 케이스는 켜두고 기본 색상 적용 ★
             if (diceIconBackground != null)
             {
                 diceIconBackground.gameObject.SetActive(true);
@@ -297,6 +323,10 @@ public class BalanceManager : MonoBehaviour
     public void OnConfirmButtonClick()
     {
         if (selectedIndex == -1) return;
+
+        // 선택 확정 시 사운드 재생
+        if (sfxDecision != null && SoundManager.instance != null) 
+            SoundManager.instance.PlaySFX(sfxDecision, 0.7f, 0.2f);
 
         if (GameManager.instance != null && GameManager.instance.dice != null)
         {
@@ -316,6 +346,7 @@ public class BalanceManager : MonoBehaviour
         StartCoroutine(FadeOutUI());
     }
 
+    // 닫힐 때는 배경과 내부가 동시에 깔끔하게 페이드아웃
     private IEnumerator FadeOutUI()
     {
         Time.timeScale = 1.0f;
@@ -323,12 +354,16 @@ public class BalanceManager : MonoBehaviour
         while (elapsed < fadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            if (mainCanvasGroup != null)
-                mainCanvasGroup.alpha = Mathf.Clamp01(1f - (elapsed / fadeDuration));
+            float currentAlpha = Mathf.Clamp01(1f - (elapsed / fadeDuration));
+            
+            if (mainCanvasGroup != null) mainCanvasGroup.alpha = currentAlpha;
+            if (contentCanvasGroup != null) contentCanvasGroup.alpha = currentAlpha;
+            
             yield return null;
         }
 
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0f;
+        if (contentCanvasGroup != null) contentCanvasGroup.alpha = 0f;
         gameObject.SetActive(false);
     }
 
