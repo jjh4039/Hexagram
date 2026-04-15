@@ -96,5 +96,10 @@ MonoBehaviour:
     - AudioClip On Icon
     enabled: 1
   - builtinIcons: []
+    customIcons:
+    - AvatarController.Layer
+    - TestStopwatch
+    enabled: 1
+  - builtinIcons: []
     customIcons: []
     enabled: 1
