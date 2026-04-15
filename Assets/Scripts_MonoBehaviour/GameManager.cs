@@ -78,6 +78,7 @@ public class GameManager : MonoBehaviour
     // =========================================================
     // Stage Load
     // =========================================================
+    // ReSharper disable Unity.PerformanceAnalysis
     public void LoadStage(StageData stageData)
     {
         if (currentStageObj)
@@ -98,7 +99,7 @@ public class GameManager : MonoBehaviour
         
             // 인스턴스화 후 컨포넌트 재할당 및 초기화
             _controller = currentStageObj.GetComponent<StageController>();
-            if (_controller != null)
+            if (_controller)
                 _controller.InitStage();
 
             if (CameraFollow.instance)

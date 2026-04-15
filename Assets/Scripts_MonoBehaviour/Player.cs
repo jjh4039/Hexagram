@@ -12,14 +12,17 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerStats stats;
 
     [Header("Manager Link")]
-    [SerializeField] public BuffManager buffManager; // 추가됨
+    [SerializeField] public BuffManager buffManager; 
     [SerializeField] private WeaponManager weaponManager;
 
     [Header("Input Control")]
     public bool canControl = true;
-    private Vector2 mouseWorldPos { get; set; }
+
+    public Vector2 mouseWorldPos { get; set; }
     private Vector2 _moveInput;
-    private PlayerInput _inputActions;
+    
+    // [수정됨] 독자적인 입력 객체 생성 삭제, 매니저의 객체를 참조하도록 변경
+    public PlayerInput Input => InputStateManager.Instance.Actions;
 
     [Header("State")]
     public bool isAttacking = false;
@@ -71,13 +74,13 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioClip sfxHit;
 
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
-    public PlayerInput Input => _inputActions;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        _inputActions = new PlayerInput();
+        
+        // [수정됨] _inputActions = new PlayerInput(); 삭제 (매니저가 관리함)
 
         if (stats == null) stats = GetComponent<PlayerStats>();
         if (buffManager == null) buffManager = GetComponent<BuffManager>();
@@ -102,20 +105,58 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    // [수정됨] OnEnable 대신 Start에서 매니저 이벤트를 구독 (싱글톤 초기화 보장)
+    private void Start()
     {
-        _inputActions.Enable();
-        _inputActions.Player.Dash.performed += OnDash;
-        _inputActions.Player.Attack.performed += OnAttack;
-        _inputActions.Player.Swap.performed += OnSwap;
+        if (InputStateManager.Instance == null) return;
+
+        var actions = InputStateManager.Instance.Actions;
+
+        // Normal 맵 바인딩
+        actions.Normal.Dash.performed += OnDash;
+        actions.Normal.Attack.performed += OnAttack;
+        actions.Normal.Swap.performed += OnSwap;
+
+        // Combat 맵 바인딩
+        actions.Combat.Dash.performed += OnDash;
+        actions.Combat.Attack.performed += OnAttack;
+        actions.Combat.Swap.performed += OnSwap;
+
+        // 상태 변경 이벤트 구독
+        InputStateManager.Instance.OnInputStateChanged += HandleInputStateChanged;
     }
 
-    private void OnDisable()
+    // [수정됨] OnDisable 대신 OnDestroy에서 메모리 해제
+    private void OnDestroy()
     {
-        _inputActions.Disable();
-        _inputActions.Player.Dash.performed -= OnDash;
-        _inputActions.Player.Attack.performed -= OnAttack;
-        _inputActions.Player.Swap.performed -= OnSwap;
+        if (InputStateManager.Instance == null) return;
+
+        var actions = InputStateManager.Instance.Actions;
+
+        actions.Normal.Dash.performed -= OnDash;
+        actions.Normal.Attack.performed -= OnAttack;
+        actions.Normal.Swap.performed -= OnSwap;
+
+        actions.Combat.Dash.performed -= OnDash;
+        actions.Combat.Attack.performed -= OnAttack;
+        actions.Combat.Swap.performed -= OnSwap;
+
+        InputStateManager.Instance.OnInputStateChanged -= HandleInputStateChanged;
+    }
+
+    // [수정됨] UI 상태 진입 시 무적 및 정지 처리 콜백 추가
+    private void HandleInputStateChanged(InputState newState)
+    {
+        if (newState == InputState.UI)
+        {
+            _moveInput = Vector2.zero;           // 이동 입력 초기화
+            rigid.linearVelocity = Vector2.zero; // 물리적인 미끄러짐 방지
+            isInvincible = true;                 // UI 창이 열려있을 때 무적 판정
+        }
+        else
+        {
+            isInvincible = false;                // UI 창이 닫히면 무적 해제
+        }
     }
 
     private void OnAttack(InputAction.CallbackContext context)
@@ -153,13 +194,27 @@ public class Player : MonoBehaviour
             stats.currentDashStacks = Mathf.Min(stats.currentDashStacks, stats.maxDashStacks);
         }
 
-        _moveInput = _inputActions.Player.Move.ReadValue<Vector2>();
+        // [수정됨] 현재 활성화된 맵의 이동 값만 읽어옵니다
+        if (InputStateManager.Instance.CurrentInputState == InputState.Normal)
+            _moveInput = Input.Normal.Move.ReadValue<Vector2>();
+        else if (InputStateManager.Instance.CurrentInputState == InputState.Combat)
+            _moveInput = Input.Combat.Move.ReadValue<Vector2>();
+        else
+            _moveInput = Vector2.zero;
+
         LookAtMouse();
     }
 
     private void LookAtMouse()
     {
-        Vector2 mouseScreenPos = _inputActions.Player.Look.ReadValue<Vector2>();
+        // [수정됨] 현재 활성화된 맵의 마우스 위치만 읽어옵니다
+        Vector2 mouseScreenPos = Vector2.zero;
+        
+        if (InputStateManager.Instance.CurrentInputState == InputState.Normal)
+            mouseScreenPos = Input.Normal.Look.ReadValue<Vector2>();
+        else if (InputStateManager.Instance.CurrentInputState == InputState.Combat)
+            mouseScreenPos = Input.Combat.Look.ReadValue<Vector2>();
+
         mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         spriteRenderer.flipX = mouseWorldPos.x < transform.position.x;
     }
@@ -181,7 +236,7 @@ public class Player : MonoBehaviour
     // 무기 등에서 Strong Attack 스택을 소모할 때 사용 (BuffManager로 연결)
     public bool TryConsumeStrongAttack(out float strongAttackMultiplier)
     {
-        if (buffManager != null)
+        if (buffManager)
         {
             return buffManager.TryConsumeStrongAttack(out strongAttackMultiplier);
         }
@@ -216,7 +271,7 @@ public class Player : MonoBehaviour
             Collider2D hitCollider = _contactResults[0];
             EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
 
-            if (boss != null)
+            if (boss)
             {
                 finalDamage = boss.BaseContactDamage;
                 if (boss.IsDashing) finalDamage *= boss.DashDamageMultiplier;
@@ -230,11 +285,11 @@ public class Player : MonoBehaviour
     {
         if (isInvincible) return;
 
-        if (stats != null) stats.TakeDamage((int)damage);
+        if (stats) stats.TakeDamage((int)damage);
 
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
-        if (GameManager.instance != null) GameManager.instance.HitStop(playerHitStopDuration);
-        if (sfxHit != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxHit, 0.9f);
+        if (CameraFollow.instance) CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
+        if (GameManager.instance) GameManager.instance.HitStop(playerHitStopDuration);
+        if (sfxHit && SoundManager.instance) SoundManager.instance.PlaySFX(sfxHit, 0.9f);
 
         StartCoroutine(Co_OnHit());
     }
@@ -244,7 +299,7 @@ public class Player : MonoBehaviour
         isInvincible = true;
         float timer = 0f;
 
-        if (flashMaterial != null && spriteRenderer != null)
+        if (flashMaterial && spriteRenderer)
         {
             spriteRenderer.material = flashMaterial;
             spriteRenderer.color = Color.white;
@@ -263,7 +318,7 @@ public class Player : MonoBehaviour
             timer += blinkSpeed;
         }
 
-        if (spriteRenderer != null)
+        if (spriteRenderer)
         {
             spriteRenderer.color = Color.white;
             spriteRenderer.material = _originalMaterial;

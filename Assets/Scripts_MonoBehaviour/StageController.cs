@@ -44,11 +44,17 @@ public class StageController : MonoBehaviour
             if (statue != null) statue.ActivateStatue();
             if (StageMessageUI.instance != null) StageMessageUI.instance.HideEnemyCountUI();
             isCleared = true;
+
+            // [추가됨] 시작부터 안전 구역이면 즉시 평화 상태 진입
+            if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
         }
         else
         {
             if (barrierEla != null) barrierEla.SetActive(true);
             isCleared = false;
+
+            // [추가됨] 전투 구역이면 즉시 전투 상태 진입
+            if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeGamePhase(GamePhase.InCombat);
         }
 
         if (!isSafeStage) UpdateEnemyCountUI();
@@ -137,12 +143,15 @@ public class StageController : MonoBehaviour
     private void StageClear()
     {
         isCleared = true;
-        if (barrierEla != null) barrierEla.SetActive(false);
-        if (statue != null) statue.ActivateStatue();
-        if (StageMessageUI.instance != null)
+        if (barrierEla) barrierEla.SetActive(false);
+        if (statue) statue.ActivateStatue();
+        if (StageMessageUI.instance)
         {
             StageMessageUI.instance.HideEnemyCountUI();
             StageMessageUI.instance.ShowClearMessage();
         }
+
+        // [추가됨] 전투 웨이브가 모두 끝났으므로 평화 상태로 복귀
+        if (InputStateManager.Instance) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
     }
 }

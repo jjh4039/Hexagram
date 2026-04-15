@@ -1,21 +1,21 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using System.Collections; // 코루틴 사용을 위해 필수
+using System.Collections; 
 
 public class DashboardUI : MonoBehaviour
 {
     public static DashboardUI instance;
 
     [Header("Main Objects")]
-    public GameObject dashboardPanel;   // 전체 팝업 (검은 배경 + 판)
-    public CanvasGroup dashboardCG;     // ★ [필수] 투명도 조절용 (인스펙터에서 연결!)
+    public GameObject dashboardPanel;   // 전체 팝업 창
+    public CanvasGroup dashboardCG;     // 투명도 조절용 컴포넌트
     public Transform artifactGrid;      // 아티팩트가 생성될 그리드
     public GameObject slotPrefab;       // 슬롯 프리팹
 
     [Header("Animation Settings")]
-    public float fadeDuration = 0.2f;   // 페이드 시간 (0.2초 추천)
-    public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f); // 시작/종료 크기
+    public float fadeDuration = 0.2f;   // 애니메이션 재생 시간
+    public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f); // 시작과 종료 시점의 크기
 
     [Header("Tooltip")]
     public GameObject tooltipGroup;
@@ -24,48 +24,60 @@ public class DashboardUI : MonoBehaviour
     public Vector2 tooltipOffset = new Vector2(15f, -15f);
 
     [Header("Sound Effects")]
-    [SerializeField] private AudioClip sfxOpen;   // 1. 창 열릴 때
-    [SerializeField] private AudioClip sfxClose;  // 1. 창 닫힐 때
-    [SerializeField] private AudioClip sfxHover;  // 2. 툴팁 뜰 때
+    [SerializeField] private AudioClip sfxOpen;   // 창이 열릴 때 재생할 소리
+    [SerializeField] private AudioClip sfxClose;  // 창이 닫힐 때 재생할 소리
+    [SerializeField] private AudioClip sfxHover;  // 마우스를 올렸을 때 재생할 소리
 
-    private PlayerInput inputActions;
     public bool isOpen = false;
     private bool isTooltipActive = false;
-    private Coroutine fadeRoutine; // 실행 중인 애니메이션 관리용
+    private Coroutine fadeRoutine; // 실행 중인 애니메이션 관리 객체
 
     private void Awake()
     {
         instance = this;
 
-        // 시작할 때 꺼두기 및 초기화
         if (dashboardCG == null) dashboardCG = dashboardPanel.GetComponent<CanvasGroup>();
         if (dashboardCG != null)
         {
             dashboardCG.alpha = 0f;
-            dashboardCG.blocksRaycasts = false; // 클릭 방지
+            dashboardCG.blocksRaycasts = false; 
         }
 
         dashboardPanel.SetActive(false);
         if (tooltipGroup != null) tooltipGroup.SetActive(false);
-
-        inputActions = new PlayerInput();
+        
+        // 기존의 독자적인 입력 시스템 생성 코드 삭제
     }
 
-    private void OnEnable()
+    // 싱글톤 초기화를 보장하기 위해 OnEnable 대신 Start 사용
+    private void Start()
     {
-        inputActions.Enable();
-        inputActions.Player.Inventory.performed += OnToggle;
+        if (InputStateManager.Instance == null) return;
+
+        var actions = InputStateManager.Instance.Actions;
+
+        // 평상시와 전투 상태일 때 인벤토리 키를 누르면 열기 시도
+        actions.Normal.Inventory.performed += OnInventoryPressed;
+        actions.Combat.Inventory.performed += OnInventoryPressed; 
+        
+        // UI 상태일 때 닫기 키를 누르면 창 닫기
+        actions.UI.CloseUI.performed += OnCloseUIPressed;
     }
 
-    private void OnDisable()
+    // OnDisable 대신 OnDestroy에서 메모리 해제
+    private void OnDestroy()
     {
-        inputActions.Player.Inventory.performed -= OnToggle;
-        inputActions.Disable();
+        if (InputStateManager.Instance == null) return;
+
+        var actions = InputStateManager.Instance.Actions;
+
+        actions.Normal.Inventory.performed -= OnInventoryPressed;
+        actions.Combat.Inventory.performed -= OnInventoryPressed;
+        actions.UI.CloseUI.performed -= OnCloseUIPressed;
     }
 
     private void Update()
     {
-        // 툴팁이 켜져있으면 마우스 따라다니기
         if (isOpen && isTooltipActive && tooltipGroup != null)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
@@ -73,23 +85,42 @@ public class DashboardUI : MonoBehaviour
         }
     }
 
-    private void OnToggle(InputAction.CallbackContext context)
+    // 인벤토리 열기 시도 콜백
+    private void OnInventoryPressed(InputAction.CallbackContext context)
     {
-        // 켜져있으면 끄고, 꺼져있으면 켠다
-        if (isOpen) CloseDashboard();
-        else OpenDashboard();
+        if (isOpen) return;
+
+        // 매니저에게 창을 열어도 되는지 허가 요청
+        if (InputStateManager.Instance.TryOpenUI())
+        {
+            OpenDashboard();
+        }
+        else
+        {
+            // 전투 중이라 거부당했을 경우 피드백 출력
+            Debug.Log("전투 중에는 인벤토리를 열 수 없습니다");
+        }
+    }
+
+    // 인벤토리 닫기 시도 콜백
+    private void OnCloseUIPressed(InputAction.CallbackContext context)
+    {
+        if (isOpen)
+        {
+            CloseDashboard();
+            InputStateManager.Instance.CloseUI(); // 매니저에게 이전 상태로 복귀 요청
+        }
     }
 
     public void OpenDashboard()
     {
         isOpen = true;
         dashboardPanel.SetActive(true);
-        Time.timeScale = 0f; // 시간 정지 (게임 멈춤)
+        Time.timeScale = 0f; 
 
-        RefreshArtifacts(); // 슬롯 갱신
-        SoundManager.instance.PlaySFX(sfxOpen, 1.0f);
+        RefreshArtifacts(); 
+        if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxOpen, 1.0f);
 
-        // ★ 열기 애니메이션 시작 (이전 애니메이션 취소)
         if (fadeRoutine != null) StopCoroutine(fadeRoutine);
         fadeRoutine = StartCoroutine(FadeRoutine(true));
     }
@@ -99,64 +130,52 @@ public class DashboardUI : MonoBehaviour
         isOpen = false;
         HideTooltip();
 
-        SoundManager.instance.PlaySFX(sfxClose, 1.0f);
+        if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxClose, 1.0f);
 
-        // ★ 닫기 애니메이션 시작
         if (fadeRoutine != null) StopCoroutine(fadeRoutine);
         fadeRoutine = StartCoroutine(FadeRoutine(false));
     }
 
-    // ★ 페이드 인/아웃 + 스케일 업/다운 코루틴
     private IEnumerator FadeRoutine(bool show)
     {
         float timer = 0f;
 
-        // Alpha 설정 (0 <-> 1)
         float startAlpha = dashboardCG.alpha;
         float targetAlpha = show ? 1f : 0f;
 
-        // Scale 설정 (0.9 <-> 1.0)
-        // 켤 때: 0.9 -> 1.0 (커짐)
-        // 끌 때: 1.0 -> 0.9 (작아짐)
         Vector3 fromScale = show ? startScale : Vector3.one;
         Vector3 toScale = show ? Vector3.one : startScale;
 
-        // 켜질 때는 바로 클릭 허용, 꺼질 때는 차단
-        if (show) dashboardCG.blocksRaycasts = true;
-        else dashboardCG.blocksRaycasts = false;
+        dashboardCG.blocksRaycasts = show;
 
         while (timer < fadeDuration)
         {
-            timer += Time.unscaledDeltaTime; // TimeScale 0이어도 작동하도록 unscaled 사용
+            timer += Time.unscaledDeltaTime; 
             float t = timer / fadeDuration;
 
-            // 부드러운 움직임 (Ease Out Sine)
             t = Mathf.Sin(t * Mathf.PI * 0.5f);
 
-            // 투명도 조절
             dashboardCG.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
-
-            // 크기 조절 (열 때도, 닫을 때도 작동)
             dashboardPanel.transform.localScale = Vector3.Lerp(fromScale, toScale, t);
 
             yield return null;
         }
 
-        // 애니메이션 종료 후 값 확정
         dashboardCG.alpha = targetAlpha;
         dashboardPanel.transform.localScale = toScale;
 
         if (!show)
         {
             dashboardPanel.SetActive(false);
-            Time.timeScale = 1f; // ★ 완전히 닫힌 후에 시간 다시 흐르게 함 (안정성 UP)
+            Time.timeScale = 1f; 
         }
     }
 
-    // 아티팩트 목록 갱신
     public void RefreshArtifacts()
     {
         foreach (Transform child in artifactGrid) Destroy(child.gameObject);
+        if (ArtifactManager.instance == null) return;
+
         foreach (ArtifactData data in ArtifactManager.instance.myArtifacts)
         {
             GameObject newSlot = Instantiate(slotPrefab, artifactGrid);
@@ -164,14 +183,11 @@ public class DashboardUI : MonoBehaviour
         }
     }
 
-    // 아티팩트용 툴팁 표시
     public void ShowTooltip(ArtifactData data)
     {
         if (tooltipGroup == null) return;
 
-        // 내용이 바뀔 때 소리 재생 (이미 켜져있어도 다른 아이템이면 소리 남)
-        // 너무 시끄러우면 if(!isTooltipActive) 조건 추가하세요.
-        SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
+        if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
 
         isTooltipActive = true;
         tooltipGroup.SetActive(true);
@@ -183,12 +199,11 @@ public class DashboardUI : MonoBehaviour
         descText.text = $"<color={colorHex}>[ {data.grade} ]</color>\n\n{data.description}";
     }
 
-    // 범용(밸런스/스탯 등) 툴팁 표시
     public void ShowTooltipCommon(string title, string content)
     {
         if (tooltipGroup == null) return;
 
-        SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
+        if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
 
         isTooltipActive = true;
         tooltipGroup.SetActive(true);
@@ -196,7 +211,6 @@ public class DashboardUI : MonoBehaviour
         descText.text = content;
     }
 
-    // 툴팁 숨기기
     public void HideTooltip()
     {
         if (tooltipGroup == null) return;

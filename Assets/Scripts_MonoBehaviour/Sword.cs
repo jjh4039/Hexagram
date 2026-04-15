@@ -41,10 +41,10 @@ public class Sword : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.instance != null && GameManager.instance.player != null)
+        if (GameManager.instance && GameManager.instance.player)
         {
-            Vector2 mouseScreenPos = GameManager.instance.player.Input.Player.Look.ReadValue<Vector2>();
-            mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+            // [수정됨] Input System을 직접 찌르던 코드를 삭제하고, Player가 계산해둔 값을 가져옵니다.
+            mouseWorldPos = GameManager.instance.player.mouseWorldPos;
         }
 
         AnimatorStateInfo stateInfo = anim.GetCurrentAnimatorStateInfo(0);
