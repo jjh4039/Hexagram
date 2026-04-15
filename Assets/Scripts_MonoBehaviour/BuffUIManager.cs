@@ -29,7 +29,7 @@ public class BuffUIManager : MonoBehaviour
 
     private void RefreshUI()
     {
-        if (playerBuffManager == null) return;
+        if (!playerBuffManager) return;
 
         int activeCount = playerBuffManager.activeBuffs.Count;
 
@@ -38,7 +38,7 @@ public class BuffUIManager : MonoBehaviour
         {
             GameObject go = Instantiate(buffSlotPrefab, buffContainer);
             BuffSlotUI slot = go.GetComponent<BuffSlotUI>();
-            if (slot != null) spawnedSlots.Add(slot);
+            if (slot) spawnedSlots.Add(slot);
         }
 
         // 데이터 매핑 및 안 쓰는 슬롯 비활성화

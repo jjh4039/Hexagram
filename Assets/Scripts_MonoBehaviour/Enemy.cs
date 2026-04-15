@@ -34,7 +34,7 @@ public class Enemy : MonoBehaviour
     [SerializeField][Range(0, 100)] private int dropChance = 100;
 
     protected Animator anim;
-    protected Collider2D col;
+    private Collider2D col;
     protected bool isDead = false;
 
     public bool IsDead => isDead;

@@ -208,15 +208,6 @@ public class EventUIController : MonoBehaviour
         StopAllManagedCoroutines();
     }
 
-    private void Update()
-    {
-        if (!_isOpen || !closeWithEscape || Keyboard.current == null)
-            return;
-
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            CloseEvent();
-    }
-
     public void OpenEvent()
     {
         if (eventRoot == null || panelRect == null)
@@ -224,12 +215,12 @@ public class EventUIController : MonoBehaviour
 
         if (EventManager.Instance == null || !EventManager.Instance.CurrentEventSelection.IsValid())
             return;
+        
+        if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI())
+            return;
 
         _isOpen = true;
         _isClosingFromConfirm = false;
-
-        if (GameManager.instance != null && GameManager.instance.player != null)
-            GameManager.instance.player.canControl = false;
 
         if (CameraFollow.instance != null)
             CameraFollow.instance.SetUIOffset(eventCameraOffset);
@@ -261,10 +252,7 @@ public class EventUIController : MonoBehaviour
 
         _isOpen = false;
 
-        if (GameManager.instance != null && GameManager.instance.player != null)
-            GameManager.instance.player.canControl = true;
-
-        if (CameraFollow.instance != null)
+        if (CameraFollow.instance)
             CameraFollow.instance.ResetUIOffset();
 
         StopAllManagedCoroutines();
@@ -861,6 +849,13 @@ public class EventUIController : MonoBehaviour
             ResetDestinyUI();
             ResetConfirmButtonUI();
             StopIdleEffects();
+            
+            eventRoot.SetActive(false);
+            _isClosingFromConfirm = false;
+            
+            if (InputStateManager.Instance != null)
+                InputStateManager.Instance.CloseUI();
+
             eventRoot.SetActive(false);
             _isClosingFromConfirm = false;
         }

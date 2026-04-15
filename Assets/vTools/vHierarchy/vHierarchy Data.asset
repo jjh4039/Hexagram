@@ -62,6 +62,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-392940242-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-2135816749-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1407735814-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-280337866-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -239,6 +240,10 @@ MonoBehaviour:
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 0
+        - colorIndex: 1
+          iconNameOrGuid: AudioEchoFilter Icon
+          isIconRecursive: 1
+          isColorRecursive: 1
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity

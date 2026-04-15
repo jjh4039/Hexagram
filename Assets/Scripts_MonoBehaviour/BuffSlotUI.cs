@@ -14,7 +14,7 @@ public class BuffSlotUI : MonoBehaviour
     {
         currentBuff = buff;
 
-        if (buff.buffData.icon != null)
+        if (buff.buffData.icon)
         {
             iconImage.sprite = buff.buffData.icon;
             cooldownFillImage.sprite = buff.buffData.icon;

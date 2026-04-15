@@ -22,9 +22,9 @@ public class Dice_Cube : MonoBehaviour
     void Update()
     {
         // 월드 좌표 기준 회전
-        transform.Rotate(currentAxis * rollSpeed * Time.deltaTime, Space.World);
+        transform.Rotate(currentAxis * (rollSpeed * Time.deltaTime), Space.World);
 
         // 로컬 좌표 기준 추가 회전 (덜그럭거리는 느낌)
-        transform.Rotate(new Vector3(1.2f, 0.5f, 0.8f) * (rollSpeed * 0.5f) * Time.deltaTime, Space.Self);
+        transform.Rotate(new Vector3(1.2f, 0.5f, 0.8f) * (rollSpeed * 0.5f * Time.deltaTime), Space.Self);
     }
 }

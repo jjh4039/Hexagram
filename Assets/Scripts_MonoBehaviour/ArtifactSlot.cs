@@ -5,16 +5,16 @@ using UnityEngine.EventSystems;
 public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image iconImage;
-    [SerializeField] private GameObject outlineObj; // ★ [추가] 아웃라인 오브젝트
+    [SerializeField] private GameObject outlineObj; // 아웃라인 오브젝트
 
     private ArtifactData _data;
 
     public void Setup(ArtifactData data)
     {
         _data = data;
-        if (outlineObj != null) outlineObj.SetActive(false); // 시작할 땐 끄기
+        if (outlineObj) outlineObj.SetActive(false); // 시작할 땐 끄기
 
-        if (_data != null)
+        if (_data)
         {
             iconImage.sprite = _data.icon;
             iconImage.enabled = true;

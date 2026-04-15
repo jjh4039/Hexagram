@@ -1,40 +1,48 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // 최신 Input System 사용
+using UnityEngine.InputSystem;
 
+// 아티팩트 획득 창을 여는 필드 아이템
 public class Bit : MonoBehaviour
 {
-    [SerializeField] private Material[] outLineMaterial;
-    private SpriteRenderer spriteRenderer;
-    public GameObject keyGuide;
+    [SerializeField] private Material[] outLineMaterial; // 외곽선 머티리얼 배열
+    private SpriteRenderer spriteRenderer;               // 렌더러 컴포넌트
+    public GameObject keyGuide;                          // 상호작용 안내 UI
 
-    private bool isPlayerInRange = false;
+    private bool isPlayerInRange = false;                // 플레이어 접근 여부
 
-    public void Start()
+    private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (keyGuide != null) keyGuide.SetActive(false);
     }
 
-    private void Update()
+    // 평화 상태에서의 상호작용 (아티팩트 창 열기)
+    private void OnInteract(InputAction.CallbackContext context)
     {
-        // 플레이어가 근처에 있고, F 키를 눌렀을 때
-        if (isPlayerInRange && Keyboard.current.fKey.wasPressedThisFrame)
-        {
-            OpenBitSelection();
-        }
+        if (!isPlayerInRange) return;
+        OpenBitSelection();
+    }
+
+    // 전투 상태에서의 상호작용 시도 (거부 및 피드백 텍스트 출력)
+    private void OnInteractCombat(InputAction.CallbackContext context)
+    {
+        if (!isPlayerInRange) return;
+        
+        if (PlayerFeedbackUI.Instance != null) 
+            PlayerFeedbackUI.Instance.ShowWarning(1);
     }
 
     private void OpenBitSelection()
     {
-        // 1. BitManager 활성화
         if (GameManager.instance != null && GameManager.instance.bitManager != null)
         {
-            // BitManager를 켜고 초기화 함수 호출
-            GameManager.instance.bitManager.gameObject.SetActive(true);
-            GameManager.instance.bitManager.OpenBitUI();
+            if (!GameManager.instance.bitManager.gameObject.activeInHierarchy)
+            {
+                GameManager.instance.bitManager.gameObject.SetActive(true);
+                GameManager.instance.bitManager.OpenBitUI();
 
-            // 2. Bit 오브젝트 자신은 삭제 (또는 비활성화)
-            Destroy(gameObject);
+                Destroy(gameObject); // 아이템 소멸
+            }
         }
     }
 
@@ -45,6 +53,13 @@ public class Bit : MonoBehaviour
             isPlayerInRange = true;
             spriteRenderer.material = outLineMaterial[1];
             if (keyGuide != null) keyGuide.SetActive(true);
+
+            // 범위에 들어왔을 때만 입력 이벤트 구독
+            if (InputStateManager.Instance != null)
+            {
+                InputStateManager.Instance.Actions.Normal.Interaction.performed += OnInteract;
+                InputStateManager.Instance.Actions.Combat.Interaction.performed += OnInteractCombat;
+            }
         }
     }
 
@@ -55,6 +70,24 @@ public class Bit : MonoBehaviour
             isPlayerInRange = false;
             spriteRenderer.material = outLineMaterial[0];
             if (keyGuide != null) keyGuide.SetActive(false);
+
+            UnsubscribeInputs(); // 범위를 벗어나면 구독 해제
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 획득 시 에러를 막기 위해 파괴 전 구독 해제
+        UnsubscribeInputs();
+    }
+
+    // 중복 방지용 구독 해제 통합 함수
+    private void UnsubscribeInputs()
+    {
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.Actions.Normal.Interaction.performed -= OnInteract;
+            InputStateManager.Instance.Actions.Combat.Interaction.performed -= OnInteractCombat;
         }
     }
 }

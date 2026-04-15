@@ -1,76 +1,84 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// 주사위 굴리기와 확률 가중치를 관리하는 스크립트
 public class Dice : MonoBehaviour
 {
     [Header("UI Reference")]
-    [SerializeField] private Dice_UI diceUI;
+    [SerializeField] private Dice_UI diceUI;                     // 주사위 연출 UI
 
     [Header("Data Settings")]
-    [SerializeField] public DiceData[] diceList;
-    [SerializeField] public DiceData defaultData;
+    [SerializeField] public DiceData[] diceList;                 // 주사위의 6개 면 데이터
+    [SerializeField] public DiceData defaultData;                // 기본 데이터
 
     [Header("Probability Settings")]
-    [SerializeField] private int[] faceWeights = new int[6] { 100, 100, 100, 100, 100, 100 };
-    [SerializeField] public float[] displayPercentages = new float[6];
+    [SerializeField] private int[] faceWeights = new int[6] { 100, 100, 100, 100, 100, 100 }; // 각 면의 가중치
+    [SerializeField] public float[] displayPercentages = new float[6];                        // 인스펙터 표시용 확률
 
     [Header("History")]
-    public int lastRolledFaceIndex = -1;
+    public int lastRolledFaceIndex = -1;                         // 마지막으로 나온 면 번호
+
+    private BuffManager _buffManager;
 
     private void Start()
     {
-        CalculatePercentages();
-    }
+        _buffManager = GameManager.instance.player.GetComponent<BuffManager>();
+        CalculatePercentages();                                  // 초기 확률 계산
 
-    private void Update()
-    {
-        if (GameManager.instance == null || GameManager.instance.stats == null || GameManager.instance.player == null)
-            return;
-
-        PlayerStats stats = GameManager.instance.stats;
-        Player player = GameManager.instance.player;
-
-        HandleInput(stats, player);
-    }
-
-    private void HandleInput(PlayerStats stats, Player player)
-    {
-        if (!Keyboard.current.eKey.wasPressedThisFrame)
-            return;
-
-        if (diceUI != null && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
+        // 입력 시스템 이벤트 연결 (E키 등)
+        if (InputStateManager.Instance != null)
         {
-            RollDice(stats, player);
+            var actions = InputStateManager.Instance.Actions;
+            actions.Normal.Dice.performed += OnDiceInput;
+            actions.Combat.Dice.performed += OnDiceInput;
         }
     }
 
-    private void RollDice(PlayerStats stats, Player player)
+    private void OnDestroy()
     {
+        // 메모리 해제를 위한 이벤트 구독 해제
+        if (InputStateManager.Instance != null)
+        {
+            var actions = InputStateManager.Instance.Actions;
+            actions.Normal.Dice.performed -= OnDiceInput;
+            actions.Combat.Dice.performed -= OnDiceInput;
+        }
+    }
+
+    // 주사위 키 입력 시 호출되는 콜백
+    private void OnDiceInput(InputAction.CallbackContext context)
+    {
+        if (GameManager.instance == null || GameManager.instance.stats == null) return;
+
+        PlayerStats stats = GameManager.instance.stats;
+        
+        // 연출 중이 아니고 차지가 가득 찼을 때만 실행
+        if (diceUI != null && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
+        {
+            RollDice(stats);
+        }
+    }
+
+    private void RollDice(PlayerStats stats)
+    {
+        // 차지 소모 처리
         stats.currentDiceCharge -= 100f;
         stats.currentDiceCharge = Mathf.Clamp(stats.currentDiceCharge, 0f, stats.maxDiceCharge);
 
-        if (diceList == null || diceList.Length == 0)
-            return;
+        if (diceList == null || diceList.Length == 0) return;
 
-        int selectedIndex = GetWeightedRandomIndex();
+        int selectedIndex = GetWeightedRandomIndex();            // 가중치 기반 랜덤 선택
         lastRolledFaceIndex = selectedIndex;
         DiceData selectedData = diceList[selectedIndex];
 
+        // UI 연출 실행 및 버프 적용
         if (diceUI != null && selectedData != null)
         {
             diceUI.PlayRollAnimation(selectedData, selectedIndex, () =>
             {
-                if (player != null)
+                if (GameManager.instance.player)
                 {
-                    BuffManager buffManager = player.GetComponent<BuffManager>();
-                    if (buffManager != null)
-                    {
-                        buffManager.ApplyDiceBuff(selectedData);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Player에 BuffManager 컴포넌트가 없습니다!");
-                    }
+                    if (_buffManager != null) _buffManager.ApplyDiceBuff(selectedData);
                 }
             });
         }
@@ -78,27 +86,17 @@ public class Dice : MonoBehaviour
 
     public void AddChargeFromHit()
     {
-        if (GameManager.instance == null || GameManager.instance.stats == null)
-            return;
-
-        GameManager.instance.stats.AddDiceChargeFromHit();
+        if (GameManager.instance != null && GameManager.instance.stats != null)
+            GameManager.instance.stats.AddDiceChargeFromHit();
     }
 
-    // =========================================================
-    // 확률 및 무게추 관련 로직 (퍼센트 기반)
-    // =========================================================
-
+    // 확률 증가 아이템 사용 시 호출
     public void AddPercentToFace(int faceIndex, float percentIncrease)
     {
-        if (faceIndex < 0 || faceIndex >= faceWeights.Length)
-            return;
+        if (faceIndex < 0 || faceIndex >= faceWeights.Length) return;
 
         int totalWeight = 0;
-        for (int i = 0; i < faceWeights.Length; i++)
-        {
-            totalWeight += faceWeights[i];
-        }
-
+        for (int i = 0; i < faceWeights.Length; i++) totalWeight += faceWeights[i];
         if (totalWeight == 0) return;
 
         float currentPercent = (float)faceWeights[faceIndex] / totalWeight;
@@ -111,19 +109,15 @@ public class Dice : MonoBehaviour
 
         faceWeights[faceIndex] += addedWeight;
         CalculatePercentages();
-
-        Debug.Log($"[{faceIndex + 1}번 면] {percentIncrease}% 증가를 위해 가중치 {addedWeight} 추가됨");
     }
 
-    // 실제 스탯 변경 없이 UI에 보여줄 예측 퍼센트만 계산해서 반환하는 함수
+    // UI 예측용 확률 계산 함수
     public float[] GetPredictedPercentages(int faceIndex, float percentIncrease)
     {
         float[] predicted = new float[6];
         int totalWeight = 0;
 
-        for (int i = 0; i < faceWeights.Length; i++)
-            totalWeight += faceWeights[i];
-
+        for (int i = 0; i < faceWeights.Length; i++) totalWeight += faceWeights[i];
         if (totalWeight == 0) return predicted;
 
         float currentPercent = (float)faceWeights[faceIndex] / totalWeight;
@@ -149,11 +143,7 @@ public class Dice : MonoBehaviour
     private void CalculatePercentages()
     {
         int totalWeight = 0;
-        for (int i = 0; i < faceWeights.Length; i++)
-        {
-            totalWeight += faceWeights[i];
-        }
-
+        for (int i = 0; i < faceWeights.Length; i++) totalWeight += faceWeights[i];
         if (totalWeight == 0) return;
 
         for (int i = 0; i < faceWeights.Length; i++)
@@ -165,10 +155,7 @@ public class Dice : MonoBehaviour
     private int GetWeightedRandomIndex()
     {
         int totalWeight = 0;
-        for (int i = 0; i < faceWeights.Length; i++)
-        {
-            totalWeight += faceWeights[i];
-        }
+        for (int i = 0; i < faceWeights.Length; i++) totalWeight += faceWeights[i];
 
         int randomValue = Random.Range(0, totalWeight);
         int currentWeight = 0;
@@ -176,10 +163,7 @@ public class Dice : MonoBehaviour
         for (int i = 0; i < faceWeights.Length; i++)
         {
             currentWeight += faceWeights[i];
-            if (randomValue < currentWeight)
-            {
-                return i;
-            }
+            if (randomValue < currentWeight) return i;
         }
 
         return 0;

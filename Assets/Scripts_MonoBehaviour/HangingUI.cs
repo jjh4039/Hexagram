@@ -58,8 +58,7 @@ public class HangingUI : MonoBehaviour
         rectTran.localRotation = Quaternion.Euler(0, 0, currentAngle);
     }
 
-    // ★ 외부(InventoryManager)에서 A/D 키를 눌렀을 때 호출할 함수
-    // 왼쪽으로 넘기면 AddForce(30), 오른쪽이면 AddForce(-30) 이런 식
+
     public void Push(float force)
     {
         currentVelocity += force;

@@ -90,15 +90,15 @@ public class DashboardUI : MonoBehaviour
     {
         if (isOpen) return;
 
-        // 매니저에게 창을 열어도 되는지 허가 요청
         if (InputStateManager.Instance.TryOpenUI())
         {
             OpenDashboard();
         }
         else
         {
-            // 전투 중이라 거부당했을 경우 피드백 출력
-            Debug.Log("전투 중에는 인벤토리를 열 수 없습니다");
+            // [교체됨] 디버그 로그 대신 화면에 플로팅 텍스트 띄우기 (0번: 전투 중 불가)
+            if (PlayerFeedbackUI.Instance != null)
+                PlayerFeedbackUI.Instance.ShowWarning(0); 
         }
     }
 

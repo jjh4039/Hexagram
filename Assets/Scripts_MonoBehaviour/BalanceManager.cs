@@ -9,8 +9,8 @@ public class BalanceManager : MonoBehaviour
     public static BalanceManager instance;
 
     [Header("UI Fade Settings")]
-    [SerializeField] private CanvasGroup mainCanvasGroup; // 전체 배경 캔버스 그룹
-    [SerializeField] private CanvasGroup contentCanvasGroup; // 헥사그램, 우측 패널 등 내부 컨텐츠 캔버스 그룹
+    [SerializeField] private CanvasGroup mainCanvasGroup;
+    [SerializeField] private CanvasGroup contentCanvasGroup;
     [SerializeField] private float fadeDuration = 0.3f;
 
     [SerializeField] private Image backgroundImage;
@@ -50,7 +50,6 @@ public class BalanceManager : MonoBehaviour
     [SerializeField] private string defaultDescription = "확률을 높일 주사위의 면을 선택하세요.";
     [SerializeField] private Color defaultColor = Color.gray; 
 
-    // 사운드 관련 변수 추가
     [Header("Audio")]
     [SerializeField] private AudioClip sfxIntro;
     [SerializeField] private AudioClip sfxSelect;
@@ -78,6 +77,9 @@ public class BalanceManager : MonoBehaviour
 
     public void OpenBalanceUI(float incomingWeightPercent)
     {
+        // 조작 상태를 UI로 바꿔달라고 요청
+        if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
+
         currentWeightPercent = incomingWeightPercent;
 
         isInitialized = false;
@@ -94,7 +96,6 @@ public class BalanceManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        // UI 오픈 사운드 재생
         if (sfxIntro != null && SoundManager.instance != null) 
             SoundManager.instance.PlaySFX(sfxIntro, 0.6f, 0.1f);
 
@@ -107,28 +108,27 @@ public class BalanceManager : MonoBehaviour
         StartCoroutine(FadeInUI());
     }
 
-    // 배경이 먼저 켜지고, 이후에 컨텐츠가 나타나는 순차 페이드인
     private IEnumerator FadeInUI()
     {
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            if (mainCanvasGroup != null)
+            if (mainCanvasGroup)
                 mainCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
-        if (mainCanvasGroup != null) mainCanvasGroup.alpha = 1f;
+        if (mainCanvasGroup) mainCanvasGroup.alpha = 1f;
 
         elapsed = 0f;
         while (elapsed < fadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            if (contentCanvasGroup != null)
+            if (contentCanvasGroup)
                 contentCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
-        if (contentCanvasGroup != null) contentCanvasGroup.alpha = 1f;
+        if (contentCanvasGroup) contentCanvasGroup.alpha = 1f;
 
         isInitialized = true;
     }
@@ -150,7 +150,7 @@ public class BalanceManager : MonoBehaviour
 
         for (int i = 0; i < faceChoices.Length; i++)
         {
-            if (faceChoices[i].hoverSensor != null &&
+            if (faceChoices[i].hoverSensor &&
                 RectTransformUtility.RectangleContainsScreenPoint(faceChoices[i].hoverSensor.rectTransform, mousePos, null))
             {
                 newHoverIndex = i;
@@ -171,7 +171,7 @@ public class BalanceManager : MonoBehaviour
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
 
-            if (confirmButtonImage != null && confirmButtonImage.gameObject.activeInHierarchy)
+            if (confirmButtonImage && confirmButtonImage.gameObject.activeInHierarchy)
             {
                 if (RectTransformUtility.RectangleContainsScreenPoint(confirmButtonImage.rectTransform, mousePos, null))
                 {
@@ -182,7 +182,7 @@ public class BalanceManager : MonoBehaviour
 
             for (int i = 0; i < faceChoices.Length; i++)
             {
-                if (faceChoices[i].hoverSensor != null &&
+                if (faceChoices[i].hoverSensor &&
                     RectTransformUtility.RectangleContainsScreenPoint(faceChoices[i].hoverSensor.rectTransform, mousePos, null))
                 {
                     SelectFace(i);
@@ -198,8 +198,7 @@ public class BalanceManager : MonoBehaviour
 
         selectedIndex = newIndex;
 
-        // 선택 변경 시 사운드 재생
-        if (sfxSelect != null && SoundManager.instance != null) 
+        if (sfxSelect && SoundManager.instance) 
             SoundManager.instance.PlaySFX(sfxSelect, 0.6f, 0.1f);
 
         UpdateMainImage();
@@ -209,7 +208,7 @@ public class BalanceManager : MonoBehaviour
 
     private void UpdateMainImage()
     {
-        if (mainFaceImage == null) return;
+        if (!mainFaceImage) return;
 
         if (selectedIndex != -1)
         {
@@ -227,7 +226,7 @@ public class BalanceManager : MonoBehaviour
 
     private void UpdateProbabilityUI()
     {
-        if (GameManager.instance == null || GameManager.instance.dice == null) return;
+        if (!GameManager.instance || !GameManager.instance.dice) return;
         if (probabilityTexts == null || probabilityTexts.Length < 6) return;
 
         float[] currentPercentages = GameManager.instance.dice.displayPercentages;
@@ -236,7 +235,7 @@ public class BalanceManager : MonoBehaviour
         {
             for (int i = 0; i < 6; i++)
             {
-                if (probabilityTexts[i] != null)
+                if (probabilityTexts[i])
                 {
                     probabilityTexts[i].text = currentPercentages[i].ToString("F1") + "%";
                     probabilityTexts[i].color = normalTextColor;
@@ -249,7 +248,7 @@ public class BalanceManager : MonoBehaviour
 
             for (int i = 0; i < 6; i++)
             {
-                if (probabilityTexts[i] != null)
+                if (probabilityTexts[i])
                 {
                     probabilityTexts[i].text = predictedPercentages[i].ToString("F1") + "%";
 
@@ -264,11 +263,11 @@ public class BalanceManager : MonoBehaviour
 
     private void UpdateInfoPanel()
     {
-        if (infoPanelObject == null) return;
+        if (!infoPanelObject) return;
 
         infoPanelObject.SetActive(true);
 
-        if (selectedIndex != -1 && GameManager.instance != null && GameManager.instance.dice != null)
+        if (selectedIndex != -1 && GameManager.instance && GameManager.instance.dice)
         {
             DiceData currentData = GameManager.instance.dice.diceList[selectedIndex];
 
@@ -276,47 +275,46 @@ public class BalanceManager : MonoBehaviour
             float[] predicted = GameManager.instance.dice.GetPredictedPercentages(selectedIndex, currentWeightPercent);
             float predictedPercent = predicted[selectedIndex];
 
-            if (currentData != null)
+            if (currentData)
             {
-                if (faceDescText != null) faceDescText.text = currentData.shortDescription;
+                if (faceDescText) faceDescText.text = currentData.shortDescription;
 
-                if (diceIconImage != null)
+                if (diceIconImage)
                 {
                     diceIconImage.gameObject.SetActive(true);
                     diceIconImage.sprite = currentData.icon;
                 }
 
-                if (diceIconBackground != null)
+                if (diceIconBackground)
                 {
                     diceIconBackground.gameObject.SetActive(true);
                     diceIconBackground.color = currentData.particleColor;
                 }
             }
 
-            // 고정 초록색 대신 currentData의 고유 색상(particleColor) 적용
-            if (transitionProbText != null)
+            if (transitionProbText)
             {
-                Color highlightColor = currentData != null ? currentData.particleColor : increaseTextColor;
+                Color highlightColor = currentData ? currentData.particleColor : increaseTextColor;
                 transitionProbText.text = $"{currentPercent:F1}% -> <color=#{ColorUtility.ToHtmlStringRGB(highlightColor)}>{predictedPercent:F1}%</color>";
             }
 
-            if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(true);
+            if (confirmButtonImage) confirmButtonImage.gameObject.SetActive(true);
         }
         else
         {
-            if (faceDescText != null) faceDescText.text = defaultDescription;
+            if (faceDescText) faceDescText.text = defaultDescription;
 
-            if (diceIconImage != null) diceIconImage.gameObject.SetActive(false);
+            if (diceIconImage) diceIconImage.gameObject.SetActive(false);
 
-            if (diceIconBackground != null)
+            if (diceIconBackground)
             {
                 diceIconBackground.gameObject.SetActive(true);
                 diceIconBackground.color = defaultColor;
             }
 
-            if (transitionProbText != null) transitionProbText.text = "";
+            if (transitionProbText) transitionProbText.text = "";
 
-            if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+            if (confirmButtonImage) confirmButtonImage.gameObject.SetActive(false);
         }
     }
 
@@ -324,11 +322,10 @@ public class BalanceManager : MonoBehaviour
     {
         if (selectedIndex == -1) return;
 
-        // 선택 확정 시 사운드 재생
-        if (sfxDecision != null && SoundManager.instance != null) 
+        if (sfxDecision && SoundManager.instance) 
             SoundManager.instance.PlaySFX(sfxDecision, 0.7f, 0.2f);
 
-        if (GameManager.instance != null && GameManager.instance.dice != null)
+        if (GameManager.instance && GameManager.instance.dice)
         {
             GameManager.instance.dice.AddPercentToFace(selectedIndex, currentWeightPercent);
         }
@@ -341,12 +338,11 @@ public class BalanceManager : MonoBehaviour
         if (!isInitialized) return;
         isInitialized = false;
 
-        if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+        if (confirmButtonImage) confirmButtonImage.gameObject.SetActive(false);
 
         StartCoroutine(FadeOutUI());
     }
 
-    // 닫힐 때는 배경과 내부가 동시에 깔끔하게 페이드아웃
     private IEnumerator FadeOutUI()
     {
         Time.timeScale = 1.0f;
@@ -356,14 +352,18 @@ public class BalanceManager : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             float currentAlpha = Mathf.Clamp01(1f - (elapsed / fadeDuration));
             
-            if (mainCanvasGroup != null) mainCanvasGroup.alpha = currentAlpha;
-            if (contentCanvasGroup != null) contentCanvasGroup.alpha = currentAlpha;
+            if (mainCanvasGroup) mainCanvasGroup.alpha = currentAlpha;
+            if (contentCanvasGroup) contentCanvasGroup.alpha = currentAlpha;
             
             yield return null;
         }
 
-        if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0f;
-        if (contentCanvasGroup != null) contentCanvasGroup.alpha = 0f;
+        if (mainCanvasGroup) mainCanvasGroup.alpha = 0f;
+        if (contentCanvasGroup) contentCanvasGroup.alpha = 0f;
+        
+        // 창이 완전히 닫히고 나면 평화 상태로 복귀
+        if (InputStateManager.Instance) InputStateManager.Instance.CloseUI();
+
         gameObject.SetActive(false);
     }
 
