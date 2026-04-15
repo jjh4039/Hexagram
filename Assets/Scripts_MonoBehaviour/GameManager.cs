@@ -127,9 +127,7 @@ public class GameManager : MonoBehaviour
         IEnumerator hitStopRoutine()
         {
             _isHitStopping = true;
-
-            // ★ [수정됨] 0.2f(느려짐) -> 0.05f(거의 멈춤)으로 변경! 
-            // 이제 렉이 아니라 진짜 타격감(역경직)으로 느껴집니다.
+            
             Time.timeScale = 0.05f;
             Time.fixedDeltaTime = _originalFixedDeltaTime * Time.timeScale;
 

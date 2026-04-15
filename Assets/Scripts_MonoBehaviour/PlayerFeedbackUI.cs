@@ -42,7 +42,6 @@ public class PlayerFeedbackUI : MonoBehaviour
         {
             case 0: feedbackText.text = "전투 중에는 열 수 없습니다."; break;
             case 1: feedbackText.text = "전투 중에는 획득할 수 없습니다."; break;
-            case 2: feedbackText.text = "열쇠가 부족합니다."; break;
             default: feedbackText.text = "알 수 없는 오류입니다."; break;
         }
 

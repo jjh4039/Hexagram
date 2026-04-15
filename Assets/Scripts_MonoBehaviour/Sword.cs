@@ -43,7 +43,6 @@ public class Sword : MonoBehaviour
     {
         if (GameManager.instance && GameManager.instance.player)
         {
-            // [수정됨] Input System을 직접 찌르던 코드를 삭제하고, Player가 계산해둔 값을 가져옵니다.
             mouseWorldPos = GameManager.instance.player.mouseWorldPos;
         }
 

@@ -10,7 +10,6 @@ public enum CursorType
 
 public class VirtualCursor : MonoBehaviour
 {
-    private PlayerInput inputActions;
     private RectTransform rectTransform;
     private Image cursorImage;
 
@@ -20,35 +19,43 @@ public class VirtualCursor : MonoBehaviour
 
     private void Awake()
     {
-        inputActions = new PlayerInput();
+        // [수정] 독자적인 inputActions = new PlayerInput(); 생성 삭제
         rectTransform = GetComponent<RectTransform>();
-        cursorImage = GetComponent<Image>(); // Image 컴포넌트 참조
+        cursorImage = GetComponent<Image>();
 
         Cursor.visible = false;
-
-        // 마우스 잠그기
+        
+        // 마우스 잠그기 (필요 시 주석 해제)
         // Cursor.lockState = CursorLockMode.Confined; 
 
-        // 시작할 때 기본 커서로 초기화
         ChangeCursor(CursorType.Default);
     }
 
-    private void OnEnable()
-    {
-        inputActions.Enable();
-    }
-
-    private void OnDisable()
-    {
-        inputActions.Disable();
-    }
+    // [수정] OnEnable, OnDisable에서 개별 입력 시스템 켜고 끄던 로직 삭제
 
     private void Update()
     {
-        // 마우스 화면 좌표 가져오기
-        Vector2 mouseScreenPos = inputActions.Player.Look.ReadValue<Vector2>();
+        Vector2 mouseScreenPos = Vector2.zero;
 
-        // 좌표 변환 없이 바로 적용 (Screen Space - Overlay 기준)
+        // [수정] 매니저를 통해 현재 상태에 맞는 마우스 좌표를 가져옵니다.
+        if (InputStateManager.Instance != null)
+        {
+            var state = InputStateManager.Instance.CurrentInputState;
+            var actions = InputStateManager.Instance.Actions;
+
+            if (state == InputState.Normal)
+                mouseScreenPos = actions.Normal.Look.ReadValue<Vector2>();
+            else if (state == InputState.Combat)
+                mouseScreenPos = actions.Combat.Look.ReadValue<Vector2>();
+            else if (Mouse.current != null)
+                mouseScreenPos = Mouse.current.position.ReadValue(); // UI 상태 등 맵이 꺼졌을 때의 안전장치
+        }
+        else if (Mouse.current != null)
+        {
+            mouseScreenPos = Mouse.current.position.ReadValue(); // 매니저가 없을 때의 초기값
+        }
+
+        // 좌표 적용
         if (rectTransform != null)
         {
             rectTransform.position = mouseScreenPos;
@@ -59,7 +66,6 @@ public class VirtualCursor : MonoBehaviour
         }
     }
 
-    // 2. 외부에서 호출하여 커서 모양과 피벗을 바꾸는 메서드
     public void ChangeCursor(CursorType type)
     {
         if (cursorImage == null || cursorSprites.Length == 0) return;

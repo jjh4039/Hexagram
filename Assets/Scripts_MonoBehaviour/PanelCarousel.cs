@@ -1,4 +1,4 @@
-using ChocDino.UIFX; // ★ GlowFilter 사용을 위해 필수
+using ChocDino.UIFX; 
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -13,7 +13,6 @@ public class PanelCarousel : MonoBehaviour
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI titleDesText;
 
-    // ★ [복구 완료] GlowFilter 연결 변수
     public GlowFilter titleTextGlow;
     public GlowFilter titleDesTextGlow;
 
@@ -33,10 +32,8 @@ public class PanelCarousel : MonoBehaviour
     private readonly float _snapThreshold = 0.1f;
 
     private int _currentIndex = 1;
-    private PlayerInput _inputActions;
-    private CanvasGroup[] _panelCanvasGroups; // 캐싱용
+    private CanvasGroup[] _panelCanvasGroups; 
 
-    // SmoothDamp용 속도 변수들
     private Vector2[] velPositions;
     private Vector3[] velScales;
     private float[] velAlphas;
@@ -44,7 +41,6 @@ public class PanelCarousel : MonoBehaviour
     private struct PanelTarget { public Vector2 pos; public Vector3 scale; public float alpha; }
     private PanelTarget[] targets;
 
-    // ★ 메모리 최적화를 위한 컬러 캐싱 (매번 new Color 하지 않음)
     private readonly Color statusColor = new Color(0 / 255f, 20 / 255f, 20 / 255f);
     private readonly Color artifactColor = new Color(40 / 255f, 15 / 255f, 0 / 255f);
     private readonly Color balanceColor = new Color(30 / 255f, 0 / 255f, 25 / 255f);
@@ -53,15 +49,12 @@ public class PanelCarousel : MonoBehaviour
     {
         int count = panels.Count;
         targets = new PanelTarget[count];
-        _inputActions = new PlayerInput();
 
-        // 배열 초기화
         _panelCanvasGroups = new CanvasGroup[count];
         velPositions = new Vector2[count];
         velScales = new Vector3[count];
         velAlphas = new float[count];
 
-        // 컴포넌트 미리 찾아두기 (Update 성능 향상)
         for (int i = 0; i < count; i++)
         {
             _panelCanvasGroups[i] = panels[i].GetComponent<CanvasGroup>();
@@ -72,18 +65,22 @@ public class PanelCarousel : MonoBehaviour
 
     private void OnEnable()
     {
-        _inputActions.Enable();
-        _inputActions.Player.Move.performed += OnMoveInput;
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.Actions.UI.MoveUI.performed += OnMoveInput;
+        }
 
         UpdateTargets();
         UpdateTitle();
-        SnapToTarget(); // 켜질 땐 즉시 이동
+        SnapToTarget(); 
     }
 
     private void OnDisable()
     {
-        _inputActions.Player.Move.performed -= OnMoveInput;
-        _inputActions.Disable();
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.Actions.UI.MoveUI.performed -= OnMoveInput;
+        }
     }
 
     private void OnMoveInput(InputAction.CallbackContext context)
@@ -106,7 +103,6 @@ public class PanelCarousel : MonoBehaviour
         if (hangingPhysics != null) hangingPhysics.Push(direction * -20f);
         SoundManager.instance.PlaySFX(sfxSwap, 1f);
 
-        // 움직임 시작! (계산 재개)
         _isIdle = false;
     }
 
@@ -116,29 +112,26 @@ public class PanelCarousel : MonoBehaviour
 
         switch (_currentIndex)
         {
-            case 0: // Status
+            case 0: 
                 titleText.text = "Status";
                 if (titleDesText) titleDesText.text = "캐릭터의 스탯을 확인할 수 있습니다.";
 
-                // ★ [복구 완료] Glow 색상 변경
                 if (titleTextGlow) titleTextGlow.Color = statusColor;
                 if (titleDesTextGlow) titleDesTextGlow.Color = statusColor;
                 break;
 
-            case 1: // Artifact
+            case 1: 
                 titleText.text = "Artifact";
                 if (titleDesText) titleDesText.text = "보유한 아티팩트들의 효과를 확인할 수 있습니다.";
 
-                // ★ [복구 완료] Glow 색상 변경
                 if (titleTextGlow) titleTextGlow.Color = artifactColor;
                 if (titleDesTextGlow) titleDesTextGlow.Color = artifactColor;
                 break;
 
-            case 2: // Balance
+            case 2: 
                 titleText.text = "Balance";
                 if (titleDesText) titleDesText.text = "주사위 모듈에 관련된 정보들을 확인할 수 있습니다.";
 
-                // ★ [복구 완료] Glow 색상 변경
                 if (titleTextGlow) titleTextGlow.Color = balanceColor;
                 if (titleDesTextGlow) titleDesTextGlow.Color = balanceColor;
                 break;
@@ -147,24 +140,20 @@ public class PanelCarousel : MonoBehaviour
 
     private void Update()
     {
-        // ★ [최적화] 이미 다 도착했으면 연산 중지
         if (_isIdle) return;
 
         bool allSettled = true;
 
         for (int i = 0; i < panels.Count; i++)
         {
-            // 1. 위치 이동 (SmoothDamp)
             panels[i].anchoredPosition = Vector2.SmoothDamp(
                 panels[i].anchoredPosition, targets[i].pos, ref velPositions[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
             );
 
-            // 2. 크기 변경 (SmoothDamp)
             panels[i].localScale = Vector3.SmoothDamp(
                 panels[i].localScale, targets[i].scale, ref velScales[i], smoothTime, Mathf.Infinity, Time.unscaledDeltaTime
             );
 
-            // 3. 투명도 변경 (SmoothDamp + 캐싱된 컴포넌트 사용)
             if (_panelCanvasGroups[i])
             {
                 _panelCanvasGroups[i].alpha = Mathf.SmoothDamp(
@@ -172,18 +161,16 @@ public class PanelCarousel : MonoBehaviour
                 );
             }
 
-            // 도착 체크
             if (Vector2.Distance(panels[i].anchoredPosition, targets[i].pos) > _snapThreshold)
             {
                 allSettled = false;
             }
         }
 
-        // 모두 도착했으면 Sleep 모드 전환
         if (allSettled)
         {
             _isIdle = true;
-            SnapToTarget(); // 위치 딱 맞추기
+            SnapToTarget(); 
         }
     }
 
@@ -195,22 +182,20 @@ public class PanelCarousel : MonoBehaviour
             if (diff == -2) diff = 1;
             if (diff == 2) diff = -1;
 
-            if (diff == 0) // 중앙 (메인)
+            if (diff == 0) 
             {
                 targets[i].pos = Vector2.zero;
                 targets[i].scale = Vector3.one * 1.2f;
                 targets[i].alpha = 1f;
                 
-                // ★ [추가] 중앙 패널만 마우스 호버 및 클릭 허용
                 if (_panelCanvasGroups[i]) _panelCanvasGroups[i].blocksRaycasts = true; 
             }
-            else // 사이드 (비활성)
+            else 
             {
                 targets[i].pos = new Vector2(diff * xOffset, 0);
                 targets[i].scale = Vector3.one * sideScale;
                 targets[i].alpha = sideAlpha;
                 
-                // ★ [추가] 사이드 패널은 마우스 감지 완벽 차단 (툴팁 안 뜸)
                 if (_panelCanvasGroups[i]) _panelCanvasGroups[i].blocksRaycasts = false;
             }
         }
@@ -224,10 +209,9 @@ public class PanelCarousel : MonoBehaviour
             panels[i].localScale = targets[i].scale;
             if (_panelCanvasGroups[i]) _panelCanvasGroups[i].alpha = targets[i].alpha;
 
-            // 속도 초기화 (안 하면 다음에 튐)
             velPositions[i] = Vector2.zero;
             velScales[i] = Vector3.zero;
-                velAlphas[i] = 0f;
+            velAlphas[i] = 0f;
         }
     }
 }

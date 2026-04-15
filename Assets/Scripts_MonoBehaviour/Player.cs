@@ -207,9 +207,11 @@ public class Player : MonoBehaviour
 
     private void LookAtMouse()
     {
-        // [수정됨] 현재 활성화된 맵의 마우스 위치만 읽어옵니다
+        // [추가] UI 상태일 때는 캐릭터 회전(Flip) 로직을 실행하지 않음
+        if (InputStateManager.Instance.CurrentInputState == InputState.UI) return;
+
         Vector2 mouseScreenPos = Vector2.zero;
-        
+    
         if (InputStateManager.Instance.CurrentInputState == InputState.Normal)
             mouseScreenPos = Input.Normal.Look.ReadValue<Vector2>();
         else if (InputStateManager.Instance.CurrentInputState == InputState.Combat)

@@ -61,7 +61,7 @@ public class DashboardUI : MonoBehaviour
         actions.Combat.Inventory.performed += OnInventoryPressed; 
         
         // UI 상태일 때 닫기 키를 누르면 창 닫기
-        actions.UI.CloseUI.performed += OnCloseUIPressed;
+        actions.UI.CloseInventory.performed += OnCloseUIPressed;
     }
 
     // OnDisable 대신 OnDestroy에서 메모리 해제
@@ -73,7 +73,7 @@ public class DashboardUI : MonoBehaviour
 
         actions.Normal.Inventory.performed -= OnInventoryPressed;
         actions.Combat.Inventory.performed -= OnInventoryPressed;
-        actions.UI.CloseUI.performed -= OnCloseUIPressed;
+        actions.UI.CloseInventory.performed -= OnCloseUIPressed;
     }
 
     private void Update()

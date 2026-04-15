@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+// 상점 UI의 연출 및 입력을 관리하는 컨트롤러
 public class ShopUIController : MonoBehaviour
 {
     [SerializeField] private GameObject shopRoot;
@@ -24,32 +26,25 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private float openSlideDuration = 0.8f;
     [SerializeField] private float closeSlideDuration = 0.8f;
 
-    [Header("Fade")]
+    [Header("Fade Settings")]
     [SerializeField] private float backgroundStartAlpha = 0f;
     [SerializeField] private float backgroundEndAlpha = 1f;
-
     [SerializeField] private float visualStartAlpha = 0.25f;
     [SerializeField] private float visualEndAlpha = 1f;
-
     [SerializeField] private float glowStartAlpha = 0f;
     [SerializeField] private float glowPeakAlpha = 1f;
     [SerializeField] private float glowEndAlpha = 1f;
     [SerializeField] private float glowFadeDelay = 0.55f;
     [SerializeField] private float glowFadeDuration = 0.5f;
-
     [SerializeField] private float contentStartAlpha = 0f;
     [SerializeField] private float contentEndAlpha = 1f;
     [SerializeField] private float contentFadeDelay = 0.3f;
     [SerializeField] private float contentFadeDuration = 0.6f;
-
     [SerializeField] private float contentFadeOutDuration = 0.15f;
     [SerializeField] private float screenFadeOutDelay = 0.05f;
     [SerializeField] private float screenFadeOutDuration = 0.15f;
     
     private bool _isOpen;
-    public bool IsOpen => _isOpen;
-    // private bool _isAnimating;
-
     private RectTransform _shopRect;
     private Vector2 _closedAnchoredPos;
     private Vector2 _openAnchoredPos;
@@ -57,44 +52,57 @@ public class ShopUIController : MonoBehaviour
     private Coroutine _slideRoutine;
     private Coroutine _ledRoutine;
 
+    public bool IsOpen => _isOpen;
+
+    // ★ [핵심 추가] 상점 열림/닫힘 상태를 외부에 알리는 이벤트
+    public event Action<bool> OnShopStateChanged;
+
     private void Awake()
     {
-        if (shopRoot != null)
-            _shopRect = shopRoot.GetComponent<RectTransform>();
+        if (shopRoot != null) _shopRect = shopRoot.GetComponent<RectTransform>();
     }
 
     private void Start()
     {
-        if (shopRoot == null || _shopRect == null || backgroundGroup == null || shopVisualGroup == null || screenGlowGroup == null || screenContentGroup == null)
-            return;
+        if (shopRoot == null || _shopRect == null) return;
 
         _openAnchoredPos = _shopRect.anchoredPosition;
         _closedAnchoredPos = _openAnchoredPos + new Vector2(slideDistance, 0f);
-
         _shopRect.anchoredPosition = _closedAnchoredPos;
 
         backgroundGroup.alpha = 0f;
         shopVisualGroup.alpha = 0f;
         screenGlowGroup.alpha = 0f;
         screenContentGroup.alpha = 0f;
-
         SetAllLedsAlpha(0f);
 
         shopRoot.SetActive(false);
+
+        if (InputStateManager.Instance != null)
+            InputStateManager.Instance.Actions.UI.CloseUI.performed += OnEscapeInput;
+    }
+
+    private void OnDestroy()
+    {
+        if (InputStateManager.Instance != null)
+            InputStateManager.Instance.Actions.UI.CloseUI.performed -= OnEscapeInput;
+    }
+
+    private void OnEscapeInput(InputAction.CallbackContext context)
+    {
+        if (_isOpen) CloseShop();
     }
 
     public void OpenShop()
     {
-        if (shopRoot == null || _shopRect == null || backgroundGroup == null || shopVisualGroup == null || screenGlowGroup == null || screenContentGroup == null)
-            return;
+        if (shopRoot == null || _isOpen) return;
+
+        if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
 
         _isOpen = true;
+        OnShopStateChanged?.Invoke(true); // 이벤트 발송
 
-        if (GameManager.instance != null && GameManager.instance.player != null)
-            GameManager.instance.player.canControl = false;
-
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.SetUIOffset(shopCameraOffset);
+        if (CameraFollow.instance != null) CameraFollow.instance.SetUIOffset(shopCameraOffset);
 
         shopRoot.SetActive(true);
         _shopRect.anchoredPosition = _closedAnchoredPos;
@@ -104,48 +112,35 @@ public class ShopUIController : MonoBehaviour
         screenGlowGroup.alpha = glowStartAlpha;
         screenContentGroup.alpha = contentStartAlpha;
 
-        if (_slideRoutine != null)
-            StopCoroutine(_slideRoutine);
-
+        if (_slideRoutine != null) StopCoroutine(_slideRoutine);
         _slideRoutine = StartCoroutine(SlideRoutine(true));
 
-        if (_ledRoutine != null)
-            StopCoroutine(_ledRoutine);
-
+        if (_ledRoutine != null) StopCoroutine(_ledRoutine);
         _ledRoutine = StartCoroutine(LedOnRoutine());
     }
 
     public void CloseShop()
     {
-        if (shopRoot == null || _shopRect == null || backgroundGroup == null || shopVisualGroup == null || screenGlowGroup == null || screenContentGroup == null)
-            return;
+        if (shopRoot == null || !_isOpen) return;
 
         _isOpen = false;
+        OnShopStateChanged?.Invoke(false); // 이벤트 발송
 
-        if (GameManager.instance != null && GameManager.instance.player != null)
-            GameManager.instance.player.canControl = true;
+        if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
 
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.ResetUIOffset();
+        if (CameraFollow.instance != null) CameraFollow.instance.ResetUIOffset();
 
-        if (_slideRoutine != null)
-            StopCoroutine(_slideRoutine);
-
+        if (_slideRoutine != null) StopCoroutine(_slideRoutine);
         _slideRoutine = StartCoroutine(SlideRoutine(false));
 
-        if (_ledRoutine != null)
-            StopCoroutine(_ledRoutine);
-
+        if (_ledRoutine != null) StopCoroutine(_ledRoutine);
         _ledRoutine = StartCoroutine(LedOffRoutine());
     }
 
     private IEnumerator SlideRoutine(bool isOpening)
     {
-       // _isAnimating = true;
-
         float elapsed = 0f;
         float duration = isOpening ? openSlideDuration : closeSlideDuration;
-
         Vector2 startPos = isOpening ? _closedAnchoredPos : _openAnchoredPos;
         Vector2 endPos = isOpening ? _openAnchoredPos : _closedAnchoredPos;
 
@@ -172,84 +167,7 @@ public class ShopUIController : MonoBehaviour
             _shopRect.anchoredPosition = Vector2.Lerp(startPos, endPos, easedT);
             backgroundGroup.alpha = Mathf.Lerp(startBackgroundAlpha, endBackgroundAlpha, easedT);
 
-            float visualAlpha;
-
-            if (isOpening)
-            {
-                visualAlpha = Mathf.Lerp(startVisualAlpha, endVisualAlpha, easedT);
-            }
-            else
-            {
-                visualAlpha = startVisualAlpha;
-
-                if (elapsed > screenFadeOutDelay)
-                {
-                    float screenElapsed = elapsed - screenFadeOutDelay;
-                    float screenT = Mathf.Clamp01(screenElapsed / screenFadeOutDuration);
-                    float easedScreenT = 1f - Mathf.Pow(1f - screenT, 3f);
-
-                    visualAlpha = Mathf.Lerp(startVisualAlpha, 0f, easedScreenT);
-                }
-            }
-
-            shopVisualGroup.alpha = visualAlpha;
-
-            float glowAlpha = startGlowAlpha;
-
-            if (isOpening)
-            {
-                float glowDelayTime = glowFadeDelay * duration;
-
-                if (elapsed > glowDelayTime)
-                {
-                    float glowElapsed = elapsed - glowDelayTime;
-                    float glowT = Mathf.Clamp01(glowElapsed / glowFadeDuration);
-
-                    if (glowT < 0.5f)
-                    {
-                        float peakT = glowT / 0.5f;
-                        glowAlpha = Mathf.Lerp(glowStartAlpha, glowPeakAlpha, peakT);
-                    }
-                    else
-                    {
-                        float settleT = (glowT - 0.5f) / 0.5f;
-                        glowAlpha = Mathf.Lerp(glowPeakAlpha, glowEndAlpha, settleT);
-                    }
-                }
-            }
-            else
-            {
-                float glowT = Mathf.Clamp01(elapsed / screenFadeOutDuration);
-                float easedGlowT = 1f - Mathf.Pow(1f - glowT, 3f);
-                glowAlpha = Mathf.Lerp(startGlowAlpha, 0f, easedGlowT);
-            }
-
-            screenGlowGroup.alpha = glowAlpha;
-
-            float contentAlpha = startContentAlpha;
-
-            if (isOpening)
-            {
-                float delayTime = contentFadeDelay * duration;
-
-                if (elapsed > delayTime)
-                {
-                    float fadeElapsed = elapsed - delayTime;
-                    float contentT = Mathf.Clamp01(fadeElapsed / contentFadeDuration);
-                    float easedContentT = 1f - Mathf.Pow(1f - contentT, 4f);
-
-                    contentAlpha = Mathf.Lerp(startContentAlpha, endContentAlpha, easedContentT);
-                }
-            }
-            else
-            {
-                float contentT = Mathf.Clamp01(elapsed / contentFadeOutDuration);
-                float easedContentT = 1f - Mathf.Pow(1f - contentT, 3f);
-
-                contentAlpha = Mathf.Lerp(startContentAlpha, 0f, easedContentT);
-            }
-
-            screenContentGroup.alpha = contentAlpha;
+            HandleFading(isOpening, elapsed, easedT, duration, startVisualAlpha, endVisualAlpha, startGlowAlpha, startContentAlpha);
 
             yield return null;
         }
@@ -260,33 +178,58 @@ public class ShopUIController : MonoBehaviour
         screenGlowGroup.alpha = endGlowAlpha;
         screenContentGroup.alpha = endContentAlpha;
 
-        if (!isOpening)
-            shopRoot.SetActive(false);
-
-       // _isAnimating = false;
+        if (!isOpening) shopRoot.SetActive(false);
         _slideRoutine = null;
+    }
+
+    private void HandleFading(bool isOpening, float elapsed, float easedT, float duration, float startVis, float endVis, float startGlow, float startContent)
+    {
+        if (isOpening) shopVisualGroup.alpha = Mathf.Lerp(startVis, endVis, easedT);
+        else if (elapsed > screenFadeOutDelay)
+        {
+            float sT = Mathf.Clamp01((elapsed - screenFadeOutDelay) / screenFadeOutDuration);
+            shopVisualGroup.alpha = Mathf.Lerp(startVis, 0f, 1f - Mathf.Pow(1f - sT, 3f));
+        }
+
+        if (isOpening)
+        {
+            float glowTime = glowFadeDelay * duration;
+            if (elapsed > glowTime)
+            {
+                float gT = Mathf.Clamp01((elapsed - glowTime) / glowFadeDuration);
+                screenGlowGroup.alpha = gT < 0.5f ? Mathf.Lerp(glowStartAlpha, glowPeakAlpha, gT / 0.5f) : Mathf.Lerp(glowPeakAlpha, glowEndAlpha, (gT - 0.5f) / 0.5f);
+            }
+        }
+        else
+        {
+            float gT = Mathf.Clamp01(elapsed / screenFadeOutDuration);
+            screenGlowGroup.alpha = Mathf.Lerp(screenGlowGroup.alpha, 0f, 1f - Mathf.Pow(1f - gT, 3f));
+        }
+
+        if (isOpening)
+        {
+            float contentTime = contentFadeDelay * duration;
+            if (elapsed > contentTime)
+            {
+                float cT = Mathf.Clamp01((elapsed - contentTime) / contentFadeDuration);
+                screenContentGroup.alpha = Mathf.Lerp(startContent, contentEndAlpha, 1f - Mathf.Pow(1f - cT, 4f));
+            }
+        }
+        else
+        {
+            float cT = Mathf.Clamp01(elapsed / contentFadeOutDuration);
+            screenContentGroup.alpha = Mathf.Lerp(startContent, 0f, 1f - Mathf.Pow(1f - cT, 3f));
+        }
     }
 
     private IEnumerator LedOnRoutine()
     {
         SetAllLedsAlpha(0f);
-
-        // 1번 LED
-        if (leds.Length > 0 && leds[0])
-            StartCoroutine(LedPulseRoutine(leds[0]));
-
-        yield return new WaitForSecondsRealtime(ledOnInterval);
-
-        // 2번 LED (1번은 이미 켜져 있음)
-        if (leds.Length > 1 && leds[1])
-            StartCoroutine(LedPulseRoutine(leds[1]));
-
-        yield return new WaitForSecondsRealtime(ledOnInterval);
-
-        // 3번 LED (1,2는 유지된 상태)
-        if (leds.Length > 2 && leds[2])
-            StartCoroutine(LedPulseRoutine(leds[2]));
-
+        for (int i = 0; i < leds.Length; i++)
+        {
+            if (leds[i]) StartCoroutine(LedPulseRoutine(leds[i]));
+            yield return new WaitForSecondsRealtime(ledOnInterval);
+        }
         _ledRoutine = null;
     }
 
@@ -294,25 +237,16 @@ public class ShopUIController : MonoBehaviour
     {
         for (int i = leds.Length - 1; i >= 0; i--)
         {
-            if (leds[i])
-                SetLedAlpha(leds[i], 0f);
-
+            if (leds[i]) SetLedAlpha(leds[i], 0f);
             yield return new WaitForSecondsRealtime(ledOffInterval);
         }
-
         _ledRoutine = null;
     }
 
     private void SetAllLedsAlpha(float alpha)
     {
-        if (leds == null)
-            return;
-
-        for (int i = 0; i < leds.Length; i++)
-        {
-            if (leds[i])
-                SetLedAlpha(leds[i], alpha);
-        }
+        if (leds == null) return;
+        foreach (var led in leds) if (led) SetLedAlpha(led, alpha);
     }
 
     private void SetLedAlpha(Image led, float alpha)
@@ -326,36 +260,11 @@ public class ShopUIController : MonoBehaviour
     {
         float t = 0f;
         float duration = 0.06f;
-
-        // 1. 부드럽게 켜짐 (0 → 1)
-        while (t < duration)
-        {
-            t += Time.unscaledDeltaTime;
-            float alpha = Mathf.Clamp01(t / duration);
-            SetLedAlpha(led, alpha);
-            yield return null;
-        }
-
-        // 2. 살짝 꺼졌다가 (1 → 0.85)
+        while (t < duration) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Clamp01(t / duration)); yield return null; }
         t = 0f;
-        while (t < duration * 0.5f)
-        {
-            t += Time.unscaledDeltaTime;
-            float alpha = Mathf.Lerp(1f, 0.85f, t / (duration * 0.5f));
-            SetLedAlpha(led, alpha);
-            yield return null;
-        }
-
-        // 3. 다시 안정 (0.85 → 1)
+        while (t < duration * 0.5f) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Lerp(1f, 0.85f, t / (duration * 0.5f))); yield return null; }
         t = 0f;
-        while (t < duration * 0.5f)
-        {
-            t += Time.unscaledDeltaTime;
-            float alpha = Mathf.Lerp(0.85f, 1f, t / (duration * 0.5f));
-            SetLedAlpha(led, alpha);
-            yield return null;
-        }
-
+        while (t < duration * 0.5f) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Lerp(0.85f, 1f, t / (duration * 0.5f))); yield return null; }
         SetLedAlpha(led, 1f);
     }
 }

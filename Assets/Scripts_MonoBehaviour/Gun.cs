@@ -1,41 +1,42 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// 원거리 공격 기능을 담당하는 총기 클래스
 public class Gun : MonoBehaviour
 {
-    private WeaponManager weaponManager;
-    private SpriteRenderer spriteRenderer;
-    private Vector2 mouseWorldPos;
+    private WeaponManager weaponManager;                         // 무기 교체 관리자
+    private SpriteRenderer spriteRenderer;                       // 총기 렌더러
+    private Vector2 mouseWorldPos;                               // 마우스의 월드 좌표
 
     [Header("Aiming Settings")]
-    [SerializeField] private Transform muzzlePoint;
-    [SerializeField] private LineRenderer lineRenderer;
-    [SerializeField] private float laserLength = 100f;
-    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private Transform muzzlePoint;              // 총구 위치
+    [SerializeField] private LineRenderer lineRenderer;          // 조준 레이저
+    [SerializeField] private float laserLength = 100f;           // 레이저 최대 거리
+    [SerializeField] private LayerMask obstacleLayer;            // 충돌 장애물 레이어
 
     [Header("Shooting Settings")]
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float fireRate = 0.125f;
-    private float nextFireTime = 0f;
+    [SerializeField] private GameObject bulletPrefab;            // 발사체 프리팹
+    [SerializeField] private float fireRate = 0.125f;            // 발사 속도
+    private float nextFireTime = 0f;                             // 다음 발사 가능 시간
 
     [Header("Recoil Settings")]
-    [SerializeField] private float playerKnockbackForce = 3f;
-    [SerializeField] private float gunRecoilDistance = 0.3f;
-    [SerializeField] private float gunRecoilDuration = 0.2f;
-    [SerializeField] private float minRecoilDuration = 0.05f;
+    [SerializeField] private float playerKnockbackForce = 3f;    // 발사 시 반동 힘
+    [SerializeField] private float gunRecoilDistance = 0.3f;     // 총기 밀림 거리
+    [SerializeField] private float gunRecoilDuration = 0.2f;     // 반동 연출 시간
+    [SerializeField] private float minRecoilDuration = 0.05f;    // 최소 반동 시간
 
     [Header("VFX Settings")]
-    [SerializeField] private float shakeDuration = 0.05f;
-    [SerializeField] private float shakeMagnitude = 0.02f;
+    [SerializeField] private float shakeDuration = 0.05f;        // 화면 흔들림 시간
+    [SerializeField] private float shakeMagnitude = 0.02f;       // 화면 흔들림 강도
 
     [Header("Sound")]
-    [SerializeField] private AudioClip sfxShoot;
-    [SerializeField] private AudioClip sfxEmpty;
+    [SerializeField] private AudioClip sfxShoot;                 // 발사 사운드
+    [SerializeField] private AudioClip sfxEmpty;                 // 잔탄 부족 사운드
 
-    [SerializeField] private GameObject damageTextPrefab;
-    private bool isAiming = false;
-    private Color currentBulletColor = Color.white;
-    private Material currentBulletMaterial;
+    [SerializeField] private GameObject damageTextPrefab;        // 안내 텍스트 프리팹
+    private bool isAiming = false;                               // 현재 조준 중인지 확인
+    private Color currentBulletColor = Color.white;              // 현재 탄환 색상
+    private Material currentBulletMaterial;                      // 현재 탄환 머티리얼
 
     private void Awake()
     {
@@ -43,190 +44,141 @@ public class Gun : MonoBehaviour
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         lineRenderer = GetComponent<LineRenderer>();
 
-        if (lineRenderer != null)
-            lineRenderer.useWorldSpace = true;
-    }
-
-    private void OnEnable()
-    {
-        if (lineRenderer != null)
-            lineRenderer.enabled = false;
+        if (lineRenderer != null) lineRenderer.useWorldSpace = true;
     }
 
     private void OnDisable()
     {
-        if (lineRenderer != null)
-            lineRenderer.enabled = false;
-
+        if (lineRenderer != null) lineRenderer.enabled = false;
+        
         if (GameManager.instance != null && GameManager.instance.cursor != null)
-        {
             GameManager.instance.cursor.ChangeCursor(CursorType.Default);
-        }
 
         isAiming = false;
     }
 
     private void Update()
     {
-        if (GameManager.instance.player == null)
-            return;
+        if (GameManager.instance.player == null || InputStateManager.Instance == null) return;
 
-        if (!GameManager.instance.player.canControl)
+        // UI 모드이거나 제어가 불가능한 경우 시각 효과 차단
+        if (InputStateManager.Instance.CurrentInputState == InputState.UI || !GameManager.instance.player.canControl)
         {
-            if (lineRenderer != null)
-                lineRenderer.enabled = false;
-
+            if (lineRenderer != null) lineRenderer.enabled = false;
             if (isAiming)
             {
                 isAiming = false;
                 GameManager.instance.cursor.ChangeCursor(CursorType.Default);
             }
-
             return;
         }
 
-        Vector2 mouseScreenPos = GameManager.instance.player.Input.Player.Look.ReadValue<Vector2>();
-        mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
-
+        UpdateMousePosition();
         RotateWeapon();
 
-        if (!weaponManager.IsSwapping)
-            DrawLaser();
-        else if (lineRenderer != null)
-            lineRenderer.enabled = false;
+        if (!weaponManager.IsSwapping) DrawLaser();
+        else if (lineRenderer != null) lineRenderer.enabled = false;
 
         HandleAimCursor();
     }
 
+    // 현재 조작 상태에 따른 마우스 위치 갱신
+    private void UpdateMousePosition()
+    {
+        Vector2 screenPos = Vector2.zero;
+        var actions = InputStateManager.Instance.Actions;
+        var state = InputStateManager.Instance.CurrentInputState;
+
+        // ReadValue를 통해 현재 마우스 좌표를 안전하게 읽어옴
+        if (state == InputState.Normal) screenPos = actions.Normal.Look.ReadValue<Vector2>();
+        else if (state == InputState.Combat) screenPos = actions.Combat.Look.ReadValue<Vector2>();
+
+        mouseWorldPos = Camera.main.ScreenToWorldPoint(screenPos);
+    }
+
     private void DrawLaser()
     {
-        if (lineRenderer == null || muzzlePoint == null)
-            return;
+        if (lineRenderer == null || muzzlePoint == null) return;
 
         lineRenderer.enabled = true;
         lineRenderer.SetPosition(0, muzzlePoint.position);
 
-        Vector2 direction = transform.right;
-        RaycastHit2D hit = Physics2D.Raycast(muzzlePoint.position, direction, laserLength, obstacleLayer);
-
-        if (hit.collider != null)
-        {
-            lineRenderer.SetPosition(1, hit.point);
-        }
-        else
-        {
-            Vector2 endPoint = (Vector2)muzzlePoint.position + (direction * laserLength);
-            lineRenderer.SetPosition(1, endPoint);
-        }
+        RaycastHit2D hit = Physics2D.Raycast(muzzlePoint.position, transform.right, laserLength, obstacleLayer);
+        lineRenderer.SetPosition(1, hit.collider != null ? hit.point : (Vector2)muzzlePoint.position + (Vector2)transform.right * laserLength);
     }
 
     public void UpdateVisuals(Color color, Material newMaterial)
     {
-        if (lineRenderer != null)
-        {
-            lineRenderer.startColor = color;
-            lineRenderer.endColor = color;
-        }
-
+        if (lineRenderer != null) { lineRenderer.startColor = color; lineRenderer.endColor = color; }
         currentBulletColor = color;
         currentBulletMaterial = newMaterial;
     }
 
     public void TriggerAttack()
     {
-        if (weaponManager.IsSwapping)
-            return;
+        if (weaponManager.IsSwapping) return;
 
-        float finalAttackSpeed = GetFinalAttackSpeed();
-        float attackSpeedAdjustedFireRate = fireRate / finalAttackSpeed;
-        float recoilDurationAdjusted = Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAttackSpeed);
-        float finalFireInterval = Mathf.Max(attackSpeedAdjustedFireRate, recoilDurationAdjusted);
+        float finalAtkSpeed = GetFinalAttackSpeed();
+        float interval = Mathf.Max(fireRate / finalAtkSpeed, Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
 
-        if (Time.time < nextFireTime)
-            return;
+        if (Time.time < nextFireTime) return;
 
         if (GameManager.instance.stats.currentAmmo < 100)
         {
-            if (sfxEmpty != null)
-                SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
-
+            if (sfxEmpty != null) SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
             SpawnAmmoEmptyText();
-            Debug.Log("Out of ammo");
             return;
         }
 
         GameManager.instance.stats.currentAmmo -= 100;
-        Shoot(recoilDurationAdjusted);
-        nextFireTime = Time.time + finalFireInterval;
+        Shoot(Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
+        nextFireTime = Time.time + interval;
     }
 
     private float GetFinalAttackSpeed()
     {
-        if (GameManager.instance == null || GameManager.instance.stats == null)
-            return 1f;
-
-        PlayerStats stats = GameManager.instance.stats;
-        float finalAttackSpeed = stats.attackSpeed * stats.diceAttackSpeedMultiplier;
-        return Mathf.Max(0.01f, finalAttackSpeed);
+        if (GameManager.instance?.stats == null) return 1f;
+        return Mathf.Max(0.01f, GameManager.instance.stats.attackSpeed * GameManager.instance.stats.diceAttackSpeedMultiplier);
     }
 
-    private void Shoot(float recoilDurationAdjusted)
+    private void Shoot(float recoilDur)
     {
-        if (bulletPrefab == null || muzzlePoint == null)
-            return;
+        if (bulletPrefab == null || muzzlePoint == null) return;
 
         Player player = GameManager.instance.player;
         PlayerStats stats = GameManager.instance.stats;
 
-        float strongAttackMultiplier = 1f;
-        if (player != null)
-        {
-            bool consumed = player.TryConsumeStrongAttack(out float consumedMultiplier);
-            if (consumed)
-            {
-                strongAttackMultiplier = consumedMultiplier;
-            }
-        }
+        float strongMult = 1f;
+        if (player != null && player.TryConsumeStrongAttack(out float mult)) strongMult = mult;
 
         GameObject bulletObj = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        Bullet bulletScript = bulletObj.GetComponent<Bullet>();
+        Bullet bullet = bulletObj.GetComponent<Bullet>();
 
-        if (bulletScript != null)
+        if (bullet != null)
         {
-            bulletScript.SetupVisuals(currentBulletColor, currentBulletMaterial);
-            bulletScript.SetupCombatData(
-                stats.rangeAttackPower,
-                stats.rangedDamageVariance,
-                stats.criticalChance,
-                stats.GetFinalCriticalDamageMultiplier(),
-                stats.diceDamageMultiplier,
-                stats.diceRangedDamageMultiplier,
-                strongAttackMultiplier
-            );
+            bullet.SetupVisuals(currentBulletColor, currentBulletMaterial);
+            bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance, 
+                stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult);
         }
 
-        if (sfxShoot != null)
-            SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
-
-        Recoil(recoilDurationAdjusted);
-
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
+        if (sfxShoot != null) SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
+        Recoil(recoilDur);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
     }
 
-    private void Recoil(float recoilDurationAdjusted)
+    private void Recoil(float dur)
     {
         StopCoroutine("VisualRecoilRoutine");
-        StartCoroutine(VisualRecoilRoutine(recoilDurationAdjusted));
+        StartCoroutine(VisualRecoilRoutine(dur));
         StopCoroutine("KnockbackRoutine");
         StartCoroutine("KnockbackRoutine");
     }
 
     private System.Collections.IEnumerator KnockbackRoutine()
     {
-        if (GameManager.instance.player != null)
+        Player player = GameManager.instance.player;
+        if (player != null)
         {
-            Player player = GameManager.instance.player;
             player.isAttacking = true;
             player.rigid.AddForce(-transform.right * playerKnockbackForce, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f);
@@ -235,23 +187,20 @@ public class Gun : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator VisualRecoilRoutine(float recoilDuration)
+    private System.Collections.IEnumerator VisualRecoilRoutine(float dur)
     {
-        Vector3 originalLocalPos = new Vector3(0.05f, 0f, 0f);
-        Vector3 recoilOffset = transform.right * -gunRecoilDistance;
-
-        transform.localPosition += recoilOffset;
-        Vector3 recoilLocalPos = transform.localPosition;
+        Vector3 origin = new Vector3(0.05f, 0f, 0f);
+        transform.localPosition += transform.right * -gunRecoilDistance;
+        Vector3 recoilPos = transform.localPosition;
 
         float elapsed = 0f;
-        while (elapsed < recoilDuration)
+        while (elapsed < dur)
         {
             elapsed += Time.deltaTime;
-            transform.localPosition = Vector3.Lerp(recoilLocalPos, originalLocalPos, elapsed / recoilDuration);
+            transform.localPosition = Vector3.Lerp(recoilPos, origin, elapsed / dur);
             yield return null;
         }
-
-        transform.localPosition = originalLocalPos;
+        transform.localPosition = origin;
     }
 
     private void RotateWeapon()
@@ -260,53 +209,45 @@ public class Gun : MonoBehaviour
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-        Vector3 localScale = Vector3.one * 0.8f;
-        localScale.y = (angle > 90f || angle < -90f) ? 0.8f : -0.8f;
-        localScale.z = 1f;
-        transform.localScale = localScale;
+        float flipY = (angle > 90f || angle < -90f) ? 0.8f : -0.8f;
+        transform.localScale = new Vector3(0.8f, flipY, 1f);
     }
 
     private void HandleAimCursor()
     {
         if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun)
         {
-            if (isAiming)
-            {
-                isAiming = false;
-                GameManager.instance.cursor.ChangeCursor(CursorType.Default);
-            }
-
+            if (isAiming) { isAiming = false; GameManager.instance.cursor.ChangeCursor(CursorType.Default); }
             return;
         }
+        
+        bool isHoldingRight = false;
+        var actions = InputStateManager.Instance.Actions;
+        var state = InputStateManager.Instance.CurrentInputState;
 
-        if (Mouse.current != null)
+        if (state == InputState.Normal) 
+            isHoldingRight = actions.Normal.Aim.ReadValue<float>() > 0.5f;
+        else if (state == InputState.Combat) 
+            isHoldingRight = actions.Combat.Aim.ReadValue<float>() > 0.5f;
+
+        // 커서 변경 로직 (기존 유지)
+        if (isHoldingRight && !isAiming)
         {
-            bool isHoldingRightClick = Mouse.current.rightButton.isPressed;
-
-            if (isHoldingRightClick && !isAiming)
-            {
-                isAiming = true;
-                GameManager.instance.cursor.ChangeCursor(CursorType.Aim);
-            }
-            else if (!isHoldingRightClick && isAiming)
-            {
-                isAiming = false;
-                GameManager.instance.cursor.ChangeCursor(CursorType.Default);
-            }
+            isAiming = true;
+            GameManager.instance.cursor.ChangeCursor(CursorType.Aim);
+        }
+        else if (!isHoldingRight && isAiming)
+        {
+            isAiming = false;
+            GameManager.instance.cursor.ChangeCursor(CursorType.Default);
         }
     }
 
     private void SpawnAmmoEmptyText()
     {
-        if (damageTextPrefab == null)
-            return;
-
-        GameObject textObj = Instantiate(damageTextPrefab, mouseWorldPos, Quaternion.identity);
-        DamageText dt = textObj.GetComponent<DamageText>();
-
-        if (dt != null)
-        {
-            dt.Setup("Out of ammo", Color.red);
-        }
+        if (damageTextPrefab == null) return;
+        GameObject obj = Instantiate(damageTextPrefab, mouseWorldPos, Quaternion.identity);
+        DamageText dt = obj.GetComponent<DamageText>();
+        if (dt != null) dt.Setup("Out of ammo", Color.red);
     }
 }

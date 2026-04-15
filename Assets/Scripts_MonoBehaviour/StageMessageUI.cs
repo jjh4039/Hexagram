@@ -1,10 +1,10 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-using UnityEngine.UI;
 using ChocDino.UIFX;
 using UnityEngine.InputSystem;
 
+// 스테이지 진입, 클리어, 보상 선택 및 적 남은 수를 표시하는 UI 컨트롤러
 public class StageMessageUI : MonoBehaviour
 {
     public static StageMessageUI instance;
@@ -179,6 +179,12 @@ public class StageMessageUI : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current == null) return;
+
+        // ★ [핵심 추가] UI 모드이거나 전투 중 등, Normal 상태가 아니면 키 입력을 무시합니다.
+        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState != InputState.Normal)
+            return;
+
         if (enableRewardTest && Keyboard.current.rKey.wasPressedThisFrame)
         {
             ShowClearMessage();
@@ -186,6 +192,8 @@ public class StageMessageUI : MonoBehaviour
         }
 
         if (!canSelectReward) return;
+
+        // Normal 상태일 때만 숫자 키 입력이 작동합니다.
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectReward(0);
         else if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectReward(1);
         else if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectReward(2);
@@ -245,7 +253,6 @@ public class StageMessageUI : MonoBehaviour
         ResetAllUI();
     }
 
-    // ★ [수정됨] playPunch 매개변수 추가
     public void UpdateEnemyCount(int totalCount, bool playPunch = false)
     {
         if (enemyCountText != null)
@@ -265,7 +272,6 @@ public class StageMessageUI : MonoBehaviour
             StartCoroutine(FadeOut(enemyCountGroup));
         }
 
-        // ★ [수정됨] playPunch가 true일 때만 연출 실행
         if (totalCount > 0 && isEnemyCountVisible && playPunch)
         {
             StartCoroutine(EnemyCountPunch());

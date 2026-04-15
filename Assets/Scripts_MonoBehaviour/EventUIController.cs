@@ -137,8 +137,7 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float sfxSelectVolume = 1f;
     [SerializeField] private float sfxSelectPitchVariation = 0.04f;
 
-    [Header("Optional")]
-    [SerializeField] private bool closeWithEscape = true;
+    // [SerializeField] private bool closeWithEscape = true;
 
     private bool _isOpen;
     private bool canDestinyInteract;

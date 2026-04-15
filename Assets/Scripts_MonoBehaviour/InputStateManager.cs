@@ -44,22 +44,19 @@ public class InputStateManager : MonoBehaviour
     public void ChangeInputState(InputState newState)
     {
         if (currentInputState == newState) return;
-        
-        if (newState == InputState.UI)
-        {
-            StopPlayerMovement();
-        }
 
-        inputActions.Normal.Disable();                      // 평상시 조작 끄기
-        inputActions.Combat.Disable();                      // 전투용 조작 끄기
-        inputActions.UI.Disable();                          // 화면 조작 끄기
+        inputActions.Normal.Disable();
+        inputActions.Combat.Disable();
+        inputActions.UI.Disable();
 
         currentInputState = newState;
 
-        if (newState == InputState.Normal) inputActions.Normal.Enable();      // 평상시 조작 켜기
-        else if (newState == InputState.Combat) inputActions.Combat.Enable(); // 전투용 조작 켜기
-        else if (newState == InputState.UI) inputActions.UI.Enable();         // 화면 조작 켜기
+        if (newState == InputState.Normal) inputActions.Normal.Enable();
+        else if (newState == InputState.Combat) inputActions.Combat.Enable();
+        else if (newState == InputState.UI) inputActions.UI.Enable();
         
+        // 이 알림을 보내면 Player.cs의 HandleInputStateChanged가 실행되면서 
+        // 캐릭터가 즉시 멈추고 무적 상태가 됩니다.
         OnInputStateChanged?.Invoke(newState);
     }
 
@@ -89,18 +86,5 @@ public class InputStateManager : MonoBehaviour
     {
         if (currentPhase == GamePhase.InCombat) ChangeInputState(InputState.Combat);
         else ChangeInputState(InputState.Normal);
-    }
-    
-    private void StopPlayerMovement()
-    {
-        if (GameManager.instance == null || GameManager.instance.player == null) return;
-
-        // 1. Rigidbody의 속도를 0으로 (미끄러짐 방지)
-        var rb = GameManager.instance.player.GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-        }
-
     }
 }

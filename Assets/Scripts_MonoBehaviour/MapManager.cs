@@ -41,7 +41,7 @@ public class MapManager : MonoBehaviour
     public Vector2[] normalTextPositions = new Vector2[3] { new Vector2(-160, 0), new Vector2(0, 0), new Vector2(160, 0) };
     [Tooltip("보스 모드일 때 텍스트(StageText)의 위치")]
     public Vector2 bossTextPosition = Vector2.zero;
-    // [추가] 텍스트 스케일 설정
+    
     [Tooltip("일반 모드 텍스트 스케일")]
     public float normalTextScale = 1.0f;
     [Tooltip("보스 모드 텍스트 스케일")]
@@ -82,7 +82,6 @@ public class MapManager : MonoBehaviour
 
     private readonly int[] _currentRandomPers = new int[3];
 
-    private PlayerInput _inputActions;
     private readonly Color _activeColor = Color.white;
     private readonly Color _inactiveColor = new Color(70 / 255f, 70 / 255f, 70 / 255f);
 
@@ -93,7 +92,6 @@ public class MapManager : MonoBehaviour
 
     private void Awake()
     {
-        _inputActions = new PlayerInput();
         _nodeOriginPos = new Vector2[nodeVisuals.Length];
         _lineOriginPos = new Vector2[lineVisuals.Length];
         _nodeCanvasGroups = new CanvasGroup[nodeVisuals.Length];
@@ -135,18 +133,56 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        _inputActions.Enable();
-        _inputActions.Player.Move.performed += ctx => OnNavigate(ctx.ReadValue<Vector2>());
-        _inputActions.Player.Dash.performed += _ => OnEnterStage();
+        if (InputStateManager.Instance != null)
+        {
+            var uiActions = InputStateManager.Instance.Actions.UI;
+            uiActions.MoveUI.performed += OnNavigateInput;
+            uiActions.CloseUI.performed += OnCloseInput;
+            uiActions.Select.performed += OnSubmitInput; 
+        }
     }
 
-    private void OnDisable() => _inputActions.Disable();
+    private void OnDestroy()
+    {
+        if (InputStateManager.Instance != null)
+        {
+            var uiActions = InputStateManager.Instance.Actions.UI;
+            uiActions.MoveUI.performed -= OnNavigateInput;
+            uiActions.CloseUI.performed -= OnCloseInput;
+            uiActions.Select.performed -= OnSubmitInput;
+        }
+    }
+
+    private void OnNavigateInput(InputAction.CallbackContext ctx)
+    {
+        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode) return;
+        
+        Vector2 direction = ctx.ReadValue<Vector2>();
+        if (direction.x < -0.5f) ChangeSelection(-1);
+        else if (direction.x > 0.5f) ChangeSelection(1);
+    }
+
+    private void OnCloseInput(InputAction.CallbackContext ctx)
+    {
+        if (mapVisualRoot != null && mapVisualRoot.activeSelf) ToggleMap();
+    }
+
+    private void OnSubmitInput(InputAction.CallbackContext ctx)
+    {
+        if (mapVisualRoot != null && mapVisualRoot.activeSelf) OnEnterStage();
+    }
 
     private void Update()
     {
-        if (Keyboard.current.tKey.wasPressedThisFrame) ToggleMap();
+        // 맵 열기는 Normal 상태일 때만 T키로 작동
+        if (Keyboard.current.tKey.wasPressedThisFrame)
+        {
+            if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.Normal)
+                ToggleMap();
+        }
+
         if (!mapVisualRoot || !mapVisualRoot.activeSelf) return;
         HandleSmoothVisuals();
     }
@@ -155,6 +191,16 @@ public class MapManager : MonoBehaviour
     {
         if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
         bool isOpening = !mapVisualRoot.activeSelf;
+
+        if (isOpening)
+        {
+            if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
+        }
+        else
+        {
+            if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
+        }
+
         _fadeCoroutine = StartCoroutine(mapFadeRoutine(isOpening));
         return;
 
@@ -205,12 +251,10 @@ public class MapManager : MonoBehaviour
         if (bossNodeGlow) bossNodeGlow.enabled = false;
         if (bossLineGlow) bossLineGlow.enabled = false; 
 
-        // 텍스트 위치 및 스케일 초기화
         if (_stageTextCanvasGroup) _stageTextCanvasGroup.alpha = 0f;
         
         stageTextRect.anchoredPosition = _isBossStageMode ? bossTextPosition : normalTextPositions[1];
         
-        // [추가] 맵을 열 때 스케일도 즉시 설정 (부드러운 전환 전 초기값)
         float initialScale = _isBossStageMode ? bossTextScale : normalTextScale;
         stageTextRect.localScale = new Vector3(initialScale, initialScale, 1f);
 
@@ -399,7 +443,6 @@ public class MapManager : MonoBehaviour
             Vector2 targetTextPos = _isBossStageMode ? bossTextPosition : normalTextPositions[_selectedIndex];
             stageTextRect.anchoredPosition = Vector2.Lerp(stageTextRect.anchoredPosition, targetTextPos, Time.deltaTime * lerpSpeed);
             
-            // [추가] 텍스트 부모 오브젝트의 스케일 보간 (부드럽게 커지거나 작아짐)
             float targetScale = _isBossStageMode ? bossTextScale : normalTextScale;
             Vector3 targetScaleVector = new Vector3(targetScale, targetScale, 1f);
             stageTextRect.localScale = Vector3.Lerp(stageTextRect.localScale, targetScaleVector, Time.deltaTime * lerpSpeed);
@@ -458,14 +501,6 @@ public class MapManager : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void OnNavigate(Vector2 direction)
-    {
-        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode) return;
-        
-        if (direction.x < -0.5f) ChangeSelection(-1);
-        else if (direction.x > 0.5f) ChangeSelection(1);
     }
 
     private void ChangeSelection(int dir)
@@ -621,6 +656,9 @@ public class MapManager : MonoBehaviour
 
         mapVisualRoot.SetActive(false);
         _isScanning = false;
+
+        // 스테이지 넘어가기 직전 조작권 복구
+        if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
 
         if (GameManager.instance)
         {
