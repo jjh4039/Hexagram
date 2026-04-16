@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("현재 스테이지 오브젝트에 StageController가 없습니다!");
+                Debug.LogWarning("StageController 컴포넌트 누락");
             }
         }
     }
@@ -107,7 +107,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"오류: {currentSeason} 계절에 {stageData.moduleName} 프리펩 데이터가 없습니다!");
+            Debug.LogError("해당 계절 프리팹 데이터 누락");
         }
     }
 
@@ -128,12 +128,21 @@ public class GameManager : MonoBehaviour
 
             while (_hitStopTimer > 0f)
             {
-                _hitStopTimer -= Time.unscaledDeltaTime;
+                if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI)
+                {
+                    yield return null;                       // 일시정지 중에는 타이머 대기
+                    continue;
+                }
+
+                _hitStopTimer -= Time.unscaledDeltaTime;     // 일시정지가 아닐 때만 현실 시간 기준으로 감소
                 yield return null;
             }
 
-            Time.timeScale = 1f;
-            Time.fixedDeltaTime = _originalFixedDeltaTime;
+            if (InputStateManager.Instance == null || InputStateManager.Instance.CurrentInputState != InputState.UI)
+            {
+                Time.timeScale = 1f;                         // 일시정지가 아닐 때만 시간 배율 복구
+                Time.fixedDeltaTime = _originalFixedDeltaTime;
+            }
 
             _isHitStopping = false;
         }
