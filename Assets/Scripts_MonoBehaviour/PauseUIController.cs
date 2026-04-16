@@ -10,6 +10,8 @@ public class PauseUIController : MonoBehaviour
     [SerializeField] private RectTransform bgRect;           // 크기 애니메이션용 배경
     [SerializeField] private CanvasGroup textGroup;          // 페이드용 텍스트 그룹
     [SerializeField] private TextMeshProUGUI[] menuTexts;    // 선택지 텍스트 배열
+    [SerializeField] private TextMeshProUGUI progressText;   // 진행도 텍스트 UI
+    [SerializeField] private TextMeshProUGUI playTimeText;   // 플레이타임 텍스트 UI
 
     [Header("Animation Settings")]
     [SerializeField] private float targetBgHeight = 400f;    // 배경 최대 높이
@@ -30,7 +32,7 @@ public class PauseUIController : MonoBehaviour
     private bool _isPaused = false;                          // 일시정지 상태 여부
     private bool _isAnimating = false;                       // 애니메이션 진행 여부
     private int _currentIndex = 0;                           // 현재 선택된 메뉴 인덱스
-    
+
     private Coroutine _animCoroutine;                        // 애니메이션 코루틴 캐싱
     private Vector2 _bgOriginAnchoredPos;                    // 배경 초기 위치
 
@@ -38,11 +40,11 @@ public class PauseUIController : MonoBehaviour
     {
         if (pauseRoot != null) pauseRoot.SetActive(false);
         if (bgRect != null) _bgOriginAnchoredPos = bgRect.anchoredPosition;
-        
+
         if (InputStateManager.Instance != null)
         {
             var actions = InputStateManager.Instance.Actions;
-            
+
             actions.Normal.Pause.performed += OnPauseToggleInput;
             actions.Combat.Pause.performed += OnPauseToggleInput;
 
@@ -87,7 +89,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         Vector2 input = ctx.ReadValue<Vector2>();
-        
+
         if (input.y > 0.5f) ChangeSelection(-1);
         else if (input.y < -0.5f) ChangeSelection(1);
     }
@@ -103,7 +105,7 @@ public class PauseUIController : MonoBehaviour
         if (!_isPaused || _isAnimating) return;
         ResumeGame();
     }
-    
+
     private void PauseGame()
     {
         if (InputStateManager.Instance != null)
@@ -111,7 +113,9 @@ public class PauseUIController : MonoBehaviour
 
         _isPaused = true;
         _currentIndex = 0;
+
         UpdateSelectionVisuals();
+        UpdateInfoTexts();
 
         if (sfxOpen) SoundManager.instance.PlaySFX(sfxOpen, 0.6f);
 
@@ -145,6 +149,32 @@ public class PauseUIController : MonoBehaviour
         }
     }
 
+    private void UpdateInfoTexts()
+    {
+        if (GameManager.instance == null) return;
+
+        string seasonStr = GameManager.instance.currentSeason switch
+        {
+            Season.Spring => "봄",
+            Season.Summer => "여름",
+            Season.Autumn => "가을",
+            Season.Winter => "겨울",
+            _ => ""
+        };
+
+        if (progressText != null)
+        {
+            progressText.text = $"진행도 : {seasonStr} - {GameManager.instance.currentProgress}%";
+        }
+
+        if (playTimeText != null)
+        {
+            int min = Mathf.FloorToInt(GameManager.instance.currentPlayTime / 60f);
+            int sec = Mathf.FloorToInt(GameManager.instance.currentPlayTime % 60f);
+            playTimeText.text = $"PlayTime : {min}m {sec}s";
+        }
+    }
+
     private void ExecuteSelection()
     {
         if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.6f);
@@ -157,7 +187,7 @@ public class PauseUIController : MonoBehaviour
             case 3: Debug.Log("Quit"); break;
         }
     }
-    
+
     private IEnumerator AnimateOpen()
     {
         _isAnimating = true;
@@ -172,7 +202,7 @@ public class PauseUIController : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / bgExpandDuration);
-            float easedT = 1f - Mathf.Pow(1f - t, 3f); 
+            float easedT = 1f - Mathf.Pow(1f - t, 3f);
             bgRect.sizeDelta = new Vector2(bgRect.sizeDelta.x, Mathf.Lerp(0f, targetBgHeight, easedT));
             yield return null;
         }

@@ -20,10 +20,10 @@ public class GameManager : MonoBehaviour
 
     public GameObject currentStageObj;
 
-    [Header("--- Global Resources ---")]
+    [Header("Global Resources")]
     public GameObject commonScrapPrefab;
 
-    [Header("--- Scrap Data & UI ---")]
+    [Header("Scrap Data & UI")]
     public int currentScrap = 0;
 
     private float _hitStopTimer = 0f;
@@ -31,16 +31,16 @@ public class GameManager : MonoBehaviour
 
     private Coroutine _scrapPunchRoutine;
     private Vector3 _scrapTextOriginScale;
-    
-    [Header("--- Season System ---")]
-    // 1. 현재 계절 (레벨 역할)
-    public Season currentSeason = Season.Spring; 
 
-    // 3. 진행도 (0~100)
+    [Header("Season System")]
+    public Season currentSeason = Season.Spring;
     public int currentProgress = 0;
     public int maxProgress = 100;
-    
-    [Header("--- Hit Stop ---")]
+
+    [Header("Play Time")]
+    public float currentPlayTime = 0f;                       // 누적 플레이 타임
+
+    [Header("Hit Stop")]
     private Coroutine _hitStopCoroutine;
     private float _originalFixedDeltaTime;
     private StageController _controller;
@@ -49,10 +49,8 @@ public class GameManager : MonoBehaviour
     {
         if (currentStageObj != null)
         {
-            // 2. 컴포넌트를 가져와서 변수에 할당
             _controller = currentStageObj.GetComponent<StageController>();
 
-            // 3. 컴포넌트가 제대로 있다면 초기화 실행
             if (_controller != null)
             {
                 _controller.InitStage();
@@ -70,15 +68,16 @@ public class GameManager : MonoBehaviour
         _originalFixedDeltaTime = Time.fixedDeltaTime;
     }
 
+    private void Update()
+    {
+        currentPlayTime += Time.deltaTime;                   // 매 프레임 플레이 타임 누적
+    }
+
     public void AddScrap(int amount)
     {
         currentScrap += amount;
     }
 
-    // =========================================================
-    // Stage Load
-    // =========================================================
-    // ReSharper disable Unity.PerformanceAnalysis
     public void LoadStage(StageData stageData)
     {
         if (currentStageObj)
@@ -87,7 +86,6 @@ public class GameManager : MonoBehaviour
         if (mapManager)
             mapManager.mapVisualRoot.SetActive(false);
 
-        // [수정] 현재 계절에 맞는 프리팹 리스트를 가져옴
         GameObject[] seasonPrefabs = stageData.GetCurrentSeasonPrefabs(currentSeason);
 
         if (seasonPrefabs != null && seasonPrefabs.Length > 0)
@@ -96,8 +94,7 @@ public class GameManager : MonoBehaviour
             GameObject selectedPrefab = seasonPrefabs[randomIndex];
 
             currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity);
-        
-            // 인스턴스화 후 컨포넌트 재할당 및 초기화
+
             _controller = currentStageObj.GetComponent<StageController>();
             if (_controller)
                 _controller.InitStage();
@@ -105,7 +102,6 @@ public class GameManager : MonoBehaviour
             if (CameraFollow.instance)
                 CameraFollow.instance.SnapToTarget();
 
-            // [수정] stageData.moduleName 사용 (GetModuleName 자동 변환 결과)
             if (StageMessageUI.instance)
                 StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description);
         }
@@ -114,10 +110,9 @@ public class GameManager : MonoBehaviour
             Debug.LogError($"오류: {currentSeason} 계절에 {stageData.moduleName} 프리펩 데이터가 없습니다!");
         }
     }
-    
+
     public void HitStop(float duration)
     {
-        // 더 긴 히트스탑이 들어오면 연장
         _hitStopTimer = Mathf.Max(_hitStopTimer, duration);
 
         if (!_isHitStopping)
@@ -127,7 +122,7 @@ public class GameManager : MonoBehaviour
         IEnumerator hitStopRoutine()
         {
             _isHitStopping = true;
-            
+
             Time.timeScale = 0.05f;
             Time.fixedDeltaTime = _originalFixedDeltaTime * Time.timeScale;
 

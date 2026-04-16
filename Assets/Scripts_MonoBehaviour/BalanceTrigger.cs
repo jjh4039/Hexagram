@@ -35,7 +35,7 @@ public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                 string title = $"주사위 : < <color={hexColor}>{highlightIndex + 1} </color>>";
 
                 string desc = $"{data.description}\n\n" +
-                              $"면 발동 확률 : <color={hexColor}>{percent:F1}%</color>";
+                              $"면 발동 확률 : [ <color={hexColor}>{percent:F1}%</color> ]";
 
                 DashboardUI.instance.ShowTooltipCommon(title, desc);
             }
