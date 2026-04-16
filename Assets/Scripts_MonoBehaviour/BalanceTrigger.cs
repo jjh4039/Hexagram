@@ -4,36 +4,51 @@ using UnityEngine.EventSystems;
 public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("설정")]
-    public int highlightIndex; // 몇 번째 스프라이트를 보여줄지 (0~6)
+    public int highlightIndex; // 강조 표시할 주사위 면 번호
 
-    [Header("툴팁 내용")]
-    public string title;       // 예: "질서의 영역 (I)"
-    [TextArea] public string description; // 예: "확률 16%"
+    private Dice _targetDice; // 데이터 연동을 위한 주사위 참조
+
+    private void Start()
+    {
+        if (GameManager.instance != null)
+        {
+            _targetDice = GameManager.instance.dice; // 게임매니저에서 주사위 연결
+        }
+    }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 1. 이미지 교체 요청
         if (BalancePanel.instance != null)
         {
             BalancePanel.instance.SetHighlight(highlightIndex);
         }
 
-        // 2. 툴팁 띄우기
-        if (DashboardUI.instance != null)
+        if (DashboardUI.instance != null && _targetDice != null)
         {
-            DashboardUI.instance.ShowTooltipCommon(title, description);
+            if (highlightIndex >= 0 && highlightIndex < _targetDice.diceList.Length)
+            {
+                DiceData data = _targetDice.diceList[highlightIndex];
+                float percent = _targetDice.displayPercentages[highlightIndex];
+
+                string hexColor = $"#{data.particleColor.r:X2}{data.particleColor.g:X2}{data.particleColor.b:X2}"; // 파티클 컬러를 16진수 코드로 변환
+
+                string title = $"주사위 : < <color={hexColor}>{highlightIndex + 1} </color>>";
+
+                string desc = $"{data.description}\n\n" +
+                              $"면 발동 확률 : <color={hexColor}>{percent:F1}%</color>";
+
+                DashboardUI.instance.ShowTooltipCommon(title, desc);
+            }
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // 1. 이미지 원상복구 요청
         if (BalancePanel.instance != null)
         {
             BalancePanel.instance.ResetToNormal();
         }
 
-        // 2. 툴팁 끄기
         if (DashboardUI.instance != null)
         {
             DashboardUI.instance.HideTooltip();

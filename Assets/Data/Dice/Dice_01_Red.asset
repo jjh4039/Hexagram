@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dice_01_Red
   m_EditorClassIdentifier: Assembly-CSharp::DiceData
   diceName: "\uBE68\uAC04\uC0C9"
-  description: "\uACF5\uACA9\uB825\uC774 20% \uC0C1\uC2B9\uD569\uB2C8\uB2E4."
+  description: "\uACF5\uACA9\uB825\uC774 20%\n\uC0C1\uC2B9\uD569\uB2C8\uB2E4."
   shortDescription: "\uACF5\uACA9\uB825\uC774 \uC0C1\uC2B9\uD569\uB2C8\uB2E4"
   icon: {fileID: 428028097, guid: 65b962f3566eda74f8050782f0268e80, type: 3}
   particleColor:
