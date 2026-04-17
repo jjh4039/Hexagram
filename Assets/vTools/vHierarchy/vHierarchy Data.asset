@@ -15,6 +15,7 @@ MonoBehaviour:
   sceneDatas_byGuid:
     keys:
     - 8c9cfa26abfee488c85f1582747f6a02
+    - 3307100f2bb44c34297316e44d240e18
     values:
     - goDatas_byGlobalId:
         keys:
@@ -249,6 +250,19 @@ MonoBehaviour:
           iconNameOrGuid: TestStopwatch
           isIconRecursive: 1
           isColorRecursive: 1
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-1212806268-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-63897874-0
+        values:
+        - colorIndex: 0
+          iconNameOrGuid: Settings Icon
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: Canvas Icon
+          isIconRecursive: 1
+          isColorRecursive: 0
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity
