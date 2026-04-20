@@ -10,6 +10,12 @@
       },
       "hash": "c54f63cb18a22382215b142b63e232f0f86fff58"
     },
+    "com.febucci.text-animator-unity": {
+      "version": "file:com.febucci.text-animator-unity",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.pixel-perfect": {
       "version": "5.1.1",
       "depth": 0,

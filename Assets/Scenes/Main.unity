@@ -27253,6 +27253,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Starting
       objectReference: {fileID: 0}
+    - target: {fileID: 6770056987612179759, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8550526856449362156, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.47
@@ -27292,6 +27296,10 @@ PrefabInstance:
     - target: {fileID: 8550526856449362156, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8707189956456441058, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
+      propertyPath: m_ColliderPaths.Array.size
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -30441,7 +30449,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC804\uD22C \uC911\uC5D0\uB294 \uC5F4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4"
+  m_text: "\uC804\uD22C \uC911\uC5D4 \uC5F4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
   m_sharedMaterial: {fileID: -742173420960112056, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
@@ -47726,7 +47734,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: m_Volume
