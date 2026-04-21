@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b97a825c489d94194a088dd18fedd2f0
+guid: 2d68c28ce7b16334a80fe39389408715
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -13,6 +13,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 341308
   packageName: Text Animator for Unity | UI Toolkit and Text Mesh Pro
-  packageVersion: 
-  assetPath: Packages/com.febucci.text-animator-unity/Samples~/Quick Start/Scripts/Runtime/DefaultEffectsExample.cs
-  uploadId: 0
+  packageVersion: 3.11.1
+  assetPath: Packages/com.febucci.text-animator-unity/Samples~/Typewriter Sounds/TAnimSoundWriter.cs
+  uploadId: 899494
