@@ -20,5 +20,5 @@ MonoBehaviour:
   type: 0
   effectType: 2
   condition: 0
-  value: 5
+  value: 0.05
   isPercent: 1

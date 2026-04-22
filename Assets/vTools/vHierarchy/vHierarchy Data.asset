@@ -65,6 +65,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1407735814-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-280337866-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-474630379-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1893222183-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -248,6 +249,10 @@ MonoBehaviour:
           isColorRecursive: 1
         - colorIndex: 1
           iconNameOrGuid: TestStopwatch
+          isIconRecursive: 1
+          isColorRecursive: 1
+        - colorIndex: 3
+          iconNameOrGuid: sv_icon_dot12_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 1
     - goDatas_byGlobalId:
