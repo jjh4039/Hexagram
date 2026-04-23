@@ -26,6 +26,12 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] private float slowMotionScale = 0.2f; // 얼마나 느려질 것인가? (0.2배속)
     [SerializeField] private float whiteOutDuration = 2.0f; // 화면이 하얗게 덮이는 데 걸리는 시간
 
+    [Header("GameOver Cinematic")]
+    [SerializeField] private SpriteRenderer worldBlackoutSprite; // 카메라 자식으로 들어갈 거대한 검은 화면
+    [SerializeField] private GameObject gameOverUI; // 최종적으로 켜질 게임오버 캔버스
+    [SerializeField] private float timeSlowDuration = 1.5f; // 시간이 완전히 멈추기까지 걸리는 시간
+    [SerializeField] private float blackoutDuration = 2.0f; // 화면이 까맣게 덮이는 데 걸리는 시간
+
     public float SunsetDuration => sunsetDuration;
 
     [Header("UI to Hide During Cinematic")]
@@ -221,5 +227,78 @@ public class CinematicManager : MonoBehaviour
         }
 
         Debug.Log("보스 처치 연출 완전 종료!");
+    }
+
+    public void PlayGameOverCinematic(Transform playerTransform)
+    {
+        StartCoroutine(Co_GameOverCinematic(playerTransform));
+    }
+
+    private IEnumerator Co_GameOverCinematic(Transform playerTransform)
+    {
+        // 1. 기존 전투 UI 숨기기 및 카메라 마우스 추적 해제
+        StartCoroutine(Co_FadeGameplayUI(false));
+        if (CameraFollow.instance != null)
+        {
+            CameraFollow.instance.isCinematicFocus = true;
+            CameraFollow.instance.isCinematicZoom = true; // [수정됨] 줌 인 시작
+        }
+
+        // [추가됨] 플레이어를 화면 최상단으로 끌어올리기 위한 레이어 조작
+        SpriteRenderer playerSR = playerTransform.GetComponentInChildren<SpriteRenderer>();
+        if (playerSR != null && worldBlackoutSprite != null)
+        {
+            // 검은 화면을 매우 높은 숫자(예: 30000)로 설정하여 모든 맵과 적을 덮습니다.
+            worldBlackoutSprite.sortingOrder = 30000;
+
+            // 플레이어는 검은 화면보다 딱 1만큼 더 높게(30001) 설정하여 샌드위치 시킵니다.
+            playerSR.sortingOrder = 30001;
+        }
+
+        float elapsed = 0f;
+        float initialTimeScale = Time.timeScale;
+
+        if (worldBlackoutSprite != null)
+        {
+            worldBlackoutSprite.gameObject.SetActive(true);
+            Color startColor = worldBlackoutSprite.color;
+            startColor.a = 0f;
+            worldBlackoutSprite.color = startColor;
+        }
+
+        // 2. 시간 감속 및 화면 암전
+        while (elapsed < blackoutDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = elapsed / blackoutDuration;
+
+            if (elapsed < timeSlowDuration)
+            {
+                Time.timeScale = Mathf.Lerp(initialTimeScale, 0f, elapsed / timeSlowDuration);
+            }
+            else
+            {
+                Time.timeScale = 0f;
+            }
+
+            if (worldBlackoutSprite != null)
+            {
+                Color c = worldBlackoutSprite.color;
+                c.a = Mathf.Lerp(0f, 1f, t);
+                worldBlackoutSprite.color = c;
+            }
+
+            yield return null;
+        }
+
+        Time.timeScale = 0f;
+
+        yield return new WaitForSecondsRealtime(1.5f);
+
+        // 4. 전용 게임 오버 UI 활성화
+        if (gameOverUI != null)
+        {
+            gameOverUI.SetActive(true);
+        }
     }
 }

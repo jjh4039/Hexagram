@@ -22,16 +22,20 @@ public class CameraFollow : MonoBehaviour
     [Header("Aim & Zoom Settings")]
     [SerializeField] private float aimMouseInfluence = 0.15f;
     [SerializeField] private float aimMaxMouseOffset = 2.0f;
-
-    [Tooltip("에임 시 화면 배율 설정")]
-    [SerializeField] private float aimZoomMultiplier = 0.95f;
+    [SerializeField] private float aimZoomMultiplier = 0.95f; // 에임 시 화면 배율 설정
     [SerializeField] private float aimTransitionSpeed = 5f;
+
+    [Header("Cinematic Settings")]
+    public bool isCinematicFocus = false; // 연출 중 마우스 추적 무시 플래그
+    public bool isCinematicZoom = false; // 연출 중 줌 여부 플래그
+    [SerializeField] private float cinematicZoomMultiplier = 0.8f; // 사망 시 화면 확대 배율
+    [SerializeField] private float cinematicZoomSpeed = 2.0f; // 줌 확대 진입 속도
 
     [Header("Shake Settings")]
     [SerializeField] private float shakeDecaySpeed = 5f;
     [SerializeField] private float uiOffsetSmoothSpeed = 10f;
 
-    private float _currentShakeDecay;                        // 현재 적용 중인 감쇠 속도
+    private float _currentShakeDecay; // 현재 적용 중인 감쇠 속도
 
     private Vector3 _offset;
     private Vector3 _uiOffset;
@@ -101,28 +105,32 @@ public class CameraFollow : MonoBehaviour
         if (player == null) return;
 
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI)
-            return;                                          // 일시정지 상태 시 카메라 연산 완전 정지
+        {
+            if (!isCinematicFocus) return;
+        }
 
-        if (Mouse.current == null) return;
+        if (Mouse.current == null && !isCinematicFocus) return;
 
         UpdateShake();
 
-        bool isRightClickDown = Mouse.current.rightButton.isPressed;
+        bool isRightClickDown = Mouse.current != null && Mouse.current.rightButton.isPressed;
         bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
         bool isAiming = isRightClickDown && isGunEquipped;
 
-        if (isAiming && !_wasAiming)
+        // 불가피한 수정: 연출 줌이 시작될 때도 기준 사이즈를 갱신하도록 조건 추가
+        if ((isAiming && !_wasAiming) || (isCinematicZoom && !_wasAiming))
         {
             if (pixelCam == null || pixelCam.enabled)
             {
                 _dynamicBaseOrthoSize = cam.orthographicSize;
             }
         }
-        _wasAiming = isAiming;
+        _wasAiming = isAiming || isCinematicZoom;
 
         if (pixelCam != null)
         {
-            if (isAiming)
+            // 불가피한 수정: 줌 연출 시 픽셀 퍼펙트 카메라가 강제로 줌과 위치를 고정하는 현상 차단
+            if (isAiming || isCinematicZoom)
             {
                 pixelCam.enabled = false;
             }
@@ -135,14 +143,20 @@ public class CameraFollow : MonoBehaviour
 
         float targetInfluence = isAiming ? aimMouseInfluence : mouseInfluence;
         float targetMaxOffset = isAiming ? aimMaxMouseOffset : maxMouseOffset;
-        float targetOrthoSize = isAiming ? (_dynamicBaseOrthoSize * aimZoomMultiplier) : _dynamicBaseOrthoSize;
+
+        float targetOrthoSize = _dynamicBaseOrthoSize;
+        if (isCinematicZoom) targetOrthoSize = _dynamicBaseOrthoSize * cinematicZoomMultiplier;
+        else if (isAiming) targetOrthoSize = _dynamicBaseOrthoSize * aimZoomMultiplier;
+
+        float currentZoomSpeed = isCinematicZoom ? cinematicZoomSpeed : aimTransitionSpeed;
 
         _currentInfluence = Mathf.Lerp(_currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
         _currentMaxOffset = Mathf.Lerp(_currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
 
         if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
         {
-            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, aimTransitionSpeed * Time.deltaTime);
+            float dt = isCinematicZoom ? Time.unscaledDeltaTime : Time.deltaTime;
+            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, currentZoomSpeed * dt);
         }
 
         _currentUiOffset = Vector3.Lerp(
@@ -156,7 +170,7 @@ public class CameraFollow : MonoBehaviour
 
         bool isTrackingRealPlayer = (GameManager.instance && player == GameManager.instance.player.transform);
 
-        if (isTrackingRealPlayer)
+        if (isTrackingRealPlayer && !isCinematicFocus && Mouse.current != null)
         {
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
@@ -169,8 +183,11 @@ public class CameraFollow : MonoBehaviour
 
         targetPosition += finalOffset;
 
-        Vector3 currentUnshakenPos = transform.position - _shakeOffset; // 흔들림 값이 더해지기 전의 진짜 위치 계산
-        Vector3 smoothedPos = Vector3.Lerp(currentUnshakenPos, targetPosition, smoothSpeed * Time.deltaTime);
+        Vector3 currentUnshakenPos = transform.position - _shakeOffset;
+
+        float moveDt = isCinematicFocus ? Time.unscaledDeltaTime : Time.deltaTime;
+        Vector3 smoothedPos = Vector3.Lerp(currentUnshakenPos, targetPosition, smoothSpeed * moveDt);
+
         transform.position = smoothedPos + _shakeOffset;
     }
 

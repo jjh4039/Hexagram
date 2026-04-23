@@ -468,9 +468,31 @@ public class Player : MonoBehaviour
         rigid.linearVelocity = Vector2.zero;
         rigid.simulated = false;
         canControl = false;
-        spriteRenderer.color = Color.gray;
 
-        if (anim != null) anim.enabled = false;
+        // [수정됨] 피격 코루틴 정지 및 스프라이트 색상 원상 복구
+        StopAllCoroutines();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = Color.white;
+            spriteRenderer.material = _originalMaterial;
+        }
+
+        // [수정됨] 조작 상태를 UI로 완전히 넘겨 공격/대시 등 혹시 모를 버그 차단
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.ChangeInputState(InputState.UI);
+        }
+
+        if (anim != null)
+        {
+            anim.updateMode = AnimatorUpdateMode.UnscaledTime;
+            anim.SetTrigger("Die");
+        }
+
+        if (CinematicManager.instance != null)
+        {
+            CinematicManager.instance.PlayGameOverCinematic(this.transform);
+        }
 
         Debug.Log("Player: Dead");
     }
