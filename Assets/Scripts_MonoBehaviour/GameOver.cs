@@ -1,54 +1,76 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameOver : MonoBehaviour
 {
     [Header("Sequence Delays")]
-    [SerializeField] private float delayA = 1.0f; // 초기 대기 시간
-    [SerializeField] private float delayB = 0.5f; // 좌측 텍스트 간격
-    [SerializeField] private float delayD = 0.3f; // 좌측 완료 후 우측 시작 전 대기
-    [SerializeField] private float delayC = 0.5f; // 우측 텍스트 간격
-    [SerializeField] private float delayE = 0.8f; // 우측 완료 후 정산 시작 전 대기
-    [SerializeField] private float countDelay = 0.05f; // 보석 정산 속도 및 정산 사이 대기
+    [SerializeField] private float delayA = 1.0f;
+    [SerializeField] private float delayB = 0.5f;
+    [SerializeField] private float delayD = 0.3f;
+    [SerializeField] private float delayC = 0.5f;
+    [SerializeField] private float delayE = 0.8f;
+    [SerializeField] private float countDelay = 0.05f;
 
     [Header("UI Objects (Left Texts)")]
-    [SerializeField] private GameObject text0Obj; // 최상단 타이틀
-    [SerializeField] private GameObject text1Obj; // 타임 라벨
-    [SerializeField] private GameObject text2Obj; // 데미지 라벨
-    [SerializeField] private GameObject text3Obj; // 보석 라벨
+    [SerializeField] private GameObject text0Obj;
+    [SerializeField] private GameObject text1Obj;
+    [SerializeField] private GameObject text2Obj;
+    [SerializeField] private GameObject text3Obj;
 
     [Header("UI Objects (Right Texts)")]
-    [SerializeField] private GameObject textAObj; // 타임 보상치
-    [SerializeField] private GameObject textBObj; // 데미지 보상치
-    [SerializeField] private GameObject textCObj; // 합계 보상치
-    [SerializeField] private GameObject spacePromptObj; // 안내 문구
+    [SerializeField] private GameObject textAObj;
+    [SerializeField] private GameObject textBObj;
+    [SerializeField] private GameObject textCObj;
+    [SerializeField] private GameObject spacePromptObj;
+
+    [Header("Result Value Texts")]
+    [SerializeField] private TextMeshProUGUI progressResultText; // 추가됨: 진행도 텍스트 (예: 봄 - 15%)
+    [SerializeField] private TextMeshProUGUI timeResultText;
+    [SerializeField] private TextMeshProUGUI damageResultText;
+    [SerializeField] private TextMeshProUGUI currentOwnedGemText;
 
     [Header("Text Components For Counting")]
-    [SerializeField] private TextMeshProUGUI timeRewardText; // 타임 보석 숫자
-    [SerializeField] private TextMeshProUGUI damageRewardText; // 데미지 보석 숫자
-    [SerializeField] private TextMeshProUGUI totalGemText; // 합계 보석 숫자
-    [SerializeField] private TextMeshProUGUI spacePromptText; // 안내 문구 컴포넌트
+    [SerializeField] private TextMeshProUGUI timeRewardText;
+    [SerializeField] private TextMeshProUGUI damageRewardText;
+    [SerializeField] private TextMeshProUGUI totalGemText;
+    [SerializeField] private TextMeshProUGUI spacePromptText;
 
     [Header("Settlement Variables")]
-    public int rewardFromTime = 3; // 타임 보상 목표치
-    public int rewardFromDamage = 2; // 데미지 보상 목표치
-    public int totalGainedReward = 0; // 누적되는 획득량
-    public int currentOwnedGems = 3; // 보유 중인 보석량
+    public int rewardFromTime = 0;
+    public int rewardFromDamage = 0;
+    public int totalGainedReward = 0;
+    public int currentOwnedGems = 0;
 
-    private bool isCalculationDone = false; // 입력 활성화 플래그
+    [Header("Sound Clips")]
+    [SerializeField] private AudioClip sfxStart;
+    [SerializeField] private AudioClip sfxReveal;
+    [SerializeField] private AudioClip sfxValue;
+    [SerializeField] private AudioClip sfxCounting;
+
+    [Header("Transition Settings")]
+    [SerializeField] private Image fadeOutImage;
+    [SerializeField] private float fadeOutDuration = 1.0f;
+
+    private bool isCalculationDone = false;
+    private bool isTransitioning = false;
 
     private void OnEnable()
     {
         InitializeUI();
+
+        if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxStart, 1.0f, 0f);
+
         StartCoroutine(Co_GameOverSequence());
     }
 
     private void Update()
     {
-        if (!isCalculationDone) return;
+        if (!isCalculationDone || isTransitioning) return;
 
         if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
         {
@@ -59,10 +81,58 @@ public class GameOver : MonoBehaviour
     private void InitializeUI()
     {
         isCalculationDone = false;
+        isTransitioning = false;
         totalGainedReward = 0;
 
         GameObject[] allObjs = { text0Obj, text1Obj, text2Obj, text3Obj, textAObj, textBObj, textCObj, spacePromptObj };
         foreach (var obj in allObjs) if (obj != null) obj.SetActive(false);
+
+        if (fadeOutImage != null)
+        {
+            Color c = fadeOutImage.color;
+            c.a = 0f;
+            fadeOutImage.color = c;
+            fadeOutImage.gameObject.SetActive(false);
+        }
+
+        if (GameManager.instance != null)
+        {
+            float playTime = GameManager.instance.currentPlayTime;
+            int damage = GameManager.instance.totalDamageDealt;
+
+            // 추가됨: 진행도 데이터 연동
+            Season currentSeason = GameManager.instance.currentSeason;
+            int progress = GameManager.instance.currentProgress;
+
+            rewardFromTime = Mathf.FloorToInt(playTime / 600f);
+            rewardFromDamage = damage / 1000;
+            currentOwnedGems = GameManager.instance.diceGem;
+
+            // 추가됨: 계절 Enum을 한글 문자열로 변환하고 진행도 텍스트 적용
+            if (progressResultText != null)
+            {
+                string seasonName = "";
+                switch (currentSeason)
+                {
+                    case Season.Spring: seasonName = "봄"; break;
+                    case Season.Summer: seasonName = "여름"; break;
+                    case Season.Autumn: seasonName = "가을"; break;
+                    case Season.Winter: seasonName = "겨울"; break;
+                }
+                progressResultText.text = $"{seasonName} - {progress}%";
+            }
+
+            if (timeResultText != null)
+            {
+                TimeSpan ts = TimeSpan.FromSeconds(playTime);
+                timeResultText.text = string.Format("{0:00}:{1:00}:{2:00}", ts.Hours, ts.Minutes, ts.Seconds);
+            }
+
+            if (damageResultText != null)
+            {
+                damageResultText.text = damage.ToString("N0");
+            }
+        }
 
         UpdateRewardUI();
     }
@@ -71,28 +141,28 @@ public class GameOver : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delayA);
 
-        if (text0Obj != null) text0Obj.SetActive(true);
+        if (text0Obj != null) { text0Obj.SetActive(true); PlayRevealSFX(); }
         yield return new WaitForSecondsRealtime(delayB);
 
-        if (text1Obj != null) text1Obj.SetActive(true);
+        if (text1Obj != null) { text1Obj.SetActive(true); PlayRevealSFX(); }
         yield return new WaitForSecondsRealtime(delayB);
 
-        if (text2Obj != null) text2Obj.SetActive(true);
+        if (text2Obj != null) { text2Obj.SetActive(true); PlayRevealSFX(); }
         yield return new WaitForSecondsRealtime(delayB);
 
-        if (text3Obj != null) text3Obj.SetActive(true);
+        if (text3Obj != null) { text3Obj.SetActive(true); PlayRevealSFX(); }
 
-        yield return new WaitForSecondsRealtime(delayD); // 좌측 종료 후 대기
+        yield return new WaitForSecondsRealtime(delayD);
 
-        if (textAObj != null) textAObj.SetActive(true);
+        if (textAObj != null) { textAObj.SetActive(true); PlayValueSFX(); }
         yield return new WaitForSecondsRealtime(delayC);
 
-        if (textBObj != null) textBObj.SetActive(true);
+        if (textBObj != null) { textBObj.SetActive(true); PlayValueSFX(); }
         yield return new WaitForSecondsRealtime(delayC);
 
-        if (textCObj != null) textCObj.SetActive(true);
+        if (textCObj != null) { textCObj.SetActive(true); PlayValueSFX(); }
 
-        yield return new WaitForSecondsRealtime(delayE); // 우측 종료 후 대기
+        yield return new WaitForSecondsRealtime(delayE);
 
         yield return StartCoroutine(Co_CalculateRewards());
 
@@ -109,17 +179,25 @@ public class GameOver : MonoBehaviour
             rewardFromTime--;
             totalGainedReward++;
             currentOwnedGems++;
+            if (GameManager.instance != null) GameManager.instance.diceGem++;
+
+            if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxCounting, 0.7f, 0.1f);
+
             UpdateRewardUI();
             yield return new WaitForSecondsRealtime(countDelay);
         }
 
-        yield return new WaitForSecondsRealtime(countDelay); // 정산 사이 대기
+        yield return new WaitForSecondsRealtime(countDelay);
 
         while (rewardFromDamage > 0)
         {
             rewardFromDamage--;
             totalGainedReward++;
             currentOwnedGems++;
+            if (GameManager.instance != null) GameManager.instance.diceGem++;
+
+            if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxCounting, 0.7f, 0.1f);
+
             UpdateRewardUI();
             yield return new WaitForSecondsRealtime(countDelay);
         }
@@ -129,32 +207,60 @@ public class GameOver : MonoBehaviour
     {
         if (timeRewardText != null) timeRewardText.text = $"+{rewardFromTime}";
         if (damageRewardText != null) damageRewardText.text = $"+{rewardFromDamage}";
+        if (currentOwnedGemText != null) currentOwnedGemText.text = currentOwnedGems.ToString();
         if (totalGemText != null) totalGemText.text = $"(+{totalGainedReward})";
+    }
+
+    private void PlayRevealSFX()
+    {
+        if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxReveal, 0.8f, 0.05f);
+    }
+
+    private void PlayValueSFX()
+    {
+        if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxValue, 0.9f, 0.05f);
     }
 
     private IEnumerator Co_BlinkPromptText()
     {
-        // 불가피한 수정: 0과 1 사이를 완전 왕복하는 부드러운 숨쉬기 연출 적용
+        float elapsed = 0f;
         while (true)
         {
-            // 시간 기반 Cos 공식으로 0에서 1 사이를 부드럽게 오가는 T값 계산 (속도 2.5)
-            float t = (Mathf.Cos(Time.unscaledTime * 2.5f) + 1f) * 0.5f;
-
-            // SmoothStep을 적용하여 T값의 양 끝단 변화를 더 부드럽게 처리
+            elapsed += Time.unscaledDeltaTime;
+            float t = (Mathf.Cos(elapsed * 2.5f + Mathf.PI) + 1f) * 0.5f;
             float smoothT = Mathf.SmoothStep(0f, 1f, t);
-
-            // 최종 알파값을 0(완전 투명)에서 1(완전 불투명) 사이로 보간
-            float alpha = Mathf.Lerp(0f, 1f, smoothT);
-
-            if (spacePromptText != null) spacePromptText.alpha = alpha;
+            if (spacePromptText != null) spacePromptText.alpha = Mathf.Lerp(0f, 1f, smoothT);
             yield return null;
         }
     }
 
     private void GoToTitle()
     {
-        Debug.Log("타이틀로 이동");
-        // Time.timeScale = 1f; // 시간 정지 해제
+        isTransitioning = true;
+
+        StartCoroutine(Co_FadeAndLoadScene());
+    }
+
+    private IEnumerator Co_FadeAndLoadScene()
+    {
+        if (fadeOutImage != null)
+        {
+            fadeOutImage.gameObject.SetActive(true);
+            Color startColor = fadeOutImage.color;
+            float elapsed = 0f;
+
+            while (elapsed < fadeOutDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                startColor.a = Mathf.Clamp01(elapsed / fadeOutDuration);
+                fadeOutImage.color = startColor;
+                yield return null;
+            }
+        }
+
+        Debug.Log("타이틀로 이동 준비 완료");
+
+        // Time.timeScale = 1f; 
         // SceneManager.LoadScene("TitleScene");
     }
 }

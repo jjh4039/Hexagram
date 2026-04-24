@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerStats stats;
 
     [Header("Manager Link")]
-    [SerializeField] public BuffManager buffManager; 
+    [SerializeField] public BuffManager buffManager;
     [SerializeField] private WeaponManager weaponManager;
 
     [Header("Input Control")]
@@ -20,8 +20,7 @@ public class Player : MonoBehaviour
 
     public Vector2 mouseWorldPos { get; set; }
     private Vector2 _moveInput;
-    
-    // [수정됨] 독자적인 입력 객체 생성 삭제, 매니저의 객체를 참조하도록 변경
+
     public PlayerInput Input => InputStateManager.Instance.Actions;
 
     [Header("State")]
@@ -79,8 +78,6 @@ public class Player : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        
-        // [수정됨] _inputActions = new PlayerInput(); 삭제 (매니저가 관리함)
 
         if (stats == null) stats = GetComponent<PlayerStats>();
         if (buffManager == null) buffManager = GetComponent<BuffManager>();
@@ -105,28 +102,23 @@ public class Player : MonoBehaviour
         }
     }
 
-    // [수정됨] OnEnable 대신 Start에서 매니저 이벤트를 구독 (싱글톤 초기화 보장)
     private void Start()
     {
         if (InputStateManager.Instance == null) return;
 
         var actions = InputStateManager.Instance.Actions;
 
-        // Normal 맵 바인딩
         actions.Normal.Dash.performed += OnDash;
         actions.Normal.Attack.performed += OnAttack;
         actions.Normal.Swap.performed += OnSwap;
 
-        // Combat 맵 바인딩
         actions.Combat.Dash.performed += OnDash;
         actions.Combat.Attack.performed += OnAttack;
         actions.Combat.Swap.performed += OnSwap;
 
-        // 상태 변경 이벤트 구독
         InputStateManager.Instance.OnInputStateChanged += HandleInputStateChanged;
     }
 
-    // [수정됨] OnDisable 대신 OnDestroy에서 메모리 해제
     private void OnDestroy()
     {
         if (InputStateManager.Instance == null) return;
@@ -144,18 +136,17 @@ public class Player : MonoBehaviour
         InputStateManager.Instance.OnInputStateChanged -= HandleInputStateChanged;
     }
 
-    // [수정됨] UI 상태 진입 시 무적 및 정지 처리 콜백 추가
     private void HandleInputStateChanged(InputState newState)
     {
         if (newState == InputState.UI)
         {
-            _moveInput = Vector2.zero;           // 이동 입력 초기화
-            rigid.linearVelocity = Vector2.zero; // 물리적인 미끄러짐 방지
-            isInvincible = true;                 // UI 창이 열려있을 때 무적 판정
+            _moveInput = Vector2.zero;
+            rigid.linearVelocity = Vector2.zero;
+            isInvincible = true;
         }
         else
         {
-            isInvincible = false;                // UI 창이 닫히면 무적 해제
+            isInvincible = false;
         }
     }
 
@@ -194,7 +185,6 @@ public class Player : MonoBehaviour
             stats.currentDashStacks = Mathf.Min(stats.currentDashStacks, stats.maxDashStacks);
         }
 
-        // [수정됨] 현재 활성화된 맵의 이동 값만 읽어옵니다
         if (InputStateManager.Instance.CurrentInputState == InputState.Normal)
             _moveInput = Input.Normal.Move.ReadValue<Vector2>();
         else if (InputStateManager.Instance.CurrentInputState == InputState.Combat)
@@ -207,11 +197,10 @@ public class Player : MonoBehaviour
 
     private void LookAtMouse()
     {
-        // [추가] UI 상태일 때는 캐릭터 회전(Flip) 로직을 실행하지 않음
         if (InputStateManager.Instance.CurrentInputState == InputState.UI) return;
 
         Vector2 mouseScreenPos = Vector2.zero;
-    
+
         if (InputStateManager.Instance.CurrentInputState == InputState.Normal)
             mouseScreenPos = Input.Normal.Look.ReadValue<Vector2>();
         else if (InputStateManager.Instance.CurrentInputState == InputState.Combat)
@@ -229,13 +218,11 @@ public class Player : MonoBehaviour
         CheckContactDamage();
     }
 
-    // 무기 등에서 Ranged Multiplier를 가져갈 때 사용
     public float GetDiceRangedDamageMultiplier()
     {
         return stats != null ? stats.diceRangedDamageMultiplier : 1f;
     }
 
-    // 무기 등에서 Strong Attack 스택을 소모할 때 사용 (BuffManager로 연결)
     public bool TryConsumeStrongAttack(out float strongAttackMultiplier)
     {
         if (buffManager)
@@ -389,7 +376,6 @@ public class Player : MonoBehaviour
         if (_moveInput.magnitude > 0) dashDir = _moveInput.normalized;
         else dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
 
-        // BuffManager에서 색상을 가져옵니다
         Color dashColor = buffManager != null ? buffManager.GetCurrentDiceColor() : Color.white;
 
         if (dashDustPrefab != null)
@@ -469,7 +455,6 @@ public class Player : MonoBehaviour
         rigid.simulated = false;
         canControl = false;
 
-        // [수정됨] 피격 코루틴 정지 및 스프라이트 색상 원상 복구
         StopAllCoroutines();
         if (spriteRenderer != null)
         {
@@ -477,7 +462,6 @@ public class Player : MonoBehaviour
             spriteRenderer.material = _originalMaterial;
         }
 
-        // [수정됨] 조작 상태를 UI로 완전히 넘겨 공격/대시 등 혹시 모를 버그 차단
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.ChangeInputState(InputState.UI);
@@ -489,12 +473,52 @@ public class Player : MonoBehaviour
             anim.SetTrigger("Die");
         }
 
+        StartCoroutine(Co_FadeOutBGM());
+
+        // 불가피한 수정: 프레임 드랍으로 인해 색상 초기화가 무시되는 현상을 막기 위해 추가 코루틴 실행
+        StartCoroutine(Co_ForceCleanVisuals());
+
         if (CinematicManager.instance != null)
         {
             CinematicManager.instance.PlayGameOverCinematic(this.transform);
         }
 
         Debug.Log("Player: Dead");
+    }
+
+    private IEnumerator Co_FadeOutBGM()
+    {
+        if (SoundManager.instance == null) yield break;
+
+        float originalVolume = SoundManager.instance.bgmVolume;
+        int steps = 10;
+        float delayPerStep = 1.5f / steps;
+
+        for (int i = 1; i <= steps; i++)
+        {
+            yield return new WaitForSecondsRealtime(delayPerStep);
+
+            float targetVolume = originalVolume * (1f - (0.1f * i));
+            SoundManager.instance.SetBGMVolume(targetVolume);
+        }
+    }
+
+    // 불가피한 수정: 죽음 연출의 시작과 끝 타이밍에 색상을 한 번 더 강제로 덮어씌웁니다
+    private IEnumerator Co_ForceCleanVisuals()
+    {
+        yield return new WaitForEndOfFrame(); // 현재 프레임 연산 종료 직후 1차 복구
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = Color.white;
+            spriteRenderer.material = _originalMaterial;
+        }
+
+        yield return new WaitForSecondsRealtime(1.5f); // 컷신 시간이 완전히 멈추는 시점에 2차 복구
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = Color.white;
+            spriteRenderer.material = _originalMaterial;
+        }
     }
 
     private void OnDrawGizmosSelected()
