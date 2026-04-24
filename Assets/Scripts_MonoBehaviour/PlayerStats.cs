@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-
     [Header("Survival Stats")]
     public int maxHealth = 100;
     public int currentHealth;
@@ -51,6 +50,9 @@ public class PlayerStats : MonoBehaviour
     public float diceCritDamageBonus = 0f;
     public float diceRangedDamageMultiplier = 1.0f;
     public int diceStrongAttackStacks = 0;
+    
+    // 신규 추가: 버프로 인한 최종 대미지 증가 배율 (기본 1)
+    public float buffFinalDamageMultiplier = 1.0f; 
 
     private float ammoRechargeTimer = 0f;
 
@@ -166,6 +168,26 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    // --- 스탯 산출용 Get 함수들 ---
+    
+    public float GetFinalMeleeDamage()
+    {
+        // 근거리 공격력 * (버프 데미지 증가량 합산) * (최종 공격력 계수 * 버프 최종 데미지 증가량)
+        return meleeAttackPower * diceDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
+    }
+
+    public float GetFinalRangedDamage()
+    {
+        // 원거리 공격력 * (버프 데미지 증가량 합산) * (원거리 전용 버프 합산) * (최종 공격력 계수 * 버프 최종 데미지 증가량)
+        return rangeAttackPower * diceDamageMultiplier * diceRangedDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
+    }
+    
+    public float GetFinalMoveSpeed() => moveSpeed * diceMoveSpeedMultiplier;
+    public float GetFinalAttackSpeed() => attackSpeed * diceAttackSpeedMultiplier;
+    public float GetFinalChargeSpeed() => ammoRechargeRate * diceChargeSpeedMultiplier;
+    public float GetFinalDiceChargeRate() => dicePassiveChargeRate * diceChargeSpeedMultiplier;
+
+
     public void ResetDiceRuntimeStats()
     {
         diceDamageMultiplier = 1.0f;
@@ -175,6 +197,8 @@ public class PlayerStats : MonoBehaviour
         diceCritDamageBonus = 0f;
         diceRangedDamageMultiplier = 1.0f;
         diceStrongAttackStacks = 0;
+        
+        buffFinalDamageMultiplier = 1.0f;                       // 신규 런타임 변수 초기화 추가
     }
 
     public float GetFinalCriticalDamageMultiplier()
@@ -197,6 +221,9 @@ public class PlayerStats : MonoBehaviour
     {
         currentHealth -= amount;
         Debug.Log($"Player health reduced: {currentHealth}/{maxHealth}");
+        
+        BuffManager buffManager = GetComponent<BuffManager>();
+        if (buffManager != null) buffManager.RemoveGlassCannonBuff();
 
         if (currentHealth <= 0)
         {

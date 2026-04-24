@@ -14,12 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
   description: "\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740 \uBA74\uC774 \uB098\uC654\uC744
-    \uB54C\n\uACF5\uACA9\uB825\uC774 15% \uC0C1\uC2B9\uD55C\uB2E4."
+    \uB54C\n\uACF5\uACA9\uB825\uC774 45% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: 3267708370620931129, guid: 97fe76185ca4a7a4abce370b33425cb6, type: 3}
   grade: 2
   basePrice: 100
   type: 1
+  condition: 8
+  buffDuration: 10
+  isInfiniteBuff: 0
   effectType: 2
-  condition: 6
-  value: 15
+  value: 0.45
   isPercent: 1
+  effectType2: 0
+  value2: 0
+  isPercent2: 0

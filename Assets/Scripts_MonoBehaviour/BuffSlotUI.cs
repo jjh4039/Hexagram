@@ -13,11 +13,22 @@ public class BuffSlotUI : MonoBehaviour
     public void Setup(ActiveBuff buff)
     {
         currentBuff = buff;
+        Sprite targetIcon = null; // 표시할 아이콘 임시 변수
 
-        if (buff.buffData.icon)
+        // 주사위 버프인지, 아티팩트 버프인지 판별하여 아이콘 할당
+        if (buff.buffData && buff.buffData.icon)
         {
-            iconImage.sprite = buff.buffData.icon;
-            cooldownFillImage.sprite = buff.buffData.icon;
+            targetIcon = buff.buffData.icon;
+        }
+        else if (buff.artifactData && buff.artifactData.icon)
+        {
+            targetIcon = buff.artifactData.icon;
+        }
+
+        if (targetIcon)
+        {
+            iconImage.sprite = targetIcon;
+            cooldownFillImage.sprite = targetIcon;
         }
 
         gameObject.SetActive(true);
@@ -28,46 +39,58 @@ public class BuffSlotUI : MonoBehaviour
     {
         if (currentBuff == null) return;
 
-        // 남은 시간 게이지 갱신 (Filled Image의 fillAmount 조절)
-        if (currentBuff.maxTime > 0)
+        // 남은 시간 게이지 갱신
+        if (currentBuff.maxTime >= 9999f)
+        {
+            cooldownFillImage.fillAmount = 1f; // 무한일 경우 게이지 풀 유지
+        }
+        else if (currentBuff.maxTime > 0)
         {
             cooldownFillImage.fillAmount = currentBuff.remainingTime / currentBuff.maxTime;
         }
 
-        // 스택 수에 따른 최종 효과값 계산
-        float finalEffectValue = currentBuff.buffData.effectValue * currentBuff.stackCount;
-
-        // 버프 타입별 텍스트 하드코딩 표기
-        switch (currentBuff.buffData.effectType)
+        // 1. 주사위 버프일 경우의 텍스트 처리 (기존 로직 유지)
+        if (currentBuff.buffData)
         {
-            case DiceEffectType.StrongAttackBuff:
-                // 강공격: 남은 횟수 표기 (예: "3회")
-                stackText.text = $"{currentBuff.remainingCount}회";
-                break;
+            float finalEffectValue = currentBuff.buffData.effectValue * currentBuff.stackCount;
 
-            case DiceEffectType.AttackBuff:
-            case DiceEffectType.CritDamageBuff:
-            case DiceEffectType.SpeedBuff:
-                // 스탯 증가류: 최종 증가 수치를 %로 표기 (예: "+50%", "+1200%")
-                // ToString("0")을 사용해 소수점 아래는 깔끔하게 쳐냅니다.
-                stackText.text = $"+{finalEffectValue:0}%";
-                break;
+            switch (currentBuff.buffData.effectType)
+            {
+                case DiceEffectType.StrongAttackBuff:
+                    stackText.text = $"{currentBuff.remainingCount}회";
+                    break;
 
-            case DiceEffectType.RangedMegaBuff: // 6번 주사위의 경우 6으로 표기 -> 600%로 표기 하드코딩
-                stackText.text = $"+{finalEffectValue:0}00%";
-                break;
+                case DiceEffectType.AttackBuff:
+                case DiceEffectType.CritDamageBuff:
+                case DiceEffectType.SpeedBuff:
+                    stackText.text = $"+{finalEffectValue:0}%";
+                    break;
 
-            default:
-                // 그 외의 경우 (힐 등) 스택이 2 이상일 때만 배수로 표기
-                if (currentBuff.stackCount > 1)
-                {
-                    stackText.text = $"x{currentBuff.stackCount}";
-                }
-                else
-                {
-                    stackText.text = ""; // 1스택이면 숨김
-                }
-                break;
+                case DiceEffectType.RangedMegaBuff:
+                    stackText.text = $"+{finalEffectValue:0}00%";
+                    break;
+
+                default:
+                    stackText.text = currentBuff.stackCount > 1 ? $"x{currentBuff.stackCount}" : "";
+                    break;
+            }
+        }
+        // 2. 아티팩트 버프일 경우의 텍스트 처리 (신규 로직)
+        else if (currentBuff.artifactData)
+        {
+            float baseValue = currentBuff.artifactData.value;
+
+            // 퍼센트 수치(0.1 등)라면 100을 곱해 표기 수치(10)로 변환
+            if (currentBuff.artifactData.isPercent)
+            {
+                float finalPercent = (baseValue * 100f) * currentBuff.stackCount;
+                stackText.text = $"+{finalPercent:0}%";
+            }
+            else
+            {
+                // 고정 수치(합연산)의 경우 배수로 표기 (예: 중첩 시 x2, x3)
+                stackText.text = currentBuff.stackCount > 1 ? $"x{currentBuff.stackCount}" : "";
+            }
         }
     }
 }

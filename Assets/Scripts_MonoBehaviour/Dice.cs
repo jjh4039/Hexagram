@@ -67,7 +67,9 @@ public class Dice : MonoBehaviour
 
         if (diceList == null || diceList.Length == 0) return;
 
-        int selectedIndex = GetWeightedRandomIndex();            // 가중치 기반 랜덤 선택
+        int selectedIndex = GetWeightedRandomIndex();                           // 가중치 기반 랜덤 선택
+        bool isConsecutive = (lastRolledFaceIndex == selectedIndex && lastRolledFaceIndex != -1); // 이전 굴림과 동일한지 확인
+        
         lastRolledFaceIndex = selectedIndex;
         DiceData selectedData = diceList[selectedIndex];
 
@@ -78,9 +80,51 @@ public class Dice : MonoBehaviour
             {
                 if (GameManager.instance.player)
                 {
+                    // 1. 기존 주사위 버프 적용
                     if (_buffManager != null) _buffManager.ApplyDiceBuff(selectedData);
+                    
+                    // 2. 신규 아티팩트 버프 적용 (현재 굴려진 인덱스와 연속 여부 전달)
+                    CheckAndApplyDiceTriggerArtifacts(selectedIndex, isConsecutive);
                 }
             });
+        }
+    }
+
+    private void CheckAndApplyDiceTriggerArtifacts(int rolledIndex, bool isConsecutive)
+    {
+        if (ArtifactManager.instance == null || _buffManager == null) return;
+
+        ConditionType targetCondition = ConditionType.None;
+
+        // 배열 인덱스(0~5)를 조건부 타입(1~6)으로 매핑
+        switch (rolledIndex)
+        {
+            case 0: targetCondition = ConditionType.OnDiceRoll1; break;
+            case 1: targetCondition = ConditionType.OnDiceRoll2; break;
+            case 2: targetCondition = ConditionType.OnDiceRoll3; break;
+            case 3: targetCondition = ConditionType.OnDiceRoll4; break;
+            case 4: targetCondition = ConditionType.OnDiceRoll5; break;
+            case 5: targetCondition = ConditionType.OnDiceRoll6; break;
+        }
+
+        // 인벤토리의 아티팩트를 순회하며 조건이 일치하면 버프 발동
+        foreach (var artifact in ArtifactManager.instance.myArtifacts)
+        {
+            if (artifact.type != ArtifactType.Trigger) continue;
+
+            // 특정 면이 나왔을 때 발동
+            if (artifact.condition == targetCondition)
+            {
+                _buffManager.ApplyArtifactBuff(artifact);
+                Debug.Log($"주사위 아티팩트 발동: {artifact.artifactName}");
+            }
+
+            // 연속으로 같은 면이 나왔을 때 발동
+            if (isConsecutive && artifact.condition == ConditionType.OnConsecutiveSameDice)
+            {
+                _buffManager.ApplyArtifactBuff(artifact);
+                Debug.Log($"연속 굴림 아티팩트 발동: {artifact.artifactName}");
+            }
         }
     }
 

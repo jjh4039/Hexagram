@@ -18,8 +18,13 @@ MonoBehaviour:
   icon: {fileID: 7599364302717551120, guid: 68cc7df507e5ce048b0bb4c5a31bdf4f, type: 3}
   grade: 1
   basePrice: 100
-  type: 2
-  effectType: 5
-  condition: 0
-  value: 10
+  type: 1
+  condition: 5
+  buffDuration: 10
+  isInfiniteBuff: 0
+  effectType: 3
+  value: 0.1
   isPercent: 1
+  effectType2: 0
+  value2: 0
+  isPercent2: 0

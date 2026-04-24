@@ -3,9 +3,10 @@ using TMPro;
 
 public class CursorAmmoUI : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI ammoDisplayText;
-    [SerializeField] private Color warningColor = Color.red;
-    private Color normalColor;
+    [SerializeField] private VirtualCursor virtualCursor; // 가상 커서 스크립트 참조
+    [SerializeField] private TextMeshProUGUI ammoDisplayText; // 탄약 수량을 표시할 텍스트
+    [SerializeField] private Color warningColor = Color.red; // 탄약 부족 시 표시할 색상
+    private Color normalColor; // 기본 텍스트 색상
 
     void Start()
     {
@@ -14,19 +15,18 @@ public class CursorAmmoUI : MonoBehaviour
 
     void Update()
     {
-        // 1. 현재 무기가 총일 때만 보여줌
-        bool isGun = GameManager.instance.weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun;
-        ammoDisplayText.gameObject.SetActive(isGun);
+        bool isAimMode = virtualCursor && virtualCursor.CurrentCursorType == CursorType.Aim; // 조준 모드 여부 확인
+        bool isGun = GameManager.instance.weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun; // 총기 장착 여부 확인
+        
+        ammoDisplayText.gameObject.SetActive(isGun && isAimMode);
 
-        if (!isGun) return;
+        if (!isGun || !isAimMode) return;
 
-        // 2. 탄약 수치 계산 (현재 500이 최대라면 5발분)
-        int current = GameManager.instance.stats.currentAmmo / 100;
-        int max = GameManager.instance.stats.maxAmmo / 100;
+        int current = GameManager.instance.stats.currentAmmo / 100; // 현재 탄약 계산
+        int max = GameManager.instance.stats.maxAmmo / 100; // 최대 탄약 계산
 
         ammoDisplayText.text = $"{current} / {max}";
 
-        // 3. 한 발도 없을 때 색상 변경 피드백
         ammoDisplayText.color = (current <= 0) ? warningColor : normalColor;
     }
 }

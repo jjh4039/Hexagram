@@ -19,7 +19,12 @@ MonoBehaviour:
   grade: 1
   basePrice: 100
   type: 1
-  effectType: 2
-  condition: 2
-  value: 10
+  condition: 7
+  buffDuration: 10
+  isInfiniteBuff: 1
+  effectType: 12
+  value: 0.1
   isPercent: 1
+  effectType2: 0
+  value2: 0
+  isPercent2: 0

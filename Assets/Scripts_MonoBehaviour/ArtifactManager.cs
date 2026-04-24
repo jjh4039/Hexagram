@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public class ArtifactManager : MonoBehaviour
 {
-    public static ArtifactManager instance;                     // 전역 접근용 인스턴스
+    public static ArtifactManager instance; // 전역 접근용 인스턴스
 
-    public List<ArtifactData> myArtifacts = new List<ArtifactData>(); 
+    public List<ArtifactData> myArtifacts = new List<ArtifactData>();
 
     private void Awake()
     {
@@ -15,7 +15,7 @@ public class ArtifactManager : MonoBehaviour
 
     public void AddArtifact(ArtifactData data)
     {
-        myArtifacts.Add(data);                                  // 인벤토리 목록에 추가
+        myArtifacts.Add(data); // 인벤토리 목록에 추가
 
         // 획득한 아티팩트가 영구 스탯형이라면 플레이어 스탯에 즉시 반영
         if (data.type == ArtifactType.Stat)
@@ -30,7 +30,23 @@ public class ArtifactManager : MonoBehaviour
 
         if (DashboardUI.instance && DashboardUI.instance.isOpen)
         {
-            DashboardUI.instance.RefreshArtifacts();            // 열려있는 UI 즉시 갱신
+            DashboardUI.instance.RefreshArtifacts(); // 열려있는 UI 즉시 갱신
+        }
+    }
+
+    public void OnStageEnterTrigger()
+    {
+        if (GameManager.instance == null || GameManager.instance.player == null) return;
+        BuffManager buffManager = GameManager.instance.player.GetComponent<BuffManager>();
+        if (buffManager == null) return;
+
+        foreach (var artifact in myArtifacts)
+        {
+            if (artifact.type == ArtifactType.Trigger && artifact.condition == ConditionType.OnStageEnter)
+            {
+                buffManager.ApplyArtifactBuff(artifact);
+                Debug.Log($"스테이지 진입 트리거 발동: {artifact.artifactName}");
+            }
         }
     }
 }

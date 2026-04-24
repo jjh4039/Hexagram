@@ -1,16 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
 public class ActiveBuff
 {
-    public DiceData buffData;   // 버프 원본 데이터
-    public float maxTime;       // UI 게이지용 전체 시간
-    public float remainingTime; // 현재 남은 시간
-    public int stackCount;      // 중첩 횟수
-    public int remainingCount;  // 횟수제 버프의 남은 횟수
-    public bool instantApplied; // 즉발 효과 적용 여부
+    public DiceData buffData;       // 주사위 버프 데이터
+    public ArtifactData artifactData; // 아티팩트 버프 데이터 (Trigger형)
+    public float maxTime;           // UI 게이지용 전체 시간
+    public float remainingTime;     // 현재 남은 시간
+    public int stackCount;          // 중첩 횟수
+    public int remainingCount;      // 횟수제 버프의 남은 횟수
+    public bool instantApplied;     // 즉발 효과 적용 여부
+    public bool isInfinite;         // 무한 버프 여부 플래그
 }
 
 public class BuffManager : MonoBehaviour
@@ -21,11 +24,20 @@ public class BuffManager : MonoBehaviour
     [SerializeField] private WeaponManager weaponManager;
 
     [Header("Active Buffs")]
-    public List<ActiveBuff> activeBuffs = new List<ActiveBuff>(); // 활성화된 버프 리스트
+    public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
 
-    public Action OnBuffUpdated;                                  // UI 갱신용 이벤트
+    [Header("Visual Feedback")]
+    [SerializeField] private GameObject floatingIconPrefab;     // FloatingIcon 스크립트가 붙은 프리팹
+    [SerializeField] private Transform iconSpawnPoint;          // 플레이어 머리 위 빈 오브젝트의 위치
+    [SerializeField] private float iconSpawnInterval = 0.3f;    // 다중 발동 시 아이콘이 뜨는 간격
 
-    private Color _currentDiceColor = Color.white;                // 현재 적용된 주사위 색상
+    public Action OnBuffUpdated;
+
+    private Color _currentDiceColor = Color.white;
+    
+    // 아이콘 순차 재생을 위한 대기열
+    private Queue<Sprite> _iconQueue = new Queue<Sprite>();
+    private bool _isSpawningIcon = false;
 
     private void Awake()
     {
@@ -36,12 +48,75 @@ public class BuffManager : MonoBehaviour
 
     private void Update()
     {
-        // UI 조작 중이 아닐 때만 버프 타이머를 돌립니다 (StateManager 활용)
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI) return;
         
         UpdateBuffTimers();
     }
 
+    public void ApplyArtifactBuff(ArtifactData data)
+    {
+        if (data == null || stats == null) return;
+
+        // 아이콘 순차 재생 대기열 등록
+        if (floatingIconPrefab != null && iconSpawnPoint != null && data.icon != null)
+        {
+            _iconQueue.Enqueue(data.icon);
+            if (!_isSpawningIcon)
+            {
+                StartCoroutine(Co_SpawnIconRoutine());
+            }
+        }
+
+        float duration = data.buffDuration;
+        bool infinite = data.isInfiniteBuff;
+
+        ActiveBuff existingBuff = activeBuffs.Find(b => b.artifactData != null && b.artifactData == data);
+
+        if (existingBuff != null)
+        {
+            if (infinite) return; // 무한 버프는 이미 존재하면 중첩 시간 갱신을 생략
+
+            existingBuff.remainingTime = duration;
+            existingBuff.maxTime = duration;
+            existingBuff.stackCount++;
+        }
+        else
+        {
+            ActiveBuff newBuff = new ActiveBuff 
+            { 
+                artifactData = data, 
+                maxTime = duration, 
+                remainingTime = duration, 
+                stackCount = 1,
+                isInfinite = infinite // 생성 시 무한 플래그 설정
+            };
+            activeBuffs.Add(newBuff);
+        }
+
+        RecalculateStats();
+        UpdateDiceBuffVisuals();
+        OnBuffUpdated?.Invoke();
+    }
+
+    // 아이콘을 순차적으로 띄워주는 코루틴 (타임스케일 무관하게 작동)
+    private IEnumerator Co_SpawnIconRoutine()
+    {
+        _isSpawningIcon = true;
+
+        while (_iconQueue.Count > 0)
+        {
+            Sprite icon = _iconQueue.Dequeue();
+            GameObject iconObj = Instantiate(floatingIconPrefab, iconSpawnPoint.position, Quaternion.identity);
+            
+            FloatingIcon floatingIcon = iconObj.GetComponent<FloatingIcon>();
+            if (floatingIcon != null) floatingIcon.Setup(icon);
+
+            yield return new WaitForSecondsRealtime(iconSpawnInterval);
+        }
+
+        _isSpawningIcon = false;
+    }
+    
     private void UpdateBuffTimers()
     {
         bool buffRemoved = false;
@@ -50,9 +125,13 @@ public class BuffManager : MonoBehaviour
         {
             ActiveBuff buff = activeBuffs[i];
 
-            if (buff.remainingTime > 0f) buff.remainingTime -= Time.deltaTime;
+            // 무한 버프가 아닐 때만 시간 감소
+            if (!buff.isInfinite && buff.remainingTime > 0f)
+            {
+                buff.remainingTime -= Time.deltaTime;
+            }
 
-            bool expiredByTime = buff.remainingTime <= 0f;
+            bool expiredByTime = !buff.isInfinite && buff.remainingTime <= 0f;
             bool expiredByCount = buff.buffData != null &&
                                   buff.buffData.effectType == DiceEffectType.StrongAttackBuff &&
                                   buff.remainingCount <= 0;
@@ -65,6 +144,30 @@ public class BuffManager : MonoBehaviour
         }
 
         if (activeBuffs.Count > 0 || buffRemoved) OnBuffUpdated?.Invoke();
+    }
+
+    // 피격 시 유리창 버프(DamageGlassCannon) 해제
+    public void RemoveGlassCannonBuff()
+    {
+        bool removed = false;
+        for (int i = activeBuffs.Count - 1; i >= 0; i--)
+        {
+            if (activeBuffs[i].artifactData != null)
+            {
+                if (activeBuffs[i].artifactData.effectType == ArtifactEffectType.DamageGlassCannon ||
+                    activeBuffs[i].artifactData.effectType2 == ArtifactEffectType.DamageGlassCannon)
+                {
+                    RemoveBuffAt(i);
+                    removed = true;
+                }
+            }
+        }
+
+        if (removed)
+        {
+            Debug.Log("피격 발생: 무손상 버프(유리창)가 해제되었습니다.");
+            OnBuffUpdated?.Invoke(); // UI 즉시 갱신
+        }
     }
 
     public void ApplyDiceBuff(DiceData data)
@@ -125,28 +228,59 @@ public class BuffManager : MonoBehaviour
 
         foreach (var buff in activeBuffs)
         {
-            if (buff == null || buff.buffData == null) continue;
-            float finalEffectValue = buff.buffData.effectValue * buff.stackCount;
+            if (buff == null) continue;
 
-            switch (buff.buffData.effectType)
+            if (buff.buffData != null)
             {
-                case DiceEffectType.AttackBuff: stats.diceDamageMultiplier += finalEffectValue / 100f; break;
-                case DiceEffectType.CritDamageBuff: stats.diceCritDamageBonus += finalEffectValue / 100f; break;
-                case DiceEffectType.SpeedBuff: 
-                    stats.diceMoveSpeedMultiplier += finalEffectValue / 100f; 
-                    stats.diceAttackSpeedMultiplier += finalEffectValue / 100f; break;
-                case DiceEffectType.RangedMegaBuff: rangedDiceTotal += finalEffectValue; break;
-                case DiceEffectType.StrongAttackBuff: stats.diceStrongAttackStacks += buff.remainingCount; break;
-                case DiceEffectType.Heal:
-                    if (!buff.instantApplied)
-                    {
-                        stats.currentHealth = Mathf.Min(stats.currentHealth + Mathf.RoundToInt(buff.buffData.effectValue), stats.maxHealth);
-                        buff.instantApplied = true;
-                    }
-                    break;
+                float finalEffectValue = buff.buffData.effectValue * buff.stackCount;
+
+                switch (buff.buffData.effectType)
+                {
+                    case DiceEffectType.AttackBuff: stats.diceDamageMultiplier += finalEffectValue / 100f; break;
+                    case DiceEffectType.CritDamageBuff: stats.diceCritDamageBonus += finalEffectValue / 100f; break;
+                    case DiceEffectType.SpeedBuff: 
+                        stats.diceMoveSpeedMultiplier += finalEffectValue / 100f; 
+                        stats.diceAttackSpeedMultiplier += finalEffectValue / 100f; break;
+                    case DiceEffectType.RangedMegaBuff: rangedDiceTotal += finalEffectValue; break;
+                    case DiceEffectType.StrongAttackBuff: stats.diceStrongAttackStacks += buff.remainingCount; break;
+                    case DiceEffectType.Heal:
+                        if (!buff.instantApplied)
+                        {
+                            stats.currentHealth = Mathf.Min(stats.currentHealth + Mathf.RoundToInt(buff.buffData.effectValue), stats.maxHealth);
+                            buff.instantApplied = true;
+                        }
+                        break;
+                }
+            }
+
+            if (buff.artifactData != null)
+            {
+                float value1 = buff.artifactData.isPercent ? buff.artifactData.value : (buff.artifactData.value / 100f);
+                ApplyArtifactStatAdditive(buff.artifactData.effectType, value1 * buff.stackCount);
+
+                if (buff.artifactData.effectType2 != ArtifactEffectType.None)
+                {
+                    float value2 = buff.artifactData.isPercent2 ? buff.artifactData.value2 : (buff.artifactData.value2 / 100f);
+                    ApplyArtifactStatAdditive(buff.artifactData.effectType2, value2 * buff.stackCount);
+                }
             }
         }
         stats.diceRangedDamageMultiplier = rangedDiceTotal > 0f ? rangedDiceTotal : 1f;
+    }
+
+    private void ApplyArtifactStatAdditive(ArtifactEffectType type, float finalValue)
+    {
+        switch (type)
+        {
+            case ArtifactEffectType.AttackPower: 
+            case ArtifactEffectType.DamageGlassCannon:
+                stats.diceDamageMultiplier += finalValue; break;
+            case ArtifactEffectType.MoveSpeed: stats.diceMoveSpeedMultiplier += finalValue; break;
+            case ArtifactEffectType.AttackSpeed: stats.diceAttackSpeedMultiplier += finalValue; break;
+            case ArtifactEffectType.ChargeSpeed: stats.diceChargeSpeedMultiplier += finalValue; break;
+            case ArtifactEffectType.CritDamage: stats.diceCritDamageBonus += finalValue; break;
+            case ArtifactEffectType.FinalDamage: stats.buffFinalDamageMultiplier += finalValue; break;
+        }
     }
 
     private void UpdateDiceBuffVisuals()

@@ -33,7 +33,7 @@ public class StageController : MonoBehaviour
         if (isInitialized) return;
         isInitialized = true;
 
-        GameObject player = GameObject.FindWithTag("Player");
+        GameObject player = GameManager.instance.player.gameObject;
         if (player != null && spawnPoint != null) player.transform.position = spawnPoint.position;
 
         InitializeWaves();
@@ -58,6 +58,7 @@ public class StageController : MonoBehaviour
         }
 
         if (!isSafeStage) UpdateEnemyCountUI();
+        if (ArtifactManager.instance != null) ArtifactManager.instance.OnStageEnterTrigger();
     }
 
     private void InitializeWaves()
