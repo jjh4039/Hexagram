@@ -641,7 +641,7 @@ GameObject:
   - component: {fileID: 69066786}
   - component: {fileID: 69066785}
   m_Layer: 5
-  m_Name: PlayTimeText (2)
+  m_Name: DiceGemText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1986,10 +1986,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2114797690}
   - {fileID: 1592301754}
   - {fileID: 98914565}
   - {fileID: 1141700542}
+  - {fileID: 2114797690}
   m_Father: {fileID: 1991867174}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2009,7 +2009,7 @@ GameObject:
   - component: {fileID: 112141933}
   - component: {fileID: 112141932}
   m_Layer: 5
-  m_Name: PlayTimeText (2)
+  m_Name: PlayTimeValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11075,7 +11075,7 @@ GameObject:
   - component: {fileID: 538397641}
   - component: {fileID: 538397640}
   m_Layer: 5
-  m_Name: ProgressText (1)
+  m_Name: ProgressValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17121,6 +17121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f36e11ba804356429399130c996ce25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
+  diceGem: 3
+  totalDamage: 2413
   maxHealth: 2
   currentHealth: 2
   maxAmmo: 500
@@ -17745,7 +17747,7 @@ GameObject:
   - component: {fileID: 849983678}
   - component: {fileID: 849983677}
   m_Layer: 5
-  m_Name: PlayTimeText (2)
+  m_Name: DiceGemValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18131,7 +18133,7 @@ GameObject:
   - component: {fileID: 865425846}
   - component: {fileID: 865425845}
   m_Layer: 5
-  m_Name: PlayTimeText (3)
+  m_Name: PlayTimeGem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22354,7 +22356,7 @@ GameObject:
   - component: {fileID: 1103214961}
   - component: {fileID: 1103214960}
   m_Layer: 5
-  m_Name: PlayTimeText (3)
+  m_Name: DiceGemGem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22768,7 +22770,7 @@ GameObject:
   - component: {fileID: 1111068736}
   - component: {fileID: 1111068735}
   m_Layer: 5
-  m_Name: PlayTimeText (2)
+  m_Name: TotalDamageValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23573,7 +23575,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4285915135
+    rgba: 7725055
   m_fontColor: {r: 1, g: 0.8745098, b: 0.45882353, a: 0}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -28386,7 +28388,7 @@ GameObject:
   - component: {fileID: 1387861768}
   - component: {fileID: 1387861767}
   m_Layer: 5
-  m_Name: PlayTimeText (1)
+  m_Name: TotalDamageText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36421,7 +36423,7 @@ GameObject:
   - component: {fileID: 1736572922}
   - component: {fileID: 1736572921}
   m_Layer: 5
-  m_Name: PlayTimeText (3)
+  m_Name: TotalDamageGem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41669,7 +41671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f75e55cf76ea2094a91d10ff6e223d7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOver
-  delayA: 1
+  delayA: 1.5
   delayB: 0.4
   delayD: 1
   delayC: 0.4
@@ -41683,14 +41685,24 @@ MonoBehaviour:
   textBObj: {fileID: 1736572919}
   textCObj: {fileID: 1103214958}
   spacePromptObj: {fileID: 1141700541}
+  progressResultText: {fileID: 538397640}
+  timeResultText: {fileID: 112141932}
+  damageResultText: {fileID: 1111068735}
+  currentOwnedGemText: {fileID: 849983677}
   timeRewardText: {fileID: 865425845}
   damageRewardText: {fileID: 1736572921}
   totalGemText: {fileID: 1103214960}
   spacePromptText: {fileID: 1141700543}
-  rewardFromTime: 3
-  rewardFromDamage: 2
+  rewardFromTime: 0
+  rewardFromDamage: 0
   totalGainedReward: 0
-  currentOwnedGems: 3
+  currentOwnedGems: 0
+  sfxStart: {fileID: 8300000, guid: 78ad99fd0a0a5144280b07bbdba84815, type: 3}
+  sfxReveal: {fileID: 8300000, guid: e9c2b0fa1c314cb4a829236c43d9d956, type: 3}
+  sfxValue: {fileID: 8300000, guid: 467297758e0f98941bf304f6ae9aa288, type: 3}
+  sfxCounting: {fileID: 8300000, guid: 467297758e0f98941bf304f6ae9aa288, type: 3}
+  fadeOutImage: {fileID: 2114797692}
+  fadeOutDuration: 1
 --- !u!1 &2003680294 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6532143101752649145, guid: 2bd0f992f662ff74084a683eb279ae53, type: 3}
@@ -42375,7 +42387,9 @@ MonoBehaviour:
   currentSeason: 0
   currentProgress: 95
   maxProgress: 100
-  currentPlayTime: 0
+  currentPlayTime: 1213
+  diceGem: 3
+  totalDamageDealt: 2133
 --- !u!114 &2031720043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44245,7 +44259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2114797690
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44290,7 +44304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -50037,7 +50051,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: m_Volume
