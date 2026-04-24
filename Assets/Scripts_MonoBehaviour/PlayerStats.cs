@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    public int diceGem = 3; // 보유중인 보석
-    public int totalDamage = 2413; // 최종 데미지
 
     [Header("Survival Stats")]
     public int maxHealth = 100;
