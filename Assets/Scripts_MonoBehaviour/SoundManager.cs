@@ -7,8 +7,8 @@ public class SoundManager : MonoBehaviour
     public static SoundManager instance;
 
     [Header("--- Settings ---")]
-    [Range(0f, 1f)] public float masterVolume = 1f;
-    [Range(0f, 1f)] public float bgmVolume = 1f;
+    [Range(0f, 1f)] public float masterVolume = 0.5f;
+    [Range(0f, 1f)] public float bgmVolume = 0.2f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
     [Header("--- Background Music ---")]

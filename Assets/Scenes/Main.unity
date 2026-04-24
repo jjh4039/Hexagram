@@ -17121,8 +17121,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f36e11ba804356429399130c996ce25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  diceGem: 3
-  totalDamage: 2413
   maxHealth: 2
   currentHealth: 2
   maxAmmo: 500
@@ -50046,8 +50044,8 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1841778095}
     - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
-      propertyPath: masterVolume
-      value: 0.5
+      propertyPath: bgmVolume
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute

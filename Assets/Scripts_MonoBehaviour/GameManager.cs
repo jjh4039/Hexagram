@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Scrap Data & UI")]
     public int currentScrap = 0;
+    public float scrapPercentage = 1f;                     // 스크랩 획득 보너스 비율 (기본 1 = +100%)
 
     private float _hitStopTimer = 0f;
     private bool _isHitStopping = false;
@@ -77,7 +78,10 @@ public class GameManager : MonoBehaviour
 
     public void AddScrap(int amount)
     {
-        currentScrap += amount;
+        float multiplier = scrapPercentage;           // 기본 배율(1) + 보너스 비율 계산
+        int finalAmount = Mathf.CeilToInt(amount * multiplier); // 소수점 올림으로 최종 획득량 산출
+    
+        currentScrap += finalAmount;                            // 최종 계산된 스크랩 적용
     }
 
     public void LoadStage(StageData stageData)
@@ -130,7 +134,7 @@ public class GameManager : MonoBehaviour
 
             while (_hitStopTimer > 0f)
             {
-                if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI)
+                if (InputStateManager.Instance && InputStateManager.Instance.CurrentInputState == InputState.UI)
                 {
                     yield return null;                       // 일시정지 중에는 타이머 대기
                     continue;
@@ -140,7 +144,7 @@ public class GameManager : MonoBehaviour
                 yield return null;
             }
 
-            if (InputStateManager.Instance == null || InputStateManager.Instance.CurrentInputState != InputState.UI)
+            if (!InputStateManager.Instance || InputStateManager.Instance.CurrentInputState != InputState.UI)
             {
                 Time.timeScale = 1f;                         // 일시정지가 아닐 때만 시간 배율 복구
                 Time.fixedDeltaTime = _originalFixedDeltaTime;

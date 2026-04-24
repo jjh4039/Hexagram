@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   masterVolume: 1
-  bgmVolume: 1
+  bgmVolume: 0.2
   sfxVolume: 1
   bgmSource: {fileID: 8929732602425395252}
   sfxSourcePrefab: {fileID: 0}

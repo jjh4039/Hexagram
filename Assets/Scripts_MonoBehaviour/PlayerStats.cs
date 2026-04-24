@@ -67,51 +67,75 @@ public class PlayerStats : MonoBehaviour
     {
         if (data.type != ArtifactType.Stat) return;             // 영구 스탯 타입만 처리
 
-        float multiplier = 1f + data.value;                     // 공격력, 속도용 복리(%) 계산 값
-        float flatAmount = data.value;                          // 체력용 고정 수치 더하기 값
+        // 1. 첫 번째 효과 적용
+        ProcessSingleStat(data.effectType, data.value, data.isPercent, data.artifactName);
 
-        switch (data.effectType)
+        // 2. 두 번째 효과가 있다면 적용
+        if (data.effectType2 != ArtifactEffectType.None)
         {
-            case ArtifactEffectType.MaxHP:
-                // 기획 변경: 최대 체력은 퍼센트가 아닌 '고정 수치'로 더합니다. (예: value가 20이면 체력 20 증가)
+            ProcessSingleStat(data.effectType2, data.value2, data.isPercent2, data.artifactName);
+        }
+    }
+    
+    private void ProcessSingleStat(ArtifactEffectType type, float value, bool isPercent, string name)
+    {
+        float multiplier = 1f + value;                          // 복리(%) 연산용 값
+        float flatAmount = value;                               // 고정(합) 연산용 값
+
+        switch (type)
+        {
+            case ArtifactEffectType.MaxHp:
                 int hpBonus = Mathf.RoundToInt(flatAmount);
                 maxHealth += hpBonus;
                 currentHealth += hpBonus;                       // 늘어난 최대치만큼 현재 체력도 회복
-                
-                Debug.Log($"아티팩트 스탯 적용: {data.artifactName} / 최대 체력이 {hpBonus}만큼 증가!");
                 break;
 
             case ArtifactEffectType.AttackPower:
-                meleeAttackPower *= multiplier;                 // 복리 누적
-                rangeAttackPower *= multiplier;
+                if (isPercent)
+                {
+                    meleeAttackPower *= multiplier;
+                    rangeAttackPower *= multiplier;
+                }
+                else
+                {
+                    meleeAttackPower += flatAmount;
+                    rangeAttackPower += flatAmount;
+                }
                 break;
 
             case ArtifactEffectType.MoveSpeed:
-                moveSpeed *= multiplier;
+                moveSpeed = isPercent ? moveSpeed * multiplier : moveSpeed + flatAmount;
                 break;
 
             case ArtifactEffectType.AttackSpeed:
-                attackSpeed *= multiplier;
+                attackSpeed = isPercent ? attackSpeed * multiplier : attackSpeed + flatAmount;
                 break;
 
             case ArtifactEffectType.ChargeSpeed:
-                ammoRechargeRate *= multiplier;
+                ammoRechargeRate = isPercent ? ammoRechargeRate * multiplier : ammoRechargeRate + flatAmount;
                 break;
 
             case ArtifactEffectType.DiceSpeed:
-                dicePassiveChargeRate *= multiplier;
+                dicePassiveChargeRate = isPercent ? dicePassiveChargeRate * multiplier : dicePassiveChargeRate + flatAmount;
+                break;
+
+            case ArtifactEffectType.CritChance:
+                criticalChance += flatAmount;                   // 크리티컬 확률은 기본적으로 합연산
+                break;
+
+            case ArtifactEffectType.CritDamage:
+                criticalDamageMultiplier += flatAmount;         // 크리티컬 배율은 기본적으로 합연산
                 break;
 
             case ArtifactEffectType.ScrapGain:
-                // 고철 획득량은 재화 매니저 쪽에서 multiplier를 적용
+                if (GameManager.instance)
+                {
+                    GameManager.instance.scrapPercentage += flatAmount;
+                }
                 break;
         }
-        
-        // 체력을 제외한 나머지 복리 스탯용 로그 출력
-        if (data.effectType != ArtifactEffectType.MaxHP)
-        {
-            Debug.Log($"아티팩트 스탯(복리) 적용: {data.artifactName} / {data.effectType}이(가) {data.value * 100}% 증가!");
-        }
+
+        Debug.Log($"아티팩트 스탯 적용 완료: {name} / {type}");
     }
 
     private void Update()

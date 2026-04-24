@@ -49,12 +49,12 @@ public class Scrap : MonoBehaviour
     {
         isCollected = true;
 
-        if (GameManager.instance != null)
+        if (GameManager.instance)
         {
-            GameManager.instance.AddScrap(value);
+            GameManager.instance.AddScrap(value);               // 기본 가치만 전달 (보너스는 매니저가 계산)
         }
         
-        if (sfxCollect != null)
+        if (sfxCollect)
         {
             SoundManager.instance.PlaySFX(sfxCollect, 1f);
         }
