@@ -15,7 +15,7 @@ MonoBehaviour:
   moduleType: 0
   description: "\uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uC2A4\uD15F \uBC0F
     \uC8FC\uC0AC\uC704\uB97C \uAC15\uD654\uD569\uB2C8\uB2E4."
-  themeColor: {r: 0.15686275, g: 0.039215688, b: 0, a: 1}
+  themeColor: {r: 1, g: 0.6666667, b: 0.36078432, a: 1}
   minRise: 7
   maxRise: 10
   moduleIcon: {fileID: -4202995753223041208, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}

@@ -16,7 +16,7 @@ MonoBehaviour:
   description: "\uBCF4\uC2A4 '\uC232\uC758 \uAC00\uB514\uC5B8' \uC774\r\n\uB2F9\uC2E0\uC744
     \uC8FC\uC2DC\uD558\uACE0 \uC788\uC2B5\uB2C8\uB2E4.\n\n\uB300\uC0C1 \uC815\uD654
     \uC644\uB8CC \uC2DC,\n\uB2E4\uC74C \uAD6C\uC5ED\uC73C\uB85C \uC9C4\uC785\uD569\uB2C8\uB2E4."
-  themeColor: {r: 0.39215687, g: 0, b: 0, a: 1}
+  themeColor: {r: 1, g: 0.41960785, b: 0.54509807, a: 1}
   minRise: 7
   maxRise: 10
   moduleIcon: {fileID: -4872715046000354479, guid: 9df57d5f8c6a5584e95d8bcb211887e0, type: 3}
