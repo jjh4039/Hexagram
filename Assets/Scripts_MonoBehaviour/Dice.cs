@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
-// 주사위 굴리기와 확률 가중치를 관리하는 스크립트
 public class Dice : MonoBehaviour
 {
     [Header("UI Reference")]
@@ -23,9 +23,8 @@ public class Dice : MonoBehaviour
     private void Start()
     {
         _buffManager = GameManager.instance.player.GetComponent<BuffManager>();
-        CalculatePercentages();                                  // 초기 확률 계산
+        CalculatePercentages();
 
-        // 입력 시스템 이벤트 연결 (E키 등)
         if (InputStateManager.Instance != null)
         {
             var actions = InputStateManager.Instance.Actions;
@@ -36,7 +35,6 @@ public class Dice : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 메모리 해제를 위한 이벤트 구독 해제
         if (InputStateManager.Instance != null)
         {
             var actions = InputStateManager.Instance.Actions;
@@ -45,58 +43,57 @@ public class Dice : MonoBehaviour
         }
     }
 
-    // 주사위 키 입력 시 호출되는 콜백
     private void OnDiceInput(InputAction.CallbackContext context)
     {
         if (GameManager.instance == null || GameManager.instance.stats == null) return;
 
         PlayerStats stats = GameManager.instance.stats;
         
-        // 연출 중이 아니고 차지가 가득 찼을 때만 실행
         if (diceUI != null && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
         {
             RollDice(stats);
         }
     }
 
+    // 수정: 아티팩트 리스트를 사전 추출하여 UI로 전달하도록 변경
     private void RollDice(PlayerStats stats)
     {
-        // 차지 소모 처리
         stats.currentDiceCharge -= 100f;
         stats.currentDiceCharge = Mathf.Clamp(stats.currentDiceCharge, 0f, stats.maxDiceCharge);
 
         if (diceList == null || diceList.Length == 0) return;
 
-        int selectedIndex = GetWeightedRandomIndex();                           // 가중치 기반 랜덤 선택
-        bool isConsecutive = (lastRolledFaceIndex == selectedIndex && lastRolledFaceIndex != -1); // 이전 굴림과 동일한지 확인
+        int selectedIndex = GetWeightedRandomIndex();
+        bool isConsecutive = (lastRolledFaceIndex == selectedIndex && lastRolledFaceIndex != -1);
         
         lastRolledFaceIndex = selectedIndex;
         DiceData selectedData = diceList[selectedIndex];
 
-        // UI 연출 실행 및 버프 적용
+        // 1. 발동 예정인 아티팩트 목록 미리 가져오기
+        List<ArtifactData> triggeredArtifacts = GetTriggeredArtifacts(selectedIndex, isConsecutive);
+
         if (diceUI != null && selectedData != null)
         {
-            diceUI.PlayRollAnimation(selectedData, selectedIndex, () =>
+            // 2. PlayRollAnimation에 목록 넘기기
+            diceUI.PlayRollAnimation(selectedData, selectedIndex, triggeredArtifacts, () =>
             {
                 if (GameManager.instance.player)
                 {
-                    // 1. 기존 주사위 버프 적용
                     if (_buffManager != null) _buffManager.ApplyDiceBuff(selectedData);
-                    
-                    // 2. 신규 아티팩트 버프 적용 (현재 굴려진 인덱스와 연속 여부 전달)
-                    CheckAndApplyDiceTriggerArtifacts(selectedIndex, isConsecutive);
+                    ApplyPrecalculatedArtifacts(triggeredArtifacts);
                 }
             });
         }
     }
 
-    private void CheckAndApplyDiceTriggerArtifacts(int rolledIndex, bool isConsecutive)
+    // 분리 및 신규: 기존 로직에서 발동될 아티팩트를 찾아 리스트로 반환하는 기능만 분리
+    private List<ArtifactData> GetTriggeredArtifacts(int rolledIndex, bool isConsecutive)
     {
-        if (ArtifactManager.instance == null || _buffManager == null) return;
+        List<ArtifactData> list = new List<ArtifactData>();
+        if (ArtifactManager.instance == null) return list;
 
         ConditionType targetCondition = ConditionType.None;
 
-        // 배열 인덱스(0~5)를 조건부 타입(1~6)으로 매핑
         switch (rolledIndex)
         {
             case 0: targetCondition = ConditionType.OnDiceRoll1; break;
@@ -107,24 +104,24 @@ public class Dice : MonoBehaviour
             case 5: targetCondition = ConditionType.OnDiceRoll6; break;
         }
 
-        // 인벤토리의 아티팩트를 순회하며 조건이 일치하면 버프 발동
         foreach (var artifact in ArtifactManager.instance.myArtifacts)
         {
             if (artifact.type != ArtifactType.Trigger) continue;
 
-            // 특정 면이 나왔을 때 발동
-            if (artifact.condition == targetCondition)
-            {
-                _buffManager.ApplyArtifactBuff(artifact);
-                Debug.Log($"주사위 아티팩트 발동: {artifact.artifactName}");
-            }
+            if (artifact.condition == targetCondition) list.Add(artifact);
+            if (isConsecutive && artifact.condition == ConditionType.OnConsecutiveSameDice) list.Add(artifact);
+        }
+        return list;
+    }
 
-            // 연속으로 같은 면이 나왔을 때 발동
-            if (isConsecutive && artifact.condition == ConditionType.OnConsecutiveSameDice)
-            {
-                _buffManager.ApplyArtifactBuff(artifact);
-                Debug.Log($"연속 굴림 아티팩트 발동: {artifact.artifactName}");
-            }
+    // 분리 및 신규: 미리 계산된 아티팩트들을 실제로 적용하는 기능만 분리
+    private void ApplyPrecalculatedArtifacts(List<ArtifactData> artifacts)
+    {
+        if (_buffManager == null) return;
+        foreach (var artifact in artifacts)
+        {
+            _buffManager.ApplyArtifactBuff(artifact);
+            Debug.Log($"주사위 연동 아티팩트 발동: {artifact.artifactName}");
         }
     }
 
@@ -134,7 +131,6 @@ public class Dice : MonoBehaviour
             GameManager.instance.stats.AddDiceChargeFromHit();
     }
 
-    // 확률 증가 아이템 사용 시 호출
     public void AddPercentToFace(int faceIndex, float percentIncrease)
     {
         if (faceIndex < 0 || faceIndex >= faceWeights.Length) return;
@@ -155,7 +151,6 @@ public class Dice : MonoBehaviour
         CalculatePercentages();
     }
 
-    // UI 예측용 확률 계산 함수
     public float[] GetPredictedPercentages(int faceIndex, float percentIncrease)
     {
         float[] predicted = new float[6];

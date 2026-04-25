@@ -174,6 +174,7 @@ public class DashboardUI : MonoBehaviour
     public void RefreshArtifacts()
     {
         foreach (Transform child in artifactGrid) Destroy(child.gameObject);
+        
         if (ArtifactManager.instance == null) return;
 
         foreach (ArtifactData data in ArtifactManager.instance.myArtifacts)

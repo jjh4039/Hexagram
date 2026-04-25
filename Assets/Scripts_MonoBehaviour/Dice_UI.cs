@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -17,6 +18,13 @@ public class Dice_UI : MonoBehaviour
     [SerializeField] private Image keyGuideImage;
     [SerializeField] private TextMeshProUGUI diceCountText;
     [SerializeField] private GameObject maxText;
+
+    // 신규: 아티팩트 하단 UI 표시용 참조
+    [Header("Artifact Feedback UI")]
+    [SerializeField] private GameObject artifactContainerBox;    // 검정색 배경 박스 
+    [SerializeField] private Transform artifactIconParent;       // 아이콘들이 생성될 부모 
+    [SerializeField] private GameObject artifactIconPrefab;      // 생성될 아티팩트 아이콘 프리팹 
+    [SerializeField] private GameObject plusIconPrefab;
 
     [Header("Sprites")]
     [SerializeField] private Sprite[] diceSprites;
@@ -95,13 +103,51 @@ public class Dice_UI : MonoBehaviour
         UpdateText(isMax);
     }
 
-    public void PlayRollAnimation(DiceData data, int diceIndex, Action onResultShown)
+    // 수정: 매개변수로 triggeredArtifacts 리스트 추가
+    public void PlayRollAnimation(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
     {
         if (isRolling) return;
-        StartCoroutine(SingleRollRoutine(data, diceIndex, onResultShown));
+        StartCoroutine(SingleRollRoutine(data, diceIndex, triggeredArtifacts, onResultShown));
     }
 
-    private IEnumerator SingleRollRoutine(DiceData data, int diceIndex, Action onResultShown)
+    // 신규: 박스 활성화 및 아티팩트 아이콘 생성
+    private void SetupArtifactIcons(List<ArtifactData> artifacts)
+    {
+        if (artifactContainerBox == null || artifactIconParent == null || artifactIconPrefab == null) return;
+
+        // 기존 생성된 아이콘 비우기
+        for (int i = artifactIconParent.childCount - 1; i >= 0; i--)
+        {
+            Transform child = artifactIconParent.GetChild(i);
+            child.SetParent(null);
+            Destroy(child.gameObject);
+        }
+
+        if (artifacts == null || artifacts.Count == 0)
+        {
+            artifactContainerBox.SetActive(false);
+            return;
+        }
+
+        artifactContainerBox.SetActive(true);
+
+        // 신규 추가: 아티팩트가 1개 이상 있다면 맨 앞에 '+' 프리팹 먼저 생성
+        if (plusIconPrefab != null)
+        {
+            Instantiate(plusIconPrefab, artifactIconParent);
+        }
+
+        // 이후 발동할 아티팩트 아이콘들을 순서대로 생성
+        foreach (var artifact in artifacts)
+        {
+            GameObject iconObj = Instantiate(artifactIconPrefab, artifactIconParent);
+            Image img = iconObj.GetComponent<Image>();
+            if (img != null) img.sprite = artifact.icon;
+        }
+    }
+
+    // 수정: 매개변수 추가 및 애니메이션 팝업 직전 SetupArtifactIcons 호출
+    private IEnumerator SingleRollRoutine(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
     {
         isRolling = true;
 
@@ -151,6 +197,9 @@ public class Dice_UI : MonoBehaviour
 
             dice3DObject.SetActive(false);
         }
+
+        // 아이콘 생성 및 컨테이너 박스 활성화 (페이드 인 되기 직전에 세팅)
+        SetupArtifactIcons(triggeredArtifacts);
 
         fadeInGroup.gameObject.SetActive(true);
         fadeOutGroup.gameObject.SetActive(true);

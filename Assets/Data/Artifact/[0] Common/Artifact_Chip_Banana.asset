@@ -18,7 +18,7 @@ MonoBehaviour:
   icon: {fileID: 6422477285223628307, guid: 68cc7df507e5ce048b0bb4c5a31bdf4f, type: 3}
   grade: 0
   basePrice: 100
-  type: 0
+  type: 1
   condition: 3
   buffDuration: 10
   isInfiniteBuff: 0
