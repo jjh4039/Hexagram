@@ -4,31 +4,41 @@ using TMPro;
 
 public class BuffSlotUI : MonoBehaviour
 {
-    [SerializeField] private Image iconImage;
+    [SerializeField] private Image[] iconImage;
     [SerializeField] private Image cooldownFillImage;
     [SerializeField] private TextMeshProUGUI stackText;
+
+    [Header("Icon Settings")]
+    [SerializeField] private Vector3 diceIconScale = Vector3.one;                     // 주사위 아이콘 스케일
+    [SerializeField] private Vector3 artifactIconScale = new Vector3(0.8f, 0.8f, 1f); // 아티팩트 아이콘 스케일
 
     private ActiveBuff currentBuff;
 
     public void Setup(ActiveBuff buff)
     {
         currentBuff = buff;
-        Sprite targetIcon = null; // 표시할 아이콘 임시 변수
+        Sprite targetIcon = null;                                                     // 표시할 아이콘 임시 변수
+        Vector3 targetScale = Vector3.one;                                            // 표시할 스케일 임시 변수
 
-        // 주사위 버프인지, 아티팩트 버프인지 판별하여 아이콘 할당
+        // 주사위 버프인지, 아티팩트 버프인지 판별하여 아이콘 및 스케일 할당
         if (buff.buffData && buff.buffData.icon)
         {
             targetIcon = buff.buffData.icon;
+            targetScale = diceIconScale;
         }
         else if (buff.artifactData && buff.artifactData.icon)
         {
             targetIcon = buff.artifactData.icon;
+            targetScale = artifactIconScale;
         }
 
         if (targetIcon)
         {
-            iconImage.sprite = targetIcon;
-            cooldownFillImage.sprite = targetIcon;
+            iconImage[0].sprite = targetIcon;
+            iconImage[1].sprite = targetIcon;
+
+            iconImage[0].rectTransform.localScale = targetScale;
+            iconImage[1].rectTransform.localScale = targetScale;
         }
 
         gameObject.SetActive(true);
@@ -42,11 +52,13 @@ public class BuffSlotUI : MonoBehaviour
         // 남은 시간 게이지 갱신
         if (currentBuff.maxTime >= 9999f)
         {
-            cooldownFillImage.fillAmount = 1f; // 무한일 경우 게이지 풀 유지
+            cooldownFillImage.fillAmount = 1f;                                        // 무한일 경우 게이지 풀 유지
+            iconImage[1].fillAmount = 1f;
         }
         else if (currentBuff.maxTime > 0)
         {
-            cooldownFillImage.fillAmount = currentBuff.remainingTime / currentBuff.maxTime;
+            cooldownFillImage.fillAmount = 1 - (currentBuff.remainingTime / currentBuff.maxTime);
+            iconImage[1].fillAmount = 1 - (currentBuff.remainingTime / currentBuff.maxTime);
         }
 
         // 1. 주사위 버프일 경우의 텍스트 처리 (기존 로직 유지)
