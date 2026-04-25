@@ -4,7 +4,6 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ChocDino.UIFX;
 using UnityEngine.InputSystem;
 
 public class MapManager : MonoBehaviour
@@ -17,20 +16,20 @@ public class MapManager : MonoBehaviour
     }
 
     [Header("--- Stage Pool Settings ---")]
-    public List<StageProbability> stagePool; 
+    public List<StageProbability> stagePool;
 
-    public StageData bossStageData; 
-    private StageData _lastSelectedStage; 
+    public StageData bossStageData;
+    private StageData _lastSelectedStage;
 
     private StageData[] currentNodes = new StageData[3];
     private int _selectedIndex = 1;
     private bool _isBossStageMode = false;
 
-    [Header("--- UI References ---")] 
+    [Header("--- UI References ---")]
     public GameObject mapVisualRoot;
     public Image fadeOverlayImage;
-    public RectTransform stageTextRect;                  
-    public CanvasGroup dynamicTextCanvasGroup;           
+    public RectTransform stageTextRect;
+    public CanvasGroup dynamicTextCanvasGroup;
     public TextMeshProUGUI stageTitleText;
     public TextMeshProUGUI descriptionText;
     public TextMeshProUGUI stagePerText;
@@ -42,34 +41,26 @@ public class MapManager : MonoBehaviour
     public Vector2[] normalTextPositions = new Vector2[3] { new Vector2(-160, 0), new Vector2(0, 0), new Vector2(160, 0) };
     [Tooltip("보스 모드일 때 텍스트(StageText)의 위치")]
     public Vector2 bossTextPosition = Vector2.zero;
-    
+
     [Tooltip("일반 모드 텍스트 스케일")]
     public float normalTextScale = 1.0f;
     [Tooltip("보스 모드 텍스트 스케일")]
     public float bossTextScale = 1.2f;
 
     [Header("--- Visual Elements (3 Each) ---")]
-    public Image[] nodeVisuals; 
-    public Image[] lineVisuals; 
+    public Image[] nodeVisuals;
+    public Image[] lineVisuals;
     private CanvasGroup[] _nodeCanvasGroups;
 
     [Header("--- Boss Visual Elements ---")]
     public Image bossNodeVisual;
-    public GlowFilter bossNodeGlow;
     public Image bossLineVisual;
-    public GlowFilter bossLineGlow;
 
     private CanvasGroup _bossNodeCanvasGroup;
     private Vector2 _bossNodeOriginPos;
-    private Vector2 _bossLineOriginPos; 
+    private Vector2 _bossLineOriginPos;
 
-    [Header("--- Glow Filters ---")] 
-    public GlowFilter titleTextGlow;
-    public GlowFilter perTextGlow;
-    public GlowFilter[] nodeGlows;
-    public GlowFilter[] lineGlows;
-
-    [Header("--- Animation Settings ---")] 
+    [Header("--- Animation Settings ---")]
     [SerializeField] private float textFadeSpeed = 4f;
     [SerializeField] private float lerpSpeed = 18f;
     [SerializeField] private float floatAmount = 9f;
@@ -77,7 +68,7 @@ public class MapManager : MonoBehaviour
     [SerializeField] private float nodeFadeSpeed = 3f;
     [SerializeField] private float scanInterval = 0.15f;
 
-    [Header("Sound")] 
+    [Header("Sound")]
     [SerializeField] private AudioClip sfxSelect;
     [SerializeField] private AudioClip sfxScan;
     [SerializeField] private AudioClip sfxCount;
@@ -91,7 +82,7 @@ public class MapManager : MonoBehaviour
     private Vector2[] _lineOriginPos;
     private Coroutine _fadeCoroutine;
     private bool _isScanning = false;
-    
+
     private bool _isMoving = false;
     private const float MOVEMENT_THRESHOLD = 0.5f;
 
@@ -145,7 +136,7 @@ public class MapManager : MonoBehaviour
             var uiActions = InputStateManager.Instance.Actions.UI;
             uiActions.MoveUI.performed += OnNavigateInput;
             uiActions.CloseUI.performed += OnCloseInput;
-            uiActions.Select.performed += OnSubmitInput; 
+            uiActions.Select.performed += OnSubmitInput;
         }
     }
 
@@ -163,7 +154,7 @@ public class MapManager : MonoBehaviour
     private void OnNavigateInput(InputAction.CallbackContext ctx)
     {
         if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode) return;
-        
+
         Vector2 direction = ctx.ReadValue<Vector2>();
         if (direction.x < -0.5f) ChangeSelection(-1);
         else if (direction.x > 0.5f) ChangeSelection(1);
@@ -235,14 +226,17 @@ public class MapManager : MonoBehaviour
     private void ResetVisualsState()
     {
         _isScanning = true;
-        _isMoving = false; 
+        _isMoving = false;
 
         _isBossStageMode = GameManager.instance.currentProgress >= 100;
-        
+
         string seasonName = GameManager.instance.currentSeason switch
         {
-            Season.Spring => "봄", Season.Summer => "여름",
-            Season.Autumn => "가을", Season.Winter => "겨울", _ => ""
+            Season.Spring => "봄",
+            Season.Summer => "여름",
+            Season.Autumn => "가을",
+            Season.Winter => "겨울",
+            _ => ""
         };
 
         if (totalProgressText)
@@ -251,8 +245,7 @@ public class MapManager : MonoBehaviour
         if (_isBossStageMode) SetBossNode();
         else SetRandomNodes();
 
-        TurnOffAllGlows(); 
-        HideUITexts(); 
+        HideUITexts();
 
         if (_isBossStageMode)
         {
@@ -266,7 +259,7 @@ public class MapManager : MonoBehaviour
             {
                 bossNodeVisual.gameObject.SetActive(true);
                 if (bossStageData.moduleIcon) bossNodeVisual.sprite = bossStageData.moduleIcon;
-                
+
                 if (_bossNodeCanvasGroup) _bossNodeCanvasGroup.alpha = 0f;
                 bossNodeVisual.rectTransform.anchoredPosition = _bossNodeOriginPos;
                 bossNodeVisual.color = _inactiveColor;
@@ -300,7 +293,7 @@ public class MapManager : MonoBehaviour
                 {
                     if (currentNodes[i].moduleIcon) nodeVisuals[i].sprite = currentNodes[i].moduleIcon;
                     if (_nodeCanvasGroups[i]) _nodeCanvasGroups[i].alpha = 0f;
-                    
+
                     nodeVisuals[i].rectTransform.anchoredPosition = _nodeOriginPos[i];
                     nodeVisuals[i].color = _inactiveColor;
                     _currentRandomPers[i] = Random.Range(currentNodes[i].minRise, currentNodes[i].maxRise + 1);
@@ -309,37 +302,17 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void TurnOffAllGlows()
-    {
-        if (titleTextGlow) titleTextGlow.enabled = false;
-        if (perTextGlow) perTextGlow.enabled = false;
-        if (bossNodeGlow) bossNodeGlow.enabled = false;
-        if (bossLineGlow) bossLineGlow.enabled = false;
-        
-        if (nodeGlows != null)
-        {
-            for (int i = 0; i < nodeGlows.Length; i++)
-                if (nodeGlows[i]) nodeGlows[i].enabled = false;
-        }
-
-        if (lineGlows != null)
-        {
-            for (int i = 0; i < lineGlows.Length; i++)
-                if (lineGlows[i]) lineGlows[i].enabled = false;
-        }
-    }
-
     private void SetBossNode()
     {
         currentNodes[0] = null;
         currentNodes[1] = bossStageData;
         currentNodes[2] = null;
-        _selectedIndex = 1; 
+        _selectedIndex = 1;
     }
 
     private void SetRandomNodes()
     {
-        _selectedIndex = 1; 
+        _selectedIndex = 1;
         List<StageData> selectedStages = new List<StageData>();
 
         List<StageProbability> tempPool = stagePool
@@ -386,7 +359,7 @@ public class MapManager : MonoBehaviour
         if (fadeOverlayImage) fadeOverlayImage.color = new Color(0, 0, 0, end);
     }
 
-private IEnumerator ScanSequence()
+    private IEnumerator ScanSequence()
     {
         if (_isBossStageMode)
         {
@@ -395,10 +368,10 @@ private IEnumerator ScanSequence()
             {
                 alpha += Time.deltaTime * nodeFadeSpeed;
                 if (_bossNodeCanvasGroup) _bossNodeCanvasGroup.alpha = alpha;
-                
-                if (bossLineVisual) 
+
+                if (bossLineVisual)
                     bossLineVisual.color = new Color(_inactiveColor.r, _inactiveColor.g, _inactiveColor.b, alpha);
-                    
+
                 yield return null;
             }
             if (_bossNodeCanvasGroup) _bossNodeCanvasGroup.alpha = 1f;
@@ -415,21 +388,19 @@ private IEnumerator ScanSequence()
                 if (data == null) continue;
 
                 StartCoroutine(FadeInNode(i));
-                
+
                 if (sfxScan) SoundManager.instance.PlaySFX(sfxScan, 0.15f);
                 yield return new WaitForSeconds(scanInterval);
             }
 
-            // [버그 수정] 마지막 노드의 FadeIn 코루틴이 완전히 끝날 때까지 잠깐 대기
             yield return new WaitForSeconds(0.2f);
         }
 
         _isScanning = false;
-        _isMoving = false; 
-        
-        UpdateUITexts(); 
-        UpdateNodeColors();     // 이제 코루틴이 완전히 끝났으므로 흰색이 정상적으로 적용됩니다!
-        ApplyGlowsToSelected(); 
+        _isMoving = false;
+
+        UpdateUITexts();
+        UpdateNodeColors();
     }
 
     private IEnumerator FadeInNode(int index)
@@ -445,20 +416,19 @@ private IEnumerator ScanSequence()
         }
 
         if (_nodeCanvasGroups[index]) _nodeCanvasGroups[index].alpha = 1f;
-        // 페이드가 끝날 때 알파값이 1.0인 완전한 회색으로 안전하게 고정
-        if (lineVisuals[index]) lineVisuals[index].color = _inactiveColor; 
+        if (lineVisuals[index]) lineVisuals[index].color = _inactiveColor;
     }
 
     private void HandleSmoothVisuals()
     {
-        bool isAnyNodeMoving = false; 
+        bool isAnyNodeMoving = false;
 
         if (_isBossStageMode)
         {
             if (bossNodeVisual)
             {
                 Vector2 targetNodePos = (!_isScanning) ? _bossNodeOriginPos + Vector2.up * floatAmount : _bossNodeOriginPos;
-                
+
                 if (Vector2.Distance(bossNodeVisual.rectTransform.anchoredPosition, targetNodePos) > MOVEMENT_THRESHOLD)
                 {
                     isAnyNodeMoving = true;
@@ -486,9 +456,9 @@ private IEnumerator ScanSequence()
             {
                 if (currentNodes[i] == null) continue;
 
-                bool isSelected = (!_isScanning && i == _selectedIndex); 
+                bool isSelected = (!_isScanning && i == _selectedIndex);
                 Vector2 targetNodePos = isSelected ? _nodeOriginPos[i] + Vector2.up * floatAmount : _nodeOriginPos[i];
-                
+
                 if (Vector2.Distance(nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos) > MOVEMENT_THRESHOLD)
                 {
                     isAnyNodeMoving = true;
@@ -511,15 +481,14 @@ private IEnumerator ScanSequence()
             }
         }
 
-        // 키 입력으로 인한 이동 완료 시 Glow 켜기
+        // 1. 이동 완료 여부만 체크 
         if (_isMoving && !isAnyNodeMoving && !_isScanning)
         {
-            _isMoving = false; 
-            ApplyGlowsToSelected(); 
+            _isMoving = false;
         }
 
-        // 이동 중이 아닐 때만 텍스트 스르르 등장
-        if (!_isMoving && !_isScanning && dynamicTextCanvasGroup != null)
+        // 2. 스캔 중이 아닐 때 텍스트 스르르 등장 (이동 중이든 멈췄든 상관없이 바로 등장)
+        if (!_isScanning && dynamicTextCanvasGroup != null)
         {
             dynamicTextCanvasGroup.alpha = Mathf.MoveTowards(dynamicTextCanvasGroup.alpha, 1f, Time.deltaTime * textFadeSpeed);
         }
@@ -537,11 +506,10 @@ private IEnumerator ScanSequence()
 
         if (prevIndex != _selectedIndex)
         {
-            _isMoving = true; 
-            TurnOffAllGlows(); 
-            HideUITexts();     
-            UpdateUITexts();   
-            UpdateNodeColors(); 
+            _isMoving = true;
+            HideUITexts();        // 입력 즉시 텍스트 투명하게 만듦 (0으로 리셋)
+            UpdateUITexts();      // 새로운 텍스트와 색상 적용
+            UpdateNodeColors();
             if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
         }
     }
@@ -560,7 +528,7 @@ private IEnumerator ScanSequence()
                 if (currentNodes[i] == null) continue;
                 bool isSelected = (i == _selectedIndex);
                 Color targetColor = isSelected ? _activeColor : _inactiveColor;
-                
+
                 if (nodeVisuals[i]) nodeVisuals[i].color = targetColor;
                 if (lineVisuals[i]) lineVisuals[i].color = targetColor;
             }
@@ -575,9 +543,15 @@ private IEnumerator ScanSequence()
     private void UpdateUITexts()
     {
         if (currentNodes == null || currentNodes.Length <= _selectedIndex || currentNodes[_selectedIndex] == null) return;
-        
+
         StageData data = currentNodes[_selectedIndex];
-        if (stageTitleText) stageTitleText.text = $"모듈 : {data.moduleName}";
+
+        if (stageTitleText)
+        {
+            stageTitleText.text = $"모듈 : {data.moduleName}";
+            stageTitleText.color = data.themeColor; // [신규] 텍스트 색상을 해당 모듈의 테마 색상으로 즉시 변경
+        }
+
         if (stagePerText) stagePerText.text = _isBossStageMode ? "" : $"+ {_currentRandomPers[_selectedIndex]}%";
         if (descriptionText) descriptionText.text = data.description;
 
@@ -586,64 +560,11 @@ private IEnumerator ScanSequence()
         stageTextRect.localScale = new Vector3(targetScale, targetScale, 1f);
     }
 
-    private void ApplyGlowsToSelected()
-    {
-        if (currentNodes == null || currentNodes.Length <= _selectedIndex || currentNodes[_selectedIndex] == null) return;
-
-        StageData data = currentNodes[_selectedIndex];
-
-        if (titleTextGlow)
-        {
-            titleTextGlow.enabled = true;
-            titleTextGlow.Color = data.themeColor;
-        }
-
-        if (perTextGlow)
-        {
-            perTextGlow.enabled = !_isBossStageMode;
-            if (perTextGlow.enabled) perTextGlow.Color = data.themeColor;
-        }
-
-        if (_isBossStageMode)
-        {
-            if (bossNodeGlow)
-            {
-                bossNodeGlow.enabled = true;
-                bossNodeGlow.Color = data.themeColor;
-            }
-            if (bossLineGlow)
-            {
-                bossLineGlow.enabled = true;
-                bossLineGlow.Color = data.themeColor;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                if (currentNodes[i] == null) continue;
-                bool isSelected = (i == _selectedIndex);
-
-                if (i < nodeGlows.Length && nodeGlows[i])
-                {
-                    nodeGlows[i].enabled = isSelected;
-                    if (nodeGlows[i].enabled) nodeGlows[i].Color = data.themeColor;
-                }
-
-                if (i < lineGlows.Length && lineGlows[i])
-                {
-                    lineGlows[i].enabled = isSelected;
-                    if (lineGlows[i].enabled) lineGlows[i].Color = data.themeColor;
-                }
-            }
-        }
-    }
-
     private void OnEnterStage()
     {
         if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _fadeCoroutine != null || _isScanning) return;
         if (currentNodes.Length == 0 || currentNodes[_selectedIndex] == null) return;
-        
+
         StartCoroutine(ProcessSelectSequence());
     }
 
@@ -658,13 +579,14 @@ private IEnumerator ScanSequence()
 
         string seasonName = GameManager.instance.currentSeason switch
         {
-            Season.Spring => "봄", Season.Summer => "여름",
-            Season.Autumn => "가을", Season.Winter => "겨울", _ => ""
+            Season.Spring => "봄",
+            Season.Summer => "여름",
+            Season.Autumn => "가을",
+            Season.Winter => "겨울",
+            _ => ""
         };
 
         if (sfxSelect) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
-
-        TurnOffAllGlows(); 
 
         if (!_isBossStageMode)
         {
