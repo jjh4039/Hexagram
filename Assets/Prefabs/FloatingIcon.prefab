@@ -104,5 +104,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c43e05b2e0a8404ebdfdec19665cea4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FloatingIcon
-  floatSpeed: 0.3
-  fadeDuration: 0.8
+  floatSpeed: 0.4
+  fadeDuration: 0.5
+  baseScale: 0.25
+  popScale: 0.4
+  popDuration: 0.2
