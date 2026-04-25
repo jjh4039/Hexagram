@@ -29,7 +29,8 @@ public class MapManager : MonoBehaviour
     [Header("--- UI References ---")] 
     public GameObject mapVisualRoot;
     public Image fadeOverlayImage;
-    public RectTransform stageTextRect;
+    public RectTransform stageTextRect;                  // 기존: 위치 이동 기준점
+    public CanvasGroup dynamicTextCanvasGroup;           // 신규: 실제 텍스트들의 페이드 인/아웃 전담
     public TextMeshProUGUI stageTitleText;
     public TextMeshProUGUI descriptionText;
     public TextMeshProUGUI stagePerText;
@@ -69,6 +70,7 @@ public class MapManager : MonoBehaviour
     public GlowFilter[] lineGlows;
 
     [Header("--- Animation Settings ---")] 
+    [SerializeField] private float textFadeSpeed = 4f;
     [SerializeField] private float lerpSpeed = 18f;
     [SerializeField] private float floatAmount = 9f;
     [SerializeField] private float fadeDuration = 0.5f;
@@ -89,6 +91,9 @@ public class MapManager : MonoBehaviour
     private Vector2[] _lineOriginPos;
     private Coroutine _fadeCoroutine;
     private bool _isScanning = false;
+    
+    private bool _isMoving = false;
+    private const float MOVEMENT_THRESHOLD = 0.5f;
 
     private void Awake()
     {
@@ -176,7 +181,6 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
-        // 맵 열기는 Normal 상태일 때만 T키로 작동
         if (Keyboard.current.tKey.wasPressedThisFrame)
         {
             if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.Normal)
@@ -231,6 +235,7 @@ public class MapManager : MonoBehaviour
     private void ResetVisualsState()
     {
         _isScanning = true;
+        _isMoving = false; 
 
         _isBossStageMode = GameManager.instance.currentProgress >= 100;
         
@@ -246,21 +251,8 @@ public class MapManager : MonoBehaviour
         if (_isBossStageMode) SetBossNode();
         else SetRandomNodes();
 
-        if (titleTextGlow) titleTextGlow.enabled = false;
-        if (perTextGlow) perTextGlow.enabled = false;
-        if (bossNodeGlow) bossNodeGlow.enabled = false;
-        if (bossLineGlow) bossLineGlow.enabled = false; 
-
-        if (_stageTextCanvasGroup) _stageTextCanvasGroup.alpha = 0f;
-        
-        stageTextRect.anchoredPosition = _isBossStageMode ? bossTextPosition : normalTextPositions[1];
-        
-        float initialScale = _isBossStageMode ? bossTextScale : normalTextScale;
-        stageTextRect.localScale = new Vector3(initialScale, initialScale, 1f);
-
-        if (stageTitleText) stageTitleText.text = "";
-        if (descriptionText) descriptionText.text = "";
-        if (stagePerText) stagePerText.text = "";
+        TurnOffAllGlows(); 
+        HideUITexts(); // 시작 시 텍스트 투명하게 초기화
 
         if (_isBossStageMode)
         {
@@ -268,8 +260,6 @@ public class MapManager : MonoBehaviour
             {
                 if (nodeVisuals[i]) nodeVisuals[i].gameObject.SetActive(false);
                 if (lineVisuals[i]) lineVisuals[i].gameObject.SetActive(false);
-                if (nodeGlows[i]) nodeGlows[i].enabled = false;
-                if (lineGlows[i]) lineGlows[i].enabled = false;
             }
 
             if (bossNodeVisual)
@@ -295,9 +285,6 @@ public class MapManager : MonoBehaviour
 
             for (int i = 0; i < 3; i++)
             {
-                if (nodeGlows[i]) nodeGlows[i].enabled = false;
-                if (lineGlows[i]) lineGlows[i].enabled = false;
-
                 bool hasNode = currentNodes[i] != null;
                 if (nodeVisuals[i]) nodeVisuals[i].gameObject.SetActive(hasNode);
 
@@ -317,6 +304,26 @@ public class MapManager : MonoBehaviour
                     _currentRandomPers[i] = Random.Range(currentNodes[i].minRise, currentNodes[i].maxRise + 1);
                 }
             }
+        }
+    }
+
+    private void TurnOffAllGlows()
+    {
+        if (titleTextGlow) titleTextGlow.enabled = false;
+        if (perTextGlow) perTextGlow.enabled = false;
+        if (bossNodeGlow) bossNodeGlow.enabled = false;
+        if (bossLineGlow) bossLineGlow.enabled = false;
+        
+        if (nodeGlows != null)
+        {
+            for (int i = 0; i < nodeGlows.Length; i++)
+                if (nodeGlows[i]) nodeGlows[i].enabled = false;
+        }
+
+        if (lineGlows != null)
+        {
+            for (int i = 0; i < lineGlows.Length; i++)
+                if (lineGlows[i]) lineGlows[i].enabled = false;
         }
     }
 
@@ -381,8 +388,6 @@ public class MapManager : MonoBehaviour
     {
         if (_isBossStageMode)
         {
-            if (stageTitleText) stageTitleText.text = $"모듈 : {bossStageData.moduleName}";
-
             float alpha = 0f;
             while (alpha < 1f)
             {
@@ -406,7 +411,6 @@ public class MapManager : MonoBehaviour
                 StageData data = currentNodes[i];
                 if (data == null) continue;
 
-                if (stageTitleText) stageTitleText.text = $"모듈 : {data.moduleName}";
                 StartCoroutine(FadeInNode(i));
                 
                 if (sfxScan) SoundManager.instance.PlaySFX(sfxScan, 0.15f);
@@ -415,7 +419,8 @@ public class MapManager : MonoBehaviour
         }
 
         _isScanning = false;
-        UpdateUI();
+        _isMoving = true; 
+        UpdateUITexts(); 
     }
 
     private IEnumerator FadeInNode(int index)
@@ -435,18 +440,7 @@ public class MapManager : MonoBehaviour
 
     private void HandleSmoothVisuals()
     {
-        if (!_isScanning)
-        {
-            if (_stageTextCanvasGroup)
-                _stageTextCanvasGroup.alpha = Mathf.Lerp(_stageTextCanvasGroup.alpha, 1f, Time.deltaTime * lerpSpeed);
-
-            Vector2 targetTextPos = _isBossStageMode ? bossTextPosition : normalTextPositions[_selectedIndex];
-            stageTextRect.anchoredPosition = Vector2.Lerp(stageTextRect.anchoredPosition, targetTextPos, Time.deltaTime * lerpSpeed);
-            
-            float targetScale = _isBossStageMode ? bossTextScale : normalTextScale;
-            Vector3 targetScaleVector = new Vector3(targetScale, targetScale, 1f);
-            stageTextRect.localScale = Vector3.Lerp(stageTextRect.localScale, targetScaleVector, Time.deltaTime * lerpSpeed);
-        }
+        bool isAnyNodeMoving = false; 
 
         if (_isBossStageMode)
         {
@@ -460,6 +454,11 @@ public class MapManager : MonoBehaviour
 
                 Vector2 targetNodePos = (!_isScanning) ? _bossNodeOriginPos + Vector2.up * floatAmount : _bossNodeOriginPos;
                 bossNodeVisual.rectTransform.anchoredPosition = Vector2.Lerp(bossNodeVisual.rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
+
+                if (Vector2.Distance(bossNodeVisual.rectTransform.anchoredPosition, targetNodePos) > MOVEMENT_THRESHOLD)
+                {
+                    isAnyNodeMoving = true;
+                }
 
                 if (bossLineVisual)
                 {
@@ -490,6 +489,11 @@ public class MapManager : MonoBehaviour
                 Vector2 targetNodePos = isSelected ? _nodeOriginPos[i] + Vector2.up * floatAmount : _nodeOriginPos[i];
                 nodeVisuals[i].rectTransform.anchoredPosition = Vector2.Lerp(nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
 
+                if (Vector2.Distance(nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos) > MOVEMENT_THRESHOLD)
+                {
+                    isAnyNodeMoving = true;
+                }
+
                 if (lineVisuals[i])
                 {
                     float currentYOffset = nodeVisuals[i].rectTransform.anchoredPosition.y - _nodeOriginPos[i].y;
@@ -500,6 +504,21 @@ public class MapManager : MonoBehaviour
                     lineVisuals[i].rectTransform.anchoredPosition = _lineOriginPos[i] - new Vector2(0, compensatedOffset);
                 }
             }
+        }
+
+        // 1. 노드 움직임이 끝났고 스캔 상태가 아닐 때 Glow 켜기
+        if (_isMoving && !isAnyNodeMoving && !_isScanning)
+        {
+            _isMoving = false; 
+            ApplyGlowsToSelected(); 
+        }
+
+        // 2. 움직임이 완전히 끝나 정착된 상태일 때만, 신규 변수로 등록한 CanvasGroup의 알파값을 스르르 올림
+
+        if (!_isMoving && !_isScanning && dynamicTextCanvasGroup != null)
+        {
+            // Lerp 대신 일정한 속도로 증가하는 MoveTowards 사용
+            dynamicTextCanvasGroup.alpha = Mathf.MoveTowards(dynamicTextCanvasGroup.alpha, 1f, Time.deltaTime * textFadeSpeed);
         }
     }
 
@@ -515,25 +534,41 @@ public class MapManager : MonoBehaviour
 
         if (prevIndex != _selectedIndex)
         {
-            UpdateUI();
+            _isMoving = true; 
+            TurnOffAllGlows(); 
+            HideUITexts();     // 이동을 시작하는 즉시 텍스트 숨김 (알파 0)
+            UpdateUITexts();   // 보이지 않는 상태에서 목표 텍스트 내용과 위치를 즉시 업데이트
             if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
         }
     }
 
-    private void UpdateUI()
+    // 텍스트를 즉시 숨깁니다 (신규 변수 사용)
+    private void HideUITexts()
     {
-        if (currentNodes == null || currentNodes.Length <= _selectedIndex || currentNodes[_selectedIndex] == null)
-        {
-            if (titleTextGlow) titleTextGlow.enabled = false;
-            if (perTextGlow) perTextGlow.enabled = false;
-            return;
-        }
+        if (dynamicTextCanvasGroup) dynamicTextCanvasGroup.alpha = 0f;
+    }
 
+    // 텍스트 내용과 목표 위치/크기를 즉시 세팅합니다. (단, 켜지는 않음)
+    private void UpdateUITexts()
+    {
+        if (currentNodes == null || currentNodes.Length <= _selectedIndex || currentNodes[_selectedIndex] == null) return;
+        
         StageData data = currentNodes[_selectedIndex];
-
         if (stageTitleText) stageTitleText.text = $"모듈 : {data.moduleName}";
         if (stagePerText) stagePerText.text = _isBossStageMode ? "" : $"+ {_currentRandomPers[_selectedIndex]}%";
         if (descriptionText) descriptionText.text = data.description;
+
+        // 텍스트의 부모(기존 기준점) 위치 및 스케일 즉시 반영
+        stageTextRect.anchoredPosition = _isBossStageMode ? bossTextPosition : normalTextPositions[_selectedIndex];
+        float targetScale = _isBossStageMode ? bossTextScale : normalTextScale;
+        stageTextRect.localScale = new Vector3(targetScale, targetScale, 1f);
+    }
+
+    private void ApplyGlowsToSelected()
+    {
+        if (currentNodes == null || currentNodes.Length <= _selectedIndex || currentNodes[_selectedIndex] == null) return;
+
+        StageData data = currentNodes[_selectedIndex];
 
         if (titleTextGlow)
         {
@@ -547,41 +582,36 @@ public class MapManager : MonoBehaviour
             if (perTextGlow.enabled) perTextGlow.Color = data.themeColor;
         }
 
-        if (!_isScanning)
+        if (_isBossStageMode)
         {
-            if (_isBossStageMode)
+            if (bossNodeGlow)
             {
-                if (bossNodeGlow)
-                {
-                    bossNodeGlow.enabled = true;
-                    bossNodeGlow.Color = data.themeColor;
-                }
-                
-                if (bossLineGlow)
-                {
-                    bossLineGlow.enabled = true;
-                    bossLineGlow.Color = data.themeColor;
-                }
+                bossNodeGlow.enabled = true;
+                bossNodeGlow.Color = data.themeColor;
             }
-            else
+            if (bossLineGlow)
             {
-                for (int i = 0; i < 3; i++)
+                bossLineGlow.enabled = true;
+                bossLineGlow.Color = data.themeColor;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (currentNodes[i] == null) continue;
+                bool isSelected = (i == _selectedIndex);
+
+                if (i < nodeGlows.Length && nodeGlows[i])
                 {
-                    if (currentNodes[i] == null) continue;
+                    nodeGlows[i].enabled = isSelected;
+                    if (nodeGlows[i].enabled) nodeGlows[i].Color = data.themeColor;
+                }
 
-                    bool isSelected = (i == _selectedIndex);
-
-                    if (i < nodeGlows.Length && nodeGlows[i])
-                    {
-                        nodeGlows[i].enabled = isSelected;
-                        if (nodeGlows[i].enabled) nodeGlows[i].Color = data.themeColor;
-                    }
-
-                    if (i < lineGlows.Length && lineGlows[i])
-                    {
-                        lineGlows[i].enabled = isSelected;
-                        if (lineGlows[i].enabled) lineGlows[i].Color = data.themeColor;
-                    }
+                if (i < lineGlows.Length && lineGlows[i])
+                {
+                    lineGlows[i].enabled = isSelected;
+                    if (lineGlows[i].enabled) lineGlows[i].Color = data.themeColor;
                 }
             }
         }
@@ -611,6 +641,8 @@ public class MapManager : MonoBehaviour
         };
 
         if (sfxSelect) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
+
+        TurnOffAllGlows(); 
 
         if (!_isBossStageMode)
         {
@@ -657,7 +689,6 @@ public class MapManager : MonoBehaviour
         mapVisualRoot.SetActive(false);
         _isScanning = false;
 
-        // 스테이지 넘어가기 직전 조작권 복구
         if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
 
         if (GameManager.instance)

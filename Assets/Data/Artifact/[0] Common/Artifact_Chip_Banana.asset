@@ -15,7 +15,7 @@ MonoBehaviour:
   artifactName: "\uAC15\uD654 \uCF54\uC5B4 : \uBC14\uB098\uB098"
   description: "\uC8FC\uC0AC\uC704 [ 3 ] \uD6A8\uACFC\uAC00 \uBC1C\uB3D9 \uC911\uC77C
     \uB54C\n\uCE58\uBA85\uD0C0 \uD655\uB960\uC774 5% \uC0C1\uC2B9\uD55C\uB2E4."
-  icon: {fileID: 6422477285223628307, guid: 68cc7df507e5ce048b0bb4c5a31bdf4f, type: 3}
+  icon: {fileID: -2674492303345362091, guid: 44286d8558633f9448afbd33849b62a6, type: 3}
   grade: 0
   basePrice: 100
   type: 1
