@@ -173,13 +173,23 @@ public class DashboardUI : MonoBehaviour
 
     public void RefreshArtifacts()
     {
-        foreach (Transform child in artifactGrid) Destroy(child.gameObject);
-        
+        if (artifactGrid == null) return;
+
+        for (int i = artifactGrid.childCount - 1; i >= 0; i--)
+        {
+            Transform child = artifactGrid.GetChild(i);
+            child.SetParent(null);
+            Destroy(child.gameObject);
+        }
+
         if (ArtifactManager.instance == null) return;
 
         foreach (ArtifactData data in ArtifactManager.instance.myArtifacts)
         {
             GameObject newSlot = Instantiate(slotPrefab, artifactGrid);
+
+            newSlot.transform.localScale = Vector3.one;
+
             newSlot.GetComponent<ArtifactSlot>().Setup(data);
         }
     }
