@@ -12,7 +12,7 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     public void Setup(ArtifactData data)
     {
         _data = data;
-        if (outlineObj) outlineObj.SetActive(false); // 시작할 땐 끄기
+        if (outlineObj) outlineObj.SetActive(false); // 시작할 땐 아웃라인 끄기
 
         if (_data)
         {
@@ -25,9 +25,8 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerEnter(PointerEventData eventData) // 마우스 들어오면 아웃라인 켜기
     {
-        // ★ 마우스 들어오면 아웃라인 켜기
         if (outlineObj != null) outlineObj.SetActive(true);
 
         if (_data != null)
@@ -36,9 +35,9 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public void OnPointerExit(PointerEventData eventData)  // 마우스 나가면 아웃라인 끄기
     {
-        // ★ 마우스 나가면 아웃라인 끄기
+       
         if (outlineObj != null) outlineObj.SetActive(false);
 
         DashboardUI.instance.HideTooltip();
