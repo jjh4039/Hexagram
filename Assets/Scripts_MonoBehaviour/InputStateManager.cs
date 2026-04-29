@@ -4,30 +4,33 @@ using UnityEngine;
 // 게임 상태와 입력을 총괄하는 매니저
 public class InputStateManager : MonoBehaviour
 {
-    public static InputStateManager Instance { get; private set; } // 전역 접근용 인스턴스
-    public PlayerInput Actions => inputActions;                    // 외부 접근용 입력 프로퍼티
+    public static InputStateManager Instance { get; private set; } 
+    public PlayerInput Actions => inputActions;                    
 
-    private PlayerInput inputActions;                              // 자동 생성된 입력 시스템 클래스
+    private PlayerInput inputActions;                              
 
     [Header("Current State")]
-    [SerializeField] private GamePhase currentPhase = GamePhase.SafeZone;      // 인스펙터 확인용 상황
-    [SerializeField] private InputState currentInputState = InputState.Normal; // 인스펙터 확인용 조작
+    [SerializeField] private GamePhase currentPhase = GamePhase.SafeZone;      
+    [SerializeField] private InputState currentInputState = InputState.Normal; 
 
-    public GamePhase CurrentPhase => currentPhase;                             // 외부 읽기용 상황
-    public InputState CurrentInputState => currentInputState;                  // 외부 읽기용 조작
+    public GamePhase CurrentPhase => currentPhase;                             
+    public InputState CurrentInputState => currentInputState;                  
 
-    public event Action<InputState> OnInputStateChanged;           // 조작 상태 변경 알림
-    public event Action<GamePhase> OnGamePhaseChanged;             // 게임 상황 변경 알림
+    public event Action<InputState> OnInputStateChanged;           
+    public event Action<GamePhase> OnGamePhaseChanged;             
+
+    // 시간 딜레이(쿨타임) 변수 삭제, 순수 이전 방향만 기억함
+    private Vector2 lastUIRawInput; 
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            inputActions = new PlayerInput();               // 입력 객체 생성
-            inputActions.Enable();                          // 입력 시스템 가동
+            inputActions = new PlayerInput();               
+            inputActions.Enable();                          
             
-            ChangeInputState(InputState.Normal);            // 시작 시 기본 조작 설정
+            ChangeInputState(InputState.Normal);            
         }
         else
         {
@@ -37,10 +40,9 @@ public class InputStateManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (inputActions != null) inputActions.Disable();   // 파괴 시 메모리 누수 방지
+        if (inputActions != null) inputActions.Disable();   
     }
 
-    // 기존 맵을 끄고 필요한 맵만 켭니다
     public void ChangeInputState(InputState newState)
     {
         if (currentInputState == newState) return;
@@ -55,12 +57,9 @@ public class InputStateManager : MonoBehaviour
         else if (newState == InputState.Combat) inputActions.Combat.Enable();
         else if (newState == InputState.UI) inputActions.UI.Enable();
         
-        // 이 알림을 보내면 Player.cs의 HandleInputStateChanged가 실행되면서 
-        // 캐릭터가 즉시 멈추고 무적 상태가 됩니다.
         OnInputStateChanged?.Invoke(newState);
     }
 
-    // 상황을 변경하고 기본 조작을 갱신합니다
     public void ChangeGamePhase(GamePhase newPhase)
     {
         if (currentPhase == newPhase) return;
@@ -72,7 +71,6 @@ public class InputStateManager : MonoBehaviour
         else if (newPhase == GamePhase.InCombat) ChangeInputState(InputState.Combat);
     }
 
-    // 안전할 때만 화면 조작으로 전환합니다
     public bool TryOpenUI()
     {
         if (currentPhase == GamePhase.InCombat) return false;
@@ -81,10 +79,44 @@ public class InputStateManager : MonoBehaviour
         return true;
     }
 
-    // 조작을 끝내고 이전 상태로 복귀합니다
     public void CloseUI()
     {
         if (currentPhase == GamePhase.InCombat) ChangeInputState(InputState.Combat);
         else ChangeInputState(InputState.Normal);
+    }
+
+    // 딜레이 0초! 순수하게 '새로 눌린' 방향만 즉각 추출
+    public bool TryGetCleanUIInput(Vector2 rawInput, out Vector2 cleanInput)
+    {
+        cleanInput = Vector2.zero;
+
+        // 1. 키보드에서 손을 완전히 뗐을 때 (상태 초기화)
+        if (rawInput.sqrMagnitude < 0.1f)
+        {
+            lastUIRawInput = Vector2.zero;
+            return false;
+        }
+
+        // 2. 시간 딜레이 없이, '기존에 0이었다가 방금 막 눌린 축'만 찾아냄
+        bool xJustPressed = Mathf.Abs(rawInput.x) > 0.5f && Mathf.Abs(lastUIRawInput.x) < 0.1f;
+        bool yJustPressed = Mathf.Abs(rawInput.y) > 0.5f && Mathf.Abs(lastUIRawInput.y) < 0.1f;
+
+        // 3. 상태는 무조건 갱신 (손을 뗄 때 대각선 찌꺼기 방지용)
+        lastUIRawInput = rawInput;
+
+        // 4. 새로 눌린 방향을 즉시 뱉어냄
+        if (xJustPressed)
+        {
+            cleanInput = new Vector2(Mathf.Sign(rawInput.x), 0);
+            return true; // 즉각 실행
+        }
+        else if (yJustPressed)
+        {
+            cleanInput = new Vector2(0, Mathf.Sign(rawInput.y));
+            return true; // 즉각 실행
+        }
+
+        // 키를 꾹 누르고 있는 도중에 값이 애매하게 변한(따닥) 상황이면 쿨하게 무시
+        return false;
     }
 }

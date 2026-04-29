@@ -6,16 +6,18 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
 
-    [Header("--- Settings ---")]
-    [Range(0f, 1f)] public float masterVolume = 0.5f;
+    [Header("--- Settings ---")] [Range(0f, 1f)]
+    public float masterVolume = 0.5f;
+
     [Range(0f, 1f)] public float bgmVolume = 0.2f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
-    [Header("--- Background Music ---")]
-    [SerializeField] private AudioSource bgmSource;
+    [Header("--- Background Music ---")] [SerializeField]
+    private AudioSource bgmSource;
 
-    [Header("--- SFX Pooling ---")]
-    [SerializeField] private int poolSize = 20;
+    [Header("--- SFX Pooling ---")] [SerializeField]
+    private int poolSize = 20;
+
     private List<AudioSource> sfxPool;
 
     // 동일 사운드 겹침 방지용 딕셔너리
@@ -43,7 +45,7 @@ public class SoundManager : MonoBehaviour
         sfxPool = new List<AudioSource>();
         GameObject poolRoot = new GameObject("SFX_Pool_Root");
         poolRoot.transform.parent = transform;
-        
+
         for (int i = 0; i < poolSize; i++)
         {
             GameObject go = new GameObject($"SFX_Source_{i}");
@@ -64,6 +66,7 @@ public class SoundManager : MonoBehaviour
         {
             if (Time.unscaledTime - lastTime < MIN_SFX_INTERVAL) return;
         }
+
         lastPlayTimes[clip] = Time.unscaledTime;
 
         // 2. 채널 가져오기 (비어있는게 없다면 가장 오래된 것을 뺏어옴)
@@ -80,7 +83,7 @@ public class SoundManager : MonoBehaviour
             source.Play();
 
             // 코루틴 관리 최적화: 이미 실행 중인 비활성화 루틴이 꼬이지 않게 처리
-            StopCoroutine(nameof(DisableSourceRoutine)); 
+            StopCoroutine(nameof(DisableSourceRoutine));
             StartCoroutine(DisableSourceRoutine(source, clip.length));
         }
     }
@@ -118,6 +121,7 @@ public class SoundManager : MonoBehaviour
                 oldestSource = source;
             }
         }
+
         return oldestSource;
     }
 
@@ -127,9 +131,10 @@ public class SoundManager : MonoBehaviour
         while (elapsed < duration + 0.1f)
         {
             // 일시정지 중에도 소리가 꺼져야 하므로 unscaledDeltaTime 사용
-            elapsed += Time.unscaledDeltaTime; 
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
+
         source.gameObject.SetActive(false);
     }
 
@@ -142,5 +147,12 @@ public class SoundManager : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         sfxVolume = volume;
+    }
+
+
+    public void SetMasterVolume(float volume)
+    {
+        masterVolume = volume;
+        if (bgmSource != null) bgmSource.volume = masterVolume * bgmVolume;
     }
 }

@@ -49,7 +49,7 @@ public class SettingUIController : MonoBehaviour
         if (visualRoot != null) visualRoot.SetActive(false);
         if (bgRect != null) _bgOriginAnchoredPos = bgRect.anchoredPosition;
 
-        InitDummyValues();
+        LoadSettingsData();                                  // 더미 데이터 대신 실제 세이브 데이터 로드
 
         if (InputStateManager.Instance != null)
         {
@@ -78,16 +78,88 @@ public class SettingUIController : MonoBehaviour
         }
     }
 
-    private void InitDummyValues()
+    private void LoadSettingsData()
     {
-        _currentValues[0] = 5; 
-        _currentValues[1] = 5; 
-        _currentValues[2] = 5; 
-        _currentValues[3] = 1; 
-        _currentValues[4] = 1; 
-        _currentValues[5] = 1; 
+        if (DataManager.instance != null)
+        {
+            GameData data = DataManager.instance.data;
+            _currentValues[0] = data.masterVolume;
+            _currentValues[1] = data.bgmVolume;
+            _currentValues[2] = data.sfxVolume;
+            _currentValues[3] = data.screenMode;
+            _currentValues[4] = data.resolution;
+            _currentValues[5] = data.cameraShake;
+        }
+        else
+        {
+            // 매니저가 없을 경우의 기본값
+            _currentValues[0] = 5; 
+            _currentValues[1] = 5; 
+            _currentValues[2] = 5; 
+            _currentValues[3] = 1; 
+            _currentValues[4] = 1; 
+            _currentValues[5] = 1; 
+        }
+
+        // 로드된 값을 실제 게임 시스템(소리, 해상도 등)에 즉시 적용
+        for (int i = 0; i < 6; i++)
+        {
+            ApplySettingToSystem(i, _currentValues[i]);
+        }
     }
 
+    private void SaveSettingsData()
+    {
+        if (DataManager.instance == null) return;
+
+        GameData data = DataManager.instance.data;
+        data.masterVolume = _currentValues[0];
+        data.bgmVolume = _currentValues[1];
+        data.sfxVolume = _currentValues[2];
+        data.screenMode = _currentValues[3];
+        data.resolution = _currentValues[4];
+        data.cameraShake = _currentValues[5];
+
+        DataManager.instance.SaveGame();                     // 변경된 값을 JSON으로 영구 저장
+    }
+
+    private void ApplySettingToSystem(int index, int value)
+    {
+        switch (index)
+        {
+            case 0:
+                if (SoundManager.instance != null) SoundManager.instance.SetMasterVolume(value / 10f);
+                break;
+            case 1:
+                if (SoundManager.instance != null) SoundManager.instance.SetBGMVolume(value / 10f);
+                break;
+            case 2:
+                if (SoundManager.instance != null) SoundManager.instance.SetSFXVolume(value / 10f);
+                break;
+            case 3:
+            case 4:
+                ApplyResolutionAndScreenMode();              // 창 모드 또는 해상도가 바뀌면 한 번에 갱신
+                break;
+            case 5:
+                // 카메라 흔들림(추후 연동)
+                break;
+        }
+    }
+
+    private void ApplyResolutionAndScreenMode()
+    {
+        bool isFullScreen = (_currentValues[3] == 1);
+        int width = 1920;
+        int height = 1080;
+
+        if (_currentValues[4] == 0) { width = 1280; height = 720; }
+        else if (_currentValues[4] == 1) { width = 1920; height = 1080; }
+        else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
+
+        Screen.SetResolution(width, height, isFullScreen);   // 유니티 내장 해상도 적용 함수
+    }
+
+    // 작성자 요청에 따라 조작 딜레이 로직 취소 및 원상 복구
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
         if (!_isOpen || _isAnimating) return;
@@ -144,20 +216,21 @@ public class SettingUIController : MonoBehaviour
                 _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, 10);
                 if (prevVol != _currentValues[_currentIndex]) valueChanged = true;
                 break;
-            case 3:
-                int prevMode = _currentValues[_currentIndex];
-                _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, _screenModes.Length - 1);
-                if (prevMode != _currentValues[_currentIndex]) valueChanged = true;
+            
+            case 3: 
+                _currentValues[_currentIndex] = _currentValues[_currentIndex] == 0 ? 1 : 0;
+                valueChanged = true;
                 break;
+            
             case 4:
                 int prevRes = _currentValues[_currentIndex];
                 _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, _resolutions.Length - 1);
                 if (prevRes != _currentValues[_currentIndex]) valueChanged = true;
                 break;
+            
             case 5:
-                int prevShake = _currentValues[_currentIndex];
-                _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, _shakeModes.Length - 1);
-                if (prevShake != _currentValues[_currentIndex]) valueChanged = true;
+                _currentValues[_currentIndex] = _currentValues[_currentIndex] == 0 ? 1 : 0;
+                valueChanged = true;
                 break;
         }
 
@@ -166,6 +239,9 @@ public class SettingUIController : MonoBehaviour
             if (sfxAdjust) SoundManager.instance.PlaySFX(sfxAdjust, 0.5f);
             UpdateValueText(_currentIndex);
             UpdateSlider(_currentIndex);
+
+            ApplySettingToSystem(_currentIndex, _currentValues[_currentIndex]); // 실시간 시스템 연동
+            SaveSettingsData();                                                 // 실시간 데이터 저장
         }
     }
 
@@ -194,7 +270,6 @@ public class SettingUIController : MonoBehaviour
                 UpdateValueText(i);
             }
 
-            // [추가된 부분] 슬라이더 내부의 모든 이미지(Background, Fill, Handle) 색상 동기화
             if (i <= 2 && i < volumeSliders.Length && volumeSliders[i] != null)
             {
                 Image[] sliderImages = volumeSliders[i].GetComponentsInChildren<Image>();
