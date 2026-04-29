@@ -2736,7 +2736,6 @@ GameObject:
   - component: {fileID: 158271423}
   - component: {fileID: 158271422}
   - component: {fileID: 158271421}
-  - component: {fileID: 158271424}
   m_Layer: 5
   m_Name: WhiteScreen
   m_TagString: Untagged
@@ -2813,21 +2812,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 158271419}
   m_CullTransparentMesh: 1
---- !u!114 &158271424
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 158271419}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c49336f9f06707b439bda627e8b17c34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DashUI
-  dashFillImages: []
-  chargingColor: {r: 1, g: 1, b: 1, a: 0.5}
-  fullColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &164686947
 GameObject:
   m_ObjectHideFlags: 0
@@ -3696,7 +3680,6 @@ GameObject:
   - component: {fileID: 200445197}
   - component: {fileID: 200445200}
   - component: {fileID: 200445199}
-  - component: {fileID: 200445198}
   m_Layer: 5
   m_Name: Arti_Image
   m_TagString: Untagged
@@ -3723,95 +3706,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 65}
   m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &200445198
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 200445196}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.15
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 2
-  _maxDistance: 530
-  _reuseDistanceMap: 0
-  _falloffMode: 1
-  _expFalloffEnergy: 16
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 0
-  _noiseScale: 1
-  _additive: 0.447
-  _sourceAlpha: 1
 --- !u!114 &200445199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5588,7 +5482,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 315749320}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
@@ -9496,7 +9390,7 @@ GameObject:
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &484782540
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9504,7 +9398,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 484782539}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9544,7 +9438,7 @@ MonoBehaviour:
     gradeEffects:
     - {fileID: 1677784712}
     - {fileID: 1448092417}
-    - {fileID: 602616638}
+    - {fileID: 0}
     artifactImage: {fileID: 602616639}
     titleText: {fileID: 1677784714}
     gradeText: {fileID: 1448092419}
@@ -9559,7 +9453,7 @@ MonoBehaviour:
     gradeEffects:
     - {fileID: 1067645817}
     - {fileID: 2097393338}
-    - {fileID: 200445198}
+    - {fileID: 0}
     artifactImage: {fileID: 200445199}
     titleText: {fileID: 1067645819}
     gradeText: {fileID: 2097393340}
@@ -9572,7 +9466,7 @@ MonoBehaviour:
     outLineImage: {fileID: 1628616898}
     choiceEffect: {fileID: 1628616897}
     gradeEffects:
-    - {fileID: 1928027825}
+    - {fileID: 0}
     - {fileID: 1729366988}
     - {fileID: 2051471611}
     artifactImage: {fileID: 1928027826}
@@ -11742,7 +11636,6 @@ GameObject:
   - component: {fileID: 602616637}
   - component: {fileID: 602616640}
   - component: {fileID: 602616639}
-  - component: {fileID: 602616638}
   m_Layer: 5
   m_Name: Arti_Image
   m_TagString: Untagged
@@ -11769,95 +11662,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 65}
   m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &602616638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 602616636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.15
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 2
-  _maxDistance: 530
-  _reuseDistanceMap: 0
-  _falloffMode: 1
-  _expFalloffEnergy: 16
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 0
-  _noiseScale: 1
-  _additive: 0.447
-  _sourceAlpha: 1
 --- !u!114 &602616639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12815,13 +12619,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 648259529}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1948743306}
-  m_Father: {fileID: 1893222187}
+  m_Father: {fileID: 1965841834}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -14473,14 +14277,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 715735948}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1795302829}
   - {fileID: 1261265468}
-  m_Father: {fileID: 1893222187}
+  m_Father: {fileID: 1965841834}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -15101,7 +14905,6 @@ GameObject:
   - component: {fileID: 752753902}
   - component: {fileID: 752753905}
   - component: {fileID: 752753904}
-  - component: {fileID: 752753903}
   m_Layer: 5
   m_Name: Case
   m_TagString: Untagged
@@ -15128,95 +14931,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 65}
   m_SizeDelta: {x: 85, y: 85}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &752753903
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 752753901}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.6
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 0
-  _maxDistance: 596
-  _reuseDistanceMap: 0
-  _falloffMode: 0
-  _expFalloffEnergy: 16
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0, g: 0.04830125, b: 0.15686275, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 0
-  _noiseScale: 1
-  _additive: 0.447
-  _sourceAlpha: 1
 --- !u!114 &752753904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25235,7 +24949,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305638696}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
@@ -29418,7 +29132,6 @@ GameObject:
   - component: {fileID: 1459887735}
   - component: {fileID: 1459887738}
   - component: {fileID: 1459887737}
-  - component: {fileID: 1459887736}
   m_Layer: 5
   m_Name: Case
   m_TagString: Untagged
@@ -29445,95 +29158,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 65}
   m_SizeDelta: {x: 85, y: 85}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1459887736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1459887734}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.6
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 0
-  _maxDistance: 596
-  _reuseDistanceMap: 0
-  _falloffMode: 0
-  _expFalloffEnergy: 16
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0, g: 0.04830125, b: 0.15686275, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 0
-  _noiseScale: 1
-  _additive: 0.447
-  _sourceAlpha: 1
 --- !u!114 &1459887737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31470,8 +31094,6 @@ GameObject:
   - component: {fileID: 1561150943}
   - component: {fileID: 1561150947}
   - component: {fileID: 1561150946}
-  - component: {fileID: 1561150945}
-  - component: {fileID: 1561150944}
   m_Layer: 5
   m_Name: TitleText
   m_TagString: Untagged
@@ -31498,114 +31120,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 21.6}
   m_SizeDelta: {x: 200, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1561150944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1561150942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.3
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 2
-  _maxDistance: 128
-  _reuseDistanceMap: 0
-  _falloffMode: 0
-  _expFalloffEnergy: 5
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 28
-  _noiseScale: 0
-  _additive: 1
-  _sourceAlpha: 1
---- !u!114 &1561150945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1561150942}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35fc49e13720d6c4fb056bc4d105e6af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX.TMP::ChocDino.UIFX.FilterStackTextMeshPro
-  _applyToSprites: 1
-  _updateOnTransform: 0
-  _relativeToTransformScale: 0
-  _renderSpace: 0
-  _relativeFontSize: 0
-  _filters:
-  - {fileID: 1561150944}
 --- !u!114 &1561150946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38534,9 +38048,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 715735949}
   - {fileID: 484782540}
-  - {fileID: 648259530}
   - {fileID: 1299400500}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -39191,7 +38703,6 @@ GameObject:
   - component: {fileID: 1928027824}
   - component: {fileID: 1928027827}
   - component: {fileID: 1928027826}
-  - component: {fileID: 1928027825}
   m_Layer: 5
   m_Name: Arti_Image
   m_TagString: Untagged
@@ -39218,95 +38729,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 65}
   m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1928027825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1928027823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.15
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 2
-  _maxDistance: 530
-  _reuseDistanceMap: 0
-  _falloffMode: 1
-  _expFalloffEnergy: 16
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0.15686275, g: 0, b: 0.15686275, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 0
-  _noiseScale: 1
-  _additive: 0.447
-  _sourceAlpha: 1
 --- !u!114 &1928027826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40169,6 +39591,8 @@ RectTransform:
   - {fileID: 392940243}
   - {fileID: 1383836549}
   - {fileID: 1126371349}
+  - {fileID: 648259530}
+  - {fileID: 715735949}
   - {fileID: 280337867}
   - {fileID: 1804787784}
   - {fileID: 1418589413}
@@ -41346,6 +40770,7 @@ MonoBehaviour:
   - {fileID: 7948204977122636316}
   - {fileID: 774561184}
   - {fileID: 2015407903}
+  - {fileID: 1418589412}
   uiFadeTime: 0.3
 --- !u!114 &2031720044
 MonoBehaviour:
@@ -42081,7 +41506,6 @@ GameObject:
   - component: {fileID: 2086338078}
   - component: {fileID: 2086338081}
   - component: {fileID: 2086338080}
-  - component: {fileID: 2086338079}
   m_Layer: 5
   m_Name: Case
   m_TagString: Untagged
@@ -42108,95 +41532,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 65}
   m_SizeDelta: {x: 85, y: 85}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2086338079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2086338077}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ChocDino.UIFX::ChocDino.UIFX.GlowFilter
-  _strength: 0.6
-  _renderSpace: 0
-  _expand: 1
-  _sourceArea: 0
-  _edgeSide: 2
-  _distanceShape: 0
-  _maxDistance: 596
-  _reuseDistanceMap: 0
-  _falloffMode: 0
-  _expFalloffEnergy: 16
-  _expFalloffPower: 1
-  _expFalloffOffset: 0
-  _falloffCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: -1
-      outSlope: -1
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _falloffCurveGamma: 2.2
-  _fillMode: 0
-  _color: {r: 0, g: 0.04830125, b: 0.15686275, a: 1}
-  _gradientTexture: {fileID: 0}
-  _gradient:
-    serializedVersion: 2
-    key0: {r: 0.03116761, g: 0.9716981, b: 0.5848317, a: 1}
-    key1: {r: 0.3635457, g: 0.4478632, b: 0.8679245, a: 1}
-    key2: {r: 0.8301887, g: 0.4025632, b: 0.829066, a: 0}
-    key3: {r: 0.8490566, g: 0.1874332, b: 0.5700046, a: 0}
-    key4: {r: 0.8207547, g: 0.7230087, b: 0.1966714, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 16384
-    ctime2: 32768
-    ctime3: 49151
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: -1
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 2
-  _gradientOffset: 0
-  _gradientGamma: 1
-  _gradientReverse: 0
-  _blur: 0
-  _noiseScale: 1
-  _additive: 0.447
-  _sourceAlpha: 1
 --- !u!114 &2086338080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42420,7 +41755,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2097393336}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bac190db134f274a9277da474af4a3d, type: 3}
   m_Name: 
