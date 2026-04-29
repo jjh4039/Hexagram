@@ -12,6 +12,7 @@ public class PauseUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] menuTexts;    // 선택지 텍스트 배열
     [SerializeField] private TextMeshProUGUI progressText;   // 진행도 텍스트 UI
     [SerializeField] private TextMeshProUGUI playTimeText;   // 플레이타임 텍스트 UI
+    [SerializeField] private SettingUIController settingUI;  // 설정창 UI 컨트롤러 연결
 
     [Header("Animation Settings")]
     [SerializeField] private float targetBgHeight = 400f;    // 배경 최대 높이
@@ -80,6 +81,7 @@ public class PauseUIController : MonoBehaviour
     private void OnPauseToggleInput(InputAction.CallbackContext ctx)
     {
         if (_isAnimating) return;
+        if (settingUI != null && settingUI.IsOpen) return;
 
         if (!_isPaused) PauseGame();
         else ResumeGame();
@@ -88,6 +90,8 @@ public class PauseUIController : MonoBehaviour
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
         if (!_isPaused || _isAnimating) return;
+        if (settingUI != null && settingUI.IsOpen) return;
+
         Vector2 input = ctx.ReadValue<Vector2>();
 
         if (input.y > 0.5f) ChangeSelection(-1);
@@ -97,12 +101,17 @@ public class PauseUIController : MonoBehaviour
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
         if (!_isPaused || _isAnimating) return;
+        if (settingUI != null && settingUI.IsOpen) return;
+
         ExecuteSelection();
     }
 
     private void OnCloseUI(InputAction.CallbackContext ctx)
     {
         if (!_isPaused || _isAnimating) return;
+        if (settingUI != null && settingUI.IsOpen) return;
+
+        if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);
         ResumeGame();
     }
 
@@ -117,7 +126,7 @@ public class PauseUIController : MonoBehaviour
         UpdateSelectionVisuals();
         UpdateInfoTexts();
 
-        if (sfxOpen) SoundManager.instance.PlaySFX(sfxOpen, 0.6f);
+        if (sfxOpen) SoundManager.instance.PlaySFX(sfxOpen, 0.2f);
 
         Time.timeScale = 0f;
 
@@ -177,14 +186,22 @@ public class PauseUIController : MonoBehaviour
 
     private void ExecuteSelection()
     {
-        if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.6f);
+        if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);
 
         switch (_currentIndex)
         {
-            case 0: ResumeGame(); break;
-            case 1: Debug.Log("Settings"); break;
-            case 2: Debug.Log("Give Up"); break;
-            case 3: Debug.Log("Quit"); break;
+            case 0: 
+                ResumeGame(); 
+                break;
+            case 1: 
+                if (settingUI != null) settingUI.OpenSettings(); 
+                break;
+            case 2: 
+                Debug.Log("Give Up"); 
+                break;
+            case 3: 
+                Debug.Log("Quit"); 
+                break;
         }
     }
 

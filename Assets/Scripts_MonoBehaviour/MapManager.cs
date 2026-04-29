@@ -378,7 +378,7 @@ public class MapManager : MonoBehaviour
             if (bossLineVisual) bossLineVisual.color = _inactiveColor;
 
             if (sfxScan) SoundManager.instance.PlaySFX(sfxScan, 0.15f);
-            yield return new WaitForSeconds(scanInterval);
+            yield return new WaitForSeconds(scanInterval); // 보스도 스캔 간격만큼만 짧게 대기
         }
         else
         {
@@ -393,7 +393,7 @@ public class MapManager : MonoBehaviour
                 yield return new WaitForSeconds(scanInterval);
             }
 
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.05f); // 기존 0.2f에서 0.05f로 줄여서 딜레이 최소화
         }
 
         _isScanning = false;

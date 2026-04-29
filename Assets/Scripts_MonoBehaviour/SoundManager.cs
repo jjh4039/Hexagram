@@ -15,18 +15,19 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource bgmSource;
 
     [Header("--- SFX Pooling ---")]
-    [SerializeField] private GameObject sfxSourcePrefab; // 껍데기 프리팹 (AudioSource 컴포넌트 달린 빈 오브젝트)
-    [SerializeField] private int poolSize = 20;          // 동시에 낼 수 있는 소리 개수 (넉넉하게 20개)
-
+    [SerializeField] private int poolSize = 20;
     private List<AudioSource> sfxPool;
+
+    // 동일 사운드 겹침 방지용 딕셔너리
+    private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>();
+    private const float MIN_SFX_INTERVAL = 0.05f; // 동일 사운드 최소 재생 간격
 
     private void Awake()
     {
-        // 1. 싱글톤 패턴 (어디서든 SoundManager.instance 로 부르기 위해)
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // 씬이 바껴도 파괴되지 않음 (마을 -> 던전 유지)
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -37,14 +38,12 @@ public class SoundManager : MonoBehaviour
         InitializePool();
     }
 
-    // 2. 오디오 소스 풀링 초기화
     private void InitializePool()
     {
         sfxPool = new List<AudioSource>();
         GameObject poolRoot = new GameObject("SFX_Pool_Root");
         poolRoot.transform.parent = transform;
-
-        // 미리 20개를 생성해서 꺼둡니다.
+        
         for (int i = 0; i < poolSize; i++)
         {
             GameObject go = new GameObject($"SFX_Source_{i}");
@@ -56,37 +55,40 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // ★ 3. 외부에서 효과음 재생할 때 부르는 함수
-    // clip: 소리 파일, pitchVariation: 음 높낮이 랜덤 (타격감 핵심!)
     public void PlaySFX(AudioClip clip, float volumeScale = 1.0f, float pitchVariation = 0.1f)
     {
         if (clip == null) return;
 
+        // 1. 동일 사운드 쿨타임 체크 (소리 뭉침 및 먹먹함 방지)
+        if (lastPlayTimes.TryGetValue(clip, out float lastTime))
+        {
+            if (Time.unscaledTime - lastTime < MIN_SFX_INTERVAL) return;
+        }
+        lastPlayTimes[clip] = Time.unscaledTime;
+
+        // 2. 채널 가져오기 (비어있는게 없다면 가장 오래된 것을 뺏어옴)
         AudioSource source = GetPooledSource();
 
         if (source != null)
         {
             source.gameObject.SetActive(true);
+            source.Stop(); // 재사용 시 이전 소리 정지
 
-            // 볼륨 계산: 마스터 볼륨 * 효과음 설정 볼륨 * 개별 소리 크기
             source.volume = masterVolume * sfxVolume * volumeScale;
-
-            // 피치(음정) 랜덤 변화: 기관총 쏠 때 기계음을 덜하게 만듦
             source.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
-
             source.clip = clip;
             source.Play();
 
-            // 재생이 끝나면 자동으로 풀에 반납 (비활성화)
+            // 코루틴 관리 최적화: 이미 실행 중인 비활성화 루틴이 꼬이지 않게 처리
+            StopCoroutine(nameof(DisableSourceRoutine)); 
             StartCoroutine(DisableSourceRoutine(source, clip.length));
         }
     }
 
-    // 4. 배경음악 재생 함수
     public void PlayBGM(AudioClip clip)
     {
         if (bgmSource == null) return;
-        if (bgmSource.clip == clip) return; // 이미 같은 노래면 무시
+        if (bgmSource.clip == clip) return;
 
         bgmSource.clip = clip;
         bgmSource.loop = true;
@@ -94,7 +96,43 @@ public class SoundManager : MonoBehaviour
         bgmSource.Play();
     }
 
-    // ★ 5. 환경설정에서 볼륨 조절할 때 호출할 함수들 (유지보수용)
+    private AudioSource GetPooledSource()
+    {
+        // 1. 비활성화된 채널 찾기
+        foreach (var source in sfxPool)
+        {
+            if (!source.gameObject.activeSelf) return source;
+        }
+
+        // 2. 모든 채널이 사용 중이라면 가장 먼저 재생을 시작했던 채널을 강제로 재사용 (Voice Stealing)
+        // 리스트의 첫 번째가 보통 가장 오래된 소리일 확률이 높음
+        AudioSource oldestSource = sfxPool[0];
+        float longestTime = 0;
+
+        foreach (var source in sfxPool)
+        {
+            // 재생 시간이 가장 많이 경과한(남은 시간이 적은) 소리를 찾음
+            if (source.time > longestTime)
+            {
+                longestTime = source.time;
+                oldestSource = source;
+            }
+        }
+        return oldestSource;
+    }
+
+    private IEnumerator DisableSourceRoutine(AudioSource source, float duration)
+    {
+        float elapsed = 0;
+        while (elapsed < duration + 0.1f)
+        {
+            // 일시정지 중에도 소리가 꺼져야 하므로 unscaledDeltaTime 사용
+            elapsed += Time.unscaledDeltaTime; 
+            yield return null;
+        }
+        source.gameObject.SetActive(false);
+    }
+
     public void SetBGMVolume(float volume)
     {
         bgmVolume = volume;
@@ -104,29 +142,5 @@ public class SoundManager : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         sfxVolume = volume;
-        // (옵션) 현재 재생 중인 효과음들도 소리를 줄이고 싶다면 여기서 sfxPool을 순회하며 조절
-    }
-
-    // --- 내부 로직 ---
-    private AudioSource GetPooledSource()
-    {
-        // 놀고 있는(비활성화된) 친구를 찾아서 리턴
-        foreach (var source in sfxPool)
-        {
-            if (!source.gameObject.activeSelf) return source;
-        }
-
-        // 만약 20개가 다 시끄럽게 떠들고 있다면? 
-        // 1. 그냥 무시하거나 
-        // 2. 제일 오래된 걸 뺏거나
-        // 3. 풀을 늘리거나. (여기선 그냥 null 리턴해서 무시합니다. 20개면 충분함)
-        return null;
-    }
-
-    private IEnumerator DisableSourceRoutine(AudioSource source, float duration)
-    {
-        // 클립 길이보다 0.1초 더 기다렸다가 끔 (안전장치)
-        yield return new WaitForSeconds(duration + 0.1f);
-        source.gameObject.SetActive(false);
     }
 }

@@ -99,6 +99,7 @@ MonoBehaviour:
     customIcons:
     - AvatarController.Layer
     - TestStopwatch
+    - LightProbes Icon
     enabled: 1
   - builtinIcons: []
     customIcons: []
