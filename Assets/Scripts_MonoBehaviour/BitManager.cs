@@ -84,9 +84,6 @@ public class BitManager : MonoBehaviour
             bitChoices[i].rect.anchoredPosition = bitChoices[i].initialAnchoredPos;
             bitChoices[i].rect.localScale = Vector3.one;
 
-            if (bitChoices[i].choiceEffect != null)
-                bitChoices[i].choiceEffect.enabled = false;
-
             if (bitChoices[i].group != null)
                 bitChoices[i].group.alpha = 0;
         }
@@ -214,13 +211,11 @@ public class BitManager : MonoBehaviour
             int prev = selectedIndex;
             isHovering[prev] = false;
             StartHoverAnimation(prev, false);
-            if (bitChoices[prev].choiceEffect != null) bitChoices[prev].choiceEffect.enabled = false;
         }
 
         selectedIndex = newIndex;
         isHovering[selectedIndex] = true;
         StartHoverAnimation(selectedIndex, true);
-        if (bitChoices[selectedIndex].choiceEffect != null) bitChoices[selectedIndex].choiceEffect.enabled = true;
         UpdateConfirmButtonPosition();
     }
 
@@ -398,7 +393,6 @@ public class BitManager : MonoBehaviour
         public Image hoverSensor;
         public CanvasGroup group;
         public Image outLineImage;
-        public GlowFilter choiceEffect;
         public GlowFilter[] gradeEffects;
         public Image artifactImage;
         public TextMeshProUGUI titleText;
