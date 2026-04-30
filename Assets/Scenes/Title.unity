@@ -3845,7 +3845,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: m_Volume
@@ -4460,6 +4460,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerFeedbackUI
   feedbackText: {fileID: 60801564}
+  warningMessages:
+  - "\uC804\uD22C \uC911\uC5D0\uB294 \uC5F4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  - "\uC804\uD22C \uC911\uC5D0\uB294 \uD68D\uB4DD\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
+  - "\uC544\uD2F0\uD329\uD2B8\uB97C \uB354 \uC774\uC0C1 \uD68D\uB4DD\uD560 \uC218
+    \uC5C6\uC2B5\uB2C8\uB2E4. (\uCD5C\uB300 10)"
   fadeInTime: 0.05
   displayTime: 2
   fadeOutTime: 0.2
