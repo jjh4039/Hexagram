@@ -15,3 +15,6 @@ MonoBehaviour:
   titleText: "\uCD5C\uB300 \uCCB4\uB825"
   valueText: +2
   valueTextColor: {r: 1, g: 0, b: 0.6045284, a: 1}
+  effectType: 1
+  valueAmount: 2
+  isPercent: 0

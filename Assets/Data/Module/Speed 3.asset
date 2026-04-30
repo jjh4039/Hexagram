@@ -15,3 +15,6 @@ MonoBehaviour:
   titleText: "\uC774\uB3D9\uC18D\uB3C4"
   valueText: +3%
   valueTextColor: {r: 0.23375754, g: 0.824728, b: 0.9716981, a: 1}
+  effectType: 4
+  valueAmount: 0.03
+  isPercent: 1

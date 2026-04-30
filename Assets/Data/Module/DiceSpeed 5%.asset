@@ -15,3 +15,6 @@ MonoBehaviour:
   titleText: "\uC8FC\uC0AC\uC704 \uCDA9\uC804 \uC18D\uB3C4"
   valueText: +5%
   valueTextColor: {r: 1, g: 1, b: 1, a: 1}
+  effectType: 6
+  valueAmount: 0.05
+  isPercent: 1

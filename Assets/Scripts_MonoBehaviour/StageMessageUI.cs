@@ -62,10 +62,15 @@ public class StageMessageUI : MonoBehaviour
     private bool isEnemyCountVisible = false;
     private Vector3 enemyCountOriginScale;
 
+    // [추가됨] 화면에 표시된 3개의 보상 데이터를 기억해둘 배열
+    private ModuleData[] _currentDisplayedRewards;
+
     private void Awake()
     {
         instance = this;
         originalScales = new Vector3[rewardItems.Length];
+        _currentDisplayedRewards = new ModuleData[rewardItems.Length]; // 배열 초기화
+
         for (int i = 0; i < rewardItems.Length; i++)
             if (rewardItems[i].rect != null) originalScales[i] = rewardItems[i].rect.localScale;
 
@@ -137,6 +142,7 @@ public class StageMessageUI : MonoBehaviour
     private void SetRandomRewardTexts()
     {
         if (rewardDatas == null || rewardDatas.Length == 0) return;
+
         int[] indices = new int[rewardDatas.Length];
         for (int i = 0; i < indices.Length; i++) indices[i] = i;
         for (int i = indices.Length - 1; i > 0; i--)
@@ -144,10 +150,15 @@ public class StageMessageUI : MonoBehaviour
             int j = Random.Range(0, i + 1);
             (indices[i], indices[j]) = (indices[j], indices[i]);
         }
+
         for (int i = 0; i < rewardItems.Length; i++)
         {
             if (i >= indices.Length) break;
             ModuleData data = rewardDatas[indices[i]];
+
+            // [추가됨] 화면에 표시되는 슬롯 인덱스에 실제 데이터를 저장
+            _currentDisplayedRewards[i] = data;
+
             if (rewardItems[i].titleText != null) rewardItems[i].titleText.text = data.titleText;
             if (rewardItems[i].valueText != null) rewardItems[i].valueText.text = data.valueText;
             if (rewardItems[i].valueText != null) rewardItems[i].valueText.color = data.valueTextColor;
@@ -181,7 +192,6 @@ public class StageMessageUI : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        // ★ [핵심 추가] UI 모드이거나 전투 중 등, Normal 상태가 아니면 키 입력을 무시합니다.
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState != InputState.Normal)
             return;
 
@@ -193,7 +203,6 @@ public class StageMessageUI : MonoBehaviour
 
         if (!canSelectReward) return;
 
-        // Normal 상태일 때만 숫자 키 입력이 작동합니다.
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectReward(0);
         else if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectReward(1);
         else if (Keyboard.current.digit3Key.wasPressedThisFrame) SelectReward(2);
@@ -205,6 +214,13 @@ public class StageMessageUI : MonoBehaviour
         canSelectReward = false;
         if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.1f);
         if (rewardItems[index].glowEffect != null) rewardItems[index].glowEffect.enabled = true;
+
+        // ★ [핵심 추가] 저장해둔 데이터를 GameManager를 통해 PlayerStats로 전송
+        if (GameManager.instance != null && GameManager.instance.stats != null)
+        {
+            GameManager.instance.stats.ApplyModuleReward(_currentDisplayedRewards[index]);
+        }
+
         StartCoroutine(PunchScale(rewardItems[index].rect, index));
         for (int i = 0; i < rewardItems.Length; i++)
         {

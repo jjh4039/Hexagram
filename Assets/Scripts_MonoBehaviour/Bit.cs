@@ -20,15 +20,24 @@ public class Bit : MonoBehaviour
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!isPlayerInRange) return;
+
+        // ★ 아티팩트 소지 개수가 10개 이상이면 획득 거부 및 2번 피드백 출력
+        if (ArtifactManager.instance != null && ArtifactManager.instance.myArtifacts.Count >= 10)
+        {
+            if (PlayerFeedbackUI.Instance != null)
+                PlayerFeedbackUI.Instance.ShowWarning(2);
+            return;
+        }
+
         OpenBitSelection();
     }
 
-    // 전투 상태에서의 상호작용 시도 (거부 및 피드백 텍스트 출력)
+    // 전투 상태에서의 상호작용 시도 (거부 및 1번 피드백 텍스트 출력)
     private void OnInteractCombat(InputAction.CallbackContext context)
     {
         if (!isPlayerInRange) return;
-        
-        if (PlayerFeedbackUI.Instance != null) 
+
+        if (PlayerFeedbackUI.Instance != null)
             PlayerFeedbackUI.Instance.ShowWarning(1);
     }
 
