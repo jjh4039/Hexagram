@@ -29,7 +29,7 @@ public class GameOver : MonoBehaviour
     [SerializeField] private GameObject spacePromptObj;
 
     [Header("Result Value Texts")]
-    [SerializeField] private TextMeshProUGUI progressResultText; // 추가됨: 진행도 텍스트 (예: 봄 - 15%)
+    [SerializeField] private TextMeshProUGUI progressResultText; // 진행도 텍스트
     [SerializeField] private TextMeshProUGUI timeResultText;
     [SerializeField] private TextMeshProUGUI damageResultText;
     [SerializeField] private TextMeshProUGUI currentOwnedGemText;
@@ -100,15 +100,22 @@ public class GameOver : MonoBehaviour
             float playTime = GameManager.instance.currentPlayTime;
             int damage = GameManager.instance.totalDamageDealt;
 
-            // 추가됨: 진행도 데이터 연동
             Season currentSeason = GameManager.instance.currentSeason;
             int progress = GameManager.instance.currentProgress;
 
             rewardFromTime = Mathf.FloorToInt(playTime / 600f);
             rewardFromDamage = damage / 1000;
-            currentOwnedGems = GameManager.instance.diceGem;
 
-            // 추가됨: 계절 Enum을 한글 문자열로 변환하고 진행도 텍스트 적용
+            // [수정됨] GameManager가 아닌 DataManager에서 영구 보석 데이터를 가져옴
+            if (DataManager.instance != null)
+            {
+                currentOwnedGems = DataManager.instance.data.totalGems;
+            }
+            else
+            {
+                currentOwnedGems = 0;
+            }
+
             if (progressResultText != null)
             {
                 string seasonName = "";
@@ -179,7 +186,8 @@ public class GameOver : MonoBehaviour
             rewardFromTime--;
             totalGainedReward++;
             currentOwnedGems++;
-            if (GameManager.instance != null) GameManager.instance.diceGem++;
+
+            // [수정됨] GameManager.instance.diceGem++ 삭제 (DataManager 연동으로 대체)
 
             if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxCounting, 0.7f, 0.1f);
 
@@ -194,7 +202,8 @@ public class GameOver : MonoBehaviour
             rewardFromDamage--;
             totalGainedReward++;
             currentOwnedGems++;
-            if (GameManager.instance != null) GameManager.instance.diceGem++;
+
+            // [수정됨] GameManager.instance.diceGem++ 삭제 (DataManager 연동으로 대체)
 
             if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxCounting, 0.7f, 0.1f);
 
@@ -260,7 +269,14 @@ public class GameOver : MonoBehaviour
 
         Debug.Log("타이틀로 이동 준비 완료");
 
-        // Time.timeScale = 1f; 
-        // SceneManager.LoadScene("TitleScene");
+        // 정산이 모두 끝난 최종 보석 개수를 영구 데이터에 덮어씌우고 JSON 저장
+        if (DataManager.instance != null)
+        {
+            DataManager.instance.data.totalGems = currentOwnedGems;
+            DataManager.instance.SaveGame();
+        }
+
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Title");
     }
 }

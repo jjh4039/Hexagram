@@ -39,8 +39,7 @@ public class GameManager : MonoBehaviour
     public int maxProgress = 100;
 
     [Header("Play Time")]
-    public float currentPlayTime = 0f;                       // 누적 플레이 타임
-    public int diceGem = 3;                             // 보유 주사위 보석
+    public float currentPlayTime = 0f;                       // 플레이 타임
     public int totalDamageDealt = 2133;                          // 누적 피해량
 
     [Header("Hit Stop")]

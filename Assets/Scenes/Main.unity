@@ -913,6 +913,7 @@ GameObject:
   m_Component:
   - component: {fileID: 75201708}
   - component: {fileID: 75201709}
+  - component: {fileID: 75201710}
   m_Layer: 0
   m_Name: DataManager
   m_TagString: Untagged
@@ -959,6 +960,20 @@ MonoBehaviour:
     cameraShake: 1
     hasSavedRun: 0
     currentRunHp: 100
+--- !u!114 &75201710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 75201704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a18b7c7b4b5393547a55fb50e08814ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputStateManager
+  currentPhase: 0
+  currentInputState: 0
 --- !u!1 &80454015
 GameObject:
   m_ObjectHideFlags: 0
@@ -43035,7 +43050,7 @@ MonoBehaviour:
   sfxValue: {fileID: 8300000, guid: 467297758e0f98941bf304f6ae9aa288, type: 3}
   sfxCounting: {fileID: 8300000, guid: 467297758e0f98941bf304f6ae9aa288, type: 3}
   fadeOutImage: {fileID: 2114797692}
-  fadeOutDuration: 1
+  fadeOutDuration: 1.5
 --- !u!1 &2003680294 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6532143101752649145, guid: 2bd0f992f662ff74084a683eb279ae53, type: 3}
@@ -43724,7 +43739,6 @@ GameObject:
   - component: {fileID: 2031720041}
   - component: {fileID: 2031720042}
   - component: {fileID: 2031720043}
-  - component: {fileID: 2031720044}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -43776,7 +43790,6 @@ MonoBehaviour:
   currentProgress: 95
   maxProgress: 100
   currentPlayTime: 1213
-  diceGem: 3
   totalDamageDealt: 2133
 --- !u!114 &2031720043
 MonoBehaviour:
@@ -43811,20 +43824,6 @@ MonoBehaviour:
   - {fileID: 2015407903}
   - {fileID: 1418589412}
   uiFadeTime: 0.3
---- !u!114 &2031720044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2031720040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a18b7c7b4b5393547a55fb50e08814ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InputStateManager
-  currentPhase: 0
-  currentInputState: 0
 --- !u!1 &2048810080
 GameObject:
   m_ObjectHideFlags: 0

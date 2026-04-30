@@ -2,50 +2,57 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
+    [Header("Scene Transition")]
+    [SerializeField] private CanvasGroup fadeOverlay;
+    [SerializeField] private string nextSceneName = "";
+    [SerializeField] private float sceneFadeDuration = 1.5f; // 씬 페이드 인/아웃 소요 시간
+    [SerializeField] private AudioClip startSound;
+
     [Header("UI Reference")]
-    [SerializeField] private CanvasGroup titleLogo;         // 로고 투명도 제어
-    [SerializeField] private RectTransform titleRect;       // 로고 위치 제어
-    [SerializeField] private CanvasGroup textGroup;         // 텍스트 투명도 제어
-    [SerializeField] private Transform background;          // 마우스 연동 배경
-    [SerializeField] private TextMeshProUGUI[] menuTexts;   // 메뉴 텍스트 배열
-    [SerializeField] private GameObject[] cursorIcons;      // 선택 아이콘 배열
+    [SerializeField] private CanvasGroup titleLogo;
+    [SerializeField] private RectTransform titleRect;
+    [SerializeField] private CanvasGroup textGroup;
+    [SerializeField] private Transform background;
+    [SerializeField] private TextMeshProUGUI[] menuTexts;
+    [SerializeField] private GameObject[] cursorIcons;
+    [SerializeField] private SettingUIController settingUI;
 
     [Header("Animation Settings")]
-    [SerializeField] private float animTime = 1f;           // 연출 소요 시간
+    [SerializeField] private float logoFadeDuration = 1f;   // 타이틀 로고 페이드 소요 시간
     [SerializeField] private float delayBetween = 0.5f;     // 텍스트 등장 대기 시간
+    [SerializeField] private float textFadeDuration = 0.5f;  // 메뉴 텍스트 페이드 소요 시간
 
     [Header("Idle Floating Settings")]
-    [SerializeField] private float floatSpeed = 2f;         // 부유 속도
-    [SerializeField] private float floatAmount = 10f;       // 부유 폭
+    [SerializeField] private float floatSpeed = 2f;
+    [SerializeField] private float floatAmount = 10f;
 
     [Header("Parallax Settings")]
-    [SerializeField] private float parallaxLimit = 20f;     // 마우스 기준 최대 이동 반경
-    [SerializeField] private float parallaxSmooth = 3f;     // 배경 보간 속도
-    [SerializeField] private float autoPanSpeed = 0.5f;     // 자동 이동 속도
-    [SerializeField] private float autoPanAmount = 10f;     // 자동 이동 폭
+    [SerializeField] private float parallaxLimit = 20f;
+    [SerializeField] private float parallaxSmooth = 3f;
+    [SerializeField] private float autoPanSpeed = 0.5f;
+    [SerializeField] private float autoPanAmount = 10f;
 
     [Header("Color Settings")]
-    [SerializeField] private Color normalColor = Color.gray;   // 기본 텍스트 색상
-    [SerializeField] private Color highlightColor = Color.white; // 선택 텍스트 색상
+    [SerializeField] private Color normalColor = Color.gray;
+    [SerializeField] private Color highlightColor = Color.white;
 
     [Header("Sound Settings")]
-    [SerializeField] private AudioClip moveSound;           // 이동 효과음
-    [SerializeField] private AudioClip selectSound;         // 선택 효과음
+    [SerializeField] private AudioClip moveSound;
+    [SerializeField] private AudioClip selectSound;
 
-    private PlayerInput _inputActions;                      // 입력 시스템
-    private int _currentIndex = 0;                          // 현재 선택 메뉴
-    private Vector3 _bgOriginPos;                           // 배경 초기 좌표
-    private float _baseY;                                   // 로고 기본 Y좌표
-    private bool _isInputActive = false;                    // 조작 가능 상태
-    private bool _isFloatingActive = false;                 // 부유 효과 상태
-    private float _introTimer = 0f;                         // 부유 효과 타이머
+    private int _currentIndex = 0;
+    private Vector3 _bgOriginPos;
+    private float _baseY;
+    private bool _isInputActive = false;
+    private bool _isFloatingActive = false;
+    private float _introTimer = 0f;
 
     private void Awake()
     {
-        _inputActions = new PlayerInput();
         if (background != null) _bgOriginPos = background.position;
 
         normalColor.a = 1f;
@@ -54,27 +61,39 @@ public class TitleManager : MonoBehaviour
         if (titleLogo != null) titleLogo.alpha = 0f;
         if (textGroup != null) textGroup.alpha = 0f;
         if (titleRect != null) _baseY = titleRect.anchoredPosition.y;
-    }
 
-    private void OnEnable()
-    {
-        _inputActions.UI.Enable();
-        _inputActions.UI.MoveUI.performed += OnMoveInput;
-        _inputActions.UI.Select.performed += OnSelectInput;
-    }
-
-    private void OnDisable()
-    {
-        _inputActions.UI.MoveUI.performed -= OnMoveInput;
-        _inputActions.UI.Select.performed -= OnSelectInput;
-        _inputActions.UI.Disable();
+        // [수정] 씬 시작 시 화면을 완전히 검은색으로 덮어둠
+        if (fadeOverlay != null)
+        {
+            fadeOverlay.alpha = 1f;
+            fadeOverlay.gameObject.SetActive(true);
+        }
     }
 
     private void Start()
     {
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.ChangeInputState(InputState.UI);
+
+            var actions = InputStateManager.Instance.Actions.UI;
+            actions.MoveUI.performed += OnMoveInput;
+            actions.Select.performed += OnSelectInput;
+        }
+
         UpdateMenuVisuals();
         _isFloatingActive = true;
         StartCoroutine(IntroSequence());
+    }
+
+    private void OnDestroy()
+    {
+        if (InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
+        {
+            var actions = InputStateManager.Instance.Actions.UI;
+            actions.MoveUI.performed -= OnMoveInput;
+            actions.Select.performed -= OnSelectInput;
+        }
     }
 
     private void Update()
@@ -86,31 +105,49 @@ public class TitleManager : MonoBehaviour
     private IEnumerator IntroSequence()
     {
         float timer = 0f;
+
+        // 0. 최초 씬 페이드 인 (화면 밝아짐)
+        if (fadeOverlay != null)
+        {
+            while (timer < 1f)
+            {
+                timer += Time.deltaTime / sceneFadeDuration;
+                fadeOverlay.alpha = Mathf.Lerp(1f, 0f, timer);
+                yield return null;
+            }
+            fadeOverlay.gameObject.SetActive(false);
+        }
+
+        timer = 0f;
+
+        // 1. 로고 페이드 인
         while (timer < 1f)
         {
-            timer += Time.deltaTime / animTime;
+            timer += Time.deltaTime / logoFadeDuration;
             titleLogo.alpha = Mathf.Lerp(0f, 1f, timer);
             yield return null;
         }
 
+        // 2. 대기 시간
         yield return new WaitForSeconds(delayBetween);
 
+        _isInputActive = true;
+
         timer = 0f;
+
+        // 3. 텍스트 페이드 인
         while (timer < 1f)
         {
-            timer += Time.deltaTime / (animTime * 0.5f);
+            timer += Time.deltaTime / textFadeDuration;
             textGroup.alpha = Mathf.Lerp(0f, 1f, timer);
             yield return null;
         }
-
-        _isInputActive = true;
     }
 
     private void HandleParallaxBackground()
     {
         if (background == null) return;
 
-        // 1. 마우스 위치 기반 이동값 계산 (마우스가 없을 경우 대비)
         Vector2 mouseOffset = Vector2.zero;
         if (Mouse.current != null)
         {
@@ -119,15 +156,11 @@ public class TitleManager : MonoBehaviour
             mouseOffset.y = (mousePos.y - (Screen.height / 2f)) / (Screen.height / 2f) * parallaxLimit;
         }
 
-        // 2. 시간에 따른 자동 유영(Auto Pan) 이동값 계산
-        // X축과 Y축의 속도를 미세하게 다르게 주어 단순 반복이 아닌 유기적인 움직임 연출
         float autoX = Mathf.Sin(Time.time * autoPanSpeed) * autoPanAmount;
         float autoY = Mathf.Cos(Time.time * autoPanSpeed * 0.8f) * autoPanAmount;
 
-        // 3. 마우스 이동값과 자동 이동값을 합쳐서 목표 위치 설정
         Vector3 targetPos = _bgOriginPos + new Vector3(mouseOffset.x + autoX, mouseOffset.y + autoY, 0f);
 
-        // 부드럽게 보간하며 이동
         background.position = Vector3.Lerp(background.position, targetPos, Time.deltaTime * parallaxSmooth);
     }
 
@@ -144,22 +177,26 @@ public class TitleManager : MonoBehaviour
     private void OnMoveInput(InputAction.CallbackContext context)
     {
         if (!_isInputActive) return;
+        if (settingUI != null && settingUI.IsOpen) return;
 
         Vector2 moveDir = context.ReadValue<Vector2>();
 
-        if (moveDir.x > 0.5f) ChangeIndex(1);
-        else if (moveDir.x < -0.5f) ChangeIndex(-1);
+        if (moveDir.x > 0.5f || moveDir.y < -0.5f) ChangeIndex(1);
+        else if (moveDir.x < -0.5f || moveDir.y > 0.5f) ChangeIndex(-1);
     }
 
     private void OnSelectInput(InputAction.CallbackContext context)
     {
         if (!_isInputActive) return;
+        if (settingUI != null && settingUI.IsOpen) return;
+
         ExecuteMenu();
     }
 
     public void SetIndexByMouse(int index)
     {
         if (!_isInputActive || _currentIndex == index) return;
+        if (settingUI != null && settingUI.IsOpen) return;
 
         _currentIndex = index;
         PlayMoveSound();
@@ -211,24 +248,55 @@ public class TitleManager : MonoBehaviour
             SoundManager.instance.PlaySFX(selectSound);
         }
 
-        Debug.Log("실행됨 메뉴 번호 " + _currentIndex);
-
         if (_currentIndex == 0)
         {
-            // 게임 시작
+            _isInputActive = false; // 중복 입력 차단
+            StartCoroutine(TransitionToGame());
         }
         else if (_currentIndex == 1)
         {
-            // 설정 창 띄우기
+            if (settingUI != null) settingUI.OpenSettings();
         }
         else if (_currentIndex == 2)
         {
-            // 게임 종료
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
             Application.Quit();
 #endif
+        }
+    }
+
+    private IEnumerator TransitionToGame()
+    {
+        if (SoundManager.instance != null && startSound != null)
+        {
+            SoundManager.instance.PlaySFX(startSound);
+        }
+
+        if (fadeOverlay != null)
+        {
+            fadeOverlay.gameObject.SetActive(true);
+            float timer = 0f;
+            while (timer < sceneFadeDuration)
+            {
+                timer += Time.unscaledDeltaTime;
+                fadeOverlay.alpha = Mathf.Clamp01(timer / sceneFadeDuration);
+                yield return null;
+            }
+        }
+        else
+        {
+            yield return new WaitForSeconds(sceneFadeDuration);
+        }
+
+        if (!string.IsNullOrEmpty(nextSceneName))
+        {
+            SceneManager.LoadScene(nextSceneName);
+        }
+        else
+        {
+            Debug.LogWarning("이동할 씬 이름이 설정되지 않았습니다.");
         }
     }
 }
