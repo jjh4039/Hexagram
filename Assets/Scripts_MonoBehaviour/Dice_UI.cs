@@ -19,11 +19,10 @@ public class Dice_UI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI diceCountText;
     [SerializeField] private GameObject maxText;
 
-    // 신규: 아티팩트 하단 UI 표시용 참조
     [Header("Artifact Feedback UI")]
-    [SerializeField] private GameObject artifactContainerBox;    // 검정색 배경 박스 
-    [SerializeField] private Transform artifactIconParent;       // 아이콘들이 생성될 부모 
-    [SerializeField] private GameObject artifactIconPrefab;      // 생성될 아티팩트 아이콘 프리팹 
+    [SerializeField] private GameObject artifactContainerBox;    
+    [SerializeField] private Transform artifactIconParent;       
+    [SerializeField] private GameObject artifactIconPrefab;      
     [SerializeField] private GameObject plusIconPrefab;
 
     [Header("Sprites")]
@@ -103,19 +102,16 @@ public class Dice_UI : MonoBehaviour
         UpdateText(isMax);
     }
 
-    // 수정: 매개변수로 triggeredArtifacts 리스트 추가
     public void PlayRollAnimation(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
     {
         if (isRolling) return;
         StartCoroutine(SingleRollRoutine(data, diceIndex, triggeredArtifacts, onResultShown));
     }
 
-    // 신규: 박스 활성화 및 아티팩트 아이콘 생성
     private void SetupArtifactIcons(List<ArtifactData> artifacts)
     {
         if (artifactContainerBox == null || artifactIconParent == null || artifactIconPrefab == null) return;
 
-        // 기존 생성된 아이콘 비우기
         for (int i = artifactIconParent.childCount - 1; i >= 0; i--)
         {
             Transform child = artifactIconParent.GetChild(i);
@@ -131,13 +127,11 @@ public class Dice_UI : MonoBehaviour
 
         artifactContainerBox.SetActive(true);
 
-        // 신규 추가: 아티팩트가 1개 이상 있다면 맨 앞에 '+' 프리팹 먼저 생성
         if (plusIconPrefab != null)
         {
             Instantiate(plusIconPrefab, artifactIconParent);
         }
 
-        // 이후 발동할 아티팩트 아이콘들을 순서대로 생성
         foreach (var artifact in artifacts)
         {
             GameObject iconObj = Instantiate(artifactIconPrefab, artifactIconParent);
@@ -146,7 +140,6 @@ public class Dice_UI : MonoBehaviour
         }
     }
 
-    // 수정: 매개변수 추가 및 애니메이션 팝업 직전 SetupArtifactIcons 호출
     private IEnumerator SingleRollRoutine(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
     {
         isRolling = true;
@@ -176,7 +169,7 @@ public class Dice_UI : MonoBehaviour
 
             while (t < 1f)
             {
-                t += Time.deltaTime * 8f;
+                t += Time.unscaledDeltaTime * 8f;
                 float easeT = 1f - Mathf.Pow(1f - t, 3f);
                 cubeTransform.localScale = Vector3.Lerp(Vector3.zero, originalCubeScale, easeT);
                 yield return null;
@@ -184,12 +177,12 @@ public class Dice_UI : MonoBehaviour
 
             cubeTransform.localScale = originalCubeScale;
 
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSecondsRealtime(0.4f);
 
             t = 0f;
             while (t < 1f)
             {
-                t += Time.deltaTime * 12f;
+                t += Time.unscaledDeltaTime * 12f;
                 float easeT = t * t;
                 cubeTransform.localScale = Vector3.Lerp(originalCubeScale, Vector3.zero, easeT);
                 yield return null;
@@ -198,7 +191,6 @@ public class Dice_UI : MonoBehaviour
             dice3DObject.SetActive(false);
         }
 
-        // 아이콘 생성 및 컨테이너 박스 활성화 (페이드 인 되기 직전에 세팅)
         SetupArtifactIcons(triggeredArtifacts);
 
         fadeInGroup.gameObject.SetActive(true);
@@ -221,11 +213,11 @@ public class Dice_UI : MonoBehaviour
 
         while (pt < 1f)
         {
-            pt += Time.deltaTime * 10f;
+            pt += Time.unscaledDeltaTime * 10f;
             float easeT = 1f - Mathf.Pow(1f - pt, 4f);
             imgTransform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 1.2f, easeT);
             txtTransform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 1.2f, easeT);
-            fadeInGroup.alpha = Mathf.MoveTowards(fadeInGroup.alpha, 1f, Time.deltaTime * fadeSpeed);
+            fadeInGroup.alpha = Mathf.MoveTowards(fadeInGroup.alpha, 1f, Time.unscaledDeltaTime * fadeSpeed);
             yield return null;
         }
 
@@ -234,7 +226,7 @@ public class Dice_UI : MonoBehaviour
         pt = 0f;
         while (pt < 1f)
         {
-            pt += Time.deltaTime * 15f;
+            pt += Time.unscaledDeltaTime * 15f;
             imgTransform.localScale = Vector3.Lerp(Vector3.one * 1.2f, Vector3.one, pt);
             txtTransform.localScale = Vector3.Lerp(Vector3.one * 1.2f, Vector3.one, pt);
             yield return null;
@@ -243,12 +235,12 @@ public class Dice_UI : MonoBehaviour
         imgTransform.localScale = Vector3.one;
         txtTransform.localScale = Vector3.one;
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSecondsRealtime(1.5f);
 
         pt = 0f;
         while (pt < 1f)
         {
-            pt += Time.deltaTime * 3f;
+            pt += Time.unscaledDeltaTime * 3f;
             fadeOutGroup.alpha = Mathf.Lerp(1f, 0f, pt);
             yield return null;
         }
@@ -271,7 +263,7 @@ public class Dice_UI : MonoBehaviour
 
         while (t < 1f)
         {
-            t += Time.deltaTime * speed;
+            t += Time.unscaledDeltaTime * speed;
             float easeT = 1f - Mathf.Pow(1f - t, 3f);
             target.localScale = Vector3.Lerp(from, to, easeT);
             yield return null;
@@ -317,14 +309,14 @@ public class Dice_UI : MonoBehaviour
 
         while (t < lifeTime)
         {
-            rect.anchoredPosition += direction * currentSpeed * Time.deltaTime;
-            currentSpeed = Mathf.Lerp(currentSpeed, 0f, Time.deltaTime * 3f);
+            rect.anchoredPosition += direction * currentSpeed * Time.unscaledDeltaTime;
+            currentSpeed = Mathf.Lerp(currentSpeed, 0f, Time.unscaledDeltaTime * 3f);
 
             Color c = img.color;
             c.a = Mathf.Lerp(1f, 0f, t / lifeTime);
             img.color = c;
 
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             yield return null;
         }
 

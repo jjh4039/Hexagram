@@ -4,7 +4,7 @@ public class Dice_Cube : MonoBehaviour
 {
     [Header("--- Roll Settings ---")]
     [SerializeField] private float rollSpeed = 1000f;
-    [SerializeField] private float minRotationThreshold = 0.5f; // 축의 최소 값 보정치  
+    [SerializeField] private float minRotationThreshold = 0.5f;
 
     private Vector3 currentAxis;
 
@@ -21,10 +21,7 @@ public class Dice_Cube : MonoBehaviour
 
     void Update()
     {
-        // 월드 좌표 기준 회전
-        transform.Rotate(currentAxis * (rollSpeed * Time.deltaTime), Space.World);
-
-        // 로컬 좌표 기준 추가 회전 (덜그럭거리는 느낌)
-        transform.Rotate(new Vector3(1.2f, 0.5f, 0.8f) * (rollSpeed * 0.5f * Time.deltaTime), Space.Self);
+        transform.Rotate(currentAxis * (rollSpeed * Time.unscaledDeltaTime), Space.World);
+        transform.Rotate(new Vector3(1.2f, 0.5f, 0.8f) * (rollSpeed * 0.5f * Time.unscaledDeltaTime), Space.Self);
     }
 }

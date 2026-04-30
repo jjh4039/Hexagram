@@ -63,7 +63,7 @@ public class GameOver : MonoBehaviour
     {
         InitializeUI();
 
-        if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxStart, 1.0f, 0f);
+        if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxStart, 1.5f, 0f);
 
         StartCoroutine(Co_GameOverSequence());
     }

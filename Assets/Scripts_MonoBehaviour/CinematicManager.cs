@@ -9,35 +9,35 @@ public class CinematicManager : MonoBehaviour
     public static CinematicManager instance;
 
     [Header("Cinematic Bars UI")]
-    [SerializeField] private RectTransform topBar;      // 상단 검은 줄
-    [SerializeField] private RectTransform bottomBar;   // 하단 검은 줄
-    [SerializeField] private float barHeight = 40f;    // 최종 검은 줄의 두께
-    [SerializeField] private float barAnimTime = 1.5f;  // 스르륵 나오는 시간
+    [SerializeField] private RectTransform topBar;                 // 상단 검은 줄
+    [SerializeField] private RectTransform bottomBar;              // 하단 검은 줄
+    [SerializeField] private float barHeight = 40f;                // 최종 검은 줄의 두께
+    [SerializeField] private float barAnimTime = 1.5f;             // 스르륵 나오는 시간
 
     [Header("Environment Sunset")]
     [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f); // 저녁 색상
-    [SerializeField] private float sunsetDuration = 2f; // 해가 지는 시간
-    [SerializeField] private float holdDuration = 2f;   // 해가 지고 난 뒤 머무는 시간
-    [SerializeField] private float cinematicCameraSpeed = 1.5f; // 컷신 중 카메라 이동 속도
+    [SerializeField] private float sunsetDuration = 2f;            // 해가 지는 시간
+    [SerializeField] private float holdDuration = 2f;              // 해가 지고 난 뒤 머무는 시간
+    [SerializeField] private float cinematicCameraSpeed = 1.5f;    // 컷신 중 카메라 이동 속도
 
     [Header("Death Cinematic")]
     [Tooltip("화면을 하얗게 덮을 패널 (CanvasGroup 포함)")]
     [SerializeField] private CanvasGroup whiteScreenGroup;
-    [SerializeField] private float slowMotionScale = 0.2f; // 얼마나 느려질 것인가? (0.2배속)
-    [SerializeField] private float whiteOutDuration = 2.0f; // 화면이 하얗게 덮이는 데 걸리는 시간
+    [SerializeField] private float slowMotionScale = 0.2f;         // 얼마나 느려질 것인가? (0.2배속)
+    [SerializeField] private float whiteOutDuration = 2.0f;        // 화면이 하얗게 덮이는 데 걸리는 시간
 
     [Header("GameOver Cinematic")]
-    [SerializeField] private SpriteRenderer worldBlackoutSprite; // 카메라 자식으로 들어갈 거대한 검은 화면
-    [SerializeField] private GameObject gameOverUI; // 최종적으로 켜질 게임오버 캔버스
-    [SerializeField] private float timeSlowDuration = 1.5f; // 시간이 완전히 멈추기까지 걸리는 시간
-    [SerializeField] private float blackoutDuration = 2.0f; // 화면이 까맣게 덮이는 데 걸리는 시간
+    [SerializeField] private SpriteRenderer worldBlackoutSprite;   // 카메라 자식으로 들어갈 거대한 검은 화면
+    [SerializeField] private GameObject gameOverUI;                // 최종적으로 켜질 게임오버 캔버스
+    [SerializeField] private float timeSlowDuration = 1.5f;        // 시간이 완전히 멈추기까지 걸리는 시간
+    [SerializeField] private float blackoutDuration = 2.0f;        // 화면이 까맣게 덮이는 데 걸리는 시간
 
     public float SunsetDuration => sunsetDuration;
 
     [Header("UI to Hide During Cinematic")]
     [Tooltip("컷신 중 숨길 UI 오브젝트들을 넣으세요 (Dice, Player_Info, Weapon 등)")]
     [SerializeField] private GameObject[] uiElementsToHide;
-    [SerializeField] private float uiFadeTime = 0.3f; // UI가 사라지고 나타나는 속도
+    [SerializeField] private float uiFadeTime = 0.3f;              // UI가 사라지고 나타나는 속도
 
     private List<CanvasGroup> hiddenUIGroups = new List<CanvasGroup>();
 
@@ -61,6 +61,8 @@ public class CinematicManager : MonoBehaviour
 
     public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
     {
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false); // 입력 차단
+
         Player player = GameManager.instance.player;
         player.canControl = false;
         player.rigid.linearVelocity = Vector2.zero;
@@ -77,11 +79,12 @@ public class CinematicManager : MonoBehaviour
 
         CameraFollow.instance.ResetTargetToPlayer();
 
-        // ★ [원상복구] 레터박스가 다 올라갈 때까지 기다리지 않고(StartCoroutine) 바로 조작권을 줍니다.
         StartCoroutine(Co_AnimateLetterBox(false));
         StartCoroutine(Co_FadeGameplayUI(true));
 
         player.canControl = true;
+
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true); // 입력 복구
 
         onFinish?.Invoke();
     }
@@ -184,6 +187,8 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
     {
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false); // 입력 차단
+
         Time.timeScale = slowMotionScale;
 
         if (CameraFollow.instance != null)
@@ -226,6 +231,8 @@ public class CinematicManager : MonoBehaviour
             whiteScreenGroup.gameObject.SetActive(false);
         }
 
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true); // 입력 복구
+
         Debug.Log("보스 처치 연출 완전 종료!");
     }
 
@@ -236,22 +243,19 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_GameOverCinematic(Transform playerTransform)
     {
-        // 1. 기존 전투 UI 숨기기 및 카메라 마우스 추적 해제
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false); // 입력 차단
+
         StartCoroutine(Co_FadeGameplayUI(false));
         if (CameraFollow.instance != null)
         {
             CameraFollow.instance.isCinematicFocus = true;
-            CameraFollow.instance.isCinematicZoom = true; // [수정됨] 줌 인 시작
+            CameraFollow.instance.isCinematicZoom = true;
         }
 
-        // [추가됨] 플레이어를 화면 최상단으로 끌어올리기 위한 레이어 조작
         SpriteRenderer playerSR = playerTransform.GetComponentInChildren<SpriteRenderer>();
         if (playerSR != null && worldBlackoutSprite != null)
         {
-            // 검은 화면을 매우 높은 숫자(예: 30000)로 설정하여 모든 맵과 적을 덮습니다.
             worldBlackoutSprite.sortingOrder = 30000;
-
-            // 플레이어는 검은 화면보다 딱 1만큼 더 높게(30001) 설정하여 샌드위치 시킵니다.
             playerSR.sortingOrder = 30001;
         }
 
@@ -266,7 +270,6 @@ public class CinematicManager : MonoBehaviour
             worldBlackoutSprite.color = startColor;
         }
 
-        // 2. 시간 감속 및 화면 암전
         while (elapsed < blackoutDuration)
         {
             elapsed += Time.unscaledDeltaTime;
@@ -295,10 +298,16 @@ public class CinematicManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(1.5f);
 
-        // 4. 전용 게임 오버 UI 활성화
         if (gameOverUI != null)
         {
             gameOverUI.SetActive(true);
+        }
+        
+        // 버튼 입력을 위해 조작 활성화 및 상태를 강제로 UI로 전환
+        if (InputStateManager.Instance != null) 
+        {
+            InputStateManager.Instance.SetInputActive(true);
+            InputStateManager.Instance.ChangeInputState(InputState.UI); 
         }
     }
 }

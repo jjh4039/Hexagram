@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public ShopUIController shopUIController;
 
     public GameObject currentStageObj;
+    public Transform stageParent;                          // 생성될 스테이지의 부모 트랜스폼
 
     [Header("Global Resources")]
     public GameObject commonScrapPrefab;
@@ -98,9 +99,14 @@ public class GameManager : MonoBehaviour
             int randomIndex = Random.Range(0, seasonPrefabs.Length);
             GameObject selectedPrefab = seasonPrefabs[randomIndex];
 
-            currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity);
+            // 변경된 부분: 4번째 매개변수로 부모 트랜스폼 지정
+            currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity, stageParent);
 
-            _controller = currentStageObj.GetComponent<StageController>();
+            if (currentStageObj.TryGetComponent(out _controller))
+            {
+                _controller.InitStage();
+            }
+            
             if (_controller)
                 _controller.InitStage();
 

@@ -15,6 +15,10 @@ public class EnemyBoss : Enemy
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float spriteScale = 1f;
 
+    [Header("Intro Settings")]
+    [SerializeField] private float introTriggerRadius = 12f;       // 보스 인식 범위
+    private bool isAwake = false;                                  // 보스 기상 여부
+
     [Header("Phase Settings")]
     [SerializeField] private float enragePauseTime = 2.0f;
     [SerializeField] private float enrageKnockbackForce = 30f;
@@ -111,7 +115,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private AudioClip sfxEnrageRoar;
 
     [Header("Death Settings")]
-    [SerializeField] private Sprite deadStatueSprite; // 처치 시 변할 석상 이미지
+    [SerializeField] private Sprite deadStatueSprite;              // 처치 시 변할 석상 이미지
 
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
@@ -126,8 +130,7 @@ public class EnemyBoss : Enemy
     private Queue<GameObject> trailPool = new Queue<GameObject>();
     private GameObject trailContainer;
 
-    // ★ [핵심 추가] 모든 장판을 묶어둘 전용 폴더!
-    private Transform telegraphContainer;
+    private Transform telegraphContainer;                          // 장판 전용 폴더
 
     public bool IsDashing => isDashing;
     public float BaseContactDamage => baseContactDamage;
@@ -141,7 +144,6 @@ public class EnemyBoss : Enemy
 
         InitializeTrailPool();
 
-        // ★ 시작할 때 장판 전용 컨테이너 생성
         telegraphContainer = new GameObject($"Guardian_Telegraphs").transform;
     }
 
@@ -155,16 +157,23 @@ public class EnemyBoss : Enemy
 
         ClearRectangles();
 
-        if (bossBGM != null && SoundManager.instance != null)
-        {
-            SoundManager.instance.PlayBGM(bossBGM);
-        }
-
         if (auraParticle != null)
         {
             auraParticle.Stop();
         }
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+
+        // ★ 기존의 즉시 실행되던 컷신 로직을 StartIntroSequence()로 분리했습니다.
+    }
+
+    private void StartIntroSequence()
+    {
+        isAwake = true; // 인식 완료
+
+        if (bossBGM != null && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlayBGM(bossBGM);
+        }
 
         if (CinematicManager.instance != null)
         {
@@ -176,7 +185,7 @@ public class EnemyBoss : Enemy
                 },
                 onSunsetDone: () =>
                 {
-                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.1f, 1f);
+                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.4f, 1f); // ★ 진동 세기 증가
                     if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
                     if (anim != null) anim.SetTrigger("Start");
                 },
@@ -225,7 +234,6 @@ public class EnemyBoss : Enemy
             if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
         }
 
-        // 기동 완료 후 기본 파티클 켜기
         if (auraParticle != null)
         {
             var main = auraParticle.main;
@@ -243,6 +251,16 @@ public class EnemyBoss : Enemy
     private void Update()
     {
         if (isDead || target == null) return;
+
+        // ★ 보스가 아직 깨어나지 않았다면 진입 거리를 측정합니다.
+        if (!isAwake)
+        {
+            if (Vector2.Distance(transform.position, target.position) <= introTriggerRadius)
+            {
+                StartIntroSequence();
+            }
+            return;                                                // 대기 중엔 다른 행동 무시
+        }
 
         if (!isAttacking)
             LookAtTarget();
@@ -272,7 +290,7 @@ public class EnemyBoss : Enemy
 
         if (anim != null) anim.SetTrigger("Enrage");
         if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.2f);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.2f, 1f);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.5f, 1f); // ★ 진동 세기 증가
 
         KnockbackPlayer();
 
@@ -402,7 +420,6 @@ public class EnemyBoss : Enemy
             if (dashCurrentRangeOrigin != null)
                 currentRectInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
 
-            // ★ 부모를 telegraphContainer로 설정
             if (maxRectInstance != null) { maxRectInstance.transform.SetParent(telegraphContainer); maxRectInstance.SetActive(true); }
             if (currentRectInstance != null) { currentRectInstance.transform.SetParent(telegraphContainer); currentRectInstance.SetActive(true); }
 
@@ -503,7 +520,7 @@ public class EnemyBoss : Enemy
         if (isDead) yield break;
 
         if (anim != null) anim.SetTrigger("Slam");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.3f);
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.45f); // ★ 진동 세기 증가
 
         if (sfxAoeExplode != null) SoundManager.instance.PlaySFX(sfxAoeExplode, 0.9f);
 
@@ -561,7 +578,6 @@ public class EnemyBoss : Enemy
             float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
             wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
 
-            // ★ 부모를 telegraphContainer로 설정
             if (dashMaxRangeOrigin != null)
             {
                 GameObject maxObj = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
@@ -616,7 +632,6 @@ public class EnemyBoss : Enemy
                     Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
                     reverseDirections.Add(toPlayerDir);
 
-                    // ★ 부모를 telegraphContainer로 설정
                     if (dashMaxRangeOrigin != null)
                     {
                         GameObject maxObj = Instantiate(dashMaxRangeOrigin, startPos, Quaternion.identity);
@@ -683,7 +698,6 @@ public class EnemyBoss : Enemy
 
         if (isEnraged || forceEnrage)
         {
-            // ★ 부모를 telegraphContainer로 설정
             if (dashMaxRangeOrigin != null)
             {
                 sniperMaxInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
@@ -793,7 +807,6 @@ public class EnemyBoss : Enemy
                 var data = GetLineData(true, index);
 
                 GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
-                // ★ 부모를 telegraphContainer로 설정
                 telegraph.transform.SetParent(telegraphContainer);
                 telegraph.transform.localScale = Vector3.one;
                 telegraph.SetActive(true);
@@ -818,7 +831,6 @@ public class EnemyBoss : Enemy
                 var data = GetLineData(false, index);
 
                 GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
-                // ★ 부모를 telegraphContainer로 설정
                 telegraph.transform.SetParent(telegraphContainer);
                 telegraph.transform.localScale = Vector3.one;
                 telegraph.SetActive(true);
@@ -1096,13 +1108,11 @@ public class EnemyBoss : Enemy
         }
     }
 
-    // ★ [핵심 수정] 남아있는 모든 장판들을 폴더째로 싹 지웁니다!
     void ClearRectangles()
     {
         if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
         if (attackRangeObj != null) attackRangeObj.SetActive(false);
 
-        // 컨테이너 안에 찌꺼기처럼 남아있는 모든 클론 장판들을 완벽하게 파괴
         if (telegraphContainer != null)
         {
             foreach (Transform child in telegraphContainer)
@@ -1132,8 +1142,6 @@ public class EnemyBoss : Enemy
         isDead = true;
 
         StopAllCoroutines();
-
-        // 죽는 즉시 맵에 깔린 모든 장판을 흔적도 없이 소멸시킵니다.
         ClearRectangles();
 
         if (auraParticle != null) auraParticle.Stop();
@@ -1150,11 +1158,9 @@ public class EnemyBoss : Enemy
         if (trailContainer != null)
             Destroy(trailContainer, trailLifeTime);
 
-        // ★ [추가] 장판을 담아둔 빈 폴더 객체도 메모리에서 날려버립니다.
         if (telegraphContainer != null)
             Destroy(telegraphContainer.gameObject);
 
-        // 머티리얼 강제 복구 (하얗게 굳어버리는 현상 방지)
         if (spriteRenderer != null && originalMaterial != null)
         {
             spriteRenderer.material = originalMaterial;

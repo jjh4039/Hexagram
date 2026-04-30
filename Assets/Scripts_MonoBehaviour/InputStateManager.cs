@@ -81,4 +81,21 @@ public class InputStateManager : MonoBehaviour
         if (currentPhase == GamePhase.InCombat) ChangeInputState(InputState.Combat);
         else ChangeInputState(InputState.Normal);
     }
+
+    // 추가: 현재 상태(State)는 유지한 채 입력만 강제로 켜거나 끄는 함수
+    public void SetInputActive(bool isActive)
+    {
+        if (isActive)
+        {
+            if (currentInputState == InputState.Normal) inputActions.Normal.Enable();
+            else if (currentInputState == InputState.Combat) inputActions.Combat.Enable();
+            else if (currentInputState == InputState.UI) inputActions.UI.Enable();
+        }
+        else
+        {
+            inputActions.Normal.Disable();
+            inputActions.Combat.Disable();
+            inputActions.UI.Disable();
+        }
+    }
 }

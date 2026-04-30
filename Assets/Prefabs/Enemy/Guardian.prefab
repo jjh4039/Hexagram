@@ -339,6 +339,7 @@ MonoBehaviour:
   bossName: "\uC232\uC758 \uAD00\uB9AC\uC790"
   moveSpeed: 3
   spriteScale: 1
+  introTriggerRadius: 10
   enragePauseTime: 2
   enrageKnockbackForce: 15
   auraParticle: {fileID: 431991383423416344}

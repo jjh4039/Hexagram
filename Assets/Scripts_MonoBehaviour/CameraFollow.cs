@@ -5,37 +5,38 @@ public class CameraFollow : MonoBehaviour
 {
     public static CameraFollow instance;
 
-    [Header("Target")]
+    [Header("Target")] 
     public Transform player;
 
-    [Header("Weapon Link (For Aiming)")]
+    [Header("Weapon Link (For Aiming)")] 
     public WeaponManager weaponManager;
 
-    [Header("Pixel Perfect Camera")]
+    [Header("Pixel Perfect Camera")] 
     public Behaviour pixelCam;
 
-    [Header("Settings")]
+    [Header("Settings")] 
     [Range(1f, 10f)] public float smoothSpeed = 5f;
     [Range(0.01f, 0.5f)] public float mouseInfluence = 0.05f;
     public float maxMouseOffset = 1.0f;
 
-    [Header("Aim & Zoom Settings")]
+    [Header("Aim & Zoom Settings")] 
     [SerializeField] private float aimMouseInfluence = 0.15f;
     [SerializeField] private float aimMaxMouseOffset = 2.0f;
-    [SerializeField] private float aimZoomMultiplier = 0.95f; // 에임 시 화면 배율 설정
+    [SerializeField] private float aimZoomMultiplier = 0.95f;      // 에임 시 화면 배율 설정
     [SerializeField] private float aimTransitionSpeed = 5f;
 
-    [Header("Cinematic Settings")]
-    public bool isCinematicFocus = false; // 연출 중 마우스 추적 무시 플래그
-    public bool isCinematicZoom = false; // 연출 중 줌 여부 플래그
+    [Header("Cinematic Settings")] 
+    public bool isCinematicFocus = false;                          // 연출 중 마우스 추적 무시 플래그
+    public bool isCinematicZoom = false;                           // 연출 중 줌 여부 플래그
     [SerializeField] private float cinematicZoomMultiplier = 0.8f; // 사망 시 화면 확대 배율
-    [SerializeField] private float cinematicZoomSpeed = 2.0f; // 줌 확대 진입 속도
+    [SerializeField] private float cinematicZoomSpeed = 2.0f;      // 줌 확대 진입 속도
 
-    [Header("Shake Settings")]
+    [Header("Shake Settings")] 
     [SerializeField] private float shakeDecaySpeed = 5f;
     [SerializeField] private float uiOffsetSmoothSpeed = 10f;
+    [SerializeField] private float shakeFrequency = 35f;           // 변경: 진동 속도(주파수) 조절용 변수 추가
 
-    private float _currentShakeDecay; // 현재 적용 중인 감쇠 속도
+    private float _currentShakeDecay;                              // 현재 적용 중인 감쇠 속도
 
     private Vector3 _offset;
     private Vector3 _uiOffset;
@@ -45,6 +46,9 @@ public class CameraFollow : MonoBehaviour
     private float _currentShakeMagnitude = 0f;
     private float _lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
+
+    private float _shakeSeedX;                                     // 변경: 펄린 노이즈 X축 시작점
+    private float _shakeSeedY;                                     // 변경: 펄린 노이즈 Y축 시작점
 
     private float _originalSmoothSpeed;
     private float _currentInfluence;
@@ -83,6 +87,10 @@ public class CameraFollow : MonoBehaviour
 
         _currentShakeDecay = customDecay > 0f ? customDecay : shakeDecaySpeed;
 
+        // 불가피한 수정: 매번 같은 패턴으로 흔들리지 않도록 무작위 시드값 배정
+        _shakeSeedX = Random.Range(0f, 100f);
+        _shakeSeedY = Random.Range(0f, 100f);
+
         _lastHitShakeTime = Time.time;
     }
 
@@ -91,13 +99,21 @@ public class CameraFollow : MonoBehaviour
         if (_shakeTimer > 0f)
         {
             _shakeTimer -= Time.unscaledDeltaTime;
-            float x = Random.Range(-1f, 1f) * _currentShakeMagnitude;
-            float y = Random.Range(-1f, 1f) * _currentShakeMagnitude;
+            
+            // 불가피한 수정: Random.Range 대신 Mathf.PerlinNoise 적용 (뚝뚝 끊기지 않는 부드러운 진동)
+            // Time.unscaledTime을 사용하여 HitStop(시간 느려짐) 중에도 정상 속도로 흔들리게 처리
+            float x = (Mathf.PerlinNoise(_shakeSeedX + Time.unscaledTime * shakeFrequency, 0f) - 0.5f) * 2f * _currentShakeMagnitude;
+            float y = (Mathf.PerlinNoise(0f, _shakeSeedY + Time.unscaledTime * shakeFrequency) - 0.5f) * 2f * _currentShakeMagnitude;
+            
             _shakeOffset = new Vector3(x, y, 0);
-
-            _currentShakeMagnitude = Mathf.Lerp(_currentShakeMagnitude, 0f, Time.unscaledDeltaTime * _currentShakeDecay);
+            
+            _currentShakeMagnitude = Mathf.MoveTowards(_currentShakeMagnitude, 0f, Time.unscaledDeltaTime * _currentShakeDecay);
         }
-        else _shakeOffset = Vector3.zero;
+        else 
+        {
+            _shakeOffset = Vector3.zero;
+            _currentShakeMagnitude = 0f;
+        }
     }
 
     void LateUpdate()
@@ -111,13 +127,10 @@ public class CameraFollow : MonoBehaviour
 
         if (Mouse.current == null && !isCinematicFocus) return;
 
-        UpdateShake();
-
         bool isRightClickDown = Mouse.current != null && Mouse.current.rightButton.isPressed;
         bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
         bool isAiming = isRightClickDown && isGunEquipped;
 
-        // 불가피한 수정: 연출 줌이 시작될 때도 기준 사이즈를 갱신하도록 조건 추가
         if ((isAiming && !_wasAiming) || (isCinematicZoom && !_wasAiming))
         {
             if (pixelCam == null || pixelCam.enabled)
@@ -129,7 +142,6 @@ public class CameraFollow : MonoBehaviour
 
         if (pixelCam != null)
         {
-            // 불가피한 수정: 줌 연출 시 픽셀 퍼펙트 카메라가 강제로 줌과 위치를 고정하는 현상 차단
             if (isAiming || isCinematicZoom)
             {
                 pixelCam.enabled = false;
@@ -187,6 +199,8 @@ public class CameraFollow : MonoBehaviour
 
         float moveDt = isCinematicFocus ? Time.unscaledDeltaTime : Time.deltaTime;
         Vector3 smoothedPos = Vector3.Lerp(currentUnshakenPos, targetPosition, smoothSpeed * moveDt);
+
+        UpdateShake();
 
         transform.position = smoothedPos + _shakeOffset;
     }
