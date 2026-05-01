@@ -73,6 +73,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-75201704-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-648259529-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-715735948-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1876277197-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -290,6 +291,10 @@ MonoBehaviour:
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
           isIconRecursive: 0
           isColorRecursive: 1
+        - colorIndex: 0
+          iconNameOrGuid: WheelCollider Icon
+          isIconRecursive: 1
+          isColorRecursive: 0
     - goDatas_byGlobalId:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-1212806268-0

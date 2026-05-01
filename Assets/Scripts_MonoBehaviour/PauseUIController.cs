@@ -82,6 +82,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (_isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
 
         if (!_isPaused) PauseGame();
         else ResumeGame();
@@ -91,6 +92,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
 
         Vector2 input = ctx.ReadValue<Vector2>();
 
@@ -102,6 +104,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
 
         ExecuteSelection();
     }
@@ -110,6 +113,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
 
         if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);
         ResumeGame();
@@ -196,11 +200,19 @@ public class PauseUIController : MonoBehaviour
             case 1: 
                 if (settingUI != null) settingUI.OpenSettings(); 
                 break;
-            case 2: 
-                Debug.Log("Give Up"); 
+            case 2: // 게임 포기
+                if (ConfirmUIController.instance != null)
+                {
+                    // 자신(일시정지 창)을 닫는 동작만 콜백으로 덧붙여서 넘김
+                    ConfirmUIController.instance.ShowPopupByIndex(0, () => ResumeGame());
+                }
                 break;
-            case 3: 
-                Debug.Log("Quit"); 
+            case 3: // 게임 종료
+                if (ConfirmUIController.instance != null)
+                {
+                    // 자신(일시정지 창)을 닫는 동작만 콜백으로 덧붙여서 넘김
+                    ConfirmUIController.instance.ShowPopupByIndex(1, () => ResumeGame());
+                }
                 break;
         }
     }

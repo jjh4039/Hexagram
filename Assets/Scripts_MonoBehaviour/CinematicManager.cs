@@ -61,7 +61,7 @@ public class CinematicManager : MonoBehaviour
 
     public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
     {
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false); // 입력 차단
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
 
         Player player = GameManager.instance.player;
         player.canControl = false;
@@ -84,7 +84,7 @@ public class CinematicManager : MonoBehaviour
 
         player.canControl = true;
 
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true); // 입력 복구
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true);
 
         onFinish?.Invoke();
     }
@@ -103,7 +103,7 @@ public class CinematicManager : MonoBehaviour
 
         while (elapsed < uiFadeTime)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime; // [변경] 현실 시간 기준
             float t = elapsed / uiFadeTime;
 
             foreach (var cg in hiddenUIGroups)
@@ -132,7 +132,7 @@ public class CinematicManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < barAnimTime)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime; // [변경] 현실 시간 기준
             float t = Mathf.SmoothStep(0f, 1f, elapsed / barAnimTime);
 
             float currentHeight = Mathf.Lerp(startHeight, endHeight, t);
@@ -163,7 +163,7 @@ public class CinematicManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < sunsetDuration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime; // [변경] 현실 시간 기준
             float t = elapsed / sunsetDuration;
             Color lerpedColor = Color.Lerp(Color.white, nightColor, t);
 
@@ -187,7 +187,7 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
     {
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false); // 입력 차단
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
 
         Time.timeScale = slowMotionScale;
 
@@ -231,7 +231,7 @@ public class CinematicManager : MonoBehaviour
             whiteScreenGroup.gameObject.SetActive(false);
         }
 
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true); // 입력 복구
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true);
 
         Debug.Log("보스 처치 연출 완전 종료!");
     }
@@ -243,7 +243,7 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_GameOverCinematic(Transform playerTransform)
     {
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false); // 입력 차단
+        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
 
         StartCoroutine(Co_FadeGameplayUI(false));
         if (CameraFollow.instance != null)
@@ -303,7 +303,6 @@ public class CinematicManager : MonoBehaviour
             gameOverUI.SetActive(true);
         }
         
-        // 버튼 입력을 위해 조작 활성화 및 상태를 강제로 UI로 전환
         if (InputStateManager.Instance != null) 
         {
             InputStateManager.Instance.SetInputActive(true);
