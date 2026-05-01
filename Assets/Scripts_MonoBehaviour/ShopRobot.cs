@@ -12,8 +12,6 @@ public class ShopRobot : MonoBehaviour
     [SerializeField] private Material[] outLineMaterial;       // 외곽선 머티리얼 (0:꺼짐, 1:켜짐)
     [SerializeField] private SpriteRenderer robotRenderer;     // 로봇 본체 렌더러
     [SerializeField] private SpriteRenderer screenRenderer;    // 로봇 화면 렌더러
-    [SerializeField] private Sprite offScreenSprite;          // 비활성 화면 스프라이트
-    [SerializeField] private Sprite onScreenSprite;           // 활성 화면 스프라이트
     [SerializeField] private Animator animator;                // 로봇 애니메이터
 
     private ShopUIController _shopUIController;                // 상점 UI 컨트롤러 참조
@@ -34,9 +32,6 @@ public class ShopRobot : MonoBehaviour
 
         if (robotRenderer != null && outLineMaterial != null && outLineMaterial.Length > 0)
             robotRenderer.material = outLineMaterial[0];
-
-        if (screenRenderer != null && offScreenSprite != null)
-            screenRenderer.sprite = offScreenSprite;
     }
 
     private void OnDestroy()
@@ -73,7 +68,6 @@ public class ShopRobot : MonoBehaviour
 
         if (animator != null) animator.SetTrigger(On);
         if (robotRenderer != null && outLineMaterial.Length > 1) robotRenderer.material = outLineMaterial[1];
-        if (screenRenderer != null) screenRenderer.sprite = onScreenSprite;
 
         if (_shopUIController != null && !_shopUIController.IsOpen) ShowInteractEffect(true);
 
@@ -89,7 +83,6 @@ public class ShopRobot : MonoBehaviour
 
         if (animator != null) animator.SetTrigger(Off);
         if (robotRenderer != null) robotRenderer.material = outLineMaterial[0];
-        if (screenRenderer != null) screenRenderer.sprite = offScreenSprite;
 
         ShowInteractEffect(false);
 

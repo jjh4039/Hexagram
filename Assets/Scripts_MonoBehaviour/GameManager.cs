@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     public MapManager mapManager;
     public BitManager bitManager;
     public BalanceManager balanceManager;
+    public EventManager eventManager;
     public VirtualCursor cursor;
     public ShopUIController shopUIController;
 

@@ -663,7 +663,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 125}
+  m_AnchoredPosition: {x: 0, y: 127}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &56560000
@@ -891,7 +891,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 74593209}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -2941,7 +2941,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -62.4, y: -75.8}
+  m_AnchoredPosition: {x: -62.472, y: -75.794}
   m_SizeDelta: {x: 2000, y: 2000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &158271421
@@ -5192,6 +5192,8 @@ MonoBehaviour:
   - "\uC804\uD22C \uC911\uC5D0\uB294 \uD68D\uB4DD\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
   - "\uC544\uD2F0\uD329\uD2B8\uB97C \uB354 \uC774\uC0C1 \uD68D\uB4DD\uD560 \uC218
     \uC5C6\uC2B5\uB2C8\uB2E4. (\uCD5C\uB300 10)"
+  - "\uC218\uC815\uAD6C\uAC00 \uD798\uC744 \uC783\uC5B4 \uC0AC\uC6A9\uD560 \uC218
+    \uC5C6\uC2B5\uB2C8\uB2E4."
   fadeInTime: 0.05
   displayTime: 2
   fadeOutTime: 0.2
@@ -13773,7 +13775,7 @@ MonoBehaviour:
   sfxRouletteLock: {fileID: 8300000, guid: 31ffc7ad4f1460f479fed3d52fcdb45a, type: 3}
   sfxRouletteLockVolume: 1
   sfxRouletteLockPitchVariation: 0.03
-  sfxDestinyClick: {fileID: 8300000, guid: 8c807295efadfd84a99f29b04a71cd55, type: 3}
+  sfxDestinyClick: {fileID: 8300000, guid: 31ffc7ad4f1460f479fed3d52fcdb45a, type: 3}
   sfxDestinyClickVolume: 0.6
   sfxDestinyClickPitchVariation: 0.08
   sfxSelect: {fileID: 8300000, guid: 1d74880bed4586644a16a79a2d9dc8af, type: 3}
@@ -43619,6 +43621,7 @@ MonoBehaviour:
   mapManager: {fileID: 715735951}
   bitManager: {fileID: 484782541}
   balanceManager: {fileID: 392940246}
+  eventManager: {fileID: 0}
   cursor: {fileID: 1299400498}
   shopUIController: {fileID: 1383836550}
   currentStageObj: {fileID: 108775911}
