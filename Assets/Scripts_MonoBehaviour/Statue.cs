@@ -19,7 +19,6 @@ public class Statue : MonoBehaviour
             statueWomanRenderer.material = outLineMaterial[0];
     }
 
-    // StageController에서 보상 정보와 함께 호출합니다
     public void ActivateStatue(IRewardItem reward = null)
     {
         isActivated = true;
@@ -37,11 +36,13 @@ public class Statue : MonoBehaviour
     {
         if (!isActivated || !isPlayerNearby) return;
 
-        // ★ [수정됨] 유니티의 가짜 Null을 방지하기 위해 as Object로 캐스팅하여 확실하게 검사
         bool isRewardExist = targetReward != null && (targetReward as Object) != null;
+        bool hasUncollectedFloorReward = isRewardExist && !targetReward.IsCollected;
+        
+        // ★ [수정됨] 바닥의 특수 보상을 안 먹었거나, 모듈 강화(기본/아이템)가 아직 떠있거나 대기열이 남았을 때 잠금
+        bool hasPendingModuleReward = StageMessageUI.instance != null && !StageMessageUI.instance.IsRewardQueueEmpty;
 
-        // 보상이 맵에 존재하고, 아직 획득되지 않았다면 경고 출력 후 무시
-        if (isRewardExist && !targetReward.IsCollected)
+        if (hasUncollectedFloorReward || hasPendingModuleReward)
         {
             if (PlayerFeedbackUI.Instance != null)
                 PlayerFeedbackUI.Instance.ShowWarning(4);

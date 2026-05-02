@@ -14,10 +14,10 @@ public class StageController : MonoBehaviour
     public Statue statue;
 
     [Header("--- Reward Settings (New) ---")]
-    public GameObject rewardPrefab;       // 맵에 생성될 보상 프리팹 (인스펙터 할당)
-    public Transform rewardSpawnPoint;    // 보상이 생성될 위치 (인스펙터 할당)
+    public GameObject rewardPrefab;       // 맵에 생성될 보상 프리팹
+    public Transform rewardSpawnPoint;    // 보상이 생성될 위치
+    public int moduleRewardCount = 1;     // 클리어 시 제공할 모듈 강화 횟수
 
-    // [미래 대비] 가이드 화살표 UI나 석상이 쉽게 접근할 수 있도록 프로퍼티로 열어둡니다.
     public Transform CurrentRewardTransform { get; private set; }
     public IRewardItem CurrentRewardItem { get; private set; }
 
@@ -51,7 +51,7 @@ public class StageController : MonoBehaviour
             if (barrierEla != null) barrierEla.SetActive(true);
             
             SpawnReward();
-            // ★ [수정됨] 생성된 보상 정보를 석상에 꽂아줍니다.
+            
             if (statue != null) statue.ActivateStatue(CurrentRewardItem); 
             
             if (StageMessageUI.instance != null) StageMessageUI.instance.HideEnemyCountUI();
@@ -147,12 +147,10 @@ public class StageController : MonoBehaviour
         }
     }
 
-    // ★ [추가됨] 보상 생성 전담 함수
     private void SpawnReward()
     {
         if (rewardPrefab != null && rewardSpawnPoint != null)
         {
-            // 4번째 인자로 rewardSpawnPoint를 넘겨주어 부모로 설정합니다.
             GameObject rewardObj = Instantiate(rewardPrefab, rewardSpawnPoint.position, Quaternion.identity, rewardSpawnPoint);
             
             CurrentRewardTransform = rewardObj.transform;
@@ -167,13 +165,15 @@ public class StageController : MonoBehaviour
         
         SpawnReward();
 
-        // ★ [수정됨] 생성된 보상 정보를 석상에 꽂아줍니다.
         if (statue) statue.ActivateStatue(CurrentRewardItem); 
 
         if (StageMessageUI.instance)
         {
             StageMessageUI.instance.HideEnemyCountUI();
             StageMessageUI.instance.ShowClearMessage();
+
+            // 인스펙터에 설정된 횟수만큼 모듈 강화를 대기열에 추가합니다
+            StageMessageUI.instance.QueueModuleReward(moduleRewardCount);
         }
 
         if (InputStateManager.Instance) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);

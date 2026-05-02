@@ -27,6 +27,9 @@ public class StageMessageUI : MonoBehaviour
     [SerializeField] private float rewardSlideDistance = 50f;
     [SerializeField] private float rewardInterval = 0.15f;
     [SerializeField] private ModuleData[] rewardDatas;
+    
+    // ★ [추가됨] 남은 강화 스택을 표시할 텍스트 컴포넌트
+    [SerializeField] private TextMeshProUGUI pendingCountText;
 
     [Header("--- Enemy Count UI (New) ---")]
     [SerializeField] private CanvasGroup enemyCountGroup;
@@ -62,14 +65,19 @@ public class StageMessageUI : MonoBehaviour
     private bool isEnemyCountVisible = false;
     private Vector3 enemyCountOriginScale;
 
-    // [추가됨] 화면에 표시된 3개의 보상 데이터를 기억해둘 배열
     private ModuleData[] _currentDisplayedRewards;
+
+    private int pendingModuleRewards = 0; 
+    private bool isRewardUIPresenting = false; 
+
+    // ★ [추가됨] 석상이 모듈 강화가 모두 끝났는지 확인하기 위한 프로퍼티
+    public bool IsRewardQueueEmpty => pendingModuleRewards <= 0 && !isRewardUIPresenting;
 
     private void Awake()
     {
         instance = this;
         originalScales = new Vector3[rewardItems.Length];
-        _currentDisplayedRewards = new ModuleData[rewardItems.Length]; // 배열 초기화
+        _currentDisplayedRewards = new ModuleData[rewardItems.Length];
 
         for (int i = 0; i < rewardItems.Length; i++)
             if (rewardItems[i].rect != null) originalScales[i] = rewardItems[i].rect.localScale;
@@ -80,6 +88,8 @@ public class StageMessageUI : MonoBehaviour
         ResetAllUI();
         if (enemyCountGroup != null) enemyCountGroup.alpha = 0f;
         isEnemyCountVisible = false;
+        
+        UpdatePendingCountText(); // 초기화
     }
 
     private void ResetAllUI()
@@ -94,6 +104,9 @@ public class StageMessageUI : MonoBehaviour
             if (rewardItems[i].glowEffect != null) rewardItems[i].glowEffect.enabled = false;
             if (rewardItems[i].rect != null) rewardItems[i].rect.localScale = originalScales[i];
         }
+
+        // 초기화 시 텍스트도 숨김
+        if (pendingCountText != null) pendingCountText.alpha = 0f;
     }
 
     public void ShowEntryMessage(string title, string desc)
@@ -120,15 +133,59 @@ public class StageMessageUI : MonoBehaviour
         StopCurrentCoroutine();
         ResetAllUI();
         if (sfxClear != null) SoundManager.instance.PlaySFX(sfxClear, 1.2f, 0.1f);
-        currentCoroutine = StartCoroutine(ClearAndRewardSequence());
+        currentCoroutine = StartCoroutine(ClearSequenceOnly());
     }
 
-    private IEnumerator ClearAndRewardSequence()
+    private IEnumerator ClearSequenceOnly()
     {
         if (clearGroup != null) StartCoroutine(FadeIn(clearGroup));
+        yield return null; 
+    }
+
+    public void QueueModuleReward(int count = 1)
+    {
+        pendingModuleRewards += count;
+        UpdatePendingCountText(); // 스택 추가 시 텍스트 갱신
+
+        if (!isRewardUIPresenting && pendingModuleRewards > 0)
+        {
+            StartCoroutine(ProcessNextModuleReward());
+        }
+    }
+
+    // ★ [추가됨] 남은 횟수를 "xN" 형태로 텍스트 갱신
+    private void UpdatePendingCountText()
+    {
+        if (pendingCountText != null)
+        {
+            if (pendingModuleRewards > 1)
+            {
+                pendingCountText.text = $"x{pendingModuleRewards}";
+            }
+            else
+            {
+                // 1번만 남았거나 없으면 텍스트를 비워 깔끔하게 유지합니다.
+                pendingCountText.text = ""; 
+            }
+        }
+    }
+
+    private IEnumerator ProcessNextModuleReward()
+    {
+        isRewardUIPresenting = true;
+        canSelectReward = false;
+
+        for (int i = 0; i < rewardItems.Length; i++)
+        {
+            if (rewardItems[i].group != null) rewardItems[i].group.alpha = 0f;
+            if (rewardItems[i].glowEffect != null) rewardItems[i].glowEffect.enabled = false;
+        }
+
         if (rewardGroup != null)
         {
             rewardGroup.alpha = 1f;
+            if (pendingCountText != null) pendingCountText.alpha = 1f; // 텍스트 보이기
+
             SetRandomRewardTexts();
             for (int i = 0; i < rewardItems.Length; i++)
             {
@@ -155,8 +212,6 @@ public class StageMessageUI : MonoBehaviour
         {
             if (i >= indices.Length) break;
             ModuleData data = rewardDatas[indices[i]];
-
-            // [추가됨] 화면에 표시되는 슬롯 인덱스에 실제 데이터를 저장
             _currentDisplayedRewards[i] = data;
 
             if (rewardItems[i].titleText != null) rewardItems[i].titleText.text = data.titleText;
@@ -198,6 +253,7 @@ public class StageMessageUI : MonoBehaviour
         if (enableRewardTest && Keyboard.current.rKey.wasPressedThisFrame)
         {
             ShowClearMessage();
+            QueueModuleReward(1); 
             return;
         }
 
@@ -212,10 +268,13 @@ public class StageMessageUI : MonoBehaviour
     {
         if (index >= rewardItems.Length) return;
         canSelectReward = false;
+        
+        pendingModuleRewards--;
+        UpdatePendingCountText(); // 차감 직후 텍스트 갱신
+
         if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.1f);
         if (rewardItems[index].glowEffect != null) rewardItems[index].glowEffect.enabled = true;
 
-        // ★ [핵심 추가] 저장해둔 데이터를 GameManager를 통해 PlayerStats로 전송
         if (GameManager.instance != null && GameManager.instance.stats != null)
         {
             GameManager.instance.stats.ApplyModuleReward(_currentDisplayedRewards[index]);
@@ -226,7 +285,15 @@ public class StageMessageUI : MonoBehaviour
         {
             if (i != index) StartCoroutine(QuickFadeOut(rewardItems[i].group));
         }
-        Invoke(nameof(HideAllClearUI), 0.4f);
+
+        if (pendingModuleRewards > 0)
+        {
+            Invoke(nameof(QuickResetForNextReward), 0.4f);
+        }
+        else
+        {
+            Invoke(nameof(HideAllClearUI), 0.4f);
+        }
     }
 
     private IEnumerator PunchScale(RectTransform target, int index)
@@ -249,6 +316,11 @@ public class StageMessageUI : MonoBehaviour
         }
     }
 
+    private void QuickResetForNextReward()
+    {
+        StartCoroutine(ProcessNextModuleReward());
+    }
+
     public void HideAllClearUI()
     {
         StopCurrentCoroutine();
@@ -257,6 +329,8 @@ public class StageMessageUI : MonoBehaviour
 
     private IEnumerator FullFadeOut()
     {
+        isRewardUIPresenting = false; 
+
         float timer = 0f;
         while (timer < fadeOutTime)
         {
@@ -264,6 +338,9 @@ public class StageMessageUI : MonoBehaviour
             float t = timer / fadeOutTime;
             if (clearGroup != null) clearGroup.alpha = 1 - t;
             if (rewardGroup != null) rewardGroup.alpha = 1 - t;
+            
+            // 패널 사라질 때 스택 텍스트도 같이 사라짐
+            if (pendingCountText != null) pendingCountText.alpha = 1 - t; 
             yield return null;
         }
         ResetAllUI();
