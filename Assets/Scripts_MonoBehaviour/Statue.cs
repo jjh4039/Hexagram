@@ -7,6 +7,7 @@ public class Statue : MonoBehaviour
     public GameObject interactEffect;          // 상호작용 가능 안내 UI
     public Material[] outLineMaterial;         // 외곽선 머티리얼 배열
     public SpriteRenderer statueWomanRenderer; // 석상 스프라이트 렌더러
+    public Transform arrowTargetPos;           // 화살표가 가리킬 정확한 목표 위치
 
     private bool isPlayerNearby = false;       // 플레이어 접근 여부
     private bool isActivated = false;          // 활성화 상태 여부
@@ -39,7 +40,6 @@ public class Statue : MonoBehaviour
         bool isRewardExist = targetReward != null && (targetReward as Object) != null;
         bool hasUncollectedFloorReward = isRewardExist && !targetReward.IsCollected;
         
-        // ★ [수정됨] 바닥의 특수 보상을 안 먹었거나, 모듈 강화(기본/아이템)가 아직 떠있거나 대기열이 남았을 때 잠금
         bool hasPendingModuleReward = StageMessageUI.instance != null && !StageMessageUI.instance.IsRewardQueueEmpty;
 
         if (hasUncollectedFloorReward || hasPendingModuleReward)

@@ -118,7 +118,7 @@ Transform:
   m_GameObject: {fileID: 2345121001770173703}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.69, y: -9.01, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -147,6 +147,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
   - {fileID: 2100000, guid: e378f70706310e34ea7ede810723baa8, type: 2}
   statueWomanRenderer: {fileID: 1322517446896116730}
+  arrowTargetPos: {fileID: 6328500554989983587}
 --- !u!70 &4413977488817160941
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

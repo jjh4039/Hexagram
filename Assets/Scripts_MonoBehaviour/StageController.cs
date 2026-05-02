@@ -5,31 +5,30 @@ using TMPro;
 
 public class StageController : MonoBehaviour
 {
-    [Header("--- Stage Type ---")]
-    public bool isSafeStage = false;
+    [Header("Stage Type")]
+    public bool isSafeStage = false;      // 안전 방 여부
 
-    [Header("--- Settings ---")]
-    public Transform spawnPoint;
-    public GameObject barrierEla;
-    public Statue statue;
+    [Header("Settings")]
+    public Transform spawnPoint;          // 플레이어 시작 위치
+    public GameObject barrierEla;         // 전투 진입 차단벽
+    public Statue statue;                 // 출구 석상
 
-    [Header("--- Reward Settings (New) ---")]
+    [Header("Reward Settings")]
     public GameObject rewardPrefab;       // 맵에 생성될 보상 프리팹
     public Transform rewardSpawnPoint;    // 보상이 생성될 위치
     public int moduleRewardCount = 1;     // 클리어 시 제공할 모듈 강화 횟수
 
-    public Transform CurrentRewardTransform { get; private set; }
-    public IRewardItem CurrentRewardItem { get; private set; }
+    public Transform CurrentRewardTransform { get; private set; } // 생성된 보상의 좌표
+    public IRewardItem CurrentRewardItem { get; private set; }    // 생성된 보상의 인터페이스
 
-    [Header("--- Runtime Info ---")]
-    private List<Enemy> activeEnemies = new List<Enemy>();
-    private bool isCleared = false;
-    private bool isInitialized = false;
+    private List<Enemy> activeEnemies = new List<Enemy>(); // 현재 활성화된 적 목록
+    private bool isCleared = false;                        // 스테이지 클리어 여부
+    private bool isInitialized = false;                    // 스테이지 초기화 여부
 
     private Dictionary<int, List<EnemySpawner>> waveSpawners = new Dictionary<int, List<EnemySpawner>>();
-    private int currentWave = 1;
-    private int pendingSpawns = 0;
-    private int totalRemainingEnemies = 0;
+    private int currentWave = 1;                           // 현재 진행 중인 웨이브 번호
+    private int pendingSpawns = 0;                         // 대기 중인 적 스폰 수
+    private int totalRemainingEnemies = 0;                 // 남은 전체 적 수
 
     private void Start()
     {
@@ -57,12 +56,18 @@ public class StageController : MonoBehaviour
             if (StageMessageUI.instance != null) StageMessageUI.instance.HideEnemyCountUI();
             isCleared = true;
 
+            Transform statueTarget = GetStatueArrowTarget();
+            if (GuideArrow.Instance != null && player != null)
+                GuideArrow.Instance.ActivateArrow(player.transform, null, null, statueTarget);
+
             if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
         }
         else
         {
             if (barrierEla != null) barrierEla.SetActive(true);
             isCleared = false;
+
+            if (GuideArrow.Instance != null) GuideArrow.Instance.HideArrow();
 
             if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeGamePhase(GamePhase.InCombat);
         }
@@ -172,10 +177,21 @@ public class StageController : MonoBehaviour
             StageMessageUI.instance.HideEnemyCountUI();
             StageMessageUI.instance.ShowClearMessage();
 
-            // 인스펙터에 설정된 횟수만큼 모듈 강화를 대기열에 추가합니다
             StageMessageUI.instance.QueueModuleReward(moduleRewardCount);
         }
 
+        Transform statueTarget = GetStatueArrowTarget();
+        GameObject player = GameManager.instance.player.gameObject;
+        
+        if (GuideArrow.Instance != null && player != null)
+            GuideArrow.Instance.ActivateArrow(player.transform, CurrentRewardTransform, CurrentRewardItem, statueTarget);
+
         if (InputStateManager.Instance) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
+    }
+
+    private Transform GetStatueArrowTarget()
+    {
+        if (statue == null) return null;
+        return statue.arrowTargetPos != null ? statue.arrowTargetPos : statue.transform;
     }
 }
