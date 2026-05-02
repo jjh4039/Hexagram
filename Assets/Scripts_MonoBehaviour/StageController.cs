@@ -13,6 +13,14 @@ public class StageController : MonoBehaviour
     public GameObject barrierEla;
     public Statue statue;
 
+    [Header("--- Reward Settings (New) ---")]
+    public GameObject rewardPrefab;       // 맵에 생성될 보상 프리팹 (인스펙터 할당)
+    public Transform rewardSpawnPoint;    // 보상이 생성될 위치 (인스펙터 할당)
+
+    // [미래 대비] 가이드 화살표 UI나 석상이 쉽게 접근할 수 있도록 프로퍼티로 열어둡니다.
+    public Transform CurrentRewardTransform { get; private set; }
+    public IRewardItem CurrentRewardItem { get; private set; }
+
     [Header("--- Runtime Info ---")]
     private List<Enemy> activeEnemies = new List<Enemy>();
     private bool isCleared = false;
@@ -41,11 +49,14 @@ public class StageController : MonoBehaviour
         if (isSafeStage)
         {
             if (barrierEla != null) barrierEla.SetActive(true);
-            if (statue != null) statue.ActivateStatue();
+            
+            SpawnReward();
+            // ★ [수정됨] 생성된 보상 정보를 석상에 꽂아줍니다.
+            if (statue != null) statue.ActivateStatue(CurrentRewardItem); 
+            
             if (StageMessageUI.instance != null) StageMessageUI.instance.HideEnemyCountUI();
             isCleared = true;
 
-            // [추가됨] 시작부터 안전 구역이면 즉시 평화 상태 진입
             if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
         }
         else
@@ -53,7 +64,6 @@ public class StageController : MonoBehaviour
             if (barrierEla != null) barrierEla.SetActive(true);
             isCleared = false;
 
-            // [추가됨] 전투 구역이면 즉시 전투 상태 진입
             if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeGamePhase(GamePhase.InCombat);
         }
 
@@ -90,7 +100,6 @@ public class StageController : MonoBehaviour
         List<EnemySpawner> spawnersToActivate = waveSpawners[waveIndex];
         pendingSpawns = spawnersToActivate.Count;
 
-        // ★ [수정됨] 웨이브 시작 시에는 조용히 UI만 갱신 (인자 없음 = false)
         UpdateEnemyCountUI();
 
         foreach (var spawner in spawnersToActivate)
@@ -104,7 +113,6 @@ public class StageController : MonoBehaviour
         pendingSpawns--;
         if (newEnemy != null) activeEnemies.Add(newEnemy);
 
-        // ★ [수정됨] 몬스터 등장 시에도 조용히 UI만 갱신
         UpdateEnemyCountUI();
     }
 
@@ -124,7 +132,6 @@ public class StageController : MonoBehaviour
         if (deadCount > 0)
         {
             totalRemainingEnemies -= deadCount;
-            // ★ [핵심] 몬스터가 죽었을 때만 playPunch = true 전달
             if (StageMessageUI.instance != null)
                 StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies, true);
         }
@@ -136,8 +143,20 @@ public class StageController : MonoBehaviour
     {
         if (StageMessageUI.instance != null)
         {
-            // ★ [수정됨] 기본 호출은 연출 없음 (playPunch = false)
             StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies);
+        }
+    }
+
+    // ★ [추가됨] 보상 생성 전담 함수
+    private void SpawnReward()
+    {
+        if (rewardPrefab != null && rewardSpawnPoint != null)
+        {
+            // 4번째 인자로 rewardSpawnPoint를 넘겨주어 부모로 설정합니다.
+            GameObject rewardObj = Instantiate(rewardPrefab, rewardSpawnPoint.position, Quaternion.identity, rewardSpawnPoint);
+            
+            CurrentRewardTransform = rewardObj.transform;
+            CurrentRewardItem = rewardObj.GetComponent<IRewardItem>();
         }
     }
 
@@ -145,14 +164,18 @@ public class StageController : MonoBehaviour
     {
         isCleared = true;
         if (barrierEla) barrierEla.SetActive(false);
-        if (statue) statue.ActivateStatue();
+        
+        SpawnReward();
+
+        // ★ [수정됨] 생성된 보상 정보를 석상에 꽂아줍니다.
+        if (statue) statue.ActivateStatue(CurrentRewardItem); 
+
         if (StageMessageUI.instance)
         {
             StageMessageUI.instance.HideEnemyCountUI();
             StageMessageUI.instance.ShowClearMessage();
         }
 
-        // [추가됨] 전투 웨이브가 모두 끝났으므로 평화 상태로 복귀
         if (InputStateManager.Instance) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
     }
 }

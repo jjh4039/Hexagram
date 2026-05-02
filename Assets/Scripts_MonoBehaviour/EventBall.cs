@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class EventBall : MonoBehaviour
+public class EventBall : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터페이스 상속
 {
     private static readonly int Off = Animator.StringToHash("Off");
     private static readonly int On = Animator.StringToHash("On");
@@ -15,6 +15,8 @@ public class EventBall : MonoBehaviour
     [SerializeField] private EventUIController uiController;   // 연결할 이벤트 UI 컨트롤러
 
     private bool _isUsed;                                      // 사용 완료 여부
+
+    public bool IsCollected => _isUsed;                        // ★ [추가] 인터페이스 구현 (기존 _isUsed 변수 반환)
 
     private void Start()
     {

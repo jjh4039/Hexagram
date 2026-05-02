@@ -2,26 +2,27 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // 아티팩트 획득 창을 여는 필드 아이템
-public class Bit : MonoBehaviour
+public class Bit : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터페이스 상속
 {
     [SerializeField] private Material[] outLineMaterial; // 외곽선 머티리얼 배열
     private SpriteRenderer spriteRenderer;               // 렌더러 컴포넌트
     public GameObject keyGuide;                          // 상호작용 안내 UI
 
     private bool isPlayerInRange = false;                // 플레이어 접근 여부
+    private bool _isCollected = false;                   // ★ [추가] 획득 완료 상태
+
+    public bool IsCollected => _isCollected;             // ★ [추가] 인터페이스 구현부
 
     private void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponentInChildren(typeof(SpriteRenderer)) as SpriteRenderer;
         if (keyGuide != null) keyGuide.SetActive(false);
     }
 
-    // 평화 상태에서의 상호작용 (아티팩트 창 열기)
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!isPlayerInRange) return;
 
-        // ★ 아티팩트 소지 개수가 10개 이상이면 획득 거부 및 2번 피드백 출력
         if (ArtifactManager.instance != null && ArtifactManager.instance.myArtifacts.Count >= 10)
         {
             if (PlayerFeedbackUI.Instance != null)
@@ -32,7 +33,6 @@ public class Bit : MonoBehaviour
         OpenBitSelection();
     }
 
-    // 전투 상태에서의 상호작용 시도 (거부 및 1번 피드백 텍스트 출력)
     private void OnInteractCombat(InputAction.CallbackContext context)
     {
         if (!isPlayerInRange) return;
@@ -50,6 +50,7 @@ public class Bit : MonoBehaviour
                 GameManager.instance.bitManager.gameObject.SetActive(true);
                 GameManager.instance.bitManager.OpenBitUI();
 
+                _isCollected = true; // ★ [추가] 파괴 직전 획득 상태 업데이트
                 Destroy(gameObject); // 아이템 소멸
             }
         }
@@ -63,7 +64,6 @@ public class Bit : MonoBehaviour
             spriteRenderer.material = outLineMaterial[1];
             if (keyGuide != null) keyGuide.SetActive(true);
 
-            // 범위에 들어왔을 때만 입력 이벤트 구독
             if (InputStateManager.Instance != null)
             {
                 InputStateManager.Instance.Actions.Normal.Interaction.performed += OnInteract;
@@ -80,17 +80,15 @@ public class Bit : MonoBehaviour
             spriteRenderer.material = outLineMaterial[0];
             if (keyGuide != null) keyGuide.SetActive(false);
 
-            UnsubscribeInputs(); // 범위를 벗어나면 구독 해제
+            UnsubscribeInputs();
         }
     }
 
     private void OnDestroy()
     {
-        // 획득 시 에러를 막기 위해 파괴 전 구독 해제
         UnsubscribeInputs();
     }
 
-    // 중복 방지용 구독 해제 통합 함수
     private void UnsubscribeInputs()
     {
         if (InputStateManager.Instance != null)
