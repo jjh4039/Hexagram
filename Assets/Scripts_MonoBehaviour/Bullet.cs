@@ -177,5 +177,11 @@ public class Bullet : MonoBehaviour
         if (damageInt < 1) damageInt = 1;
 
         enemy.TakeDamage(damageInt, isCritical);
+
+        // ★ [추가됨] 총 누적 데미지 수치 증가
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.totalDamageDealt += damageInt;
+        }
     }
 }

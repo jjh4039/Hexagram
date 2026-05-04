@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     [Header("State")]
     public bool isAttacking = false;
     public bool isKnockedBack = false;
+    public bool isRecoiling = false;
 
     [Header("Hit And Invincibility")]
     [SerializeField] private bool isInvincible = false;
@@ -164,7 +165,7 @@ public class Player : MonoBehaviour
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (!canControl || isAttacking || _isDashing) return;
+        if (!canControl || _isDashing) return;
         if (stats.currentDashStacks < 1f) return;
 
         stats.currentDashStacks -= 1f;
@@ -214,7 +215,8 @@ public class Player : MonoBehaviour
     {
         if (_isDashing) return;
 
-        if (!isKnockedBack) Move();
+        // ★ [수정] 넉백 중이거나 '반동 중'일 때는 Move()로 속도를 덮어씌우지 않음
+        if (!isKnockedBack && !isRecoiling) Move();
         CheckContactDamage();
     }
 

@@ -111,7 +111,7 @@ public class StageMessageUI : MonoBehaviour
 
     public void ShowEntryMessage(string title, string desc, Color color)
     {
-        if (entryTitle != null) entryTitle.text = title;
+        if (entryTitle != null) entryTitle.text = "모듈 : " + title;
         if (entryDesc != null) entryDesc.text = desc;
         if (color != null)
         {

@@ -10,7 +10,7 @@ public class RiskData : ScriptableObject
 
     [Header("메커니즘 설정")]
     public RiskType riskType;
-
+    
     [Header("수치 설정")]
     public StageValueData stageValues;
 

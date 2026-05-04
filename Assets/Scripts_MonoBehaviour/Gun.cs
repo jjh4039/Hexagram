@@ -180,10 +180,19 @@ public class Gun : MonoBehaviour
         if (player != null)
         {
             player.isAttacking = true;
+            player.isRecoiling = true; // ★ [추가] 이동 스크립트가 속도를 덮어씌우는 것 방지
+
             player.rigid.AddForce(-transform.right * playerKnockbackForce, ForceMode2D.Impulse);
             yield return new WaitForSeconds(0.1f);
-            player.rigid.linearVelocity = Vector2.zero;
+
+            // ★ [수정] 적에게 맞아서 넉백 중이 아닐 때만 정지시킴 (충돌 버그 방지)
+            if (!player.isKnockedBack)
+            {
+                player.rigid.linearVelocity = Vector2.zero;
+            }
+
             player.isAttacking = false;
+            player.isRecoiling = false; // ★ [추가] 반동 종료 후 이동 복구
         }
     }
 

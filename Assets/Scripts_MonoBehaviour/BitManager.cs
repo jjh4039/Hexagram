@@ -14,9 +14,8 @@ public class BitManager : MonoBehaviour
 
     [SerializeField] private Image backgroundImage; // 배경 이미지
 
-    [Header("Background Loop Settings")] [SerializeField]
-    private float bgScaleMin = 0.9f;
-
+    [Header("Background Loop Settings")]
+    [SerializeField] private float bgScaleMin = 0.9f;
     [SerializeField] private float bgScaleMax = 1.1f;
     [SerializeField] private float bgRotationRange = 3f;
     [SerializeField] private float bgAnimSpeed = 0.3f;
@@ -27,18 +26,23 @@ public class BitManager : MonoBehaviour
     [SerializeField] private ArtifactGradeColor gradeColors; // 등급별 강조 색상
     [SerializeField] private CanvasGroup mainCanvasGroup; // 전체 UI 투명도 관리
 
-    [Header("Confirm Button Settings")] [SerializeField]
-    private Image confirmButtonImage; // 확정 버튼
-
+    [Header("Confirm Button Settings")]
+    [SerializeField] private Image confirmButtonImage; // 확정 버튼
     [SerializeField] private float buttonYOffset = -155f; // 버튼 수직 위치 오프셋
-    
-    [Header("Animation Settings")] [SerializeField]
-    private float hoverYOffset = 15f; // 호버 시 올라가는 높이
 
+    [Header("Selection Arrow Settings")]
+    [SerializeField] private Image selectionArrow; // 선택 표시 화살표
+    [SerializeField] private float arrowYOffset = 180f; // 카드 기준 화살표 기본 높이 오프셋
+    [SerializeField] private float arrowBounceHeight = 15f; // 위아래 이동 폭
+    [SerializeField] private float arrowBounceSpeed = 8f; // 바운스 속도
+
+    [Header("Animation Settings")]
+    [SerializeField] private float hoverYOffset = 15f; // 호버 시 올라가는 높이
     [SerializeField] private float animationSpeed = 10f; // 애니메이션 부드러움 정도
     [SerializeField] private float introDelay = 0.3f; // 카드 순차 등장 간격
 
-    [Header("Audio")] [SerializeField] private AudioClip sfxIntro; // 등장 사운드
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxIntro; // 등장 사운드
     [SerializeField] private AudioClip sfxSelect; // 카드 선택 사운드
     [SerializeField] private AudioClip sfxDecision; // 최종 확정 사운드
 
@@ -55,6 +59,7 @@ public class BitManager : MonoBehaviour
         isHovering = new bool[bitChoices.Length];
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+        if (selectionArrow != null) selectionArrow.gameObject.SetActive(false);
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0;
 
         for (int i = 0; i < bitChoices.Length; i++)
@@ -78,6 +83,7 @@ public class BitManager : MonoBehaviour
         usedArtifacts.Clear();
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+        if (selectionArrow != null) selectionArrow.gameObject.SetActive(false);
 
         for (int i = 0; i < bitChoices.Length; i++)
         {
@@ -161,6 +167,24 @@ public class BitManager : MonoBehaviour
         if (!isInitialized) return;
         CheckMouseHover();
         CheckMouseClick();
+        UpdateArrowAnimation(); // 화살표 바운스 애니메이션 처리
+    }
+
+    private void UpdateArrowAnimation()
+    {
+        if (selectionArrow == null || selectedIndex == -1) return;
+
+        RectTransform arrowRect = selectionArrow.rectTransform;
+        RectTransform cardRect = bitChoices[selectedIndex].rect;
+
+        // 1. 카드의 현재 월드 포지션을 화살표의 포지션으로 맞춤 (계층이 달라도 X축 위치 동기화 보장)
+        arrowRect.position = cardRect.position;
+
+        // 2. 그 상태에서 Y축만 오프셋과 사인파(바운스)를 더해 위로 띄움
+        Vector2 anchored = arrowRect.anchoredPosition;
+        float bounce = Mathf.Sin(Time.unscaledTime * arrowBounceSpeed) * arrowBounceHeight;
+        anchored.y += arrowYOffset + bounce;
+        arrowRect.anchoredPosition = anchored;
     }
 
     private void CheckMouseHover()
@@ -229,6 +253,9 @@ public class BitManager : MonoBehaviour
 
         selectedIndex = newIndex;
         isHovering[selectedIndex] = true;
+
+        if (selectionArrow != null) selectionArrow.gameObject.SetActive(true); // 선택 시 화살표 활성화
+
         StartHoverAnimation(selectedIndex, true);
         UpdateConfirmButtonPosition();
     }
@@ -263,6 +290,8 @@ public class BitManager : MonoBehaviour
         isInitialized = false;
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
+        if (selectionArrow != null) selectionArrow.gameObject.SetActive(false); // 확정 시 화살표 숨김
+
         for (int i = 0; i < bitChoices.Length; i++)
         {
             if (i != selectedIndex) StartCoroutine(FadeOutCanvasGroup(bitChoices[i].group, 0.2f));
@@ -428,8 +457,15 @@ public class BitManager : MonoBehaviour
         choice.titleText.text = artifact.artifactName;
         choice.gradeText.text = "[ " + artifact.grade.ToString() + " ]";
         choice.desText.text = artifact.description;
-        foreach (var effect in choice.gradeEffects) effect.Color = GetColorByGrade(artifact.grade);
-        choice.outLineImage.color = GetOutLineColor(artifact.grade);
+
+        // Glow 효과가 지워졌더라도 에러가 나지 않도록 null 체크 추가
+        foreach (var effect in choice.gradeEffects)
+        {
+            if (effect != null) effect.Color = GetColorByGrade(artifact.grade);
+        }
+
+        if (choice.outLineImage != null)
+            choice.outLineImage.color = GetOutLineColor(artifact.grade);
     }
 
     private Color GetOutLineColor(ArtifactGrade grade)

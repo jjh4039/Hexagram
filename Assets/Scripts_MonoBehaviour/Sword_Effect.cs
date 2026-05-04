@@ -120,6 +120,11 @@ public class Sword_Effect : MonoBehaviour
 
             enemy.TakeDamage(damageInt, isCritical);
 
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.totalDamageDealt += damageInt;
+            }
+
             if (enemy == null || !enemy.gameObject.activeSelf)
                 yield break;
 

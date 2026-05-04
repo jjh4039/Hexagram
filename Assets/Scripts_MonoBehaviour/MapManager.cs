@@ -15,7 +15,7 @@ public class MapManager : MonoBehaviour
         [Range(0, 100)] public float weight = 10f; // 등장 확률 가중치
     }
 
-    [Header("--- Stage Pool Settings ---")]
+    [Header("Stage Pool Settings")]
     public List<StageProbability> stagePool;
 
     public StageData bossStageData;
@@ -24,8 +24,9 @@ public class MapManager : MonoBehaviour
     private StageData[] currentNodes = new StageData[3];
     private int _selectedIndex = 1;
     private bool _isBossStageMode = false;
+    private bool _isSelecting = false; // 선택이 확정되어 연출 중인지 확인하는 플래그
 
-    [Header("--- UI References ---")]
+    [Header("UI References")]
     public GameObject mapVisualRoot;
     public Image fadeOverlayImage;
     public RectTransform stageTextRect;
@@ -36,23 +37,21 @@ public class MapManager : MonoBehaviour
     public TextMeshProUGUI totalProgressText;
     private CanvasGroup _stageTextCanvasGroup;
 
-    [Header("--- Text Settings (Inspector) ---")]
-    [Tooltip("일반 모드일 때 텍스트(StageText)의 위치 (0:왼쪽, 1:중앙, 2:오른쪽)")]
+    [Header("Text Settings")]
+    [Tooltip("일반 모드일 때 텍스트의 위치 (0:왼쪽, 1:중앙, 2:오른쪽)")]
     public Vector2[] normalTextPositions = new Vector2[3] { new Vector2(-160, 0), new Vector2(0, 0), new Vector2(160, 0) };
-    [Tooltip("보스 모드일 때 텍스트(StageText)의 위치")]
+    [Tooltip("보스 모드일 때 텍스트의 위치")]
     public Vector2 bossTextPosition = Vector2.zero;
 
-    [Tooltip("일반 모드 텍스트 스케일")]
-    public float normalTextScale = 1.0f;
-    [Tooltip("보스 모드 텍스트 스케일")]
-    public float bossTextScale = 1.2f;
+    public float normalTextScale = 1.0f; // 일반 모드 텍스트 스케일
+    public float bossTextScale = 1.2f;   // 보스 모드 텍스트 스케일
 
-    [Header("--- Visual Elements (3 Each) ---")]
+    [Header("Visual Elements")]
     public Image[] nodeVisuals;
     public Image[] lineVisuals;
     private CanvasGroup[] _nodeCanvasGroups;
 
-    [Header("--- Boss Visual Elements ---")]
+    [Header("Boss Visual Elements")]
     public Image bossNodeVisual;
     public Image bossLineVisual;
 
@@ -60,7 +59,7 @@ public class MapManager : MonoBehaviour
     private Vector2 _bossNodeOriginPos;
     private Vector2 _bossLineOriginPos;
 
-    [Header("--- Animation Settings ---")]
+    [Header("Animation Settings")]
     [SerializeField] private float textFadeSpeed = 4f;
     [SerializeField] private float lerpSpeed = 18f;
     [SerializeField] private float floatAmount = 9f;
@@ -153,7 +152,7 @@ public class MapManager : MonoBehaviour
 
     private void OnNavigateInput(InputAction.CallbackContext ctx)
     {
-        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode) return;
+        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode || _isSelecting) return;
 
         Vector2 direction = ctx.ReadValue<Vector2>();
         if (direction.x < -0.5f) ChangeSelection(-1);
@@ -207,6 +206,7 @@ public class MapManager : MonoBehaviour
             if (isOpen)
             {
                 ResetVisualsState();
+                _isSelecting = false;
                 mapVisualRoot.SetActive(true);
                 StartCoroutine(ScanSequence());
                 yield return new WaitForSeconds(0.05f);
@@ -378,7 +378,7 @@ public class MapManager : MonoBehaviour
             if (bossLineVisual) bossLineVisual.color = _inactiveColor;
 
             if (sfxScan) SoundManager.instance.PlaySFX(sfxScan, 0.15f);
-            yield return new WaitForSeconds(scanInterval); // 보스도 스캔 간격만큼만 짧게 대기
+            yield return new WaitForSeconds(scanInterval);
         }
         else
         {
@@ -393,7 +393,7 @@ public class MapManager : MonoBehaviour
                 yield return new WaitForSeconds(scanInterval);
             }
 
-            yield return new WaitForSeconds(0.05f); // 기존 0.2f에서 0.05f로 줄여서 딜레이 최소화
+            yield return new WaitForSeconds(0.05f);
         }
 
         _isScanning = false;
@@ -481,13 +481,11 @@ public class MapManager : MonoBehaviour
             }
         }
 
-        // 1. 이동 완료 여부만 체크 
         if (_isMoving && !isAnyNodeMoving && !_isScanning)
         {
             _isMoving = false;
         }
 
-        // 2. 스캔 중이 아닐 때 텍스트 스르르 등장 (이동 중이든 멈췄든 상관없이 바로 등장)
         if (!_isScanning && dynamicTextCanvasGroup != null)
         {
             dynamicTextCanvasGroup.alpha = Mathf.MoveTowards(dynamicTextCanvasGroup.alpha, 1f, Time.deltaTime * textFadeSpeed);
@@ -507,8 +505,8 @@ public class MapManager : MonoBehaviour
         if (prevIndex != _selectedIndex)
         {
             _isMoving = true;
-            HideUITexts();        // 입력 즉시 텍스트 투명하게 만듦 (0으로 리셋)
-            UpdateUITexts();      // 새로운 텍스트와 색상 적용
+            HideUITexts();
+            UpdateUITexts();
             UpdateNodeColors();
             if (sfxSelect != null) SoundManager.instance.PlaySFX(sfxSelect, 0.1f);
         }
@@ -549,7 +547,7 @@ public class MapManager : MonoBehaviour
         if (stageTitleText)
         {
             stageTitleText.text = $"모듈 : {data.moduleName}";
-            stageTitleText.color = data.themeColor; // [신규] 텍스트 색상을 해당 모듈의 테마 색상으로 즉시 변경
+            stageTitleText.color = data.themeColor;
         }
 
         if (stagePerText) stagePerText.text = _isBossStageMode ? "" : $"+ {_currentRandomPers[_selectedIndex]}%";
@@ -562,9 +560,10 @@ public class MapManager : MonoBehaviour
 
     private void OnEnterStage()
     {
-        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _fadeCoroutine != null || _isScanning) return;
+        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _fadeCoroutine != null || _isScanning || _isSelecting) return;
         if (currentNodes.Length == 0 || currentNodes[_selectedIndex] == null) return;
 
+        _isSelecting = true;
         StartCoroutine(ProcessSelectSequence());
     }
 
