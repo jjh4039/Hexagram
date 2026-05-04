@@ -109,10 +109,14 @@ public class StageMessageUI : MonoBehaviour
         if (pendingCountText != null) pendingCountText.alpha = 0f;
     }
 
-    public void ShowEntryMessage(string title, string desc)
+    public void ShowEntryMessage(string title, string desc, Color color)
     {
         if (entryTitle != null) entryTitle.text = title;
         if (entryDesc != null) entryDesc.text = desc;
+        if (color != null)
+        {
+            if (entryTitle != null) entryTitle.color = color;
+        }
 
         StopCurrentCoroutine();
         ResetAllUI();

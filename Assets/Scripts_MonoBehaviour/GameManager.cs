@@ -99,7 +99,6 @@ public class GameManager : MonoBehaviour
             int randomIndex = Random.Range(0, seasonPrefabs.Length);
             GameObject selectedPrefab = seasonPrefabs[randomIndex];
 
-            // 변경된 부분: 4번째 매개변수로 부모 트랜스폼 지정
             currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity, stageParent);
 
             if (currentStageObj.TryGetComponent(out _controller))
@@ -114,7 +113,7 @@ public class GameManager : MonoBehaviour
                 CameraFollow.instance.SnapToTarget();
 
             if (StageMessageUI.instance)
-                StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description);
+                StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description, stageData.themeColor);
         }
         else
         {
