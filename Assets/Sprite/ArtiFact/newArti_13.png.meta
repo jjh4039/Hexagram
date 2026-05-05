@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 97fe76185ca4a7a4abce370b33425cb6
+guid: 8e632a23a9a4baf449a5cb292a43334c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3267708370620931129
-    second: Atri_4_0
+      213: -5568329019542257425
+    second: newArti_13_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Atri_4_0
+      name: newArti_13_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 31
+        width: 32
         height: 32
-      alignment: 9
-      pivot: {x: 0.4969877, y: 0.5188468}
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 93c5e64337b395d20800000000000000
-      internalID: 3267708370620931129
+      spriteID: fe04fad424259b2b0800000000000000
+      internalID: -5568329019542257425
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 189bc18d62829054c8c680825eb95f60
+    spriteID: ceef7fd5817b0c744a1ed7b5e583f932
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Atri_4_0: 3267708370620931129
+      newArti_13_0: -5568329019542257425
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

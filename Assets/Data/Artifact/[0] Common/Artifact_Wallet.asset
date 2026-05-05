@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uB0A1\uC740 \uC9C0\uAC11"
   description: "\uACE0\uCCA0\uC758 \uD68D\uB4DD\uB7C9\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4"
-  icon: {fileID: -4007353394331183796, guid: fbded55bf9489ad40b5e72c383ffb26f, type: 3}
+  icon: {fileID: -1252986560473452192, guid: 7446d5030a5141b4e98bbb4dc63c50cf, type: 3}
   grade: 0
   basePrice: 100
   type: 0

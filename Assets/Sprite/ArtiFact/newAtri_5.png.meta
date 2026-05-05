@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: fbded55bf9489ad40b5e72c383ffb26f
+guid: 6fc111bd4d2c6fc49b1f7bf874fe1d21
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4007353394331183796
-    second: Arti_2_0
+      213: 3674465686345772854
+    second: newAtri_5_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Arti_2_0
+      name: newAtri_5_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 32
-        height: 31
+        height: 32
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c451f69d1550368c0800000000000000
-      internalID: -4007353394331183796
+      spriteID: 63f6006d2135ef230800000000000000
+      internalID: 3674465686345772854
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: dbf6c659fdd13944684bb58c5d4b95e4
+    spriteID: f518cf16be0c00640a0e3b2eef83cf56
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Arti_2_0: -4007353394331183796
+      newAtri_5_0: 3674465686345772854
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

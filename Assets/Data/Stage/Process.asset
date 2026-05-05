@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Process
   m_EditorClassIdentifier: Assembly-CSharp::StageData
   moduleType: 4
-  description: "\uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uC77C\uC815\uB7C9\uC758
-    \uACE0\uCCA0\uC744 \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+  description: "\uC57D\uD654\uB41C \uD504\uB85C\uC138\uC2A4\uB85C \uC9C4\uC785\uD569\uB2C8\uB2E4.\r\n\uBCF4\uC0C1
+    : <color=#FFD966>\uACE0\uCCA0 \uB354\uBBF8</color>\r\n"
   themeColor: {r: 1, g: 0.8509804, b: 0.4, a: 1}
   minRise: 7
   maxRise: 10

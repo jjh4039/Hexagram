@@ -15,11 +15,16 @@ MonoBehaviour:
   artifactName: "\uD655\uB960 \uC2A4\uCE90\uB108"
   description: "\uD68D\uB4DD \uC2DC \uC6D0\uD558\uB294 \uBA74\uC758 \uD655\uB960\uC744\n\uC601\uAD6C\uD788
     5% \uC0C1\uC2B9\uC2DC\uD0A8\uB2E4."
-  icon: {fileID: 3105931553845373892, guid: ee7487cbc3d925149b178758859378c7, type: 3}
+  icon: {fileID: 7123292895836168022, guid: 4f26cc6e10c07824d9e09f06eb15e97a, type: 3}
   grade: 2
   basePrice: 100
   type: 1
-  effectType: 2
   condition: 6
+  buffDuration: 10
+  isInfiniteBuff: 0
+  effectType: 2
   value: 15
   isPercent: 1
+  effectType2: 0
+  value2: 0
+  isPercent2: 0

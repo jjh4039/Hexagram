@@ -143,7 +143,7 @@ TextureImporter:
         width: 20
         height: 20
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -152,6 +152,28 @@ TextureImporter:
       bones: []
       spriteID: 866911030ba0f4849bae3090b2d21d4e
       internalID: 604864262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Arrow_2
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 0
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f89e275024f904243932919c7cc831b0
+      internalID: -1962544191
       vertices: []
       indices: 
       edges: []
@@ -172,6 +194,7 @@ TextureImporter:
     nameFileIdTable:
       Arrow_0: -4346244404228752641
       Arrow_1: 604864262
+      Arrow_2: -1962544191
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

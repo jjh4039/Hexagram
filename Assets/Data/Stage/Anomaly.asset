@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Anomaly
   m_EditorClassIdentifier: Assembly-CSharp::StageData
   moduleType: 1
-  description: "\uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uBB34\uC791\uC704
-    \uC774\uBCA4\uD2B8\uAC00 \uBC1C\uC0DD\uD569\uB2C8\uB2E4."
-  themeColor: {r: 0.8490566, g: 0.8490566, b: 0.8490566, a: 1}
+  description: "\uC54C \uC218 \uC5C6\uB294 \uC774\uBCA4\uD2B8\uAC00 \uBC1C\uC0DD\uD569\uB2C8\uB2E4.\n\uBCF4\uC0C1
+    : <color=#9A9A9A>\uBB34\uC791\uC704</color>"
+  themeColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
   minRise: 7
   maxRise: 10
   moduleIcon: {fileID: 648795973803437671, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}

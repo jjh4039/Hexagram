@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Maintenance
   m_EditorClassIdentifier: Assembly-CSharp::StageData
   moduleType: 2
-  description: "\uC548\uC804\uD55C \uC815\uBE44\uC18C\uC785\uB2C8\uB2E4.\n\uACE0\uCCA0\uB85C
-    \uB2E4\uC591\uD55C \uBB3C\uD488\uC744 \uAD6C\uB9E4\uD569\uB2C8\uB2E4."
+  description: "\uC548\uC804\uD55C \uC815\uBE44\uC18C\uC5D0 \uC9C4\uC785\uD569\uB2C8\uB2E4.\n\uAE30\uB2A5
+    : <color=#73D28E>\uBB3C\uD488 \uAD6C\uB9E4</color>"
   themeColor: {r: 0.4509804, g: 0.8235294, b: 0.5568628, a: 1}
   minRise: 6
   maxRise: 10

@@ -14,11 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uB9DB\uC788\uB294 \uCFE0\uD0A4"
   description: "\uCD5C\uB300 \uCCB4\uB825\uC774 5 \uC0C1\uC2B9\uD55C\uB2E4."
-  icon: {fileID: 5210289407776396690, guid: 81a8c241ed9a5074481e2d8b37ffc998, type: 3}
+  icon: {fileID: 4328323185624901256, guid: 744b7fe7baf9d434c9bef70cf3ecbc4c, type: 3}
   grade: 0
   basePrice: 100
   type: 0
-  effectType: 1
   condition: 0
+  buffDuration: 10
+  isInfiniteBuff: 0
+  effectType: 1
   value: 5
   isPercent: 0
+  effectType2: 0
+  value2: 0
+  isPercent2: 0

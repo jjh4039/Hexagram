@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Calculation
   m_EditorClassIdentifier: Assembly-CSharp::StageData
   moduleType: 0
-  description: "\uC801\uACFC \uB9C8\uC8FC\uD569\uB2C8\uB2E4.\n\uC2A4\uD15F \uBC0F
-    \uC8FC\uC0AC\uC704\uB97C \uAC15\uD654\uD569\uB2C8\uB2E4."
+  description: "\uB178\uBA40 \uD504\uB85C\uC138\uC2A4\uB85C \uC9C4\uC785\uD569\uB2C8\uB2E4.\n\uBCF4\uC0C1
+    : <color=#FFAA5C>\uAC15\uD654 \uC120\uD0DD\uC9C0 2\uD68C \uCD94\uAC00</color>\n"
   themeColor: {r: 1, g: 0.6666667, b: 0.36078432, a: 1}
   minRise: 7
   maxRise: 10

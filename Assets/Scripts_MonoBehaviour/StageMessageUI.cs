@@ -9,9 +9,6 @@ public class StageMessageUI : MonoBehaviour
 {
     public static StageMessageUI instance;
 
-    [Header("--- Debug / Test ---")]
-    [SerializeField] private bool enableRewardTest = true;
-
     [Header("--- Entry UI (Start) ---")]
     [SerializeField] private CanvasGroup entryGroup;
     [SerializeField] private TextMeshProUGUI entryTitle;
@@ -253,13 +250,6 @@ public class StageMessageUI : MonoBehaviour
 
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState != InputState.Normal)
             return;
-
-        if (enableRewardTest && Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            ShowClearMessage();
-            QueueModuleReward(1); 
-            return;
-        }
 
         if (!canSelectReward) return;
 
