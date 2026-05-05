@@ -3,19 +3,27 @@ using System.Collections;
 
 public class Scrap : MonoBehaviour
 {
-    [Header("Settings")] public int value = 1;
-    [SerializeField] private float acceleration = 40f;
-    [SerializeField] private float initialSpeed = 2f;
-    [SerializeField] private float rotateSpeed = 360f;
-    [SerializeField] private float magnetDelay = 0.5f;
+    [Header("Settings")] 
+    public int value = 1;                                // 스크랩의 기본 가치
+    [SerializeField] private float acceleration = 40f;   // 가속도
+    [SerializeField] private float initialSpeed = 2f;    // 초기 속도
+    [SerializeField] private float rotateSpeed = 720f;   // 회전 속도
+    [SerializeField] private float magnetDelay = 0.5f;   // 자석 효과 지연 시간
 
-    [Header("Sound")] [SerializeField] private AudioClip sfxCollect;
+    [Header("Sound")] 
+    [SerializeField] private AudioClip sfxCollect;       // 획득 효과음
 
-    private Transform target;
-    private bool isCollected = false;
-    private float activationTime;
+    private Transform target;                            // 따라갈 대상
+    private bool isCollected = false;                    // 획득 여부
+    private float activationTime;                        // 활성화 시간
 
-    private float currentSpeed = 0f;
+    private float currentSpeed = 0f;                     // 현재 이동 속도
+
+    // 외부(ScrapPile 등)에서 기본 가치를 설정할 때 사용하는 함수입니다.
+    public void SetValue(int newValue)
+    {
+        value = newValue;
+    }
 
     private void Start()
     {
@@ -51,7 +59,11 @@ public class Scrap : MonoBehaviour
 
         if (GameManager.instance)
         {
-            GameManager.instance.AddScrap(value);               // 기본 가치만 전달 (보너스는 매니저가 계산)
+            // 기본 가치의 90% ~ 110% 사이로 무작위 오차 적용
+            float randomMultiplier = Random.Range(0.9f, 1.1f);
+            int finalValue = Mathf.Max(0, Mathf.RoundToInt(value * randomMultiplier));
+
+            GameManager.instance.AddScrap(finalValue);
         }
         
         if (sfxCollect)

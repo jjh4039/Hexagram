@@ -143,6 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scrap
   value: 1
+  valueVariance: 10
   acceleration: 40
   initialSpeed: 2
   rotateSpeed: 720
