@@ -475,7 +475,7 @@ public class BitManager : MonoBehaviour
             case ArtifactGrade.Common: return Color.white;
             case ArtifactGrade.Rare: return new Color(0f, 0.65f, 1f);
             case ArtifactGrade.Epic: return new Color(0.6f, 0f, 1f);
-            case ArtifactGrade.Legendary: return new Color(1f, 0.72f, 0f);
+            case ArtifactGrade.Legendary: return new Color(0f, 0.68f, 0.24f);
             default: return Color.white;
         }
     }
