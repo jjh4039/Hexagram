@@ -23,7 +23,7 @@ public class CinematicManager : MonoBehaviour
     [Header("Death Cinematic")]
     [Tooltip("화면을 하얗게 덮을 패널 (CanvasGroup 포함)")]
     [SerializeField] private CanvasGroup whiteScreenGroup;
-    [SerializeField] private float slowMotionScale = 0.2f;         // 얼마나 느려질 것인가? (0.2배속)
+    [SerializeField] private float slowMotionScale = 0.2f;         // 얼마나 느려질 것인가
     [SerializeField] private float whiteOutDuration = 2.0f;        // 화면이 하얗게 덮이는 데 걸리는 시간
 
     [Header("GameOver Cinematic")]
@@ -67,6 +67,9 @@ public class CinematicManager : MonoBehaviour
         player.canControl = false;
         player.rigid.linearVelocity = Vector2.zero;
 
+        // 추가 컷신 시작 시 카메라 제한 해제
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false; 
+
         StartCoroutine(Co_FadeGameplayUI(false));
         CameraFollow.instance.SetTarget(bossTransform, cinematicCameraSpeed);
         yield return StartCoroutine(Co_AnimateLetterBox(true));
@@ -86,6 +89,9 @@ public class CinematicManager : MonoBehaviour
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true);
 
+        // 추가 컷신 종료 시 카메라 제한 복구
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = true; 
+
         onFinish?.Invoke();
     }
 
@@ -103,7 +109,7 @@ public class CinematicManager : MonoBehaviour
 
         while (elapsed < uiFadeTime)
         {
-            elapsed += Time.unscaledDeltaTime; // [변경] 현실 시간 기준
+            elapsed += Time.unscaledDeltaTime; 
             float t = elapsed / uiFadeTime;
 
             foreach (var cg in hiddenUIGroups)
@@ -132,7 +138,7 @@ public class CinematicManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < barAnimTime)
         {
-            elapsed += Time.unscaledDeltaTime; // [변경] 현실 시간 기준
+            elapsed += Time.unscaledDeltaTime; 
             float t = Mathf.SmoothStep(0f, 1f, elapsed / barAnimTime);
 
             float currentHeight = Mathf.Lerp(startHeight, endHeight, t);
@@ -163,7 +169,7 @@ public class CinematicManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < sunsetDuration)
         {
-            elapsed += Time.unscaledDeltaTime; // [변경] 현실 시간 기준
+            elapsed += Time.unscaledDeltaTime; 
             float t = elapsed / sunsetDuration;
             Color lerpedColor = Color.Lerp(Color.white, nightColor, t);
 
@@ -188,6 +194,9 @@ public class CinematicManager : MonoBehaviour
     private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
     {
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
+
+        // 추가 사망 연출 시작 시 카메라 제한 해제
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false; 
 
         Time.timeScale = slowMotionScale;
 
@@ -244,6 +253,9 @@ public class CinematicManager : MonoBehaviour
     private IEnumerator Co_GameOverCinematic(Transform playerTransform)
     {
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
+
+        // 추가 게임오버 연출 시작 시 카메라 제한 해제
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false; 
 
         StartCoroutine(Co_FadeGameplayUI(false));
         if (CameraFollow.instance != null)

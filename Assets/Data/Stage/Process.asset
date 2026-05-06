@@ -23,6 +23,7 @@ MonoBehaviour:
   - seasonLabel: "\uBD04"
     prefabs:
     - {fileID: 4874768350431733968, guid: 8550a865b22ddf643ac7f1409197353e, type: 3}
+    - {fileID: 4874768350431733968, guid: 619591207c540d741af8a31ba596caf1, type: 3}
   - seasonLabel: 
     prefabs: []
   - seasonLabel: 

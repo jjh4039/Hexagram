@@ -98,9 +98,9 @@ MonoBehaviour:
       isIconRecursive: 0
       isColorRecursive: 0
     - iconNameOrGuid: LightmapParameters Icon
-      colorIndex: 0
+      colorIndex: 7
       isIconRecursive: 0
-      isColorRecursive: 0
+      isColorRecursive: 1
     - iconNameOrGuid: 
       colorIndex: 6
       isIconRecursive: 0
