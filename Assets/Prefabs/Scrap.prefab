@@ -142,8 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e9f02afa4ded64ebe7bb2eda286b20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scrap
-  value: 1
-  valueVariance: 10
+  value: 10
   acceleration: 40
   initialSpeed: 2
   rotateSpeed: 720

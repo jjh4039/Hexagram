@@ -36,18 +36,19 @@ public class EnemySpawner : MonoBehaviour
         // 3. 느낌표 파괴
         if (warningEffect != null) Destroy(warningEffect);
 
-        // ★ [추가 2] 몬스터 생성과 동시에 이펙트 펑! 생성
-        if (spawnEffectPrefab != null)
-        {
-            Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity);
-        }
-
         // 4. 진짜 몬스터 생성
         if (enemyPrefab != null)
         {
+            // 몬스터를 먼저 맵에 생성합니다.
             GameObject spawnedObj = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
-            Enemy enemyScript = spawnedObj.GetComponent<Enemy>();
+            
+            // ★ [수정된 부분] 몬스터 생성 직후, 파티클을 생성하며 몬스터(spawnedObj.transform)를 부모로 지정합니다.
+            if (spawnEffectPrefab != null)
+            {
+                Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity, spawnedObj.transform);
+            }
 
+            Enemy enemyScript = spawnedObj.GetComponent<Enemy>();
             onSpawnFinished?.Invoke(enemyScript);
         }
     }

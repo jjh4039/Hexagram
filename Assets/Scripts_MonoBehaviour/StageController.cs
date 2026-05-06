@@ -6,17 +6,18 @@ using TMPro;
 public class StageController : MonoBehaviour
 {
     [Header("Stage Type")]
-    public bool isSafeStage = false;      // 안전 방 여부
+    public bool isSafeStage = false;                      // 안전 방 여부
 
     [Header("Settings")]
-    public Transform spawnPoint;          // 플레이어 시작 위치
-    public GameObject barrierEla;         // 전투 진입 차단벽
-    public Statue statue;                 // 출구 석상
+    public Transform spawnPoint;                          // 플레이어 시작 위치
+    public GameObject barrierEla;                         // 전투 진입 차단벽
+    public Statue statue;                                 // 출구 석상
+    public Collider2D stageBounds;                        // 카메라 제한용 콜라이더 (추가됨)
 
     [Header("Reward Settings")]
-    public GameObject rewardPrefab;       // 맵에 생성될 보상 프리팹
-    public Transform rewardSpawnPoint;    // 보상이 생성될 위치
-    public int moduleRewardCount = 1;     // 클리어 시 제공할 모듈 강화 횟수
+    public GameObject rewardPrefab;                       // 맵에 생성될 보상 프리팹
+    public Transform rewardSpawnPoint;                    // 보상이 생성될 위치
+    public int moduleRewardCount = 1;                     // 클리어 시 제공할 모듈 강화 횟수
 
     public Transform CurrentRewardTransform { get; private set; } // 생성된 보상의 좌표
     public IRewardItem CurrentRewardItem { get; private set; }    // 생성된 보상의 인터페이스
@@ -42,6 +43,12 @@ public class StageController : MonoBehaviour
 
         GameObject player = GameManager.instance.player.gameObject;
         if (player != null && spawnPoint != null) player.transform.position = spawnPoint.position;
+
+        // 추가된 카메라 경계 설정 호출
+        if (CameraFollow.instance != null && stageBounds != null)
+        {
+            CameraFollow.instance.SetCameraBounds(stageBounds.bounds);
+        }
 
         InitializeWaves();
 

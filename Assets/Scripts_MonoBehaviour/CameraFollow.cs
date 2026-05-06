@@ -22,21 +22,32 @@ public class CameraFollow : MonoBehaviour
     [Header("Aim & Zoom Settings")]
     [SerializeField] private float aimMouseInfluence = 0.15f;
     [SerializeField] private float aimMaxMouseOffset = 2.0f;
-    [SerializeField] private float aimZoomMultiplier = 0.95f;       // 에임 시 화면 배율 설정
+    [SerializeField] private float aimZoomMultiplier = 0.95f;       
     [SerializeField] private float aimTransitionSpeed = 5f;
 
     [Header("Cinematic Settings")]
-    public bool isCinematicFocus = false;                          // 연출 중 마우스 추적 무시 플래그
-    public bool isCinematicZoom = false;                           // 연출 중 줌 여부 플래그
-    [SerializeField] private float cinematicZoomMultiplier = 0.8f; // 사망 시 화면 확대 배율
-    [SerializeField] private float cinematicZoomSpeed = 2.0f;      // 줌 확대 진입 속도
+    public bool isCinematicFocus = false;                          
+    public bool isCinematicZoom = false;                           
+    [SerializeField] private float cinematicZoomMultiplier = 0.8f; 
+    [SerializeField] private float cinematicZoomSpeed = 2.0f;      
 
     [Header("Shake Settings")]
     [SerializeField] private float shakeDecaySpeed = 5f;
     [SerializeField] private float uiOffsetSmoothSpeed = 10f;
-    [SerializeField] private float shakeFrequency = 35f;           // 진동 속도(주파수) 조절용 변수
+    [SerializeField] private float shakeFrequency = 35f;           
 
-    private float _currentShakeDecay;                              // 현재 적용 중인 감쇠 속도
+    // ==========================================
+    // [수정됨] 카메라 제한 및 여유 공간 설정
+    // ==========================================
+    [Header("Bounds Settings")]
+    public bool useBounds = false;                                 
+    private Bounds currentBounds;                                  
+    
+    [Tooltip("벽에 닿았을 때 마우스로 더 볼 수 있는 여유 거리")]
+    public float boundsPadding = 1.5f;                             
+    // ==========================================
+
+    private float _currentShakeDecay;                              
 
     private Vector3 _offset;
     private Vector3 _uiOffset;
@@ -47,8 +58,8 @@ public class CameraFollow : MonoBehaviour
     private float _lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
 
-    private float _shakeSeedX;                                     // 펄린 노이즈 X축 시작점
-    private float _shakeSeedY;                                     // 펄린 노이즈 Y축 시작점
+    private float _shakeSeedX;                                     
+    private float _shakeSeedY;                                     
 
     private float _originalSmoothSpeed;
     private float _currentInfluence;
@@ -79,7 +90,6 @@ public class CameraFollow : MonoBehaviour
 
     public void HitShake(float duration, float magnitude, float customDecay = -1f)
     {
-        // 화면 흔들림이 OFF로 되어있으면 무시
         if (DataManager.instance != null && DataManager.instance.data.cameraShake == 0)
             return;
 
@@ -194,7 +204,34 @@ public class CameraFollow : MonoBehaviour
             finalOffset = Vector3.ClampMagnitude(finalOffset, _currentMaxOffset);
         }
 
+        // ==========================================
+        // [수정됨] 마우스 오프셋(finalOffset)을 적용하기 '전'에 플레이어 위치를 기준으로 제한
+        // ==========================================
+        if (useBounds && cam != null)
+        {
+            float camHeight = cam.orthographicSize;
+            float camWidth = camHeight * cam.aspect;
+
+            // padding을 추가하여 여유 구역 생성
+            float minX = currentBounds.min.x + camWidth - boundsPadding;
+            float maxX = currentBounds.max.x - camWidth + boundsPadding;
+            float minY = currentBounds.min.y + camHeight - boundsPadding;
+            float maxY = currentBounds.max.y - camHeight + boundsPadding;
+
+            if (minX > maxX) minX = maxX = currentBounds.center.x; 
+            if (minY > maxY) minY = maxY = currentBounds.center.y; 
+
+            // 플레이어가 갈 수 있는 기본 목표 좌표를 먼저 제한합니다.
+            targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
+            targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
+        }
+
+        // ==========================================
+        // 그 후에 마우스 오프셋을 더해줍니다. 
+        // 제한 구역에 걸려도 마우스를 움직이면 finalOffset만큼은 화면이 더 움직입니다!
+        // ==========================================
         targetPosition += finalOffset;
+
 
         Vector3 currentUnshakenPos = transform.position - _shakeOffset;
 
@@ -245,5 +282,16 @@ public class CameraFollow : MonoBehaviour
     public void ResetUIOffset()
     {
         _uiOffset = Vector3.zero;
+    }
+
+    public void SetCameraBounds(Bounds bounds)
+    {
+        currentBounds = bounds;
+        useBounds = true;
+    }
+
+    public void ClearCameraBounds()
+    {
+        useBounds = false;
     }
 }
