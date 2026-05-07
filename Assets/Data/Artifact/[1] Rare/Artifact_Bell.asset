@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 72aa018b570d3964bad2e854c273b67f, type: 3}
-  m_Name: Artifact_Scarf
+  m_Name: Artifact_Bell
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
-  artifactName: "\uC2A4\uCE74\uD504"
-  description: "\uB9E4 \uC2A4\uD14C\uC774\uC9C0\uC5D0\uC11C \uBC1B\uB294\n\uCCAB
-    \uBC88\uC9F8 \uD53C\uD574\uB97C \uBB34\uC2DC\uD55C\uB2E4."
-  icon: {fileID: 2403258338549233510, guid: a168a076060c75945ba362529032a966, type: 3}
-  grade: 3
+  artifactName: "\uC885"
+  description: "\uC8FC\uC0AC\uC704 \uBAA8\uB4C8\uC758 \uC791\uB3D9 \uBE44\uC6A9\uC774\n10%
+    \uAC10\uC18C\uD55C\uB2E4."
+  icon: {fileID: 8714674997712217917, guid: 02d30b41c055b4b4191a077041b5ed88, type: 3}
+  grade: 1
   basePrice: 100
-  type: 0
-  condition: 0
+  type: 1
+  condition: 7
   buffDuration: 10
-  isInfiniteBuff: 0
-  effectType: 2
-  value: 0.45
+  isInfiniteBuff: 1
+  effectType: 12
+  value: 0.1
   isPercent: 1
   effectType2: 0
   value2: 0

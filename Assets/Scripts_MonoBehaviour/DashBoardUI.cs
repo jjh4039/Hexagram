@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using System.Collections; 
+using System.Collections;
 
 public class DashboardUI : MonoBehaviour
 {
@@ -23,6 +23,12 @@ public class DashboardUI : MonoBehaviour
     public TextMeshProUGUI descText;
     public Vector2 tooltipOffset = new Vector2(15f, -15f);
 
+    [Header("Tooltip Colors")]
+    public string hexLegendary = "#FFD000"; // 전설 등급 헥스코드
+    public string hexEpic = "#B591D1";      // 에픽 등급 헥스코드
+    public string hexRare = "#4AA8D8";      // 레어 등급 헥스코드
+    public string hexNormal = "#FFFFFF";    // 일반 등급 헥스코드
+
     [Header("Sound Effects")]
     [SerializeField] private AudioClip sfxOpen;   // 창이 열릴 때 재생할 소리
     [SerializeField] private AudioClip sfxClose;  // 창이 닫힐 때 재생할 소리
@@ -40,12 +46,12 @@ public class DashboardUI : MonoBehaviour
         if (dashboardCG != null)
         {
             dashboardCG.alpha = 0f;
-            dashboardCG.blocksRaycasts = false; 
+            dashboardCG.blocksRaycasts = false;
         }
 
         dashboardPanel.SetActive(false);
         if (tooltipGroup != null) tooltipGroup.SetActive(false);
-        
+
         // 기존의 독자적인 입력 시스템 생성 코드 삭제
     }
 
@@ -58,8 +64,8 @@ public class DashboardUI : MonoBehaviour
 
         // 평상시와 전투 상태일 때 인벤토리 키를 누르면 열기 시도
         actions.Normal.Inventory.performed += OnInventoryPressed;
-        actions.Combat.Inventory.performed += OnInventoryPressed; 
-        
+        actions.Combat.Inventory.performed += OnInventoryPressed;
+
         // UI 상태일 때 닫기 키를 누르면 창 닫기
         actions.UI.CloseInventory.performed += OnCloseUIPressed;
     }
@@ -98,7 +104,7 @@ public class DashboardUI : MonoBehaviour
         {
             // [교체됨] 디버그 로그 대신 화면에 플로팅 텍스트 띄우기 (0번: 전투 중 불가)
             if (PlayerFeedbackUI.Instance != null)
-                PlayerFeedbackUI.Instance.ShowWarning(0); 
+                PlayerFeedbackUI.Instance.ShowWarning(0);
         }
     }
 
@@ -116,9 +122,9 @@ public class DashboardUI : MonoBehaviour
     {
         isOpen = true;
         dashboardPanel.SetActive(true);
-        Time.timeScale = 0f; 
+        Time.timeScale = 0f;
 
-        RefreshArtifacts(); 
+        RefreshArtifacts();
         if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxOpen, 1.0f);
 
         if (fadeRoutine != null) StopCoroutine(fadeRoutine);
@@ -150,7 +156,7 @@ public class DashboardUI : MonoBehaviour
 
         while (timer < fadeDuration)
         {
-            timer += Time.unscaledDeltaTime; 
+            timer += Time.unscaledDeltaTime;
             float t = timer / fadeDuration;
 
             t = Mathf.Sin(t * Mathf.PI * 0.5f);
@@ -167,7 +173,7 @@ public class DashboardUI : MonoBehaviour
         if (!show)
         {
             dashboardPanel.SetActive(false);
-            Time.timeScale = 1f; 
+            Time.timeScale = 1f;
         }
     }
 
@@ -204,9 +210,10 @@ public class DashboardUI : MonoBehaviour
         tooltipGroup.SetActive(true);
         nameText.text = data.artifactName;
 
-        string colorHex = (data.grade == ArtifactGrade.Legendary) ? "#FFD000" :
-                          (data.grade == ArtifactGrade.Epic) ? "#B591D1" :
-                          (data.grade == ArtifactGrade.Rare) ? "#4AA8D8" : "#FFFFFF";
+        string colorHex = (data.grade == ArtifactGrade.Legendary) ? hexLegendary :
+                          (data.grade == ArtifactGrade.Epic) ? hexEpic :
+                          (data.grade == ArtifactGrade.Rare) ? hexRare : hexNormal;
+
         descText.text = $"<color={colorHex}>[ {data.grade} ]</color>\n\n{data.description}";
     }
 

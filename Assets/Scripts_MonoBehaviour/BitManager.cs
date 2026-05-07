@@ -466,6 +466,8 @@ public class BitManager : MonoBehaviour
 
         if (choice.outLineImage != null)
             choice.outLineImage.color = GetOutLineColor(artifact.grade);
+        if (choice.outLineCaseImage != null)
+            choice.outLineCaseImage.color = GetOutLineColor(artifact.grade);
     }
 
     private Color GetOutLineColor(ArtifactGrade grade)
@@ -499,6 +501,7 @@ public class BitManager : MonoBehaviour
         public Image hoverSensor;
         public CanvasGroup group;
         public Image outLineImage;
+        public Image outLineCaseImage;
         public GlowFilter[] gradeEffects;
         public Image artifactImage;
         public TextMeshProUGUI titleText;
