@@ -13,18 +13,17 @@ MonoBehaviour:
   m_Name: Artifact_Bell
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uC885"
-  description: "\uC8FC\uC0AC\uC704 \uBAA8\uB4C8\uC758 \uC791\uB3D9 \uBE44\uC6A9\uC774\n10%
-    \uAC10\uC18C\uD55C\uB2E4."
+  description: "\uC8FC\uC0AC\uC704 \uCDA9\uC804 \uC18D\uB3C4\uAC00 \n10 \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: 8714674997712217917, guid: 02d30b41c055b4b4191a077041b5ed88, type: 3}
   grade: 1
   basePrice: 100
-  type: 1
-  condition: 7
+  type: 0
+  condition: 0
   buffDuration: 10
   isInfiniteBuff: 1
-  effectType: 12
-  value: 0.1
-  isPercent: 1
+  effectType: 6
+  value: 10
+  isPercent: 0
   effectType2: 0
   value2: 0
   isPercent2: 0

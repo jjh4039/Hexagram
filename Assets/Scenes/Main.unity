@@ -8349,8 +8349,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ArtiFact
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 161a422b8d109014ca1cbb1f9230df6b, type: 2}
-  m_sharedMaterial: {fileID: -3681658105849225272, guid: 161a422b8d109014ca1cbb1f9230df6b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
+  m_sharedMaterial: {fileID: -742173420960112056, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -25007,7 +25007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.98039216}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.9529412}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -29712,8 +29712,8 @@ MonoBehaviour:
   m_text: "\uBCF4\uC720\uD55C \uC544\uD2F0\uD329\uD2B8\uB4E4\uC758 \uD6A8\uACFC\uB97C
     \uD655\uC778\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 161a422b8d109014ca1cbb1f9230df6b, type: 2}
-  m_sharedMaterial: {fileID: -3681658105849225272, guid: 161a422b8d109014ca1cbb1f9230df6b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
+  m_sharedMaterial: {fileID: -742173420960112056, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -46617,7 +46617,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bc767da788135040b3b7adf5c2a60ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactManager
-  myArtifacts: []
+  myArtifacts:
+  - {fileID: 11400000, guid: 902109a8296584b43a77b1cc3cc02124, type: 2}
+  - {fileID: 11400000, guid: ce5213b453eeaf84fa5173dcbbecfa30, type: 2}
 --- !u!4 &2092528154
 Transform:
   m_ObjectHideFlags: 0

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Artifact_Chip_Grape
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uAC15\uD654 \uCF54\uC5B4 : \uD3EC\uB3C4"
-  description: "\uC8FC\uC0AC\uC704 [ 6 ] \uD6A8\uACFC\uAC00 \uBC1C\uB3D9 \uC911\uC77C
-    \uB54C\n\uCD5C\uC885 \uD53C\uD574\uB7C9\uC774 5% \uC0C1\uC2B9\uD55C\uB2E4."
+  description: "\uC8FC\uC0AC\uC704 [ 6 ] \uD6A8\uACFC \uBC1C\uB3D9 \uC2DC\n\uCD5C\uC885
+    \uD53C\uD574\uB7C9\uC774 5% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: -343982307609325436, guid: 44286d8558633f9448afbd33849b62a6, type: 3}
   grade: 2
   basePrice: 100
