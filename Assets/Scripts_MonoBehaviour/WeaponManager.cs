@@ -101,11 +101,6 @@ public class WeaponManager : MonoBehaviour
         else if (CurrentWeapon == WeaponType.Gun && cachedGun != null) cachedGun.TriggerAttack();
     }
 
-    public void UpdateWeaponVisuals(Color color, Material material)
-    {
-        if (cachedGun != null) cachedGun.UpdateVisuals(color, material);
-    }
-
     private IEnumerator SwapToGun()
     {
         IsSwapping = true;

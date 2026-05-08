@@ -54,7 +54,6 @@ MonoBehaviour:
   robotRenderer: {fileID: 8219317059553987582}
   screenRenderer: {fileID: 8219317059553987582}
   animator: {fileID: 62797485364063204}
-  uiController: {fileID: 0}
 --- !u!58 &9181697146346574579
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -90,7 +89,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 2
+  m_Radius: 1.2
 --- !u!1 &5149421969876432049
 GameObject:
   m_ObjectHideFlags: 0

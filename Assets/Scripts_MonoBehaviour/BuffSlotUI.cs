@@ -8,18 +8,17 @@ public class BuffSlotUI : MonoBehaviour
     [SerializeField] private Image cooldownFillImage;
     [SerializeField] private TextMeshProUGUI stackText;
 
-    [Header("Icon Settings")] [SerializeField]
-    private Vector3 diceIconScale = Vector3.one; // 주사위 아이콘 스케일
-
-    [SerializeField] private Vector3 artifactIconScale = new Vector3(0.8f, 0.8f, 1f); // 아티팩트 아이콘 스케일
+    [Header("Icon Settings")]
+    [SerializeField] private Vector3 diceIconScale = Vector3.one;
+    [SerializeField] private Vector3 artifactIconScale = new Vector3(0.8f, 0.8f, 1f);
 
     private ActiveBuff currentBuff;
 
     public void Setup(ActiveBuff buff)
     {
         currentBuff = buff;
-        Sprite targetIcon = null; // 표시할 아이콘 임시 변수
-        Vector3 targetScale = Vector3.one; // 표시할 스케일 임시 변수
+        Sprite targetIcon = null;
+        Vector3 targetScale = Vector3.one;
 
         if (buff.buffData && buff.buffData.icon)
         {
@@ -29,6 +28,12 @@ public class BuffSlotUI : MonoBehaviour
         else if (buff.artifactData && buff.artifactData.icon)
         {
             targetIcon = buff.artifactData.icon;
+            targetScale = artifactIconScale;
+        }
+        else if (buff.debuffType != StageDebuffType.None && buff.debuffIcon)
+        {
+            // ★ 신규 추가: 디버프 아이콘 설정
+            targetIcon = buff.debuffIcon;
             targetScale = artifactIconScale;
         }
 
@@ -41,6 +46,16 @@ public class BuffSlotUI : MonoBehaviour
             iconImage[1].rectTransform.localScale = targetScale;
         }
 
+        // ★ 신규 추가: 디버프일 경우 테두리/아이콘을 붉은색으로 강조
+        if (buff.isDebuff)
+        {
+            iconImage[1].color = new Color(1f, 0.3f, 0.3f, 1f); // 눈에 띄는 붉은색
+        }
+        else
+        {
+            iconImage[1].color = Color.white;
+        }
+
         gameObject.SetActive(true);
         UpdateUI();
     }
@@ -49,8 +64,8 @@ public class BuffSlotUI : MonoBehaviour
     {
         if (currentBuff == null) return;
 
-        // ★ 수정됨: 1f(100% 가림)가 아니라 0f(그림자 없음)로 설정해야 밝게 보입니다.
-        if (currentBuff.isInfinite)
+        // ★ 수정됨: 스테이지 지속 디버프라면 Fill 쿨타임 효과를 꺼버립니다 (그림자 없음)
+        if (currentBuff.isInfinite || currentBuff.isStageDuration)
         {
             cooldownFillImage.fillAmount = 0f;
             iconImage[1].fillAmount = 0f;
@@ -61,12 +76,20 @@ public class BuffSlotUI : MonoBehaviour
             iconImage[1].fillAmount = 1 - (currentBuff.remainingTime / currentBuff.maxTime);
         }
 
-        if (currentBuff.isInfinite)
+        // 텍스트 출력 로직
+        if (currentBuff.isStageDuration)
         {
-            stackText.text = ""; // 무한 지속 버프는 텍스트 미출력
+            // ★ 신규 추가: 디버프는 남은 스테이지 횟수를 출력 (예: "3턴", "3방")
+            stackText.text = $"{currentBuff.remainingStages}회";
+            stackText.color = new Color(1f, 0.3f, 0.3f, 1f); // 텍스트도 붉은색으로
+        }
+        else if (currentBuff.isInfinite)
+        {
+            stackText.text = "";
         }
         else if (currentBuff.buffData)
         {
+            stackText.color = Color.white; // 일반 버프는 흰색 복구
             float finalEffectValue = currentBuff.buffData.effectValue * currentBuff.stackCount;
 
             switch (currentBuff.buffData.effectType)
@@ -92,11 +115,12 @@ public class BuffSlotUI : MonoBehaviour
         }
         else if (currentBuff.artifactData)
         {
+            stackText.color = Color.white;
             float baseValue = currentBuff.artifactData.value;
-            if (currentBuff.artifactData.isPercent) baseValue *= 100f; // 소수점 입력 시 100을 곱함
+            if (currentBuff.artifactData.isPercent) baseValue *= 100f;
 
             float finalValue = baseValue * currentBuff.stackCount;
-            stackText.text = $"+{finalValue:0}%"; // 아티팩트 버프는 퍼센트로 출력
+            stackText.text = $"+{finalValue:0}%";
         }
     }
 }

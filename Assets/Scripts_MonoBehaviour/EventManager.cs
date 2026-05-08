@@ -41,22 +41,26 @@ public class EventSelectionData
 
 public class EventManager : MonoBehaviour
 {
-    public static EventManager Instance;                           // 전역 접근용 인스턴스
+    public static EventManager Instance;
 
     [Header("Event Data Pool")]
-    [SerializeField] private List<RiskData> riskDataList = new List<RiskData>();     // 리스크 데이터 풀
-    [SerializeField] private List<RewardData> rewardDataList = new List<RewardData>(); // 보상 데이터 풀
+    [SerializeField] private List<RiskData> riskDataList = new List<RiskData>();
+    [SerializeField] private List<RewardData> rewardDataList = new List<RewardData>();
 
     [Header("Current Selection")]
-    [SerializeField] private EventSelectionData currentEventSelection = new EventSelectionData(); // 현재 선택된 데이터
+    [SerializeField] private EventSelectionData currentEventSelection = new EventSelectionData();
 
     [Header("References")]
-    [SerializeField] private EventUIController eventUIController;  // UI 컨트롤러 참조
+    [SerializeField] private EventUIController eventUIController;
+
+    [Header("Reward Prefabs")]
+    [SerializeField] private GameObject balancePrefab;
 
     [Header("Debug Settings")]
-    [SerializeField] private bool enableDebugInput = true;         // 디버그 키 활성화 여부
+    [SerializeField] private bool enableDebugInput = true;
 
-    public EventSelectionData CurrentEventSelection => currentEventSelection; // 외부 읽기용 프로퍼티
+    public EventSelectionData CurrentEventSelection => currentEventSelection;
+    public Vector3 eventOriginPos;
 
     private void Awake()
     {
@@ -66,7 +70,6 @@ public class EventManager : MonoBehaviour
 
     private void Start()
     {
-        // 평상시 상태에서만 디버그용 O키 입력 활성화
         if (enableDebugInput && InputStateManager.Instance != null)
         {
             InputStateManager.Instance.Actions.Normal.DebugEvent.performed += OnDebugEventTrigger;
@@ -75,29 +78,30 @@ public class EventManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 메모리 누수 방지를 위한 이벤트 구독 해제
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.Actions.Normal.DebugEvent.performed -= OnDebugEventTrigger;
         }
     }
 
-    // 디버그 키 입력 시 호출되는 콜백
     private void OnDebugEventTrigger(InputAction.CallbackContext context)
     {
         ToggleRandomEventUI();
     }
 
-    // UI 상태를 확인하여 랜덤 이벤트를 생성하거나 무시합니다
     private void ToggleRandomEventUI()
     {
         if (eventUIController == null) return;
-        if (eventUIController.IsOpen) return;                      // 취소 불가 이벤트이므로 열려있으면 무시
+        if (eventUIController.IsOpen) return;
+
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            eventOriginPos = GameManager.instance.player.transform.position;
+        }
 
         GenerateRandomEvent();
     }
 
-    // 리스크와 보상을 무작위로 추첨하고 UI를 엽니다
     public void GenerateRandomEvent()
     {
         RiskData randomRisk = GetRandomRiskData();
@@ -105,9 +109,114 @@ public class EventManager : MonoBehaviour
 
         currentEventSelection = new EventSelectionData { selectedRisk = randomRisk, selectedReward = randomReward };
 
-        if (!currentEventSelection.IsValid()) return;              // 데이터가 유효하지 않으면 중단
+        if (!currentEventSelection.IsValid()) return;
 
-        eventUIController.OpenEvent();                             // 이벤트 창 오픈
+        eventUIController.OpenEvent();
+    }
+
+    // UI에서 넘어온 destinyIndex(0, 1, 2)를 받아 1, 2, 3 단계로 변환 후 적용
+    public void ApplyCurrentEvent(int destinyIndex)
+    {
+        if (!currentEventSelection.IsValid()) return;
+
+        int intensityLevel = destinyIndex + 1;
+
+        ApplyRisk(currentEventSelection.selectedRisk, intensityLevel);
+        ApplyReward(currentEventSelection.selectedReward, intensityLevel);
+
+        Debug.Log($"이벤트 보상 및 리스크 적용 완료! (강도: {intensityLevel}단계)");
+    }
+
+    private void ApplyRisk(RiskData risk, int stage)
+    {
+        float value = risk.GetValue(stage);
+        PlayerStats stats = GameManager.instance.stats;
+        BuffManager buffManager = GameManager.instance.player.buffManager;
+
+        switch (risk.riskType)
+        {
+            case RiskType.CurrentHpCost:
+                int hpCost = Mathf.RoundToInt(stats.currentHealth * (value / 100f));
+                stats.TakeDamage(Mathf.Max(1, hpCost));
+                break;
+
+            case RiskType.DiceChargeReduction:
+                buffManager.ApplyStageDebuff(StageDebuffType.DiceEffectHalf, 0f, (int)value, risk.symbolSprite);
+                break;
+
+            case RiskType.NextStageDamageIncrease:
+                buffManager.ApplyStageDebuff(StageDebuffType.TakeMoreDamage, value, 1, risk.symbolSprite);
+                break;
+
+            case RiskType.NoHealStages:
+                buffManager.ApplyStageDebuff(StageDebuffType.CannotHeal, 0f, (int)value, risk.symbolSprite);
+                break;
+
+            case RiskType.BossHealthIncrease:
+                GameManager.instance.eventBossHealthMultiplier += (value / 100f);
+                break;
+        }
+    }
+
+    private void ApplyReward(RewardData reward, int stage)
+    {
+        float value = reward.GetValue(stage);
+        PlayerStats stats = GameManager.instance.stats;
+
+        switch (reward.rewardType)
+        {
+            case RewardType.MaxHpUp:
+                stats.ApplyPercentMaxHealth(value / 100f);
+                break;
+
+            case RewardType.Scrap:
+                GameManager.instance.AddScrap(Mathf.RoundToInt(value));
+                break;
+
+            case RewardType.Artifact:
+                ArtifactGrade targetGrade = ArtifactGrade.Common;
+                if (stage == 1) targetGrade = ArtifactGrade.Common;
+                else if (stage == 2) targetGrade = ArtifactGrade.Rare;
+                else if (stage >= 3) targetGrade = ArtifactGrade.Epic;
+
+                if (ArtifactManager.instance != null)
+                {
+                    ArtifactManager.instance.GiveRandomArtifactByGrade(targetGrade);
+                }
+                break;
+
+            case RewardType.DiceFaceChanceUp:
+                if (balancePrefab != null)
+                {
+                    Vector3 spawnPos = eventOriginPos + new Vector3(0, -1.5f, 0); 
+                    GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity);
+
+                    Balance balanceScript = balanceObj.GetComponent<Balance>();
+                    if (balanceScript != null)
+                    {
+                        balanceScript.Setup(value);
+                    }
+
+                    Debug.Log($"Balance item spawned at {spawnPos}");
+                }
+                else
+                {
+                    Debug.LogWarning("Balance prefab is missing");
+                }
+                break;
+
+            case RewardType.ModuleEnhanceChoice:
+                if (StageMessageUI.instance != null)
+                {
+                    int rewardCount = Mathf.Max(1, Mathf.RoundToInt(value));
+                    StageMessageUI.instance.ShowModuleRewardOnly(rewardCount);
+                }
+                else
+                {
+                    Debug.LogWarning("StageMessageUI instance is missing");
+                }
+                break;
+        }
     }
 
     private RiskData GetRandomRiskData()
@@ -122,6 +231,6 @@ public class EventManager : MonoBehaviour
         return rewardDataList[UnityEngine.Random.Range(0, rewardDataList.Count)];
     }
 
-    public List<RiskData> GetRiskList() => riskDataList;           // 전체 리스크 리스트 반환
-    public List<RewardData> GetRewardList() => rewardDataList;     // 전체 보상 리스트 반환
+    public List<RiskData> GetRiskList() => riskDataList;
+    public List<RewardData> GetRewardList() => rewardDataList;
 }

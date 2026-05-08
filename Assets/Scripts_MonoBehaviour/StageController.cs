@@ -174,22 +174,30 @@ public class StageController : MonoBehaviour
     {
         isCleared = true;
         if (barrierEla) barrierEla.SetActive(false);
-        
+
         SpawnReward();
 
-        if (statue) statue.ActivateStatue(CurrentRewardItem); 
+        if (statue) statue.ActivateStatue(CurrentRewardItem);
 
         if (StageMessageUI.instance)
         {
             StageMessageUI.instance.HideEnemyCountUI();
             StageMessageUI.instance.ShowClearMessage();
-
             StageMessageUI.instance.QueueModuleReward(moduleRewardCount);
+        }
+
+        if (!isSafeStage)
+        {
+            if (GameManager.instance != null && GameManager.instance.player != null && GameManager.instance.player.buffManager != null)
+            {
+                GameManager.instance.player.buffManager.OnStageCleared();
+                Debug.Log("전투 스테이지 클리어: 디버프 지속 횟수 차감");
+            }
         }
 
         Transform statueTarget = GetStatueArrowTarget();
         GameObject player = GameManager.instance.player.gameObject;
-        
+
         if (GuideArrow.Instance != null && player != null)
             GuideArrow.Instance.ActivateArrow(player.transform, CurrentRewardTransform, CurrentRewardItem, statueTarget);
 

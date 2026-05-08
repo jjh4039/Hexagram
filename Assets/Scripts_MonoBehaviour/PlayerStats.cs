@@ -53,8 +53,14 @@ public class PlayerStats : MonoBehaviour
 
     public float buffFinalDamageMultiplier = 1.0f;
 
+    // ★ 신규 추가: 이벤트 디버프 상태 변수
+    [Header("Event Debuff States")]
+    public bool cannotHeal = false;
+    public float takeMoreDamageMultiplier = 1.0f;
+    public bool isDiceEffectHalved = false;
+
     [Header("Visual Feedback")]
-    public GameObject damageTextPrefab;                                 // 플레이어 피격 시 띄울 텍스트 프리팹
+    public GameObject damageTextPrefab;
 
     private float ammoRechargeTimer = 0f;
     private BuffManager _buffManager;
@@ -88,8 +94,8 @@ public class PlayerStats : MonoBehaviour
 
     private void ProcessSingleStat(ArtifactEffectType type, float value, bool isPercent, string name)
     {
-        float multiplier = 1f + value;                                  // 복리(%) 연산용 값
-        float flatAmount = value;                                       // 고정(합) 연산용 값
+        float multiplier = 1f + value;
+        float flatAmount = value;
 
         switch (type)
         {
@@ -102,7 +108,8 @@ public class PlayerStats : MonoBehaviour
                 {
                     int hpBonus = Mathf.RoundToInt(flatAmount);
                     maxHealth += hpBonus;
-                    currentHealth += hpBonus;                           // 늘어난 최대치만큼 현재 체력도 회복
+                    // ★ 수정됨: 최대 체력 증가 시 현재 체력 회복도 회복 불가 디버프의 영향을 받습니다.
+                    if (!cannotHeal) currentHealth += hpBonus;
                 }
                 break;
 
@@ -124,7 +131,7 @@ public class PlayerStats : MonoBehaviour
                 break;
 
             case ArtifactEffectType.AttackSpeed:
-                attackSpeed += value;                                   // 기존 곱연산에서 합연산으로 수정
+                attackSpeed += value;
                 break;
 
             case ArtifactEffectType.ChargeSpeed:
@@ -136,11 +143,11 @@ public class PlayerStats : MonoBehaviour
                 break;
 
             case ArtifactEffectType.CritChance:
-                criticalChance += flatAmount;                           // 크리티컬 확률은 기본적으로 합연산
+                criticalChance += flatAmount;
                 break;
 
             case ArtifactEffectType.CritDamage:
-                criticalDamageMultiplier += flatAmount;                 // 크리티컬 배율은 기본적으로 합연산
+                criticalDamageMultiplier += flatAmount;
                 break;
 
             case ArtifactEffectType.ScrapGain:
@@ -206,6 +213,11 @@ public class PlayerStats : MonoBehaviour
         diceStrongAttackStacks = 0;
 
         buffFinalDamageMultiplier = 1.0f;
+
+        // ★ 신규 추가: 디버프 상태 초기화 (BuffManager가 이후 다시 덮어씌움)
+        cannotHeal = false;
+        takeMoreDamageMultiplier = 1.0f;
+        isDiceEffectHalved = false;
     }
 
     public float GetFinalCriticalDamageMultiplier()
@@ -219,11 +231,12 @@ public class PlayerStats : MonoBehaviour
         currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);
     }
 
-    private void ApplyPercentMaxHealth(float percentValue)
+    public void ApplyPercentMaxHealth(float percentValue)
     {
         int hpBonus = Mathf.RoundToInt(maxHealth * percentValue);
         maxHealth += hpBonus;
-        currentHealth += hpBonus;                                       // 퍼센트 증가량만큼 현재 체력도 회복
+
+        if (!cannotHeal) currentHealth += hpBonus;
     }
 
     public void AddDiceChargeFromHit()
@@ -237,21 +250,31 @@ public class PlayerStats : MonoBehaviour
         {
             if (_buffManager.HasAndConsumeFirstHitImmunity())
             {
-                SpawnDamageText("GUARD!", Color.cyan, 3f);                  // 무효화 텍스트 사이즈 3 고정
+                SpawnDamageText("GUARD!", Color.cyan, 3f);
                 return;
             }
 
             _buffManager.RemoveGlassCannonBuff();
         }
 
-        currentHealth -= amount;
-        SpawnDamageText(amount.ToString(), Color.red, 3f);                  // 피격 데미지 텍스트 사이즈 3 고정
+        int finalDamage = Mathf.RoundToInt(amount * takeMoreDamageMultiplier);
+
+        currentHealth -= finalDamage;
+        SpawnDamageText(finalDamage.ToString(), Color.red, 3f);
 
         if (currentHealth <= 0)
         {
             currentHealth = 0;
             Die();
         }
+    }
+
+    public void Heal(int amount)
+    {
+        if (cannotHeal) return; // 회복 불가 디버프 시 무시
+
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        SpawnDamageText($"+{amount}", Color.green, 3f); // 회복 연출 (필요 시 수정 가능)
     }
 
     private void SpawnDamageText(string message, Color color, float size)

@@ -1,25 +1,30 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// 필드에 배치되는 무게추 아이템
-public class Balance : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터페이스 상속
+public class Balance : MonoBehaviour, IRewardItem
 {
     [Header("Item Settings")]
-    [SerializeField] private float weightPercent = 5f; // 획득 시 전달할 확률 증가치
+    [SerializeField] private float weightPercent = 5f;
 
     [SerializeField] private Material[] outLineMaterial;
     private SpriteRenderer spriteRenderer;
     public GameObject keyGuide;
 
-    private bool isPlayerInRange = false; // 플레이어 접근 여부
-    private bool _isCollected = false;    // ★ [추가] 획득 완료 상태
+    private bool isPlayerInRange = false;
+    private bool _isCollected = false;
 
-    public bool IsCollected => _isCollected; // ★ [추가] 인터페이스 구현부
+    public bool IsCollected => _isCollected;
 
     private void Start()
     {
         spriteRenderer = GetComponentInChildren(typeof(SpriteRenderer)) as SpriteRenderer;
         if (keyGuide != null) keyGuide.SetActive(false);
+    }
+
+    // ★ 추가됨: 생성 직후 이벤트 매니저가 이 함수를 통해 확률 수치를 덮어씌웁니다.
+    public void Setup(float weightValue)
+    {
+        weightPercent = weightValue;
     }
 
     private void OnInteract(InputAction.CallbackContext context)
@@ -31,9 +36,9 @@ public class Balance : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem �
     private void OnInteractCombat(InputAction.CallbackContext context)
     {
         if (!isPlayerInRange) return;
-        
-        if (PlayerFeedbackUI.Instance != null) 
-            PlayerFeedbackUI.Instance.ShowWarning(1); 
+
+        if (PlayerFeedbackUI.Instance != null)
+            PlayerFeedbackUI.Instance.ShowWarning(1);
     }
 
     private void OpenBalanceSelection()
@@ -45,8 +50,8 @@ public class Balance : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem �
                 GameManager.instance.balanceManager.gameObject.SetActive(true);
                 GameManager.instance.balanceManager.OpenBalanceUI(weightPercent);
 
-                _isCollected = true; // ★ [추가] 파괴 직전 획득 상태 업데이트
-                Destroy(gameObject); // 아이템 소멸
+                _isCollected = true;
+                Destroy(gameObject);
             }
         }
     }

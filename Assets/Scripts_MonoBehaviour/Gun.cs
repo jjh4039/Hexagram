@@ -3,39 +3,37 @@ using UnityEngine.InputSystem;
 
 public class Gun : MonoBehaviour
 {
-    private WeaponManager weaponManager;                                 // 무기 교체 관리자
-    private SpriteRenderer spriteRenderer;                               // 총기 렌더러
-    private Vector2 mouseWorldPos;                                       // 마우스의 월드 좌표
+    private WeaponManager weaponManager;
+    private SpriteRenderer spriteRenderer;
+    private Vector2 mouseWorldPos;
 
     [Header("Aiming Settings")]
-    [SerializeField] private Transform muzzlePoint;                      // 총구 위치
-    [SerializeField] private LineRenderer lineRenderer;                  // 조준 레이저
-    [SerializeField] private float laserLength = 100f;                   // 레이저 최대 거리
-    [SerializeField] private LayerMask obstacleLayer;                    // 충돌 장애물 레이어 (Player 제외 필수)
+    [SerializeField] private Transform muzzlePoint;
+    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private float laserLength = 100f;
+    [SerializeField] private LayerMask obstacleLayer;
 
     [Header("Shooting Settings")]
-    [SerializeField] private GameObject bulletPrefab;                    // 발사체 프리팹
-    [SerializeField] private float fireRate = 0.125f;                    // 발사 속도
-    private float nextFireTime = 0f;                                     // 다음 발사 가능 시간
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private float fireRate = 0.125f;
+    private float nextFireTime = 0f;
 
     [Header("Recoil Settings")]
-    [SerializeField] private float playerKnockbackForce = 3f;            // 발사 시 반동 힘
-    [SerializeField] private float gunRecoilDistance = 0.3f;             // 총기 밀림 거리
-    [SerializeField] private float gunRecoilDuration = 0.2f;             // 반동 연출 시간
-    [SerializeField] private float minRecoilDuration = 0.05f;            // 최소 반동 시간
+    [SerializeField] private float playerKnockbackForce = 3f;
+    [SerializeField] private float gunRecoilDistance = 0.3f;
+    [SerializeField] private float gunRecoilDuration = 0.2f;
+    [SerializeField] private float minRecoilDuration = 0.05f;
 
     [Header("VFX Settings")]
-    [SerializeField] private float shakeDuration = 0.05f;                // 화면 흔들림 시간
-    [SerializeField] private float shakeMagnitude = 0.02f;               // 화면 흔들림 강도
+    [SerializeField] private float shakeDuration = 0.05f;
+    [SerializeField] private float shakeMagnitude = 0.02f;
 
     [Header("Sound")]
-    [SerializeField] private AudioClip sfxShoot;                         // 발사 사운드
-    [SerializeField] private AudioClip sfxEmpty;                         // 잔탄 부족 사운드
+    [SerializeField] private AudioClip sfxShoot;
+    [SerializeField] private AudioClip sfxEmpty;
 
-    [SerializeField] private GameObject damageTextPrefab;                // 안내 텍스트 프리팹
-    private bool isAiming = false;                                       // 현재 조준 중인지 확인
-    private Color currentBulletColor = Color.white;                      // 현재 탄환 색상
-    private Material currentBulletMaterial;                              // 현재 탄환 머티리얼
+    [SerializeField] private GameObject damageTextPrefab;
+    private bool isAiming = false;
 
     private void Awake()
     {
@@ -92,7 +90,6 @@ public class Gun : MonoBehaviour
         mouseWorldPos = Camera.main.ScreenToWorldPoint(screenPos);
     }
 
-    // ★ 추가됨: 총구가 벽을 파고들었는지 검사하여 진짜 시작점(표면)을 반환
     private Vector2 GetSafeMuzzlePosition()
     {
         if (weaponManager == null || muzzlePoint == null) return transform.position;
@@ -106,14 +103,12 @@ public class Gun : MonoBehaviour
 
         if (hit.collider != null)
         {
-            // 총구가 묻혔다면, 벽 표면에서 아주 미세하게 안쪽(플레이어 방향)을 반환하여 즉각 충돌을 유도
             return hit.point - (dir * 0.05f);
         }
 
         return target;
     }
 
-    // ★ 수정됨: 안전한 위치에서 레이저를 그리도록 변경
     private void DrawLaser()
     {
         if (lineRenderer == null || muzzlePoint == null) return;
@@ -125,13 +120,6 @@ public class Gun : MonoBehaviour
 
         RaycastHit2D hit = Physics2D.Raycast(safeMuzzlePos, transform.right, laserLength, obstacleLayer);
         lineRenderer.SetPosition(1, hit.collider != null ? hit.point : safeMuzzlePos + (Vector2)transform.right * laserLength);
-    }
-
-    public void UpdateVisuals(Color color, Material newMaterial)
-    {
-        if (lineRenderer != null) { lineRenderer.startColor = color; lineRenderer.endColor = color; }
-        currentBulletColor = color;
-        currentBulletMaterial = newMaterial;
     }
 
     public void TriggerAttack()
@@ -161,7 +149,6 @@ public class Gun : MonoBehaviour
         return Mathf.Max(0.01f, GameManager.instance.stats.attackSpeed * GameManager.instance.stats.diceAttackSpeedMultiplier);
     }
 
-    // ★ 수정됨: 탄환 생성 위치를 safeMuzzlePos로 변경
     private void Shoot(float recoilDur)
     {
         if (bulletPrefab == null || muzzlePoint == null) return;
@@ -179,7 +166,7 @@ public class Gun : MonoBehaviour
 
         if (bullet != null)
         {
-            bullet.SetupVisuals(currentBulletColor, currentBulletMaterial);
+            // 수정: UpdateVisuals가 삭제되었으므로, 탄환 프리팹 고유의 설정대로 생성
             bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance,
                 stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult);
         }

@@ -1,30 +1,24 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class EventBall : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터페이스 상속
+public class EventBall : MonoBehaviour, IRewardItem
 {
     private static readonly int Off = Animator.StringToHash("Off");
     private static readonly int On = Animator.StringToHash("On");
 
     [Header("Settings")]
-    [SerializeField] private GameObject interactEffect;        // 상호작용 안내 이펙트
-    [SerializeField] private Material[] outLineMaterial;       // 외곽선 머티리얼
-    [SerializeField] private SpriteRenderer robotRenderer;     // 로봇 본체 렌더러
-    [SerializeField] private SpriteRenderer screenRenderer;    // 로봇 화면 렌더러
-    [SerializeField] private Animator animator;                // 로봇 애니메이터
-    [SerializeField] private EventUIController uiController;   // 연결할 이벤트 UI 컨트롤러
+    [SerializeField] private GameObject interactEffect;
+    [SerializeField] private Material[] outLineMaterial;
+    [SerializeField] private SpriteRenderer robotRenderer;
+    [SerializeField] private SpriteRenderer screenRenderer;
+    [SerializeField] private Animator animator;
 
-    private bool _isUsed;                                      // 사용 완료 여부
+    private bool _isUsed;
 
-    public bool IsCollected => _isUsed;                        // ★ [추가] 인터페이스 구현 (기존 _isUsed 변수 반환)
+    public bool IsCollected => _isUsed;
 
     private void Start()
     {
-        if (uiController == null)
-        {
-            uiController = FindFirstObjectByType<EventUIController>();
-        }
-
         if (interactEffect != null) interactEffect.SetActive(false);
 
         if (robotRenderer != null && outLineMaterial != null && outLineMaterial.Length > 0)
@@ -33,7 +27,7 @@ public class EventBall : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (uiController != null && uiController.IsOpen) return;
+        if (EventUIController.Instance != null && EventUIController.Instance.IsOpen) return;
 
         if (_isUsed)
         {
@@ -42,10 +36,11 @@ public class EventBall : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 
             return;
         }
 
-        if (EventManager.Instance == null || uiController == null) return;
+        if (EventManager.Instance == null) return;
 
+        EventManager.Instance.eventOriginPos = transform.position; // Save ball pos
         EventManager.Instance.GenerateRandomEvent();
-        
+
         _isUsed = true;
 
         if (animator != null) animator.SetTrigger(Off);
@@ -54,17 +49,16 @@ public class EventBall : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        
+
         if (!_isUsed)
         {
             if (animator != null) animator.SetTrigger(On);
         }
 
-        // 외곽선은 사용 여부와 무관하게 항상 표시되도록 밖으로 분리
-        if (robotRenderer != null && outLineMaterial.Length > 1) 
+        if (robotRenderer != null && outLineMaterial.Length > 1)
             robotRenderer.material = outLineMaterial[1];
 
-        if (uiController != null && !uiController.IsOpen) ShowInteractEffect(true);
+        if (EventUIController.Instance != null && !EventUIController.Instance.IsOpen) ShowInteractEffect(true);
 
         if (InputStateManager.Instance != null)
             InputStateManager.Instance.Actions.Normal.Interaction.performed += OnInteract;
@@ -73,14 +67,13 @@ public class EventBall : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        
+
         if (!_isUsed)
         {
             if (animator != null) animator.SetTrigger(Off);
         }
 
-        // 벗어나면 외곽선은 항상 꺼지도록 처리
-        if (robotRenderer != null && outLineMaterial.Length > 0) 
+        if (robotRenderer != null && outLineMaterial.Length > 0)
             robotRenderer.material = outLineMaterial[0];
 
         ShowInteractEffect(false);

@@ -385,19 +385,9 @@ public class Player : MonoBehaviour
         if (_moveInput.magnitude > 0) dashDir = _moveInput.normalized;
         else dashDir = (mouseWorldPos - (Vector2)transform.position).normalized;
 
-        Color dashColor = buffManager != null ? buffManager.GetCurrentDiceColor() : Color.white;
-
         if (dashDustPrefab != null)
         {
             GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity);
-            ParticleSystem ps = dust.GetComponent<ParticleSystem>();
-
-            if (ps != null)
-            {
-                var main = ps.main;
-                main.startColor = dashColor;
-            }
-
             Destroy(dust, 1.0f);
         }
 

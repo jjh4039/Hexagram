@@ -220,6 +220,17 @@ public class EnemyBoss : Enemy
 
     private IEnumerator Co_PostCutsceneSetup()
     {
+        if (GameManager.instance != null)
+        {
+            float healthMultiplier = GameManager.instance.eventBossHealthMultiplier;
+            if (healthMultiplier != 1.0f)
+            {
+                maxHealth = maxHealth * healthMultiplier;
+                currentHealth = maxHealth;
+                Debug.Log($"[이벤트 적용] 보스 체력 배율 {healthMultiplier}x 적용됨. 최종 체력: {maxHealth}");
+            }
+        }
+
         if (BossHealthUI.instance != null)
         {
             BossHealthUI.instance.SetupBoss(bossName, maxHealth);

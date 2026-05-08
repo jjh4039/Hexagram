@@ -41,7 +41,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Play Time")]
     public float currentPlayTime = 0f;                       // 플레이 타임
-    public int totalDamageDealt = 2133;                          // 누적 피해량
+    public int totalDamageDealt = 2133;                      // 누적 피해량
+
+    // ★ 신규 추가: 이벤트 보스 체력 배율 (기본 1.0 = 100%)
+    [Header("Event System")]
+    public float eventBossHealthMultiplier = 1.0f;
 
     [Header("Hit Stop")]
     private Coroutine _hitStopCoroutine;

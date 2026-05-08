@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class EventUIController : MonoBehaviour
 {
+    public static EventUIController Instance;
+
     [Header("Root")]
     [SerializeField] private GameObject eventRoot;
     [SerializeField] private Vector3 eventCameraOffset = new Vector3(0f, -2f, 0f);
@@ -137,8 +139,6 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float sfxSelectVolume = 1f;
     [SerializeField] private float sfxSelectPitchVariation = 0.04f;
 
-    // [SerializeField] private bool closeWithEscape = true;
-
     private bool _isOpen;
     private bool canDestinyInteract;
     private bool canConfirmSelection;
@@ -168,6 +168,9 @@ public class EventUIController : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+
         if (panelRect == null && eventRoot != null)
             panelRect = eventRoot.GetComponent<RectTransform>();
     }
@@ -214,7 +217,7 @@ public class EventUIController : MonoBehaviour
 
         if (EventManager.Instance == null || !EventManager.Instance.CurrentEventSelection.IsValid())
             return;
-        
+
         if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI())
             return;
 
@@ -848,10 +851,10 @@ public class EventUIController : MonoBehaviour
             ResetDestinyUI();
             ResetConfirmButtonUI();
             StopIdleEffects();
-            
+
             eventRoot.SetActive(false);
             _isClosingFromConfirm = false;
-            
+
             if (InputStateManager.Instance != null)
                 InputStateManager.Instance.CloseUI();
 
@@ -1080,6 +1083,12 @@ public class EventUIController : MonoBehaviour
                   ", Reward: " + rewardName);
 
         PlaySFX(sfxSelect, sfxSelectVolume, sfxSelectPitchVariation);
+
+        if (EventManager.Instance != null)
+        {
+            // ★ 수정됨: 유저가 선택한 강도(0, 1, 2)를 매니저에게 전달
+            EventManager.Instance.ApplyCurrentEvent(currentDestinyIndex);
+        }
 
         if (_confirmButtonRoutine != null)
             StopCoroutineSafe(ref _confirmButtonRoutine);
