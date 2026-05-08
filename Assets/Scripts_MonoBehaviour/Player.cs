@@ -166,9 +166,16 @@ public class Player : MonoBehaviour
     private void OnDash(InputAction.CallbackContext context)
     {
         if (!canControl || _isDashing) return;
-        if (stats.currentDashStacks < 1f) return;
 
-        stats.currentDashStacks -= 1f;
+        bool isSafeZone = InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone;
+
+        if (!isSafeZone && stats.currentDashStacks < 1f) return;
+
+        if (!isSafeZone)
+        {
+            stats.currentDashStacks -= 1f;
+        }
+
         StartCoroutine(DashRoutine());
     }
 

@@ -85,15 +85,22 @@ public class PlayerStats : MonoBehaviour
 
     private void ProcessSingleStat(ArtifactEffectType type, float value, bool isPercent, string name)
     {
-        float multiplier = 1f + value;                          
-        float flatAmount = value;                               
+        float multiplier = 1f + value;                          // 복리(%) 연산용 값
+        float flatAmount = value;                               // 고정(합) 연산용 값
 
         switch (type)
         {
             case ArtifactEffectType.MaxHp:
-                int hpBonus = Mathf.RoundToInt(flatAmount);
-                maxHealth += hpBonus;
-                currentHealth += hpBonus;                       
+                if (isPercent)
+                {
+                    ApplyPercentMaxHealth(value);
+                }
+                else
+                {
+                    int hpBonus = Mathf.RoundToInt(flatAmount);
+                    maxHealth += hpBonus;
+                    currentHealth += hpBonus;                   // 늘어난 최대치만큼 현재 체력도 회복
+                }
                 break;
 
             case ArtifactEffectType.AttackPower:
@@ -114,7 +121,7 @@ public class PlayerStats : MonoBehaviour
                 break;
 
             case ArtifactEffectType.AttackSpeed:
-                attackSpeed = isPercent ? attackSpeed * multiplier : attackSpeed + flatAmount;
+                attackSpeed += value;                           // 기존 곱연산에서 합연산으로 수정
                 break;
 
             case ArtifactEffectType.ChargeSpeed:
@@ -126,11 +133,11 @@ public class PlayerStats : MonoBehaviour
                 break;
 
             case ArtifactEffectType.CritChance:
-                criticalChance += flatAmount;                   
+                criticalChance += flatAmount;                   // 크리티컬 확률은 기본적으로 합연산
                 break;
 
             case ArtifactEffectType.CritDamage:
-                criticalDamageMultiplier += flatAmount;         
+                criticalDamageMultiplier += flatAmount;         // 크리티컬 배율은 기본적으로 합연산
                 break;
 
             case ArtifactEffectType.ScrapGain:
@@ -210,6 +217,13 @@ public class PlayerStats : MonoBehaviour
     {
         currentDiceCharge += amount;
         currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);
+    }
+
+    private void ApplyPercentMaxHealth(float percentValue)
+    {
+        int hpBonus = Mathf.RoundToInt(maxHealth * percentValue);
+        maxHealth += hpBonus;
+        currentHealth += hpBonus;                               // 퍼센트 증가량만큼 현재 체력도 회복
     }
 
     public void AddDiceChargeFromHit()
