@@ -40,7 +40,7 @@ public class SettingUIController : MonoBehaviour
 
     private int[] _currentValues = new int[6];               // 인덱스별 임시 설정값 저장
 
-    private readonly string[] _screenModes = { "창 모드", "전체 화면" };
+    private readonly string[] _screenModes = { "창 모드", "테두리 없음", "전체 화면" };
     private readonly string[] _resolutions = { "1280 x 720", "1920 x 1080", "2560 x 1440" };
     private readonly string[] _shakeModes = { "OFF", "ON" };
 
@@ -148,7 +148,10 @@ public class SettingUIController : MonoBehaviour
 
     private void ApplyResolutionAndScreenMode()
     {
-        bool isFullScreen = (_currentValues[3] == 1);
+        FullScreenMode mode = FullScreenMode.Windowed;                  // 기본값 창 모드
+        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     // 테두리 없는 전체화면
+        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; // 독점 전체화면
+
         int width = 1920;
         int height = 1080;
 
@@ -156,10 +159,10 @@ public class SettingUIController : MonoBehaviour
         else if (_currentValues[4] == 1) { width = 1920; height = 1080; }
         else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
 
-        Screen.SetResolution(width, height, isFullScreen);   // 유니티 내장 해상도 적용 함수
+        Screen.SetResolution(width, height, mode);                      // 세분화된 화면 모드 강제 적용
     }
 
-    // 작성자 요청에 따라 조작 딜레이 로직 취소 및 원상 복구
+
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
         if (!_isOpen || _isAnimating) return;
@@ -216,12 +219,13 @@ public class SettingUIController : MonoBehaviour
                 _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, 10);
                 if (prevVol != _currentValues[_currentIndex]) valueChanged = true;
                 break;
-            
-            case 3: 
-                _currentValues[_currentIndex] = _currentValues[_currentIndex] == 0 ? 1 : 0;
-                valueChanged = true;
+
+            case 3:
+                int prevMode = _currentValues[_currentIndex];
+                _currentValues[_currentIndex] = (_currentValues[_currentIndex] + dir + _screenModes.Length) % _screenModes.Length;
+                if (prevMode != _currentValues[_currentIndex]) valueChanged = true;
                 break;
-            
+
             case 4:
                 int prevRes = _currentValues[_currentIndex];
                 _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, _resolutions.Length - 1);

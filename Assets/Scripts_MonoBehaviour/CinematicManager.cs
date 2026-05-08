@@ -8,6 +8,10 @@ public class CinematicManager : MonoBehaviour
 {
     public static CinematicManager instance;
 
+    [Header("Global Fade")]
+    [SerializeField] private Image globalFadeOverlay;              // 전역 화면 덮기용 검은 이미지
+    [SerializeField] private float sceneLoadFadeTime = 0.5f;       // 씬 진입 시 밝아지는 시간
+
     [Header("Cinematic Bars UI")]
     [SerializeField] private RectTransform topBar;                 // 상단 검은 줄
     [SerializeField] private RectTransform bottomBar;              // 하단 검은 줄
@@ -44,6 +48,12 @@ public class CinematicManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+
+        if (globalFadeOverlay != null)
+        {
+            globalFadeOverlay.gameObject.SetActive(true);
+            globalFadeOverlay.color = Color.black;
+        }
     }
 
     private void Start()
@@ -57,6 +67,29 @@ public class CinematicManager : MonoBehaviour
                 hiddenUIGroups.Add(cg);
             }
         }
+
+        if (globalFadeOverlay != null)
+        {
+            StartCoroutine(Co_GlobalFade(1f, 0f, sceneLoadFadeTime));
+        }
+    }
+
+    public IEnumerator Co_GlobalFade(float start, float end, float duration)
+    {
+        if (globalFadeOverlay == null) yield break;
+
+        globalFadeOverlay.gameObject.SetActive(true);
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            globalFadeOverlay.color = new Color(0, 0, 0, Mathf.Lerp(start, end, elapsed / duration));
+            yield return null;
+        }
+
+        globalFadeOverlay.color = new Color(0, 0, 0, end);
+        if (end == 0f) globalFadeOverlay.gameObject.SetActive(false);
     }
 
     public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
@@ -67,8 +100,7 @@ public class CinematicManager : MonoBehaviour
         player.canControl = false;
         player.rigid.linearVelocity = Vector2.zero;
 
-        // 추가 컷신 시작 시 카메라 제한 해제
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false; 
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false;
 
         StartCoroutine(Co_FadeGameplayUI(false));
         CameraFollow.instance.SetTarget(bossTransform, cinematicCameraSpeed);
@@ -89,8 +121,7 @@ public class CinematicManager : MonoBehaviour
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true);
 
-        // 추가 컷신 종료 시 카메라 제한 복구
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = true; 
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = true;
 
         onFinish?.Invoke();
     }
@@ -109,7 +140,7 @@ public class CinematicManager : MonoBehaviour
 
         while (elapsed < uiFadeTime)
         {
-            elapsed += Time.unscaledDeltaTime; 
+            elapsed += Time.unscaledDeltaTime;
             float t = elapsed / uiFadeTime;
 
             foreach (var cg in hiddenUIGroups)
@@ -138,7 +169,7 @@ public class CinematicManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < barAnimTime)
         {
-            elapsed += Time.unscaledDeltaTime; 
+            elapsed += Time.unscaledDeltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsed / barAnimTime);
 
             float currentHeight = Mathf.Lerp(startHeight, endHeight, t);
@@ -169,7 +200,7 @@ public class CinematicManager : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < sunsetDuration)
         {
-            elapsed += Time.unscaledDeltaTime; 
+            elapsed += Time.unscaledDeltaTime;
             float t = elapsed / sunsetDuration;
             Color lerpedColor = Color.Lerp(Color.white, nightColor, t);
 
@@ -195,8 +226,7 @@ public class CinematicManager : MonoBehaviour
     {
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
 
-        // 추가 사망 연출 시작 시 카메라 제한 해제
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false; 
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false;
 
         Time.timeScale = slowMotionScale;
 
@@ -254,8 +284,7 @@ public class CinematicManager : MonoBehaviour
     {
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
 
-        // 추가 게임오버 연출 시작 시 카메라 제한 해제
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false; 
+        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false;
 
         StartCoroutine(Co_FadeGameplayUI(false));
         if (CameraFollow.instance != null)
@@ -314,11 +343,11 @@ public class CinematicManager : MonoBehaviour
         {
             gameOverUI.SetActive(true);
         }
-        
-        if (InputStateManager.Instance != null) 
+
+        if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.SetInputActive(true);
-            InputStateManager.Instance.ChangeInputState(InputState.UI); 
+            InputStateManager.Instance.ChangeInputState(InputState.UI);
         }
     }
 }

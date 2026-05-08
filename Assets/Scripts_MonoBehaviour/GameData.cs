@@ -10,7 +10,7 @@ public class GameData
     public int masterVolume = 5;         // 마스터 볼륨 (0~10)
     public int bgmVolume = 5;            // 배경음악 볼륨 (0~10)
     public int sfxVolume = 5;            // 효과음 볼륨 (0~10)
-    public int screenMode = 1;           // 화면 모드 (0: 창모드, 1: 전체화면)
+    public int screenMode = 1;           // 화면 모드 (0: 창모드, 1: 테두리 없음, 2: 전체화면)
     public int resolution = 1;           // 해상도 (0: 720p, 1: 1080p, 2: 1440p)
     public int cameraShake = 1;          // 화면 흔들림 (0: OFF, 1: ON)
 

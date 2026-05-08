@@ -15148,7 +15148,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 391.08328, y: 25.166672}
+  m_AnchoredPosition: {x: 391.08328, y: 32.1}
   m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &691443350
@@ -15199,8 +15199,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -15759,7 +15759,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1795302829}
-  - {fileID: 1261265468}
   m_Father: {fileID: 1965841834}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -15806,7 +15805,6 @@ MonoBehaviour:
     weight: 10
   bossStageData: {fileID: 11400000, guid: 38b5a8f94ddfeeb43b4b44536ed23873, type: 2}
   mapVisualRoot: {fileID: 1795302828}
-  fadeOverlayImage: {fileID: 1261265469}
   stageTextRect: {fileID: 1110426433}
   dynamicTextCanvasGroup: {fileID: 1110426434}
   stageTitleText: {fileID: 1647532427}
@@ -17786,6 +17784,7 @@ MonoBehaviour:
   diceRangedDamageMultiplier: 1
   diceStrongAttackStacks: 0
   buffFinalDamageMultiplier: 1
+  damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
 --- !u!70 &843584031
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -25598,7 +25597,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 715735949}
+  m_Father: {fileID: 1965841834}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -41616,6 +41615,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8707189956456441058, guid: d159b91c5440b2e4a85039830a2d4fd7, type: 3}
+      propertyPath: m_ColliderPaths.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44456,6 +44459,7 @@ RectTransform:
   - {fileID: 1418589413}
   - {fileID: 1991867174}
   - {fileID: 474630380}
+  - {fileID: 1261265468}
   - {fileID: 1887308276}
   - {fileID: 1876277198}
   m_Father: {fileID: 0}
@@ -45664,6 +45668,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 175a0347d78d6de4980f44e161c55a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CinematicManager
+  globalFadeOverlay: {fileID: 1261265469}
+  sceneLoadFadeTime: 0.5
   topBar: {fileID: 1410424735}
   bottomBar: {fileID: 707161108}
   barHeight: 40

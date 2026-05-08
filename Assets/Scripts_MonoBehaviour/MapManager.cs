@@ -12,7 +12,7 @@ public class MapManager : MonoBehaviour
     public class StageProbability
     {
         public StageData stageData;
-        [Range(0, 100)] public float weight = 10f; // 등장 확률 가중치
+        [Range(0, 100)] public float weight = 10f;         // 등장 확률 가중치
     }
 
     [Header("Stage Pool Settings")]
@@ -24,11 +24,10 @@ public class MapManager : MonoBehaviour
     private StageData[] currentNodes = new StageData[3];
     private int _selectedIndex = 1;
     private bool _isBossStageMode = false;
-    private bool _isSelecting = false; // 선택이 확정되어 연출 중인지 확인하는 플래그
+    private bool _isSelecting = false;                     // 선택이 확정되어 연출 중인지 확인하는 플래그
 
     [Header("UI References")]
     public GameObject mapVisualRoot;
-    public Image fadeOverlayImage;
     public RectTransform stageTextRect;
     public CanvasGroup dynamicTextCanvasGroup;
     public TextMeshProUGUI stageTitleText;
@@ -43,8 +42,8 @@ public class MapManager : MonoBehaviour
     [Tooltip("보스 모드일 때 텍스트의 위치")]
     public Vector2 bossTextPosition = Vector2.zero;
 
-    public float normalTextScale = 1.0f; // 일반 모드 텍스트 스케일
-    public float bossTextScale = 1.2f;   // 보스 모드 텍스트 스케일
+    public float normalTextScale = 1.0f;                   // 일반 모드 텍스트 스케일
+    public float bossTextScale = 1.2f;                     // 보스 모드 텍스트 스케일
 
     [Header("Visual Elements")]
     public Image[] nodeVisuals;
@@ -84,6 +83,8 @@ public class MapManager : MonoBehaviour
 
     private bool _isMoving = false;
     private const float MOVEMENT_THRESHOLD = 0.5f;
+
+    private bool _needsNewNodes = true;                    // 맵 갱신이 필요한지 확인하는 상태 플래그
 
     private void Awake()
     {
@@ -171,28 +172,21 @@ public class MapManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.tKey.wasPressedThisFrame)
-        {
-            if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.Normal)
-                ToggleMap();
-        }
-
         if (!mapVisualRoot || !mapVisualRoot.activeSelf) return;
         HandleSmoothVisuals();
     }
 
     public void ToggleMap()
     {
-        if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
+        // 수정: 페이드 진행 중일 경우 입력을 완전히 무시 (비정상적인 연속 입력 차단)
+        if (_fadeCoroutine != null) return;
+
         bool isOpening = !mapVisualRoot.activeSelf;
 
         if (isOpening)
         {
+            // 열 때는 즉시 UI 조작 모드로 변경
             if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
-        }
-        else
-        {
-            if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
         }
 
         _fadeCoroutine = StartCoroutine(mapFadeRoutine(isOpening));
@@ -201,7 +195,9 @@ public class MapManager : MonoBehaviour
         IEnumerator mapFadeRoutine(bool isOpen)
         {
             float halfFade = fadeDuration * 0.5f;
-            yield return StartCoroutine(FadeOverlay(0f, 1f, halfFade));
+
+            if (CinematicManager.instance != null)
+                yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(0f, 1f, halfFade));
 
             if (isOpen)
             {
@@ -209,14 +205,21 @@ public class MapManager : MonoBehaviour
                 _isSelecting = false;
                 mapVisualRoot.SetActive(true);
                 StartCoroutine(ScanSequence());
-                yield return new WaitForSeconds(0.05f);
-                yield return StartCoroutine(FadeOverlay(1f, 0f, halfFade));
+                yield return new WaitForSecondsRealtime(0.05f);
+
+                if (CinematicManager.instance != null)
+                    yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(1f, 0f, halfFade));
             }
             else
             {
                 _isScanning = false;
                 mapVisualRoot.SetActive(false);
-                yield return StartCoroutine(FadeOverlay(1f, 0f, halfFade));
+
+                if (CinematicManager.instance != null)
+                    yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(1f, 0f, halfFade));
+
+                // 수정: 맵을 닫을 때, 페이드 아웃 연출이 모두 끝난 뒤에 Normal 조작으로 복귀
+                if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
             }
 
             _fadeCoroutine = null;
@@ -227,6 +230,7 @@ public class MapManager : MonoBehaviour
     {
         _isScanning = true;
         _isMoving = false;
+        _selectedIndex = 1;
 
         _isBossStageMode = GameManager.instance.currentProgress >= 100;
 
@@ -242,8 +246,15 @@ public class MapManager : MonoBehaviour
         if (totalProgressText)
             totalProgressText.text = $"진행도 : <color=#80FF80>{seasonName}_{GameManager.instance.currentProgress}%</color>";
 
-        if (_isBossStageMode) SetBossNode();
-        else SetRandomNodes();
+        if (_isBossStageMode)
+        {
+            SetBossNode();
+        }
+        else if (_needsNewNodes)
+        {
+            SetRandomNodes();
+            _needsNewNodes = false;
+        }
 
         HideUITexts();
 
@@ -296,7 +307,6 @@ public class MapManager : MonoBehaviour
 
                     nodeVisuals[i].rectTransform.anchoredPosition = _nodeOriginPos[i];
                     nodeVisuals[i].color = _inactiveColor;
-                    _currentRandomPers[i] = Random.Range(currentNodes[i].minRise, currentNodes[i].maxRise + 1);
                 }
             }
         }
@@ -342,21 +352,12 @@ public class MapManager : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             currentNodes[i] = i < selectedStages.Count ? selectedStages[i] : null;
-        }
-    }
 
-    private IEnumerator FadeOverlay(float start, float end, float duration)
-    {
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            if (fadeOverlayImage)
-                fadeOverlayImage.color = new Color(0, 0, 0, Mathf.Lerp(start, end, elapsed / duration));
-            yield return null;
+            if (currentNodes[i] != null)
+            {
+                _currentRandomPers[i] = Random.Range(currentNodes[i].minRise, currentNodes[i].maxRise + 1);
+            }
         }
-
-        if (fadeOverlayImage) fadeOverlayImage.color = new Color(0, 0, 0, end);
     }
 
     private IEnumerator ScanSequence()
@@ -410,6 +411,7 @@ public class MapManager : MonoBehaviour
         {
             alpha += Time.deltaTime * nodeFadeSpeed;
             if (_nodeCanvasGroups[index]) _nodeCanvasGroups[index].alpha = alpha;
+
             if (lineVisuals[index])
                 lineVisuals[index].color = new Color(_inactiveColor.r, _inactiveColor.g, _inactiveColor.b, alpha);
             yield return null;
@@ -627,10 +629,13 @@ public class MapManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        yield return StartCoroutine(FadeOverlay(0f, 1f, 0.5f));
+        if (CinematicManager.instance != null)
+            yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(0f, 1f, 0.5f));
 
         mapVisualRoot.SetActive(false);
         _isScanning = false;
+
+        _needsNewNodes = true;
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
 
@@ -639,8 +644,9 @@ public class MapManager : MonoBehaviour
             GameManager.instance.LoadStage(selectedData);
         }
 
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSecondsRealtime(0.1f);
 
-        yield return StartCoroutine(FadeOverlay(1f, 0f, 0.5f));
+        if (CinematicManager.instance != null)
+            yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(1f, 0f, 0.5f));
     }
 }

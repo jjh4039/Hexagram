@@ -60,11 +60,11 @@ public class DamageText : MonoBehaviour
     }
 
     // 텍스트 띄우기 용 오버로드
-    public void Setup(string message, Color color)
+    public void Setup(string message, Color color, float size)
     {
         textMesh.text = message;
         textMesh.color = color;
-        textMesh.fontSize = normalSize * 0.7f; // 혹은 원하는 크기
+        textMesh.fontSize = size; // 요청하신 고정 사이즈 적용
         textMesh.fontStyle = FontStyles.Bold;
 
         originalColor = textMesh.color;

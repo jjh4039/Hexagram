@@ -51,7 +51,10 @@ public class PlayerStats : MonoBehaviour
     public float diceRangedDamageMultiplier = 1.0f;
     public int diceStrongAttackStacks = 0;
 
-    public float buffFinalDamageMultiplier = 1.0f; 
+    public float buffFinalDamageMultiplier = 1.0f;
+
+    [Header("Visual Feedback")]
+    public GameObject damageTextPrefab;                                 // 플레이어 피격 시 띄울 텍스트 프리팹
 
     private float ammoRechargeTimer = 0f;
     private BuffManager _buffManager;
@@ -67,7 +70,7 @@ public class PlayerStats : MonoBehaviour
 
     public void ApplyArtifactStat(ArtifactData data)
     {
-        if (data.type != ArtifactType.Stat) return;             
+        if (data.type != ArtifactType.Stat) return;
 
         ProcessSingleStat(data.effectType, data.value, data.isPercent, data.artifactName);
 
@@ -85,8 +88,8 @@ public class PlayerStats : MonoBehaviour
 
     private void ProcessSingleStat(ArtifactEffectType type, float value, bool isPercent, string name)
     {
-        float multiplier = 1f + value;                          // 복리(%) 연산용 값
-        float flatAmount = value;                               // 고정(합) 연산용 값
+        float multiplier = 1f + value;                                  // 복리(%) 연산용 값
+        float flatAmount = value;                                       // 고정(합) 연산용 값
 
         switch (type)
         {
@@ -99,7 +102,7 @@ public class PlayerStats : MonoBehaviour
                 {
                     int hpBonus = Mathf.RoundToInt(flatAmount);
                     maxHealth += hpBonus;
-                    currentHealth += hpBonus;                   // 늘어난 최대치만큼 현재 체력도 회복
+                    currentHealth += hpBonus;                           // 늘어난 최대치만큼 현재 체력도 회복
                 }
                 break;
 
@@ -121,7 +124,7 @@ public class PlayerStats : MonoBehaviour
                 break;
 
             case ArtifactEffectType.AttackSpeed:
-                attackSpeed += value;                           // 기존 곱연산에서 합연산으로 수정
+                attackSpeed += value;                                   // 기존 곱연산에서 합연산으로 수정
                 break;
 
             case ArtifactEffectType.ChargeSpeed:
@@ -133,11 +136,11 @@ public class PlayerStats : MonoBehaviour
                 break;
 
             case ArtifactEffectType.CritChance:
-                criticalChance += flatAmount;                   // 크리티컬 확률은 기본적으로 합연산
+                criticalChance += flatAmount;                           // 크리티컬 확률은 기본적으로 합연산
                 break;
 
             case ArtifactEffectType.CritDamage:
-                criticalDamageMultiplier += flatAmount;         // 크리티컬 배율은 기본적으로 합연산
+                criticalDamageMultiplier += flatAmount;                 // 크리티컬 배율은 기본적으로 합연산
                 break;
 
             case ArtifactEffectType.ScrapGain:
@@ -147,8 +150,6 @@ public class PlayerStats : MonoBehaviour
                 }
                 break;
         }
-
-        Debug.Log($"아티팩트 스탯 적용 완료: {name} / {type}");
     }
 
     private void Update()
@@ -194,7 +195,6 @@ public class PlayerStats : MonoBehaviour
     public float GetFinalChargeSpeed() => ammoRechargeRate * diceChargeSpeedMultiplier;
     public float GetFinalDiceChargeRate() => dicePassiveChargeRate * diceChargeSpeedMultiplier;
 
-
     public void ResetDiceRuntimeStats()
     {
         diceDamageMultiplier = 1.0f;
@@ -204,8 +204,8 @@ public class PlayerStats : MonoBehaviour
         diceCritDamageBonus = 0f;
         diceRangedDamageMultiplier = 1.0f;
         diceStrongAttackStacks = 0;
-    
-        buffFinalDamageMultiplier = 1.0f;                       
+
+        buffFinalDamageMultiplier = 1.0f;
     }
 
     public float GetFinalCriticalDamageMultiplier()
@@ -223,7 +223,7 @@ public class PlayerStats : MonoBehaviour
     {
         int hpBonus = Mathf.RoundToInt(maxHealth * percentValue);
         maxHealth += hpBonus;
-        currentHealth += hpBonus;                               // 퍼센트 증가량만큼 현재 체력도 회복
+        currentHealth += hpBonus;                                       // 퍼센트 증가량만큼 현재 체력도 회복
     }
 
     public void AddDiceChargeFromHit()
@@ -231,29 +231,39 @@ public class PlayerStats : MonoBehaviour
         AddDiceCharge(diceHitChargeAmount * diceChargeSpeedMultiplier);
     }
 
-    // ★ [핵심 변경] 데미지를 받기 전에 무효화 버프를 확인합니다.
     public void TakeDamage(int amount)
     {
         if (_buffManager != null)
         {
-            // 1. 방어막(첫 피해 무효화)가 있는지 확인하고 소모합니다.
             if (_buffManager.HasAndConsumeFirstHitImmunity())
             {
-                Debug.Log("첫 번째 피해 무효화 발동! (유리조각 버프 유지)");
-                return; // 여기서 실행을 즉시 멈춰 체력을 깎지 않고 유리대포 해제도 건너뜁니다!
+                SpawnDamageText("GUARD!", Color.cyan, 3f);                  // 무효화 텍스트 사이즈 3 고정
+                return;
             }
 
-            // 2. 방어막이 없었다면 정상적으로 유리대포(Glass Cannon)가 깨집니다.
             _buffManager.RemoveGlassCannonBuff();
         }
 
         currentHealth -= amount;
-        Debug.Log($"Player health reduced: {currentHealth}/{maxHealth}");
+        SpawnDamageText(amount.ToString(), Color.red, 3f);                  // 피격 데미지 텍스트 사이즈 3 고정
 
         if (currentHealth <= 0)
         {
             currentHealth = 0;
             Die();
+        }
+    }
+
+    private void SpawnDamageText(string message, Color color, float size)
+    {
+        if (damageTextPrefab == null) return;
+
+        GameObject textObj = Instantiate(damageTextPrefab, transform.position + (Vector3.up * 0.5f), Quaternion.identity);
+        DamageText dmgText = textObj.GetComponent<DamageText>();
+
+        if (dmgText != null)
+        {
+            dmgText.Setup(message, color, size);
         }
     }
 

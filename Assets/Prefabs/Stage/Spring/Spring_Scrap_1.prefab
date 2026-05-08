@@ -8038,7 +8038,7 @@ MonoBehaviour:
   stageBounds: {fileID: 3927962493277799658}
   rewardPrefab: {fileID: 3526734086602578429, guid: 3c23b0af158b5f94db906e0d4198bbef, type: 3}
   rewardSpawnPoint: {fileID: 1466934104367609175}
-  moduleRewardCount: 1
+  moduleRewardCount: 3
 --- !u!61 &3927962493277799658
 BoxCollider2D:
   m_ObjectHideFlags: 0
