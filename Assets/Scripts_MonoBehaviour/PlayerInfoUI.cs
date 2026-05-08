@@ -1,19 +1,34 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerInfoUI : MonoBehaviour
 {
-    public Slider healthSlider; // 화면에 표시되는 체력바
-    public TextMeshProUGUI healthText; // 현재 체력과 최대 체력 문자
-    public GameObject safeZoneIndicator; // 안전지대 상태를 알리는 UI 오브젝트
+    public Slider healthSlider; 
+    public TextMeshProUGUI healthText; 
+    
+    [Header("SafeZone UI Settings")]
+    public TextMeshProUGUI safeZoneText; // GameObject에서 TextMeshProUGUI로 변경
+    [SerializeField] private float fadeDuration = 0.3f; // 페이드 속도
+
+    private Coroutine fadeCoroutine;
 
     private void Start()
     {
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.OnGamePhaseChanged += HandleGamePhaseChanged;
-            safeZoneIndicator.SetActive(InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone);
+            
+            // 초기 상태 설정
+            bool isSafe = InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone;
+            if (safeZoneText != null)
+            {
+                safeZoneText.text = "비전투 상태 : 대시 소모 없음";
+                Color c = safeZoneText.color;
+                c.a = isSafe ? 1f : 0f;
+                safeZoneText.color = c;
+            }
         }
     }
 
@@ -27,16 +42,41 @@ public class PlayerInfoUI : MonoBehaviour
 
     private void HandleGamePhaseChanged(GamePhase newPhase)
     {
-        if (safeZoneIndicator != null)
+        if (safeZoneText != null)
         {
-            safeZoneIndicator.SetActive(newPhase == GamePhase.SafeZone);
+            bool isSafe = newPhase == GamePhase.SafeZone;
+            
+            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+            fadeCoroutine = StartCoroutine(Co_FadeText(isSafe));
         }
+    }
+
+    private IEnumerator Co_FadeText(bool fadeIn)
+    {
+        float targetAlpha = fadeIn ? 1f : 0f;
+        Color c = safeZoneText.color;
+        float startAlpha = c.a;
+        float timer = 0f;
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            c.a = Mathf.Lerp(startAlpha, targetAlpha, timer / fadeDuration);
+            safeZoneText.color = c;
+            yield return null;
+        }
+
+        c.a = targetAlpha;
+        safeZoneText.color = c;
+        fadeCoroutine = null;
     }
 
     public void Update()
     {
+        if (GameManager.instance == null || GameManager.instance.stats == null) return;
+
         healthSlider.maxValue = GameManager.instance.stats.maxHealth;
         healthSlider.value = GameManager.instance.stats.currentHealth;
-        healthText.text = GameManager.instance.stats.currentHealth + " / " + GameManager.instance.stats.maxHealth;
+        healthText.text = $"{GameManager.instance.stats.currentHealth} / {GameManager.instance.stats.maxHealth}";
     }
 }

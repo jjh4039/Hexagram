@@ -77,6 +77,8 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1523283721-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-691443348-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1261265467-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-277477129-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1948743305-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -309,6 +311,14 @@ MonoBehaviour:
         - colorIndex: 1
           iconNameOrGuid: Favorite
           isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: sv_icon_dot15_pix16_gizmo
+          isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: sv_icon_dot15_pix16_gizmo
+          isIconRecursive: 1
           isColorRecursive: 0
     - goDatas_byGlobalId:
         keys:

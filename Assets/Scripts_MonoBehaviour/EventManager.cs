@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
+// EventManager가 사용할 선택 데이터 클래스 (파일 상단에 배치)
 [Serializable]
 public class EventSelectionData
 {
@@ -39,6 +42,7 @@ public class EventSelectionData
     }
 }
 
+// 메인 EventManager 클래스
 public class EventManager : MonoBehaviour
 {
     public static EventManager Instance;
@@ -56,16 +60,31 @@ public class EventManager : MonoBehaviour
     [Header("Reward Prefabs")]
     [SerializeField] private GameObject balancePrefab;
 
+    [Header("Activation Feedback")]
+    [SerializeField] private TextMeshProUGUI activationText;
+    [SerializeField] private float textFadeDuration = 0.5f;
+    [SerializeField] private float textDisplayDuration = 1.5f;
+
     [Header("Debug Settings")]
     [SerializeField] private bool enableDebugInput = true;
 
     public EventSelectionData CurrentEventSelection => currentEventSelection;
     public Vector3 eventOriginPos;
 
+    private Coroutine _activationTextRoutine;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+
+        if (activationText != null)
+        {
+            Color c = activationText.color;
+            c.a = 0f;
+            activationText.color = c;
+            activationText.gameObject.SetActive(false);
+        }
     }
 
     private void Start()
@@ -114,7 +133,6 @@ public class EventManager : MonoBehaviour
         eventUIController.OpenEvent();
     }
 
-    // UI에서 넘어온 destinyIndex(0, 1, 2)를 받아 1, 2, 3 단계로 변환 후 적용
     public void ApplyCurrentEvent(int destinyIndex)
     {
         if (!currentEventSelection.IsValid()) return;
@@ -124,7 +142,43 @@ public class EventManager : MonoBehaviour
         ApplyRisk(currentEventSelection.selectedRisk, intensityLevel);
         ApplyReward(currentEventSelection.selectedReward, intensityLevel);
 
+        if (activationText != null)
+        {
+            if (_activationTextRoutine != null) StopCoroutine(_activationTextRoutine);
+            _activationTextRoutine = StartCoroutine(Co_ShowActivationText());
+        }
+
         Debug.Log($"이벤트 보상 및 리스크 적용 완료! (강도: {intensityLevel}단계)");
+    }
+
+    private IEnumerator Co_ShowActivationText()
+    {
+        activationText.text = "운명의 저울이 기울었습니다...";
+        activationText.gameObject.SetActive(true);
+        Color c = activationText.color;
+        
+        float t = 0f;
+        while (t < textFadeDuration)
+        {
+            t += Time.deltaTime;
+            c.a = Mathf.Clamp01(t / textFadeDuration);
+            activationText.color = c;
+            yield return null;
+        }
+        
+        yield return new WaitForSeconds(textDisplayDuration);
+        
+        t = 0f;
+        while (t < textFadeDuration)
+        {
+            t += Time.deltaTime;
+            c.a = 1f - Mathf.Clamp01(t / textFadeDuration);
+            activationText.color = c;
+            yield return null;
+        }
+        
+        activationText.gameObject.SetActive(false);
+        _activationTextRoutine = null;
     }
 
     private void ApplyRisk(RiskData risk, int stage)
@@ -136,8 +190,16 @@ public class EventManager : MonoBehaviour
         switch (risk.riskType)
         {
             case RiskType.CurrentHpCost:
+                if (value <= 0f)
+                {
+                    Debug.Log("[디버프 무시] 체력 소모가 0%이므로 피해를 입지 않습니다.");
+                    break;
+                }
                 int hpCost = Mathf.RoundToInt(stats.currentHealth * (value / 100f));
-                stats.TakeDamage(Mathf.Max(1, hpCost));
+                if (hpCost > 0)
+                {
+                    stats.TakeDamage(hpCost);
+                }
                 break;
 
             case RiskType.DiceChargeReduction:
@@ -188,7 +250,7 @@ public class EventManager : MonoBehaviour
             case RewardType.DiceFaceChanceUp:
                 if (balancePrefab != null)
                 {
-                    Vector3 spawnPos = eventOriginPos + new Vector3(0, -1.5f, 0); 
+                    Vector3 spawnPos = eventOriginPos + new Vector3(0, -2.5f, 0); 
                     GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity);
 
                     Balance balanceScript = balanceObj.GetComponent<Balance>();

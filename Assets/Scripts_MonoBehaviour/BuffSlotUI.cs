@@ -32,7 +32,6 @@ public class BuffSlotUI : MonoBehaviour
         }
         else if (buff.debuffType != StageDebuffType.None && buff.debuffIcon)
         {
-            // ★ 신규 추가: 디버프 아이콘 설정
             targetIcon = buff.debuffIcon;
             targetScale = artifactIconScale;
         }
@@ -46,14 +45,13 @@ public class BuffSlotUI : MonoBehaviour
             iconImage[1].rectTransform.localScale = targetScale;
         }
 
-        // ★ 신규 추가: 디버프일 경우 테두리/아이콘을 붉은색으로 강조
         if (buff.isDebuff)
         {
-            iconImage[1].color = new Color(1f, 0.3f, 0.3f, 1f); // 눈에 띄는 붉은색
+            iconImage[1].color = new Color(1f, 0.3f, 0.3f, 1f);
         }
         else
         {
-            iconImage[1].color = Color.white;
+            iconImage[1].color = new Color(0.25f, 0.25f, 0.25f, 1f);
         }
 
         gameObject.SetActive(true);
@@ -64,7 +62,6 @@ public class BuffSlotUI : MonoBehaviour
     {
         if (currentBuff == null) return;
 
-        // ★ 수정됨: 스테이지 지속 디버프라면 Fill 쿨타임 효과를 꺼버립니다 (그림자 없음)
         if (currentBuff.isInfinite || currentBuff.isStageDuration)
         {
             cooldownFillImage.fillAmount = 0f;
@@ -76,12 +73,17 @@ public class BuffSlotUI : MonoBehaviour
             iconImage[1].fillAmount = 1 - (currentBuff.remainingTime / currentBuff.maxTime);
         }
 
-        // 텍스트 출력 로직
         if (currentBuff.isStageDuration)
         {
-            // ★ 신규 추가: 디버프는 남은 스테이지 횟수를 출력 (예: "3턴", "3방")
-            stackText.text = $"{currentBuff.remainingStages}회";
-            stackText.color = new Color(1f, 0.3f, 0.3f, 1f); // 텍스트도 붉은색으로
+            if (currentBuff.debuffType == StageDebuffType.TakeMoreDamage)
+            {
+                stackText.text = $"-{currentBuff.debuffValue:0}%";
+            }
+            else
+            {
+                stackText.text = $"{currentBuff.remainingStages}회";
+            }
+            stackText.color = new Color(1f, 0.3f, 0.3f, 1f);
         }
         else if (currentBuff.isInfinite)
         {
@@ -89,7 +91,7 @@ public class BuffSlotUI : MonoBehaviour
         }
         else if (currentBuff.buffData)
         {
-            stackText.color = Color.white; // 일반 버프는 흰색 복구
+            stackText.color = Color.white;
             float finalEffectValue = currentBuff.buffData.effectValue * currentBuff.stackCount;
 
             switch (currentBuff.buffData.effectType)

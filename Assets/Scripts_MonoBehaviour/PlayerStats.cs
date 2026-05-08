@@ -53,7 +53,6 @@ public class PlayerStats : MonoBehaviour
 
     public float buffFinalDamageMultiplier = 1.0f;
 
-    // ★ 신규 추가: 이벤트 디버프 상태 변수
     [Header("Event Debuff States")]
     public bool cannotHeal = false;
     public float takeMoreDamageMultiplier = 1.0f;
@@ -108,7 +107,6 @@ public class PlayerStats : MonoBehaviour
                 {
                     int hpBonus = Mathf.RoundToInt(flatAmount);
                     maxHealth += hpBonus;
-                    // ★ 수정됨: 최대 체력 증가 시 현재 체력 회복도 회복 불가 디버프의 영향을 받습니다.
                     if (!cannotHeal) currentHealth += hpBonus;
                 }
                 break;
@@ -214,7 +212,6 @@ public class PlayerStats : MonoBehaviour
 
         buffFinalDamageMultiplier = 1.0f;
 
-        // ★ 신규 추가: 디버프 상태 초기화 (BuffManager가 이후 다시 덮어씌움)
         cannotHeal = false;
         takeMoreDamageMultiplier = 1.0f;
         isDiceEffectHalved = false;
@@ -246,6 +243,8 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        if (amount <= 0) return; // 0 이하 데미지는 안전하게 무시
+
         if (_buffManager != null)
         {
             if (_buffManager.HasAndConsumeFirstHitImmunity())
@@ -271,10 +270,10 @@ public class PlayerStats : MonoBehaviour
 
     public void Heal(int amount)
     {
-        if (cannotHeal) return; // 회복 불가 디버프 시 무시
+        if (cannotHeal) return;
 
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        SpawnDamageText($"+{amount}", Color.green, 3f); // 회복 연출 (필요 시 수정 가능)
+        SpawnDamageText($"+{amount}", Color.green, 3f); 
     }
 
     private void SpawnDamageText(string message, Color color, float size)

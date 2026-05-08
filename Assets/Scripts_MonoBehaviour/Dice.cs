@@ -5,18 +5,18 @@ using System.Collections.Generic;
 public class Dice : MonoBehaviour
 {
     [Header("UI Reference")]
-    [SerializeField] private Dice_UI diceUI;                     // 주사위 연출 UI
+    [SerializeField] private Dice_UI diceUI;
 
     [Header("Data Settings")]
-    [SerializeField] public DiceData[] diceList;                 // 주사위의 6개 면 데이터
-    [SerializeField] public DiceData defaultData;                // 기본 데이터
+    [SerializeField] public DiceData[] diceList;
+    [SerializeField] public DiceData defaultData;
 
     [Header("Probability Settings")]
-    [SerializeField] private int[] faceWeights = new int[6] { 100, 100, 100, 100, 100, 100 }; // 각 면의 가중치
-    [SerializeField] public float[] displayPercentages = new float[6];                        // 인스펙터 표시용 확률
+    [SerializeField] private int[] faceWeights = new int[6] { 100, 100, 100, 100, 100, 100 };
+    [SerializeField] public float[] displayPercentages = new float[6];
 
     [Header("History")]
-    public int lastRolledFaceIndex = -1;                         // 마지막으로 나온 면 번호
+    public int lastRolledFaceIndex = -1;
 
     private BuffManager _buffManager;
 
@@ -55,7 +55,6 @@ public class Dice : MonoBehaviour
         }
     }
 
-    // 수정: 아티팩트 리스트를 사전 추출하여 UI로 전달하도록 변경
     private void RollDice(PlayerStats stats)
     {
         stats.currentDiceCharge -= 100f;
@@ -69,12 +68,10 @@ public class Dice : MonoBehaviour
         lastRolledFaceIndex = selectedIndex;
         DiceData selectedData = diceList[selectedIndex];
 
-        // 1. 발동 예정인 아티팩트 목록 미리 가져오기
         List<ArtifactData> triggeredArtifacts = GetTriggeredArtifacts(selectedIndex, isConsecutive);
 
         if (diceUI != null && selectedData != null)
         {
-            // 2. PlayRollAnimation에 목록 넘기기
             diceUI.PlayRollAnimation(selectedData, selectedIndex, triggeredArtifacts, () =>
             {
                 if (GameManager.instance.player)
@@ -86,7 +83,6 @@ public class Dice : MonoBehaviour
         }
     }
 
-    // 분리 및 신규: 기존 로직에서 발동될 아티팩트를 찾아 리스트로 반환하는 기능만 분리
     private List<ArtifactData> GetTriggeredArtifacts(int rolledIndex, bool isConsecutive)
     {
         List<ArtifactData> list = new List<ArtifactData>();
@@ -114,7 +110,6 @@ public class Dice : MonoBehaviour
         return list;
     }
 
-    // 분리 및 신규: 미리 계산된 아티팩트들을 실제로 적용하는 기능만 분리
     private void ApplyPrecalculatedArtifacts(List<ArtifactData> artifacts)
     {
         if (_buffManager == null) return;

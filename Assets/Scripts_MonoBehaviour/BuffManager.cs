@@ -6,9 +6,9 @@ using UnityEngine;
 public enum StageDebuffType
 {
     None,
-    DiceEffectHalf,         // 주사위 효과 반감
-    TakeMoreDamage,         // 받는 피해 증가
-    CannotHeal              // 회복 불가
+    DiceEffectHalf,
+    TakeMoreDamage,
+    CannotHeal
 }
 
 [System.Serializable]
@@ -26,7 +26,6 @@ public class ActiveBuff
     public int stackCount;
     public int remainingCount;
 
-    // ★ 신규 추가: 스테이지 지속 및 디버프 판별
     public int remainingStages;
     public bool isStageDuration;
     public bool isDebuff;
@@ -37,18 +36,21 @@ public class ActiveBuff
 
 public class BuffManager : MonoBehaviour
 {
-    [Header("Dependencies")]
-    [SerializeField] private Player player;
+    [Header("Dependencies")] [SerializeField]
+    private Player player;
+
     [SerializeField] private PlayerStats stats;
     [SerializeField] private WeaponManager weaponManager;
 
-    [Header("Active Buffs")]
-    public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
+    [Header("Active Buffs")] public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
 
-    [Header("Visual Feedback")]
-    [SerializeField] private GameObject floatingIconPrefab;
+    [Header("Visual Feedback")] [SerializeField]
+    private GameObject floatingIconPrefab;
+
     [SerializeField] private Transform iconSpawnPoint;
     [SerializeField] private float iconSpawnInterval = 0.3f;
+
+    [Header("Debuff Settings")] public Sprite unifiedDebuffIcon;
 
     public Action OnBuffUpdated;
 
@@ -68,25 +70,55 @@ public class BuffManager : MonoBehaviour
         UpdateBuffTimers();
     }
 
-    // ★ 신규 추가: 스테이지 단위 디버프 부여 함수
-    public void ApplyStageDebuff(StageDebuffType type, float value, int stageDuration, Sprite icon)
+    public void ApplyStageDebuff(StageDebuffType type, float value, int stageDuration, Sprite icon = null)
     {
-        ActiveBuff newDebuff = new ActiveBuff
+        // 1. 0턴 지속이면 아예 버프를 생성하지 않고 무시
+        if (stageDuration <= 0)
         {
-            debuffType = type,
-            debuffValue = value,
-            debuffIcon = icon,
-            remainingStages = stageDuration,
-            isStageDuration = true,
-            isDebuff = true,
-            stackCount = 1
-        };
+            Debug.Log($"[디버프 무시] {type}의 지속 스테이지가 0이므로 생성하지 않습니다.");
+            return;
+        }
 
-        activeBuffs.Add(newDebuff);
+        // ★ 2. 신규 추가: 받는 피해 증가 수치가 0% 이하라면 무시
+        if (type == StageDebuffType.TakeMoreDamage && value <= 0f)
+        {
+            Debug.Log($"[디버프 무시] {type}의 수치가 0%이므로 생성하지 않습니다.");
+            return;
+        }
+
+        // 3. 이미 같은 종류의 디버프가 걸려있는지 확인
+        ActiveBuff existingDebuff = activeBuffs.Find(b => b.isStageDuration && b.isDebuff && b.debuffType == type);
+
+        if (existingDebuff != null)
+        {
+            // 겹치면 남은 스테이지 횟수를 합침
+            existingDebuff.remainingStages += stageDuration;
+
+            // 수치(예: 받는 피해 증가 %)는 기존 값과 새로운 값 중 더 빡센(높은) 값으로 유지
+            existingDebuff.debuffValue = Mathf.Max(existingDebuff.debuffValue, value);
+
+            Debug.Log($"디버프 중첩됨: {type}, 총 {existingDebuff.remainingStages}스테이지 지속으로 증가");
+        }
+        else
+        {
+            // 걸려있지 않다면 새로 생성
+            ActiveBuff newDebuff = new ActiveBuff
+            {
+                debuffType = type,
+                debuffValue = value,
+                debuffIcon = unifiedDebuffIcon != null ? unifiedDebuffIcon : icon,
+                remainingStages = stageDuration,
+                isStageDuration = true,
+                isDebuff = true,
+                stackCount = 1
+            };
+
+            activeBuffs.Add(newDebuff);
+            Debug.Log($"디버프 적용됨: {type}, {stageDuration}스테이지 지속");
+        }
+
         RecalculateStats();
         OnBuffUpdated?.Invoke();
-
-        Debug.Log($"디버프 적용됨: {type}, {stageDuration}스테이지 지속");
     }
 
     public void OnStageCleared()
@@ -104,7 +136,6 @@ public class BuffManager : MonoBehaviour
             }
         }
 
-        // 횟수가 차감되었으므로 무조건 UI를 갱신해 남은 스테이지 텍스트를 업데이트합니다.
         OnBuffUpdated?.Invoke();
     }
 
@@ -161,6 +192,7 @@ public class BuffManager : MonoBehaviour
             if (floatingIcon != null) floatingIcon.Setup(icon);
             yield return new WaitForSecondsRealtime(iconSpawnInterval);
         }
+
         _isSpawningIcon = false;
     }
 
@@ -171,12 +203,13 @@ public class BuffManager : MonoBehaviour
         {
             ActiveBuff buff = activeBuffs[i];
 
-            // ★ 수정됨: 스테이지 지속형 디버프는 시간으로 깎이지 않도록 예외 처리
             if (!buff.isInfinite && !buff.isStageDuration && buff.remainingTime > 0f)
                 buff.remainingTime -= Time.deltaTime;
 
             bool expiredByTime = !buff.isInfinite && !buff.isStageDuration && buff.remainingTime <= 0f;
-            bool expiredByCount = buff.buffData != null && buff.buffData.effectType == DiceEffectType.StrongAttackBuff && buff.remainingCount <= 0;
+            bool expiredByCount = buff.buffData != null &&
+                                  buff.buffData.effectType == DiceEffectType.StrongAttackBuff &&
+                                  buff.remainingCount <= 0;
 
             if (expiredByTime || expiredByCount)
             {
@@ -184,6 +217,7 @@ public class BuffManager : MonoBehaviour
                 buffRemoved = true;
             }
         }
+
         if (activeBuffs.Count > 0 || buffRemoved) OnBuffUpdated?.Invoke();
     }
 
@@ -202,6 +236,7 @@ public class BuffManager : MonoBehaviour
                 }
             }
         }
+
         return false;
     }
 
@@ -220,6 +255,7 @@ public class BuffManager : MonoBehaviour
                 }
             }
         }
+
         if (removed) OnBuffUpdated?.Invoke();
     }
 
@@ -230,7 +266,11 @@ public class BuffManager : MonoBehaviour
 
         if (data.effectType == DiceEffectType.Heal)
         {
-            ActiveBuff healBuff = new ActiveBuff { buffData = data, maxTime = safeDuration, remainingTime = safeDuration, stackCount = 1, instantApplied = false };
+            ActiveBuff healBuff = new ActiveBuff
+            {
+                buffData = data, maxTime = safeDuration, remainingTime = safeDuration, stackCount = 1,
+                instantApplied = false
+            };
             activeBuffs.Add(healBuff);
             RecalculateStats();
             OnBuffUpdated?.Invoke();
@@ -241,10 +281,12 @@ public class BuffManager : MonoBehaviour
         if (existingBuff != null)
         {
             int nextStackCount = existingBuff.stackCount + 1;
-            existingBuff.remainingTime = ((existingBuff.remainingTime * existingBuff.stackCount) + safeDuration) / nextStackCount;
+            existingBuff.remainingTime = ((existingBuff.remainingTime * existingBuff.stackCount) + safeDuration) /
+                                         nextStackCount;
             existingBuff.maxTime = existingBuff.remainingTime;
             existingBuff.stackCount = nextStackCount;
-            if (data.effectType == DiceEffectType.StrongAttackBuff) existingBuff.remainingCount += Mathf.Max(1, Mathf.RoundToInt(data.effectValue));
+            if (data.effectType == DiceEffectType.StrongAttackBuff)
+                existingBuff.remainingCount += Mathf.Max(1, Mathf.RoundToInt(data.effectValue));
         }
         else
         {
@@ -254,7 +296,9 @@ public class BuffManager : MonoBehaviour
                 maxTime = safeDuration,
                 remainingTime = safeDuration,
                 stackCount = 1,
-                remainingCount = data.effectType == DiceEffectType.StrongAttackBuff ? Mathf.Max(1, Mathf.RoundToInt(data.effectValue)) : 0
+                remainingCount = data.effectType == DiceEffectType.StrongAttackBuff
+                    ? Mathf.Max(1, Mathf.RoundToInt(data.effectValue))
+                    : 0
             };
             activeBuffs.Add(newBuff);
         }
@@ -275,7 +319,6 @@ public class BuffManager : MonoBehaviour
         if (stats == null) return;
         stats.ResetDiceRuntimeStats();
 
-        // ★ 1. 먼저 디버프 상태를 모두 찾아 PlayerStats에 세팅합니다.
         foreach (var buff in activeBuffs)
         {
             if (buff.isStageDuration && buff.isDebuff)
@@ -286,7 +329,6 @@ public class BuffManager : MonoBehaviour
                         stats.isDiceEffectHalved = true;
                         break;
                     case StageDebuffType.TakeMoreDamage:
-                        // 예: 50% 증가라면 1.0f + 0.5f = 1.5f 배율
                         stats.takeMoreDamageMultiplier += (buff.debuffValue / 100f);
                         break;
                     case StageDebuffType.CannotHeal:
@@ -296,7 +338,6 @@ public class BuffManager : MonoBehaviour
             }
         }
 
-        // ★ 2. 실제 버프 및 아티팩트 수치를 연산합니다.
         float rangedDiceTotal = 0f;
         foreach (var buff in activeBuffs)
         {
@@ -306,7 +347,6 @@ public class BuffManager : MonoBehaviour
             {
                 float finalEffectValue = buff.buffData.effectValue * buff.stackCount;
 
-                // ★ 주사위 효과 반감 디버프가 켜져 있다면, 최종 적용 수치를 절반으로 깎습니다.
                 if (stats.isDiceEffectHalved)
                     finalEffectValue *= 0.5f;
 
@@ -316,33 +356,42 @@ public class BuffManager : MonoBehaviour
                     case DiceEffectType.CritDamageBuff: stats.diceCritDamageBonus += finalEffectValue / 100f; break;
                     case DiceEffectType.SpeedBuff:
                         stats.diceMoveSpeedMultiplier += finalEffectValue / 100f;
-                        stats.diceAttackSpeedMultiplier += finalEffectValue / 100f; break;
+                        stats.diceAttackSpeedMultiplier += finalEffectValue / 100f;
+                        break;
                     case DiceEffectType.RangedMegaBuff: rangedDiceTotal += finalEffectValue; break;
                     case DiceEffectType.StrongAttackBuff: stats.diceStrongAttackStacks += buff.remainingCount; break;
                     case DiceEffectType.Heal:
                         if (!buff.instantApplied)
                         {
-                            // ★ 회복 불가 디버프가 없을 때만 회복을 적용합니다.
                             if (!stats.cannotHeal)
                             {
-                                stats.currentHealth = Mathf.Min(stats.currentHealth + Mathf.RoundToInt(buff.buffData.effectValue), stats.maxHealth);
+                                // 수정됨: 원본 수치가 아닌 반감이 적용된 finalEffectValue를 기준으로 회복합니다.
+                                stats.currentHealth =
+                                    Mathf.Min(stats.currentHealth + Mathf.RoundToInt(finalEffectValue),
+                                        stats.maxHealth);
                             }
+
                             buff.instantApplied = true;
                         }
+
                         break;
                 }
             }
+
             if (buff.artifactData != null)
             {
                 float value1 = buff.artifactData.isPercent ? buff.artifactData.value : (buff.artifactData.value / 100f);
                 ApplyArtifactStatAdditive(buff.artifactData.effectType, value1 * buff.stackCount);
                 if (buff.artifactData.effectType2 != ArtifactEffectType.None)
                 {
-                    float value2 = buff.artifactData.isPercent2 ? buff.artifactData.value2 : (buff.artifactData.value2 / 100f);
+                    float value2 = buff.artifactData.isPercent2
+                        ? buff.artifactData.value2
+                        : (buff.artifactData.value2 / 100f);
                     ApplyArtifactStatAdditive(buff.artifactData.effectType2, value2 * buff.stackCount);
                 }
             }
         }
+
         stats.diceRangedDamageMultiplier = rangedDiceTotal > 0f ? rangedDiceTotal : 1f;
     }
 
@@ -367,14 +416,18 @@ public class BuffManager : MonoBehaviour
         for (int i = 0; i < activeBuffs.Count; i++)
         {
             ActiveBuff buff = activeBuffs[i];
-            if (buff?.buffData == null || buff.buffData.effectType != DiceEffectType.StrongAttackBuff || buff.remainingCount <= 0) continue;
+            if (buff?.buffData == null || buff.buffData.effectType != DiceEffectType.StrongAttackBuff ||
+                buff.remainingCount <= 0) continue;
             buff.remainingCount--;
-            strongAttackMultiplier = buff.buffData.secondaryValue > 1f ? buff.buffData.secondaryValue : (player != null ? player.defaultStrongAttackMultiplier : 2f);
+            strongAttackMultiplier = buff.buffData.secondaryValue > 1f
+                ? buff.buffData.secondaryValue
+                : (player != null ? player.defaultStrongAttackMultiplier : 2f);
             RecalculateStats();
             if (buff.remainingCount <= 0) RemoveBuffAt(i);
             OnBuffUpdated?.Invoke();
             return true;
         }
+
         return false;
     }
 }
