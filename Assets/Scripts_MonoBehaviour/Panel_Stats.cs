@@ -28,15 +28,15 @@ public class Panel_Stats : MonoBehaviour
         if (playerStats == null) return;
 
         hpText.text = $"{playerStats.currentHealth} / {playerStats.maxHealth}";
-        moveSpeedText.text = $"{(playerStats.moveSpeed / 5f) * 100f:F2}%";
+        moveSpeedText.text = $"{(playerStats.moveSpeed / 5f) * 100f}%";
 
         meleeAtkText.text = $"{playerStats.meleeAttackPower:F2}";
         rangedAtkText.text = $"{playerStats.rangeAttackPower:F2}";
-        atkSpeedText.text = $"{playerStats.attackSpeed * 100f:F2}%";
+        atkSpeedText.text = $"{playerStats.attackSpeed * 100f}%";
 
         critChanceText.text = $"{playerStats.criticalChance * 100f}%";
         critDamageText.text = $"{playerStats.GetFinalCriticalDamageMultiplier() * 100f}%";
-        finalDamageText.text = $"{playerStats.finalAttackPower * 100f:F2}%";
+        finalDamageText.text = $"{playerStats.finalAttackPower * 100f}%";
 
         diceChargeText.text = $"{playerStats.dicePassiveChargeRate}/s";
         diceAmpText.text = $"{playerStats.finalDicePower * 100f}%";
