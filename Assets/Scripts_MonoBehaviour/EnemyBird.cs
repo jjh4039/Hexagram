@@ -2,12 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyBee : Enemy
+public class EnemyBird : Enemy
 {
     [Header("Elite Settings")]
     [SerializeField] private bool isElite = false; // 엘리트 몬스터 여부
-    [SerializeField] private int eliteProjCount = 5; // 엘리트 발사체 개수
-    [SerializeField] private float eliteSpreadAngle = 15f; // 발사체 간격 각도
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
@@ -72,7 +70,7 @@ public class EnemyBee : Enemy
         if (playerObj != null)
             target = playerObj.transform;
 
-        StartCoroutine(Co_BeeAI());
+        StartCoroutine(Co_BirdAI());
     }
 
     private void Update()
@@ -81,7 +79,7 @@ public class EnemyBee : Enemy
         LookAtTarget();
     }
 
-    IEnumerator Co_BeeAI()
+    IEnumerator Co_BirdAI()
     {
         while (!isDead)
         {
@@ -155,7 +153,7 @@ public class EnemyBee : Enemy
             anim.SetBool("isMoving", false);
 
         Vector2 currentDir = (target.position - headPoint.position).normalized;
-        int projCount = isElite ? eliteProjCount : 1;
+        int projCount = isElite ? 8 : 4;
 
         if (maxRangeRectPrefab != null && currentRectPrefab != null)
         {
@@ -186,7 +184,7 @@ public class EnemyBee : Enemy
             Vector2 targetDir = (target.position - headPoint.position).normalized;
             currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * homingStrength);
 
-            Vector2[] dirs = GetSpreadDirections(currentDir);
+            Vector2[] dirs = GetDirections(currentDir);
 
             for (int i = 0; i < dirs.Length; i++)
             {
@@ -214,25 +212,26 @@ public class EnemyBee : Enemy
         attackCoroutine = null;
     }
 
-    private Vector2[] GetSpreadDirections(Vector2 mainDir)
+    private Vector2[] GetDirections(Vector2 mainDir)
     {
-        int count = isElite ? eliteProjCount : 1;
+        int count = isElite ? 8 : 4;
         Vector2[] dirs = new Vector2[count];
 
-        if (count == 1)
-        {
-            dirs[0] = mainDir;
-            return dirs;
-        }
+        dirs[0] = mainDir;
+        dirs[1] = -mainDir;
+        dirs[2] = new Vector2(-mainDir.y, mainDir.x);
+        dirs[3] = new Vector2(mainDir.y, -mainDir.x);
 
-        float startAngle = -(count - 1) * eliteSpreadAngle / 2f;
-        for (int i = 0; i < count; i++)
+        if (isElite)
         {
-            float angle = startAngle + i * eliteSpreadAngle;
-            float rad = angle * Mathf.Deg2Rad;
+            float rad = 45f * Mathf.Deg2Rad;
             float s = Mathf.Sin(rad);
             float c = Mathf.Cos(rad);
-            dirs[i] = new Vector2(mainDir.x * c - mainDir.y * s, mainDir.x * s + mainDir.y * c);
+
+            for (int i = 0; i < 4; i++)
+            {
+                dirs[i + 4] = new Vector2(dirs[i].x * c - dirs[i].y * s, dirs[i].x * s + dirs[i].y * c);
+            }
         }
 
         return dirs;
@@ -254,7 +253,7 @@ public class EnemyBee : Enemy
     {
         if (projectilePrefab == null) return;
 
-        Vector2[] dirs = GetSpreadDirections(mainDir);
+        Vector2[] dirs = GetDirections(mainDir);
 
         foreach (Vector2 dir in dirs)
         {
