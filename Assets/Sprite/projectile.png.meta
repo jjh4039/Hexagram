@@ -125,8 +125,8 @@ TextureImporter:
       name: projectile_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 10
+        x: 1
+        y: 27
         width: 21
         height: 11
       alignment: 0
@@ -147,8 +147,8 @@ TextureImporter:
       name: projectile_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 1
+        y: 17
         width: 21
         height: 11
       alignment: 0
@@ -169,8 +169,8 @@ TextureImporter:
       name: projectile_2
       rect:
         serializedVersion: 2
-        x: 20
-        y: 10
+        x: 21
+        y: 27
         width: 11
         height: 11
       alignment: 0
@@ -191,8 +191,8 @@ TextureImporter:
       name: projectile_3
       rect:
         serializedVersion: 2
-        x: 20
-        y: 0
+        x: 21
+        y: 17
         width: 11
         height: 11
       alignment: 0
@@ -205,6 +205,28 @@ TextureImporter:
       bones: []
       spriteID: 932ec391e3840b580800000000000000
       internalID: -8813465039215467975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: projectile_4
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 7
+        width: 26
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f4af87a96eed8e245ad4e21428597921
+      internalID: -907173706
       vertices: []
       indices: 
       edges: []
@@ -227,6 +249,7 @@ TextureImporter:
       projectile_1: -3209795618878514358
       projectile_2: 2935192031122453201
       projectile_3: -8813465039215467975
+      projectile_4: -907173706
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
