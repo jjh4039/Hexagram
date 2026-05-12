@@ -7604,7 +7604,7 @@ Transform:
   m_GameObject: {fileID: 4298932076302831213}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.76, y: 0.8, z: 0}
+  m_LocalPosition: {x: 4.48, y: 0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8036,7 +8036,7 @@ MonoBehaviour:
   barrierEla: {fileID: 5132786214549564024}
   statue: {fileID: 6591054330482880536}
   stageBounds: {fileID: 3927962493277799658}
-  rewardPrefab: {fileID: 3526734086602578429, guid: 3c23b0af158b5f94db906e0d4198bbef, type: 3}
+  rewardPrefab: {fileID: 4874768350431733968}
   rewardSpawnPoint: {fileID: 1466934104367609175}
   moduleRewardCount: 3
 --- !u!61 &3927962493277799658
@@ -8073,7 +8073,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 5.4913645, y: 5.323944}
+  m_Offset: {x: 5.418003, y: 5.357522}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -8083,7 +8083,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 25.04146, y: 23.43423}
+  m_Size: {x: 24.073093, y: 22.447126}
   m_EdgeRadius: 0
 --- !u!1 &5750408466850624951
 GameObject:

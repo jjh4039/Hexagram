@@ -7430,7 +7430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 0
   spawnPoint: {fileID: 7154704847653265603}
-  barrierEla: {fileID: 0}
+  barrierEla: {fileID: 41588091115805324}
   statue: {fileID: 6591054330482880536}
   stageBounds: {fileID: 3927962493277799658}
   rewardPrefab: {fileID: 3526734086602578429, guid: 3c23b0af158b5f94db906e0d4198bbef, type: 3}
@@ -7470,7 +7470,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 13.921251, y: -7.1522408}
+  m_Offset: {x: 13.948677, y: -7.1313095}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -7480,7 +7480,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 41.649525, y: 17.999557}
+  m_Size: {x: 41.046135, y: 17.464016}
   m_EdgeRadius: 0
 --- !u!1 &6444701744743484378
 GameObject:
@@ -7975,7 +7975,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2830779069403851246, guid: 8ad9fcaf90e90bc4cb144c6298a1ce53, type: 3}
       propertyPath: m_Name
-      value: Ela (1)
+      value: 'Ela '
       objectReference: {fileID: 0}
     - target: {fileID: 4132496532552415440, guid: 8ad9fcaf90e90bc4cb144c6298a1ce53, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8022,6 +8022,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8ad9fcaf90e90bc4cb144c6298a1ce53, type: 3}
+--- !u!1 &41588091115805324 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2830779069403851246, guid: 8ad9fcaf90e90bc4cb144c6298a1ce53, type: 3}
+  m_PrefabInstance: {fileID: 2871944947877376866}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2198496612347841458 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4132496532552415440, guid: 8ad9fcaf90e90bc4cb144c6298a1ce53, type: 3}
