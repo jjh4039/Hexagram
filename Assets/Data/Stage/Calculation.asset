@@ -21,7 +21,8 @@ MonoBehaviour:
   moduleIcon: {fileID: -4202995753223041208, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
   seasonPrefabs:
   - seasonLabel: 
-    prefabs: []
+    prefabs:
+    - {fileID: 4874768350431733968, guid: d76ce52c8e6e2dc4cae44daf0836cdf8, type: 3}
   - seasonLabel: 
     prefabs: []
   - seasonLabel: 
