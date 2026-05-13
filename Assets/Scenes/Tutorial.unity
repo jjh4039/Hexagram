@@ -40663,8 +40663,9 @@ MonoBehaviour:
   - {fileID: 172063817}
   - {fileID: 887516007}
   bubbleAnimDuration: 0.18
-  bubbleStartScale: 0.9
-  bubbleEndScale: 0.95
+  bubbleStartScale: 0.98
+  bubbleEndScale: 0.98
+  bubbleMoveOffset: 5
   introTypingSound: {fileID: 8300000, guid: 27be0fc570c61ad4b8c2f9a60fb87896, type: 3}
   dialogueTypingSound: {fileID: 8300000, guid: d3c5a7d075f462748a9f67e19486a473, type: 3}
 --- !u!4 &1530519513
@@ -57210,7 +57211,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!483693784 &7763687349716699598
 TilemapRenderer:
   serializedVersion: 2

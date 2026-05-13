@@ -17,14 +17,16 @@ public class TutorialManager : MonoBehaviour
     [Header("Skip UI Settings")]
     public GameObject skipNoticeContainer;         // 스킵 안내 UI 최상위 객체
     public RectTransform skipFillMask;             // 스킵 텍스트 마스크
-    public float skipHoldTime = 2f;              // 스킵 처리에 필요한 시간
+    public float skipHoldTime = 2f;                // 스킵 처리에 필요한 시간
 
     [Header("Speech Bubbles")]
     public CanvasGroup[] speechBubbles;            // 말풍선 캔버스 그룹 배열
     public TextMeshProUGUI[] speechTexts;          // 말풍선 텍스트 컴포넌트 배열
     public float bubbleAnimDuration = 0.18f;       // 말풍선 페이드 및 크기 변화 시간
-    public float bubbleStartScale = 0.9f;         // 말풍선 등장 시 초기 크기 비율
-    public float bubbleEndScale = 0.95f;           // 말풍선 퇴장 시 최종 크기 비율
+    public float bubbleStartScale = 0.98f;          // 말풍선 등장 시 초기 크기 비율
+    public float bubbleEndScale = 0.98f;           // 말풍선 퇴장 시 최종 크기 비율
+    [Tooltip("말풍선이 나타나고 사라질 때 Y축으로 이동할 거리")]
+    public float bubbleMoveOffset = 5f;           // 말풍선 상하 이동 거리
 
     [Header("Audio")]
     public AudioClip introTypingSound;             // 인트로 터미널 전용 사운드
@@ -35,6 +37,8 @@ public class TutorialManager : MonoBehaviour
     private float currentHoldTimer = 0f;           // 스킵 키 누적 시간
     private float maxMaskWidth;                    // 마스크의 최대 너비
     private float introTimer = 0f;                 // 인트로 진행 시간 측정용
+
+    private Vector2[] bubbleOriginalPos;           // 말풍선의 원래 위치 저장용 배열
 
     private void Awake()
     {
@@ -55,9 +59,19 @@ public class TutorialManager : MonoBehaviour
             SetSkipFillAmount(0f); 
         }
 
-        foreach (var bubble in speechBubbles)
+        // 말풍선의 원래 위치(AnchoredPosition) 저장
+        bubbleOriginalPos = new Vector2[speechBubbles.Length];
+        for (int i = 0; i < speechBubbles.Length; i++)
         {
-            if (bubble != null) bubble.gameObject.SetActive(false);
+            if (speechBubbles[i] != null)
+            {
+                RectTransform rectTransform = speechBubbles[i].GetComponent<RectTransform>();
+                if (rectTransform != null)
+                {
+                    bubbleOriginalPos[i] = rectTransform.anchoredPosition;
+                }
+                speechBubbles[i].gameObject.SetActive(false);
+            }
         }
 
         StartCoroutine(Co_PlayIntro());
@@ -265,6 +279,9 @@ public class TutorialManager : MonoBehaviour
 
         CanvasGroup cg = speechBubbles[index];
         TextMeshProUGUI tmp = speechTexts[index];
+        RectTransform rectTransform = cg.GetComponent<RectTransform>();
+        
+        Vector2 originalPos = bubbleOriginalPos[index];
 
         if (isShowing)
         {
@@ -272,6 +289,10 @@ public class TutorialManager : MonoBehaviour
             cg.gameObject.SetActive(true);
             cg.alpha = 0f;
             cg.transform.localScale = Vector3.one * bubbleStartScale; 
+            
+            // 등장 시작 위치: 원래 위치보다 살짝 아래
+            if (rectTransform != null) rectTransform.anchoredPosition = originalPos - new Vector2(0, bubbleMoveOffset);
+
             tmp.text = text; 
 
             float timer = 0f;
@@ -279,12 +300,21 @@ public class TutorialManager : MonoBehaviour
             {
                 timer += Time.deltaTime;
                 float progress = timer / bubbleAnimDuration;
+                
                 cg.alpha = progress;
                 cg.transform.localScale = Vector3.Lerp(Vector3.one * bubbleStartScale, Vector3.one, progress);
+                
+                // 등장 시: 아래에서 위(원래 위치)로 이동
+                if (rectTransform != null)
+                {
+                    rectTransform.anchoredPosition = Vector2.Lerp(originalPos - new Vector2(0, bubbleMoveOffset), originalPos, progress);
+                }
+
                 yield return null;
             }
             cg.alpha = 1f;
             cg.transform.localScale = Vector3.one;
+            if (rectTransform != null) rectTransform.anchoredPosition = originalPos;
         }
         else
         {
@@ -293,12 +323,23 @@ public class TutorialManager : MonoBehaviour
             {
                 timer += Time.deltaTime;
                 float progress = timer / bubbleAnimDuration;
+                
                 cg.alpha = 1f - progress;
                 cg.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * bubbleEndScale, progress);
+                
+                // 퇴장 시: 원래 위치에서 살짝 아래로 이동
+                if (rectTransform != null)
+                {
+                    rectTransform.anchoredPosition = Vector2.Lerp(originalPos, originalPos - new Vector2(0, bubbleMoveOffset), progress);
+                }
+
                 yield return null;
             }
             cg.gameObject.SetActive(false);
             tmp.text = ""; 
+            
+            // 위치 복구
+            if (rectTransform != null) rectTransform.anchoredPosition = originalPos;
         }
     }
 
