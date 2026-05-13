@@ -27,6 +27,7 @@ public class Player : MonoBehaviour
     public bool isAttacking = false;
     public bool isKnockedBack = false;
     public bool isRecoiling = false;
+    public bool isTutorial = false;
 
     [Header("Hit And Invincibility")]
     [SerializeField] private bool isInvincible = false;
@@ -167,7 +168,8 @@ public class Player : MonoBehaviour
     {
         if (!canControl || _isDashing) return;
 
-        bool isSafeZone = InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone;
+        // 튜토리얼이 아닐 때만 안전지대 무한 대시 허용
+        bool isSafeZone = (InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone) && !isTutorial;
 
         if (!isSafeZone && stats.currentDashStacks < 1f) return;
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections; // 코루틴 사용을 위해 추가
 
 public class CameraFollow : MonoBehaviour
 {
@@ -36,19 +37,20 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float uiOffsetSmoothSpeed = 10f;
     [SerializeField] private float shakeFrequency = 35f;           
 
-    // ==========================================
-    // [수정됨] 카메라 제한 및 여유 공간 설정
-    // ==========================================
     [Header("Bounds Settings")]
     public bool useBounds = false;                                 
     private Bounds currentBounds;                                  
     
     [Tooltip("벽에 닿았을 때 마우스로 더 볼 수 있는 여유 거리")]
     public float boundsPadding = 1.5f;                             
+
+    // ==========================================
+    // [추가됨] 튜토리얼 인트로 줌 제어용 변수
+    // ==========================================
+    private bool _isCustomZooming = false;
     // ==========================================
 
     private float _currentShakeDecay;                              
-
     private Vector3 _offset;
     private Vector3 _uiOffset;
     private Vector3 _currentUiOffset;
@@ -153,7 +155,8 @@ public class CameraFollow : MonoBehaviour
 
         if (pixelCam != null)
         {
-            if (isAiming || isCinematicZoom)
+            // 커스텀 줌 연출 중일 때도 픽셀 퍼펙트 카메라를 끕니다.
+            if (isAiming || isCinematicZoom || _isCustomZooming)
             {
                 pixelCam.enabled = false;
             }
@@ -176,10 +179,14 @@ public class CameraFollow : MonoBehaviour
         _currentInfluence = Mathf.Lerp(_currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
         _currentMaxOffset = Mathf.Lerp(_currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
 
+        // 커스텀 줌 연출 중이 아닐 때만 기존 줌 로직을 실행합니다.
         if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
         {
-            float dt = isCinematicZoom ? Time.unscaledDeltaTime : Time.deltaTime;
-            cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, currentZoomSpeed * dt);
+            if (!_isCustomZooming)
+            {
+                float dt = isCinematicZoom ? Time.unscaledDeltaTime : Time.deltaTime;
+                cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, currentZoomSpeed * dt);
+            }
         }
 
         _currentUiOffset = Vector3.Lerp(
@@ -204,15 +211,11 @@ public class CameraFollow : MonoBehaviour
             finalOffset = Vector3.ClampMagnitude(finalOffset, _currentMaxOffset);
         }
 
-        // ==========================================
-        // [수정됨] 마우스 오프셋(finalOffset)을 적용하기 '전'에 플레이어 위치를 기준으로 제한
-        // ==========================================
         if (useBounds && cam != null)
         {
             float camHeight = cam.orthographicSize;
             float camWidth = camHeight * cam.aspect;
 
-            // padding을 추가하여 여유 구역 생성
             float minX = currentBounds.min.x + camWidth - boundsPadding;
             float maxX = currentBounds.max.x - camWidth + boundsPadding;
             float minY = currentBounds.min.y + camHeight - boundsPadding;
@@ -221,20 +224,13 @@ public class CameraFollow : MonoBehaviour
             if (minX > maxX) minX = maxX = currentBounds.center.x; 
             if (minY > maxY) minY = maxY = currentBounds.center.y; 
 
-            // 플레이어가 갈 수 있는 기본 목표 좌표를 먼저 제한합니다.
             targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
             targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
         }
 
-        // ==========================================
-        // 그 후에 마우스 오프셋을 더해줍니다. 
-        // 제한 구역에 걸려도 마우스를 움직이면 finalOffset만큼은 화면이 더 움직입니다!
-        // ==========================================
         targetPosition += finalOffset;
 
-
         Vector3 currentUnshakenPos = transform.position - _shakeOffset;
-
         float moveDt = isCinematicFocus ? Time.unscaledDeltaTime : Time.deltaTime;
         Vector3 smoothedPos = Vector3.Lerp(currentUnshakenPos, targetPosition, smoothSpeed * moveDt);
 
@@ -246,11 +242,7 @@ public class CameraFollow : MonoBehaviour
     public void SetTarget(Transform newTarget, float customSpeed = -1f)
     {
         player = newTarget;
-
-        if (customSpeed > 0f)
-        {
-            smoothSpeed = customSpeed;
-        }
+        if (customSpeed > 0f) smoothSpeed = customSpeed;
     }
 
     public void ResetTargetToPlayer()
@@ -259,7 +251,6 @@ public class CameraFollow : MonoBehaviour
         {
             player = GameManager.instance.player.transform;
         }
-
         smoothSpeed = (_originalSmoothSpeed > 2) ? _originalSmoothSpeed : 5f;
     }
 
@@ -274,24 +265,48 @@ public class CameraFollow : MonoBehaviour
         _currentShakeMagnitude = 0f;
     }
 
-    public void SetUIOffset(Vector3 offset)
+    public void SetUIOffset(Vector3 offset) { _uiOffset = offset; }
+    public void ResetUIOffset() { _uiOffset = Vector3.zero; }
+    public void SetCameraBounds(Bounds bounds) { currentBounds = bounds; useBounds = true; }
+    public void ClearCameraBounds() { useBounds = false; }
+
+    public void SetInstantCustomZoom(float targetSize)
     {
-        _uiOffset = offset;
+        if (cam == null) return;
+
+        _isCustomZooming = true;
+        
+        // 픽셀 카메라가 켜져 있으면 끄고 기존 줌 수치를 저장
+        if (pixelCam != null && pixelCam.enabled)
+        {
+            pixelCam.enabled = false;
+            _dynamicBaseOrthoSize = cam.orthographicSize;
+        }
+        else if (_dynamicBaseOrthoSize <= 0f)
+        {
+            _dynamicBaseOrthoSize = cam.orthographicSize;
+        }
+
+        cam.orthographicSize = targetSize;
     }
 
-    public void ResetUIOffset()
+    public IEnumerator Co_RestoreZoom(float duration)
     {
-        _uiOffset = Vector3.zero;
-    }
+        if (cam == null) yield break;
 
-    public void SetCameraBounds(Bounds bounds)
-    {
-        currentBounds = bounds;
-        useBounds = true;
-    }
+        float startSize = cam.orthographicSize;
+        float elapsed = 0f;
 
-    public void ClearCameraBounds()
-    {
-        useBounds = false;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            // SmoothStep을 사용하여 자연스럽게 가감속하며 줌 아웃
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            cam.orthographicSize = Mathf.Lerp(startSize, _dynamicBaseOrthoSize, t);
+            yield return null;
+        }
+
+        cam.orthographicSize = _dynamicBaseOrthoSize;
+        _isCustomZooming = false; // 제어권을 다시 기존 로직으로 넘김
     }
 }

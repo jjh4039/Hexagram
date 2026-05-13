@@ -10,8 +10,9 @@ public class PlayerInfoUI : MonoBehaviour
     
     [Header("SafeZone UI Settings")]
     public TextMeshProUGUI safeZoneText; // GameObject에서 TextMeshProUGUI로 변경
-    [SerializeField] private float fadeDuration = 0.3f; // 페이드 속도
-
+    [SerializeField] private float fadeDuration = 0.6f; // 페이드 속도
+    public bool isTutorial = false;
+    
     private Coroutine fadeCoroutine;
 
     private void Start()
@@ -20,8 +21,8 @@ public class PlayerInfoUI : MonoBehaviour
         {
             InputStateManager.Instance.OnGamePhaseChanged += HandleGamePhaseChanged;
             
-            // 초기 상태 설정
-            bool isSafe = InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone;
+            // 튜토리얼 중이면 무조건 비표시 처리
+            bool isSafe = (InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone) && !isTutorial;
             if (safeZoneText != null)
             {
                 safeZoneText.text = "비전투 상태 : 대시 소모 없음";
@@ -32,6 +33,17 @@ public class PlayerInfoUI : MonoBehaviour
         }
     }
 
+    private void HandleGamePhaseChanged(GamePhase newPhase)
+    {
+        if (safeZoneText != null)
+        {
+            bool isSafe = (newPhase == GamePhase.SafeZone) && !isTutorial;
+            
+            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+            fadeCoroutine = StartCoroutine(Co_FadeText(isSafe));
+        }
+    }
+
     private void OnDestroy()
     {
         if (InputStateManager.Instance != null)
@@ -39,18 +51,7 @@ public class PlayerInfoUI : MonoBehaviour
             InputStateManager.Instance.OnGamePhaseChanged -= HandleGamePhaseChanged;
         }
     }
-
-    private void HandleGamePhaseChanged(GamePhase newPhase)
-    {
-        if (safeZoneText != null)
-        {
-            bool isSafe = newPhase == GamePhase.SafeZone;
-            
-            if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-            fadeCoroutine = StartCoroutine(Co_FadeText(isSafe));
-        }
-    }
-
+    
     private IEnumerator Co_FadeText(bool fadeIn)
     {
         float targetAlpha = fadeIn ? 1f : 0f;

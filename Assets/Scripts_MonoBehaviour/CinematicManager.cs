@@ -73,7 +73,7 @@ public class CinematicManager : MonoBehaviour
             StartCoroutine(Co_GlobalFade(1f, 0f, sceneLoadFadeTime));
         }
     }
-
+    
     public IEnumerator Co_GlobalFade(float start, float end, float duration)
     {
         if (globalFadeOverlay == null) yield break;
@@ -126,7 +126,7 @@ public class CinematicManager : MonoBehaviour
         onFinish?.Invoke();
     }
 
-    private IEnumerator Co_FadeGameplayUI(bool isShowing)
+    public IEnumerator Co_FadeGameplayUI(bool isShowing)
     {
         float startAlpha = isShowing ? 0f : 1f;
         float endAlpha = isShowing ? 1f : 0f;
@@ -156,7 +156,7 @@ public class CinematicManager : MonoBehaviour
         }
     }
 
-    private IEnumerator Co_AnimateLetterBox(bool isShowing)
+    public IEnumerator Co_AnimateLetterBox(bool isShowing)
     {
         if (topBar == null || bottomBar == null) yield break;
 
