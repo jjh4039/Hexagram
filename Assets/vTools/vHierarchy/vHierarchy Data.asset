@@ -16,6 +16,7 @@ MonoBehaviour:
     keys:
     - 8c9cfa26abfee488c85f1582747f6a02
     - 3307100f2bb44c34297316e44d240e18
+    - d1d15c270ed6bfa429ac999e9e081d13
     values:
     - goDatas_byGlobalId:
         keys:
@@ -333,6 +334,14 @@ MonoBehaviour:
           iconNameOrGuid: Canvas Icon
           isIconRecursive: 1
           isColorRecursive: 0
+    - goDatas_byGlobalId:
+        keys:
+        - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-1174224186-0
+        values:
+        - colorIndex: 2
+          iconNameOrGuid: Settings Icon
+          isIconRecursive: 1
+          isColorRecursive: 1
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity
