@@ -33,6 +33,7 @@ public class TutorialManager : MonoBehaviour
     public AudioClip dialogueTypingSound;          // 대화 말풍선 전용 사운드
 
     private bool isCutsceneActive;                 // 현재 컷신 진행 여부
+    public bool IsCutsceneActive => isCutsceneActive;
     private bool canSkip;                          // 스킵 가능 여부
     private float currentHoldTimer = 0f;           // 스킵 키 누적 시간
     private float maxMaskWidth;                    // 마스크의 최대 너비

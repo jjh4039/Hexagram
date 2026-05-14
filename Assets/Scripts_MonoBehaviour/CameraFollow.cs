@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections; // 코루틴 사용을 위해 추가
+using System.Collections;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -23,34 +23,30 @@ public class CameraFollow : MonoBehaviour
     [Header("Aim & Zoom Settings")]
     [SerializeField] private float aimMouseInfluence = 0.15f;
     [SerializeField] private float aimMaxMouseOffset = 2.0f;
-    [SerializeField] private float aimZoomMultiplier = 0.95f;       
+    [SerializeField] private float aimZoomMultiplier = 0.95f;
     [SerializeField] private float aimTransitionSpeed = 5f;
 
     [Header("Cinematic Settings")]
-    public bool isCinematicFocus = false;                          
-    public bool isCinematicZoom = false;                           
-    [SerializeField] private float cinematicZoomMultiplier = 0.8f; 
-    [SerializeField] private float cinematicZoomSpeed = 2.0f;      
+    public bool isCinematicFocus = false;
+    public bool isCinematicZoom = false;
+    [SerializeField] private float cinematicZoomMultiplier = 0.8f;
+    [SerializeField] private float cinematicZoomSpeed = 2.0f;
 
     [Header("Shake Settings")]
     [SerializeField] private float shakeDecaySpeed = 5f;
     [SerializeField] private float uiOffsetSmoothSpeed = 10f;
-    [SerializeField] private float shakeFrequency = 35f;           
+    [SerializeField] private float shakeFrequency = 35f;
 
     [Header("Bounds Settings")]
-    public bool useBounds = false;                                 
-    private Bounds currentBounds;                                  
-    
+    public bool useBounds = false;
+    private Bounds currentBounds;
+
     [Tooltip("벽에 닿았을 때 마우스로 더 볼 수 있는 여유 거리")]
-    public float boundsPadding = 1.5f;                             
+    public float boundsPadding = 1.5f;
 
-    // ==========================================
-    // [추가됨] 튜토리얼 인트로 줌 제어용 변수
-    // ==========================================
     private bool _isCustomZooming = false;
-    // ==========================================
 
-    private float _currentShakeDecay;                              
+    private float _currentShakeDecay;
     private Vector3 _offset;
     private Vector3 _uiOffset;
     private Vector3 _currentUiOffset;
@@ -60,8 +56,8 @@ public class CameraFollow : MonoBehaviour
     private float _lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
 
-    private float _shakeSeedX;                                     
-    private float _shakeSeedY;                                     
+    private float _shakeSeedX;
+    private float _shakeSeedY;
 
     private float _originalSmoothSpeed;
     private float _currentInfluence;
@@ -155,7 +151,6 @@ public class CameraFollow : MonoBehaviour
 
         if (pixelCam != null)
         {
-            // 커스텀 줌 연출 중일 때도 픽셀 퍼펙트 카메라를 끕니다.
             if (isAiming || isCinematicZoom || _isCustomZooming)
             {
                 pixelCam.enabled = false;
@@ -179,7 +174,6 @@ public class CameraFollow : MonoBehaviour
         _currentInfluence = Mathf.Lerp(_currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
         _currentMaxOffset = Mathf.Lerp(_currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
 
-        // 커스텀 줌 연출 중이 아닐 때만 기존 줌 로직을 실행합니다.
         if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
         {
             if (!_isCustomZooming)
@@ -200,7 +194,8 @@ public class CameraFollow : MonoBehaviour
 
         bool isTrackingRealPlayer = (GameManager.instance && player == GameManager.instance.player.transform);
 
-        if (isTrackingRealPlayer && !isCinematicFocus && Mouse.current != null)
+        // ★ [수정됨] _uiOffset이 0일 때만 (표지판 등을 보지 않을 때만) 마우스 영향을 받도록 수정
+        if (isTrackingRealPlayer && !isCinematicFocus && Mouse.current != null && _uiOffset == Vector3.zero)
         {
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
@@ -221,8 +216,8 @@ public class CameraFollow : MonoBehaviour
             float minY = currentBounds.min.y + camHeight - boundsPadding;
             float maxY = currentBounds.max.y - camHeight + boundsPadding;
 
-            if (minX > maxX) minX = maxX = currentBounds.center.x; 
-            if (minY > maxY) minY = maxY = currentBounds.center.y; 
+            if (minX > maxX) minX = maxX = currentBounds.center.x;
+            if (minY > maxY) minY = maxY = currentBounds.center.y;
 
             targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
             targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
@@ -275,8 +270,7 @@ public class CameraFollow : MonoBehaviour
         if (cam == null) return;
 
         _isCustomZooming = true;
-        
-        // 픽셀 카메라가 켜져 있으면 끄고 기존 줌 수치를 저장
+
         if (pixelCam != null && pixelCam.enabled)
         {
             pixelCam.enabled = false;
@@ -300,13 +294,12 @@ public class CameraFollow : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            // SmoothStep을 사용하여 자연스럽게 가감속하며 줌 아웃
             float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
             cam.orthographicSize = Mathf.Lerp(startSize, _dynamicBaseOrthoSize, t);
             yield return null;
         }
 
         cam.orthographicSize = _dynamicBaseOrthoSize;
-        _isCustomZooming = false; // 제어권을 다시 기존 로직으로 넘김
+        _isCustomZooming = false;
     }
 }

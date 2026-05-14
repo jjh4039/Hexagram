@@ -113,11 +113,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PressF_0
+      name: PressF
       rect:
         serializedVersion: 2
         x: 0
-        y: 11
+        y: 66
         width: 11
         height: 11
       alignment: 0
@@ -135,11 +135,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PressF_1
+      name: Press1
       rect:
         serializedVersion: 2
         x: 11
-        y: 11
+        y: 66
         width: 11
         height: 11
       alignment: 0
@@ -157,11 +157,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PressF_2
+      name: Press2
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 55
         width: 11
         height: 11
       alignment: 0
@@ -179,11 +179,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: PressF_3
+      name: Press3
       rect:
         serializedVersion: 2
         x: 11
-        y: 0
+        y: 55
         width: 11
         height: 11
       alignment: 0
@@ -196,6 +196,160 @@ TextureImporter:
       bones: []
       spriteID: b1500b791bfba34469816b04d24621de
       internalID: 2083185453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressW
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 66
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f227341ca9ed5534eba14020e262fc32
+      internalID: 1140946161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressS
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 55
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6bbc5e81fff42674290e65f6d0812d72
+      internalID: -1057954082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressA
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 66
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f8bd919ae9bdfaa429b56d926e70e1d4
+      internalID: -479158583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressD
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 55
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3e1fe038c0042a940b6ebe47893375cf
+      internalID: -348858453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressSpace
+      rect:
+        serializedVersion: 2
+        x: 44
+        y: 68
+        width: 19
+        height: 8
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fc1ae9734b5e58a4cbbe21447f97c5b8
+      internalID: 564493436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressLeft
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 41
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e02f99ea6f1942143ac2d36828868ae3
+      internalID: 1461139845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PressRight
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 41
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 1, y: 1, z: 1, w: 1}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 23c1463a00246884fa5a5336014ed211
+      internalID: -1359341479
       vertices: []
       indices: 
       edges: []
@@ -216,10 +370,17 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":11.0,"y":11.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      PressF_0: 8676045995479992800
-      PressF_1: 1662221454
-      PressF_2: -1392324382
-      PressF_3: 2083185453
+      Press1: 1662221454
+      Press2: -1392324382
+      Press3: 2083185453
+      PressA: -479158583
+      PressD: -348858453
+      PressF: 8676045995479992800
+      PressLeft: 1461139845
+      PressRight: -1359341479
+      PressS: -1057954082
+      PressSpace: 564493436
+      PressW: 1140946161
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
