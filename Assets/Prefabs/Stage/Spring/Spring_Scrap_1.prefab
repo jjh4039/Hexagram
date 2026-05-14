@@ -8036,7 +8036,7 @@ MonoBehaviour:
   barrierEla: {fileID: 5132786214549564024}
   statue: {fileID: 6591054330482880536}
   stageBounds: {fileID: 3927962493277799658}
-  rewardPrefab: {fileID: 4874768350431733968}
+  rewardPrefab: {fileID: 3526734086602578429, guid: 3c23b0af158b5f94db906e0d4198bbef, type: 3}
   rewardSpawnPoint: {fileID: 1466934104367609175}
   moduleRewardCount: 3
 --- !u!61 &3927962493277799658
