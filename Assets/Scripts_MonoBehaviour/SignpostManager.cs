@@ -1,64 +1,56 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using System.Collections;
 
 public class SignpostManager : MonoBehaviour
 {
-    // 표지판인지 잔해인지 구분하기 위한 열거형
     public enum InteractType { Signpost, Debris }
 
     [System.Serializable]
     public class SignpostData
     {
-        [Tooltip("맵에 배치된 오브젝트의 Collider2D (IsTrigger 체크 필요)")]
-        public Collider2D signpostCollider;
+        public Collider2D signpostCollider; // 충돌체
+        public CanvasGroup guideUI; // UI 그룹
+        public TextMeshProUGUI[] tmpTexts; // 인스펙터 할당 텍스트 배열
 
-        [Tooltip("자식으로 있는 World Space Canvas의 UI (CanvasGroup 필요)")]
-        public CanvasGroup guideUI;
-
-        [HideInInspector] public Vector3 originalLocalPos;
-        [HideInInspector] public Coroutine currentAnim;
-        [HideInInspector] public bool isShowing;
-        [HideInInspector] public bool isPlayerInside;
-
-        [HideInInspector] public SpriteRenderer spriteRenderer;
+        [HideInInspector] public string[] originalTexts; // 원본 캐싱 배열
+        [HideInInspector] public Vector3 originalLocalPos; // 초기 로컬 위치
+        [HideInInspector] public Coroutine currentAnim; // 현재 애니메이션
+        [HideInInspector] public bool isShowing; // 현재 표시 여부
+        [HideInInspector] public bool isPlayerInside; // 플레이어 진입 여부
+        [HideInInspector] public SpriteRenderer spriteRenderer; // 스프라이트 렌더러
     }
 
-    [Header("Interactable Arrays")]
-    [Tooltip("기존 표지판 배열 (위로 카메라 이동, UI 아래에서 위로 등장)")]
-    public SignpostData[] signposts;
+    [Header("Interactable Arrays")] 
+    public SignpostData[] signposts; // 표지판 데이터 리스트
+    public SignpostData[] debrisList; // 잔해 데이터 리스트
 
-    [Tooltip("새로운 잔해 배열 (아래로 카메라 이동, UI 위에서 아래로 등장)")]
-    public SignpostData[] debrisList; // ★ [추가됨] 잔해 데이터 배열
+    [Header("Material Settings")] 
+    public Material[] signpostMaterials; // 강조용 머터리얼 배열
 
-    [Header("Material Settings")]
-    [Tooltip("0: 기본, 1: 표지판 강조(청록), 2: 잔해 강조(주황)")]
-    public Material[] signpostMaterials;
+    [Header("Animation Settings")] 
+    public float animDuration = 0.3f; // 애니메이션 지속 시간
+    public float slideOffset = 0.8f; // 슬라이드 이동 거리
 
-    [Header("Animation Settings")]
-    public float animDuration = 0.3f;
-    public float slideOffset = 0.8f;
+    [Header("Animation Curves")] 
+    public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // 페이드 곡선
+    public AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // 이동 곡선
 
-    [Header("Animation Curves (느낌 조절)")]
-    public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    public AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Header("Camera Settings")] 
+    public float cameraUpOffset = 2.0f; // 표지판 카메라 상승 값
+    public float cameraDownOffset = 2.0f; // 잔해 카메라 하강 값
 
-    [Header("Camera Settings")]
-    public float cameraUpOffset = 2.0f;     // 표지판용 카메라 상승 오프셋
-    public float cameraDownOffset = 2.0f;   // ★ [추가됨] 잔해용 카메라 하강 오프셋
-
-    private int activeInteractCount = 0;
+    private int activeInteractCount = 0; // 활성화된 상호작용 개수
+    private float postCutsceneDelay = 0.25f; // 컷신 종료 후 안정화 대기 시간
+    private float lastCutsceneTime = -10f; // 컷신 마지막 활성화 시간 추적용
 
     private void Start()
     {
-        // 1. 표지판 배열 초기화
         InitializeArray(signposts, InteractType.Signpost);
-
-        // 2. 잔해 배열 초기화
         InitializeArray(debrisList, InteractType.Debris);
     }
 
-    // 배열 초기화 중복 코드를 줄이기 위한 헬퍼 함수
     private void InitializeArray(SignpostData[] array, InteractType type)
     {
         for (int i = 0; i < array.Length; i++)
@@ -70,19 +62,40 @@ public class SignpostManager : MonoBehaviour
                 array[i].guideUI.alpha = 0f;
             }
 
+            if (array[i].tmpTexts != null && array[i].tmpTexts.Length > 0)
+            {
+                array[i].originalTexts = new string[array[i].tmpTexts.Length];
+                for (int j = 0; j < array[i].tmpTexts.Length; j++)
+                {
+                    if (array[i].tmpTexts[j] != null)
+                    {
+                        array[i].originalTexts[j] = array[i].tmpTexts[j].text; // 원본 텍스트 캐싱
+                    }
+                }
+            }
+
             if (array[i].signpostCollider != null)
             {
                 array[i].spriteRenderer = array[i].signpostCollider.GetComponentInChildren<SpriteRenderer>();
-
                 SignpostTrigger trigger = array[i].signpostCollider.gameObject.AddComponent<SignpostTrigger>();
-                trigger.Initialize(this, i, type); // 타입도 함께 넘겨줍니다.
+                trigger.Initialize(this, i, type); // 트리거 초기화
             }
         }
     }
 
     private void Update()
     {
-        if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
+        if (TutorialManager.Instance != null)
+        {
+            if (TutorialManager.Instance.IsCutsceneActive)
+            {
+                lastCutsceneTime = Time.time;
+                return;
+            }
+
+            // 컷신 종료 후 지정된 시간(0.5초) 동안은 상호작용 지연 (카메라 튀는 현상 방지)
+            if (Time.time - lastCutsceneTime < postCutsceneDelay) return; 
+        }
 
         CheckArrayUpdate(signposts, InteractType.Signpost);
         CheckArrayUpdate(debrisList, InteractType.Debris);
@@ -101,7 +114,11 @@ public class SignpostManager : MonoBehaviour
 
     public void OnInteractEnter(int index, InteractType type)
     {
-        if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
+        if (TutorialManager.Instance != null)
+        {
+            // 컷신 진행 중이거나 안정화 대기 시간 중이면 실행 방지
+            if (TutorialManager.Instance.IsCutsceneActive || Time.time - lastCutsceneTime < postCutsceneDelay) return;
+        }
 
         SignpostData[] targetArray = (type == InteractType.Signpost) ? signposts : debrisList;
         if (index < 0 || index >= targetArray.Length) return;
@@ -112,21 +129,19 @@ public class SignpostManager : MonoBehaviour
         data.isShowing = true;
         activeInteractCount++;
 
-        // ★ 머터리얼 처리: 표지판은 1번, 잔해는 2번 사용
         if (data.spriteRenderer != null)
         {
             int matIndex = (type == InteractType.Signpost) ? 1 : 2;
             if (matIndex < signpostMaterials.Length)
             {
-                data.spriteRenderer.material = signpostMaterials[matIndex];
+                data.spriteRenderer.material = signpostMaterials[matIndex]; // 강조 머터리얼 적용
             }
         }
 
-        // ★ 카메라 오프셋: 표지판은 위로(+), 잔해는 아래로(-)
         if (CameraFollow.instance != null)
         {
             float yOffset = (type == InteractType.Signpost) ? cameraUpOffset : -cameraDownOffset;
-            CameraFollow.instance.SetUIOffset(new Vector3(0, yOffset, 0));
+            CameraFollow.instance.SetUIOffset(new Vector3(0, yOffset, 0)); // 카메라 위치 조정
         }
 
         if (data.currentAnim != null) StopCoroutine(data.currentAnim);
@@ -145,15 +160,14 @@ public class SignpostManager : MonoBehaviour
         activeInteractCount--;
         if (activeInteractCount < 0) activeInteractCount = 0;
 
-        // 멀어졌을 때 기본 머터리얼(0번)로 복구
         if (data.spriteRenderer != null && signpostMaterials.Length > 0)
         {
-            data.spriteRenderer.material = signpostMaterials[0];
+            data.spriteRenderer.material = signpostMaterials[0]; // 기본 머터리얼 복구
         }
 
         if (activeInteractCount == 0 && CameraFollow.instance != null)
         {
-            CameraFollow.instance.ResetUIOffset();
+            CameraFollow.instance.ResetUIOffset(); // 카메라 위치 복구
         }
 
         if (data.currentAnim != null) StopCoroutine(data.currentAnim);
@@ -165,17 +179,44 @@ public class SignpostManager : MonoBehaviour
         if (data.guideUI == null) yield break;
 
         Transform uiTransform = data.guideUI.transform;
-        if (isShowing) data.guideUI.gameObject.SetActive(true);
+
+        if (isShowing)
+        {
+            data.guideUI.gameObject.SetActive(true);
+
+            if (data.tmpTexts != null && data.originalTexts != null)
+            {
+                for (int i = 0; i < data.tmpTexts.Length; i++)
+                {
+                    if (data.tmpTexts[i] != null)
+                    {
+                        data.tmpTexts[i].text = string.Empty;
+                    }
+                }
+            }
+
+            yield return null;
+
+            if (data.tmpTexts != null && data.originalTexts != null)
+            {
+                for (int i = 0; i < data.tmpTexts.Length; i++)
+                {
+                    if (data.tmpTexts[i] != null && i < data.originalTexts.Length)
+                    {
+                        data.tmpTexts[i].text = data.originalTexts[i];
+                    }
+                }
+            }
+        }
 
         float timer = 0f;
         float startAlpha = data.guideUI.alpha;
         float targetAlpha = isShowing ? 1f : 0f;
 
-        // ★ 타입에 따른 시작/끝 위치(Hidden Position) 분기 처리
-        // 표지판: 원래 위치보다 아래쪽 (-slideOffset)에 숨어있음
-        // 잔해: 원래 위치보다 위쪽 (+slideOffset)에 숨어있음
         Vector3 slideVec = new Vector3(0, slideOffset, 0);
-        Vector3 hiddenPos = (type == InteractType.Signpost) ? data.originalLocalPos - slideVec : data.originalLocalPos + slideVec;
+        Vector3 hiddenPos = (type == InteractType.Signpost)
+            ? data.originalLocalPos - slideVec
+            : data.originalLocalPos + slideVec;
 
         Vector3 targetPos = isShowing ? data.originalLocalPos : hiddenPos;
         Vector3 startPos = uiTransform.localPosition;
@@ -191,11 +232,8 @@ public class SignpostManager : MonoBehaviour
             timer += Time.deltaTime;
             float t = timer / animDuration;
 
-            float fadeT = fadeCurve.Evaluate(t);
-            float moveT = moveCurve.Evaluate(t);
-
-            data.guideUI.alpha = Mathf.Lerp(startAlpha, targetAlpha, fadeT);
-            uiTransform.localPosition = Vector3.Lerp(startPos, targetPos, moveT);
+            data.guideUI.alpha = Mathf.Lerp(startAlpha, targetAlpha, fadeCurve.Evaluate(t));
+            uiTransform.localPosition = Vector3.Lerp(startPos, targetPos, moveCurve.Evaluate(t));
 
             yield return null;
         }
@@ -207,14 +245,11 @@ public class SignpostManager : MonoBehaviour
     }
 }
 
-// ---------------------------------------------------------
-// 충돌 감지용 보조 스크립트 (타입 구별 추가)
-// ---------------------------------------------------------
 public class SignpostTrigger : MonoBehaviour
 {
     private SignpostManager manager;
     private int index;
-    private SignpostManager.InteractType interactType; // 타입 변수 추가
+    private SignpostManager.InteractType interactType;
 
     public void Initialize(SignpostManager mgr, int idx, SignpostManager.InteractType type)
     {
@@ -227,7 +262,6 @@ public class SignpostTrigger : MonoBehaviour
     {
         if (collision.CompareTag("Player") && manager != null)
         {
-            // 타입에 맞게 데이터 갱신
             if (interactType == SignpostManager.InteractType.Signpost)
                 manager.signposts[index].isPlayerInside = true;
             else

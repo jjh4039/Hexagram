@@ -67,6 +67,8 @@ public class CameraFollow : MonoBehaviour
     private bool _wasAiming = false;
     private float _dynamicBaseOrthoSize = 5f;
 
+    private Vector3 _smoothedMouseOffset; // 마우스 보정 부드러운 전환을 위한 변수
+
     private void Awake()
     {
         instance = this;
@@ -190,21 +192,23 @@ public class CameraFollow : MonoBehaviour
         );
 
         Vector3 targetPosition = player.position + _offset + _currentUiOffset;
-        Vector3 finalOffset = Vector3.zero;
+        Vector3 targetMouseOffset = Vector3.zero;
 
         bool isTrackingRealPlayer = (GameManager.instance && player == GameManager.instance.player.transform);
 
-        // ★ [수정됨] _uiOffset이 0일 때만 (표지판 등을 보지 않을 때만) 마우스 영향을 받도록 수정
         if (isTrackingRealPlayer && !isCinematicFocus && Mouse.current != null && _uiOffset == Vector3.zero)
         {
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+            Vector3 mouseWorldPos = cam.ScreenToWorldPoint(mouseScreenPos); // Camera.main 대신 캐싱된 cam 사용
             Vector3 directionToMouse = mouseWorldPos - player.position;
             directionToMouse.z = 0;
 
-            finalOffset = directionToMouse * _currentInfluence;
-            finalOffset = Vector3.ClampMagnitude(finalOffset, _currentMaxOffset);
+            targetMouseOffset = directionToMouse * _currentInfluence;
+            targetMouseOffset = Vector3.ClampMagnitude(targetMouseOffset, _currentMaxOffset);
         }
+
+        // 마우스 보정값을 즉시 적용하지 않고 부드럽게 보간 (튀는 현상 해결)
+        _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, targetMouseOffset, aimTransitionSpeed * Time.deltaTime);
 
         if (useBounds && cam != null)
         {
@@ -223,7 +227,7 @@ public class CameraFollow : MonoBehaviour
             targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
         }
 
-        targetPosition += finalOffset;
+        targetPosition += _smoothedMouseOffset; // 보간된 값을 더함
 
         Vector3 currentUnshakenPos = transform.position - _shakeOffset;
         float moveDt = isCinematicFocus ? Time.unscaledDeltaTime : Time.deltaTime;
@@ -253,6 +257,7 @@ public class CameraFollow : MonoBehaviour
     {
         if (player == null) return;
         _currentUiOffset = _uiOffset;
+        _smoothedMouseOffset = Vector3.zero; // 강제 스냅 시 보정값도 초기화
         Vector3 targetPos = player.position + _offset + _currentUiOffset;
         transform.position = targetPos;
         _shakeOffset = Vector3.zero;

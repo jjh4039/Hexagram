@@ -6,23 +6,25 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
 
-    [Header("--- Settings ---")] [Range(0f, 1f)]
-    public float masterVolume = 0.5f;
+    [Header("--- Settings ---")]
+    [Range(0f, 1f)] public float masterVolume = 0.5f;
 
     [Range(0f, 1f)] public float bgmVolume = 0.2f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
-    [Header("--- Background Music ---")] [SerializeField]
-    private AudioSource bgmSource;
+    [Header("--- Background Music ---")]
+    [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private AudioSource bgmLoopSource; // 인스펙터에서 반드시 AudioSource를 추가로 할당해야 함
 
-    [Header("--- SFX Pooling ---")] [SerializeField]
-    private int poolSize = 20;
+    [Header("--- SFX Pooling ---")]
+    [SerializeField] private int poolSize = 20;
 
     private List<AudioSource> sfxPool;
 
-    // 동일 사운드 겹침 방지용 딕셔너리
-    private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>();
-    private const float MIN_SFX_INTERVAL = 0.05f; // 동일 사운드 최소 재생 간격
+    private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>(); // 동일 사운드 겹침 방지용
+    private const float MIN_SFX_INTERVAL = 0.05f; // 동일 사운드 재생 최소 간격
+
+    private Coroutine bgmFadeRoutine; // BGM 페이드 코루틴 추적용
 
     private void Awake()
     {
@@ -61,7 +63,6 @@ public class SoundManager : MonoBehaviour
     {
         if (clip == null) return;
 
-        // 1. 동일 사운드 쿨타임 체크 (소리 뭉침 및 먹먹함 방지)
         if (lastPlayTimes.TryGetValue(clip, out float lastTime))
         {
             if (Time.unscaledTime - lastTime < MIN_SFX_INTERVAL) return;
@@ -69,52 +70,123 @@ public class SoundManager : MonoBehaviour
 
         lastPlayTimes[clip] = Time.unscaledTime;
 
-        // 2. 채널 가져오기 (비어있는게 없다면 가장 오래된 것을 뺏어옴)
         AudioSource source = GetPooledSource();
 
         if (source != null)
         {
             source.gameObject.SetActive(true);
-            source.Stop(); // 재사용 시 이전 소리 정지
+            source.Stop(); 
 
             source.volume = masterVolume * sfxVolume * volumeScale;
             source.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
             source.clip = clip;
             source.Play();
 
-            // 코루틴 관리 최적화: 이미 실행 중인 비활성화 루틴이 꼬이지 않게 처리
             StopCoroutine(nameof(DisableSourceRoutine));
             StartCoroutine(DisableSourceRoutine(source, clip.length));
         }
     }
 
-    public void PlayBGM(AudioClip clip)
+    public void PlayBGM(AudioClip loopClip, AudioClip introClip = null, float fadeInDuration = 1f)
     {
-        if (bgmSource == null) return;
-        if (bgmSource.clip == clip) return;
+        if (loopClip == null) return;
 
-        bgmSource.clip = clip;
-        bgmSource.loop = true;
-        bgmSource.volume = masterVolume * bgmVolume;
-        bgmSource.Play();
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); // 기존 페이드 중단
+
+        bgmSource.Stop();
+        if (bgmLoopSource != null) bgmLoopSource.Stop();
+
+        float finalVolume = masterVolume * bgmVolume;
+
+        if (introClip == null)
+        {
+            bgmSource.clip = loopClip;
+            bgmSource.loop = true;
+            bgmSource.volume = finalVolume;
+            bgmSource.Play();
+        }
+        else
+        {
+            double introDuration = (double)introClip.samples / introClip.frequency;
+            double startTime = AudioSettings.dspTime + 0.1;
+
+            bgmSource.clip = introClip;
+            bgmSource.loop = false;
+            bgmSource.volume = 0f; // 페이드 인을 위해 0부터 시작
+            bgmSource.PlayScheduled(startTime);
+
+            if (bgmLoopSource != null)
+            {
+                bgmLoopSource.clip = loopClip;
+                bgmLoopSource.loop = true;
+                bgmLoopSource.volume = finalVolume; // 루프는 타겟 볼륨으로 대기
+                bgmLoopSource.PlayScheduled(startTime + introDuration);
+            }
+
+            bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, finalVolume, fadeInDuration));
+        }
+    }
+
+    public void StopBGM(float fadeOutDuration = 1f)
+    {
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); // 기존 페이드 중단
+        bgmFadeRoutine = StartCoroutine(Co_FadeOutBGM(fadeOutDuration));
+    }
+
+    private IEnumerator Co_FadeInBGM(AudioSource source, float targetVolume, float duration)
+    {
+        float timer = 0f;
+        while (timer < duration)
+        {
+            timer += Time.unscaledDeltaTime; // 일시정지 중에도 페이드 적용
+            source.volume = Mathf.Lerp(0f, targetVolume, timer / duration);
+            yield return null;
+        }
+        source.volume = targetVolume;
+    }
+
+    private IEnumerator Co_FadeOutBGM(float duration)
+    {
+        float startVolume1 = bgmSource != null ? bgmSource.volume : 0f;
+        float startVolume2 = bgmLoopSource != null ? bgmLoopSource.volume : 0f;
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.unscaledDeltaTime;
+            float progress = timer / duration;
+
+            if (bgmSource != null) bgmSource.volume = Mathf.Lerp(startVolume1, 0f, progress);
+            if (bgmLoopSource != null) bgmLoopSource.volume = Mathf.Lerp(startVolume2, 0f, progress);
+
+            yield return null;
+        }
+
+        if (bgmSource != null)
+        {
+            bgmSource.volume = 0f;
+            bgmSource.Stop();
+        }
+        
+        if (bgmLoopSource != null)
+        {
+            bgmLoopSource.volume = 0f;
+            bgmLoopSource.Stop();
+        }
     }
 
     private AudioSource GetPooledSource()
     {
-        // 1. 비활성화된 채널 찾기
         foreach (var source in sfxPool)
         {
             if (!source.gameObject.activeSelf) return source;
         }
 
-        // 2. 모든 채널이 사용 중이라면 가장 먼저 재생을 시작했던 채널을 강제로 재사용 (Voice Stealing)
-        // 리스트의 첫 번째가 보통 가장 오래된 소리일 확률이 높음
         AudioSource oldestSource = sfxPool[0];
         float longestTime = 0;
 
         foreach (var source in sfxPool)
         {
-            // 재생 시간이 가장 많이 경과한(남은 시간이 적은) 소리를 찾음
             if (source.time > longestTime)
             {
                 longestTime = source.time;
@@ -130,7 +202,6 @@ public class SoundManager : MonoBehaviour
         float elapsed = 0;
         while (elapsed < duration + 0.1f)
         {
-            // 일시정지 중에도 소리가 꺼져야 하므로 unscaledDeltaTime 사용
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
@@ -141,7 +212,10 @@ public class SoundManager : MonoBehaviour
     public void SetBGMVolume(float volume)
     {
         bgmVolume = volume;
-        if (bgmSource != null) bgmSource.volume = masterVolume * bgmVolume;
+        float finalVolume = masterVolume * bgmVolume;
+        
+        if (bgmSource != null) bgmSource.volume = finalVolume;
+        if (bgmLoopSource != null) bgmLoopSource.volume = finalVolume;
     }
 
     public void SetSFXVolume(float volume)
@@ -149,10 +223,12 @@ public class SoundManager : MonoBehaviour
         sfxVolume = volume;
     }
 
-
     public void SetMasterVolume(float volume)
     {
         masterVolume = volume;
-        if (bgmSource != null) bgmSource.volume = masterVolume * bgmVolume;
+        float finalVolume = masterVolume * bgmVolume;
+
+        if (bgmSource != null) bgmSource.volume = finalVolume;
+        if (bgmLoopSource != null) bgmLoopSource.volume = finalVolume;
     }
 }

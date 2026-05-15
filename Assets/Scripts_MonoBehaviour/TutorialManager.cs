@@ -23,14 +23,19 @@ public class TutorialManager : MonoBehaviour
     public CanvasGroup[] speechBubbles;            // 말풍선 캔버스 그룹 배열
     public TextMeshProUGUI[] speechTexts;          // 말풍선 텍스트 컴포넌트 배열
     public float bubbleAnimDuration = 0.18f;       // 말풍선 페이드 및 크기 변화 시간
-    public float bubbleStartScale = 0.98f;          // 말풍선 등장 시 초기 크기 비율
+    public float bubbleStartScale = 0.98f;         // 말풍선 등장 시 초기 크기 비율
     public float bubbleEndScale = 0.98f;           // 말풍선 퇴장 시 최종 크기 비율
     [Tooltip("말풍선이 나타나고 사라질 때 Y축으로 이동할 거리")]
-    public float bubbleMoveOffset = 5f;           // 말풍선 상하 이동 거리
+    public float bubbleMoveOffset = 5f;            // 말풍선 상하 이동 거리
 
     [Header("Audio")]
     public AudioClip introTypingSound;             // 인트로 터미널 전용 사운드
     public AudioClip dialogueTypingSound;          // 대화 말풍선 전용 사운드
+
+    [Header("BGM")]
+    public AudioClip bgm1Loop;                     // 시작 시 재생할 루프 BGM
+    public AudioClip bgm2Intro;                    // 조작 가능 시 재생할 BGM 인트로
+    public AudioClip bgm2Loop;                     // 조작 가능 시 재생할 BGM 루프
 
     private bool isCutsceneActive;                 // 현재 컷신 진행 여부
     public bool IsCutsceneActive => isCutsceneActive;
@@ -60,7 +65,6 @@ public class TutorialManager : MonoBehaviour
             SetSkipFillAmount(0f); 
         }
 
-        // 말풍선의 원래 위치(AnchoredPosition) 저장
         bubbleOriginalPos = new Vector2[speechBubbles.Length];
         for (int i = 0; i < speechBubbles.Length; i++)
         {
@@ -73,6 +77,12 @@ public class TutorialManager : MonoBehaviour
                 }
                 speechBubbles[i].gameObject.SetActive(false);
             }
+        }
+
+        // BGM 1 재생
+        if (SoundManager.instance != null && bgm1Loop != null)
+        {
+            SoundManager.instance.PlayBGM(bgm1Loop, null, 1.5f);
         }
 
         StartCoroutine(Co_PlayIntro());
@@ -139,7 +149,6 @@ public class TutorialManager : MonoBehaviour
         canSkip = true;
         introTimer = 0f; 
         
-        // 1. 플레이어 조종권 박탈 및 UI 모드 진입
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.ChangeInputState(InputState.UI);
@@ -151,7 +160,6 @@ public class TutorialManager : MonoBehaviour
             GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
         }
 
-        // 2. 컷신 연출 세팅 (카메라 통제 & 크게 확대, 게임 UI 숨김, 레터박스)
         if (CameraFollow.instance != null)
         {
             CameraFollow.instance.isCinematicFocus = true;
@@ -179,16 +187,16 @@ public class TutorialManager : MonoBehaviour
         
         yield return StartCoroutine(Co_PlaySpeechBubbles());
 
-        // 3. 인트로 텍스트가 사라지는 시점부터 스킵 완전 차단
         canSkip = false;
         if (skipNoticeContainer != null) skipNoticeContainer.SetActive(false);
 
         yield return StartCoroutine(Co_FadeOutIntroText());
         
-        // 4. 검은 화면 걷히기 (줌인된 플레이어 + 레터박스가 보임)
+        // 화면 암전 시 BGM 정지 연출 추가
+        if (SoundManager.instance != null) SoundManager.instance.StopBGM(2f);
+
         yield return StartCoroutine(Co_FadeOutScreen());
 
-        // 5. 3초간의 정적 대기와 함께 카메라 서서히 원래 크기로 줌아웃
         if (CameraFollow.instance != null)
         {
             yield return StartCoroutine(CameraFollow.instance.Co_RestoreZoom(3f));
@@ -198,7 +206,6 @@ public class TutorialManager : MonoBehaviour
             yield return new WaitForSeconds(3f);
         }
 
-        // 6. 컷신 종료 전 UI 및 레터박스 복구 (yield return 제거하여 즉시 조작 가능하게 변경)
         if (CinematicManager.instance != null)
         {
             StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(true));
@@ -291,7 +298,6 @@ public class TutorialManager : MonoBehaviour
             cg.alpha = 0f;
             cg.transform.localScale = Vector3.one * bubbleStartScale; 
             
-            // 등장 시작 위치: 원래 위치보다 살짝 아래
             if (rectTransform != null) rectTransform.anchoredPosition = originalPos - new Vector2(0, bubbleMoveOffset);
 
             tmp.text = text; 
@@ -305,7 +311,6 @@ public class TutorialManager : MonoBehaviour
                 cg.alpha = progress;
                 cg.transform.localScale = Vector3.Lerp(Vector3.one * bubbleStartScale, Vector3.one, progress);
                 
-                // 등장 시: 아래에서 위(원래 위치)로 이동
                 if (rectTransform != null)
                 {
                     rectTransform.anchoredPosition = Vector2.Lerp(originalPos - new Vector2(0, bubbleMoveOffset), originalPos, progress);
@@ -328,7 +333,6 @@ public class TutorialManager : MonoBehaviour
                 cg.alpha = 1f - progress;
                 cg.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * bubbleEndScale, progress);
                 
-                // 퇴장 시: 원래 위치에서 살짝 아래로 이동
                 if (rectTransform != null)
                 {
                     rectTransform.anchoredPosition = Vector2.Lerp(originalPos, originalPos - new Vector2(0, bubbleMoveOffset), progress);
@@ -339,7 +343,6 @@ public class TutorialManager : MonoBehaviour
             cg.gameObject.SetActive(false);
             tmp.text = ""; 
             
-            // 위치 복구
             if (rectTransform != null) rectTransform.anchoredPosition = originalPos;
         }
     }
@@ -363,6 +366,9 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator Co_SkipFadeOut()
     {
         if (skipNoticeContainer != null) skipNoticeContainer.SetActive(false);
+
+        // 스킵 시 BGM 정지 연출 추가
+        if (SoundManager.instance != null) SoundManager.instance.StopBGM(0.5f);
 
         float timer = 0f;
         float textFadeDuration = 0.3f; 
@@ -426,7 +432,6 @@ public class TutorialManager : MonoBehaviour
             fadeImage.gameObject.SetActive(false);
         }
 
-        // 스킵 시에도 3초 대기하며 천천히 원래대로 줌아웃 (스킵 불가능 영역)
         if (CameraFollow.instance != null)
         {
             yield return StartCoroutine(CameraFollow.instance.Co_RestoreZoom(3f));
@@ -436,7 +441,6 @@ public class TutorialManager : MonoBehaviour
             yield return new WaitForSeconds(3f);
         }
 
-        // 레터박스 걷히기 시작과 동시에 조작 권한 반환을 위해 yield return 제거
         if (CinematicManager.instance != null)
         {
             StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(true));
@@ -453,13 +457,11 @@ public class TutorialManager : MonoBehaviour
         
         if (skipNoticeContainer != null) skipNoticeContainer.SetActive(false);
 
-        // 카메라 통제 해제
         if (CameraFollow.instance != null)
         {
             CameraFollow.instance.isCinematicFocus = false;
         }
 
-        // 플레이어 조종권 부여 및 일반 모드 전환
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.ChangeInputState(InputState.Normal);
@@ -468,6 +470,12 @@ public class TutorialManager : MonoBehaviour
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
             GameManager.instance.player.canControl = true;
+        }
+
+        // BGM 2 재생
+        if (SoundManager.instance != null && bgm2Loop != null)
+        {
+            SoundManager.instance.PlayBGM(bgm2Loop, bgm2Intro, 1.5f);
         }
     }
 
@@ -495,9 +503,8 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator Co_PlayFinalCutscene(Transform statueTransform)
     {
         isCutsceneActive = true;
-        canSkip = false; // 분위기를 위해 마지막 컷신은 스킵 불가 처리
+        canSkip = false; 
 
-        // 1. 조작 박탈 및 UI 모드 진입
         if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeInputState(InputState.UI);
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
@@ -505,7 +512,6 @@ public class TutorialManager : MonoBehaviour
             GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
         }
 
-        // 2. 카메라 석상 포커스 & 줌인, 그리고 레터박스 연출
         if (CameraFollow.instance != null)
         {
             CameraFollow.instance.SetTarget(statueTransform);
@@ -529,24 +535,22 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(2.5f);
 
         ChangeBubbleText(finalBubbleIndex, "<size=110%>응시하시겠습니까?</size>");
-        yield return new WaitForSeconds(2f); // 텍스트를 읽을 시간 부여
+        yield return new WaitForSeconds(2f); 
 
-        // ★ [수정됨] 말풍선이 잠시 사라지며 정적 연출
         yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "", false));
-        yield return new WaitForSeconds(1f); // 긴장감을 주는 침묵의 시간
+        yield return new WaitForSeconds(1f); 
 
-        // ★ [수정됨] "..." 텍스트와 함께 말풍선 다시 등장
         yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "<size=120%>...</size>", true));
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(3f);
 
         ChangeBubbleText(finalBubbleIndex, "<color=#FF5C5C><size=130%>재검사 프로토콜, 가동합니다.</size></color>");
         yield return new WaitForSeconds(3f);
 
-        // 말풍선 퇴장
         yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "", false));
         yield return new WaitForSeconds(0.5f);
 
-        // 5. 화면 페이드 아웃 (완전한 암전)
+        if (SoundManager.instance != null) SoundManager.instance.StopBGM(1.5f); // 화면 암전 시 BGM 페이드 아웃 정지
+
         if (fadeImage != null)
         {
             fadeImage.gameObject.SetActive(true);
@@ -564,18 +568,13 @@ public class TutorialManager : MonoBehaviour
 
         yield return new WaitForSeconds(1.0f);
 
-        // 6. 암전된 화면 중앙에 아까 그 말풍선 다시 띄우기 (인덱스 2)
         yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "행운을 빕니다.", true));
         yield return new WaitForSeconds(2.5f);
 
-        // 말풍선 페이드 아웃
         yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "", false));
 
         yield return new WaitForSeconds(1.0f);
 
-        // 7. 씬 변경 (디버그 로그)
         Debug.Log("======== [Scene Change] 메인 스테이지로 진입! ========");
-
-        // 실제 씬 변경 코드는 여기에 작성 (예: SceneManager.LoadScene("MainStage");)
     }
 }
