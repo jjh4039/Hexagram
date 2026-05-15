@@ -486,4 +486,96 @@ public class TutorialManager : MonoBehaviour
             SoundManager.instance.PlaySFX(dialogueTypingSound, 0.3f, 0.15f);
         }
     }
+
+    public void StartFinalCutscene(Transform statueTransform)
+    {
+        StartCoroutine(Co_PlayFinalCutscene(statueTransform));
+    }
+
+    private IEnumerator Co_PlayFinalCutscene(Transform statueTransform)
+    {
+        isCutsceneActive = true;
+        canSkip = false; // 분위기를 위해 마지막 컷신은 스킵 불가 처리
+
+        // 1. 조작 박탈 및 UI 모드 진입
+        if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeInputState(InputState.UI);
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            GameManager.instance.player.canControl = false;
+            GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
+        }
+
+        // 2. 카메라 석상 포커스 & 줌인, 그리고 레터박스 연출
+        if (CameraFollow.instance != null)
+        {
+            CameraFollow.instance.SetTarget(statueTransform);
+            CameraFollow.instance.isCinematicFocus = true;
+            CameraFollow.instance.isCinematicZoom = true;
+        }
+
+        if (CinematicManager.instance != null)
+        {
+            StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(false));
+            CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", true);
+        }
+
+        yield return new WaitForSeconds(1.5f);
+
+        int finalBubbleIndex = 2;
+        yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "최하급 주사위 모듈, Err-73_재검사", true));
+        yield return new WaitForSeconds(2.5f);
+
+        ChangeBubbleText(finalBubbleIndex, "예상 합격률은 <size=130%><color=#FF5C5C>0% 미만</size></color>입니다.");
+        yield return new WaitForSeconds(2.5f);
+
+        ChangeBubbleText(finalBubbleIndex, "<size=110%>응시하시겠습니까?</size>");
+        yield return new WaitForSeconds(2f); // 텍스트를 읽을 시간 부여
+
+        // ★ [수정됨] 말풍선이 잠시 사라지며 정적 연출
+        yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "", false));
+        yield return new WaitForSeconds(1f); // 긴장감을 주는 침묵의 시간
+
+        // ★ [수정됨] "..." 텍스트와 함께 말풍선 다시 등장
+        yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "<size=120%>...</size>", true));
+        yield return new WaitForSeconds(3.5f);
+
+        ChangeBubbleText(finalBubbleIndex, "<color=#FF5C5C><size=130%>재검사 프로토콜, 가동합니다.</size></color>");
+        yield return new WaitForSeconds(3f);
+
+        // 말풍선 퇴장
+        yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "", false));
+        yield return new WaitForSeconds(0.5f);
+
+        // 5. 화면 페이드 아웃 (완전한 암전)
+        if (fadeImage != null)
+        {
+            fadeImage.gameObject.SetActive(true);
+            float timer = 0f;
+            float fadeDuration = 1.5f;
+
+            while (timer < fadeDuration)
+            {
+                timer += Time.deltaTime;
+                fadeImage.color = new Color(0, 0, 0, timer / fadeDuration);
+                yield return null;
+            }
+            fadeImage.color = Color.black;
+        }
+
+        yield return new WaitForSeconds(1.0f);
+
+        // 6. 암전된 화면 중앙에 아까 그 말풍선 다시 띄우기 (인덱스 2)
+        yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "행운을 빕니다.", true));
+        yield return new WaitForSeconds(2.5f);
+
+        // 말풍선 페이드 아웃
+        yield return StartCoroutine(Co_AnimateBubble(finalBubbleIndex, "", false));
+
+        yield return new WaitForSeconds(1.0f);
+
+        // 7. 씬 변경 (디버그 로그)
+        Debug.Log("======== [Scene Change] 메인 스테이지로 진입! ========");
+
+        // 실제 씬 변경 코드는 여기에 작성 (예: SceneManager.LoadScene("MainStage");)
+    }
 }

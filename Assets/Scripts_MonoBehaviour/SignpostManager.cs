@@ -4,13 +4,16 @@ using System.Collections;
 
 public class SignpostManager : MonoBehaviour
 {
+    // 표지판인지 잔해인지 구분하기 위한 열거형
+    public enum InteractType { Signpost, Debris }
+
     [System.Serializable]
     public class SignpostData
     {
-        [Tooltip("맵에 배치된 표지판의 Collider2D (IsTrigger 체크 필요)")]
+        [Tooltip("맵에 배치된 오브젝트의 Collider2D (IsTrigger 체크 필요)")]
         public Collider2D signpostCollider;
 
-        [Tooltip("표지판 자식으로 있는 World Space Canvas의 UI (CanvasGroup 필요)")]
+        [Tooltip("자식으로 있는 World Space Canvas의 UI (CanvasGroup 필요)")]
         public CanvasGroup guideUI;
 
         [HideInInspector] public Vector3 originalLocalPos;
@@ -18,16 +21,18 @@ public class SignpostManager : MonoBehaviour
         [HideInInspector] public bool isShowing;
         [HideInInspector] public bool isPlayerInside;
 
-        // 추가: 표지판의 SpriteRenderer를 찾아서 저장할 변수
         [HideInInspector] public SpriteRenderer spriteRenderer;
     }
 
-    [Header("Signposts Array")]
+    [Header("Interactable Arrays")]
+    [Tooltip("기존 표지판 배열 (위로 카메라 이동, UI 아래에서 위로 등장)")]
     public SignpostData[] signposts;
 
-    // ★ [추가됨] 표지판의 외곽선(또는 밝기) 변경용 머터리얼
+    [Tooltip("새로운 잔해 배열 (아래로 카메라 이동, UI 위에서 아래로 등장)")]
+    public SignpostData[] debrisList; // ★ [추가됨] 잔해 데이터 배열
+
     [Header("Material Settings")]
-    [Tooltip("0: 기본 머터리얼(멀 때), 1: 강조 머터리얼(가까울 때)")]
+    [Tooltip("0: 기본, 1: 표지판 강조(청록), 2: 잔해 강조(주황)")]
     public Material[] signpostMaterials;
 
     [Header("Animation Settings")]
@@ -39,28 +44,38 @@ public class SignpostManager : MonoBehaviour
     public AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Camera Settings")]
-    public float cameraUpOffset = 2.0f;
+    public float cameraUpOffset = 2.0f;     // 표지판용 카메라 상승 오프셋
+    public float cameraDownOffset = 2.0f;   // ★ [추가됨] 잔해용 카메라 하강 오프셋
 
-    private int activeSignpostCount = 0;
+    private int activeInteractCount = 0;
 
     private void Start()
     {
-        for (int i = 0; i < signposts.Length; i++)
+        // 1. 표지판 배열 초기화
+        InitializeArray(signposts, InteractType.Signpost);
+
+        // 2. 잔해 배열 초기화
+        InitializeArray(debrisList, InteractType.Debris);
+    }
+
+    // 배열 초기화 중복 코드를 줄이기 위한 헬퍼 함수
+    private void InitializeArray(SignpostData[] array, InteractType type)
+    {
+        for (int i = 0; i < array.Length; i++)
         {
-            if (signposts[i].guideUI != null)
+            if (array[i].guideUI != null)
             {
-                signposts[i].originalLocalPos = signposts[i].guideUI.transform.localPosition;
-                signposts[i].guideUI.gameObject.SetActive(false);
-                signposts[i].guideUI.alpha = 0f;
+                array[i].originalLocalPos = array[i].guideUI.transform.localPosition;
+                array[i].guideUI.gameObject.SetActive(false);
+                array[i].guideUI.alpha = 0f;
             }
 
-            if (signposts[i].signpostCollider != null)
+            if (array[i].signpostCollider != null)
             {
-                // 표지판 객체에서 SpriteRenderer를 자동으로 찾아둡니다.
-                signposts[i].spriteRenderer = signposts[i].signpostCollider.GetComponentInChildren<SpriteRenderer>();
+                array[i].spriteRenderer = array[i].signpostCollider.GetComponentInChildren<SpriteRenderer>();
 
-                SignpostTrigger trigger = signposts[i].signpostCollider.gameObject.AddComponent<SignpostTrigger>();
-                trigger.Initialize(this, i);
+                SignpostTrigger trigger = array[i].signpostCollider.gameObject.AddComponent<SignpostTrigger>();
+                trigger.Initialize(this, i, type); // 타입도 함께 넘겨줍니다.
             }
         }
     }
@@ -69,69 +84,83 @@ public class SignpostManager : MonoBehaviour
     {
         if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
 
-        for (int i = 0; i < signposts.Length; i++)
+        CheckArrayUpdate(signposts, InteractType.Signpost);
+        CheckArrayUpdate(debrisList, InteractType.Debris);
+    }
+
+    private void CheckArrayUpdate(SignpostData[] array, InteractType type)
+    {
+        for (int i = 0; i < array.Length; i++)
         {
-            if (signposts[i].isPlayerInside && !signposts[i].isShowing)
+            if (array[i].isPlayerInside && !array[i].isShowing)
             {
-                OnSignpostEnter(i);
+                OnInteractEnter(i, type);
             }
         }
     }
 
-    public void OnSignpostEnter(int index)
+    public void OnInteractEnter(int index, InteractType type)
     {
         if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
 
-        if (index < 0 || index >= signposts.Length) return;
+        SignpostData[] targetArray = (type == InteractType.Signpost) ? signposts : debrisList;
+        if (index < 0 || index >= targetArray.Length) return;
 
-        SignpostData data = signposts[index];
+        SignpostData data = targetArray[index];
         if (data.isShowing) return;
 
         data.isShowing = true;
-        activeSignpostCount++;
+        activeInteractCount++;
 
-        // ★ [추가됨] 가까이 갔을 때 머터리얼 변경 (배열 1번)
-        if (data.spriteRenderer != null && signpostMaterials.Length > 1)
+        // ★ 머터리얼 처리: 표지판은 1번, 잔해는 2번 사용
+        if (data.spriteRenderer != null)
         {
-            data.spriteRenderer.material = signpostMaterials[1];
+            int matIndex = (type == InteractType.Signpost) ? 1 : 2;
+            if (matIndex < signpostMaterials.Length)
+            {
+                data.spriteRenderer.material = signpostMaterials[matIndex];
+            }
         }
 
+        // ★ 카메라 오프셋: 표지판은 위로(+), 잔해는 아래로(-)
         if (CameraFollow.instance != null)
         {
-            CameraFollow.instance.SetUIOffset(new Vector3(0, cameraUpOffset, 0));
+            float yOffset = (type == InteractType.Signpost) ? cameraUpOffset : -cameraDownOffset;
+            CameraFollow.instance.SetUIOffset(new Vector3(0, yOffset, 0));
         }
 
         if (data.currentAnim != null) StopCoroutine(data.currentAnim);
-        data.currentAnim = StartCoroutine(Co_AnimateUI(data, true));
+        data.currentAnim = StartCoroutine(Co_AnimateUI(data, true, type));
     }
 
-    public void OnSignpostExit(int index)
+    public void OnInteractExit(int index, InteractType type)
     {
-        if (index < 0 || index >= signposts.Length) return;
+        SignpostData[] targetArray = (type == InteractType.Signpost) ? signposts : debrisList;
+        if (index < 0 || index >= targetArray.Length) return;
 
-        SignpostData data = signposts[index];
+        SignpostData data = targetArray[index];
         if (!data.isShowing) return;
 
         data.isShowing = false;
-        activeSignpostCount--;
-        if (activeSignpostCount < 0) activeSignpostCount = 0;
+        activeInteractCount--;
+        if (activeInteractCount < 0) activeInteractCount = 0;
 
-        // ★ [추가됨] 멀어졌을 때 기본 머터리얼로 복구 (배열 0번)
+        // 멀어졌을 때 기본 머터리얼(0번)로 복구
         if (data.spriteRenderer != null && signpostMaterials.Length > 0)
         {
             data.spriteRenderer.material = signpostMaterials[0];
         }
 
-        if (activeSignpostCount == 0 && CameraFollow.instance != null)
+        if (activeInteractCount == 0 && CameraFollow.instance != null)
         {
             CameraFollow.instance.ResetUIOffset();
         }
 
         if (data.currentAnim != null) StopCoroutine(data.currentAnim);
-        data.currentAnim = StartCoroutine(Co_AnimateUI(data, false));
+        data.currentAnim = StartCoroutine(Co_AnimateUI(data, false, type));
     }
 
-    private IEnumerator Co_AnimateUI(SignpostData data, bool isShowing)
+    private IEnumerator Co_AnimateUI(SignpostData data, bool isShowing, InteractType type)
     {
         if (data.guideUI == null) yield break;
 
@@ -142,12 +171,18 @@ public class SignpostManager : MonoBehaviour
         float startAlpha = data.guideUI.alpha;
         float targetAlpha = isShowing ? 1f : 0f;
 
-        Vector3 targetPos = isShowing ? data.originalLocalPos : data.originalLocalPos - new Vector3(0, slideOffset, 0);
+        // ★ 타입에 따른 시작/끝 위치(Hidden Position) 분기 처리
+        // 표지판: 원래 위치보다 아래쪽 (-slideOffset)에 숨어있음
+        // 잔해: 원래 위치보다 위쪽 (+slideOffset)에 숨어있음
+        Vector3 slideVec = new Vector3(0, slideOffset, 0);
+        Vector3 hiddenPos = (type == InteractType.Signpost) ? data.originalLocalPos - slideVec : data.originalLocalPos + slideVec;
+
+        Vector3 targetPos = isShowing ? data.originalLocalPos : hiddenPos;
         Vector3 startPos = uiTransform.localPosition;
 
         if (isShowing && startAlpha <= 0.01f)
         {
-            startPos = data.originalLocalPos - new Vector3(0, slideOffset, 0);
+            startPos = hiddenPos;
             uiTransform.localPosition = startPos;
         }
 
@@ -172,23 +207,33 @@ public class SignpostManager : MonoBehaviour
     }
 }
 
+// ---------------------------------------------------------
+// 충돌 감지용 보조 스크립트 (타입 구별 추가)
+// ---------------------------------------------------------
 public class SignpostTrigger : MonoBehaviour
 {
     private SignpostManager manager;
     private int index;
+    private SignpostManager.InteractType interactType; // 타입 변수 추가
 
-    public void Initialize(SignpostManager mgr, int idx)
+    public void Initialize(SignpostManager mgr, int idx, SignpostManager.InteractType type)
     {
         manager = mgr;
         index = idx;
+        interactType = type;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player") && manager != null)
         {
-            manager.signposts[index].isPlayerInside = true;
-            manager.OnSignpostEnter(index);
+            // 타입에 맞게 데이터 갱신
+            if (interactType == SignpostManager.InteractType.Signpost)
+                manager.signposts[index].isPlayerInside = true;
+            else
+                manager.debrisList[index].isPlayerInside = true;
+
+            manager.OnInteractEnter(index, interactType);
         }
     }
 
@@ -196,8 +241,12 @@ public class SignpostTrigger : MonoBehaviour
     {
         if (collision.CompareTag("Player") && manager != null)
         {
-            manager.signposts[index].isPlayerInside = false;
-            manager.OnSignpostExit(index);
+            if (interactType == SignpostManager.InteractType.Signpost)
+                manager.signposts[index].isPlayerInside = false;
+            else
+                manager.debrisList[index].isPlayerInside = false;
+
+            manager.OnInteractExit(index, interactType);
         }
     }
 }
