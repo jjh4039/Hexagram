@@ -11500,6 +11500,7 @@ GameObject:
   - component: {fileID: 6127454702898223684}
   - component: {fileID: 4944366165958173079}
   - component: {fileID: 4172972491651275590}
+  - component: {fileID: 5622412419144254636}
   m_Layer: 0
   m_Name: Spring_Boss
   m_TagString: Untagged
@@ -11554,12 +11555,64 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 1
+  isStartingRoom: 0
+  startFadeDelay: 1.5
+  startTitleText: "\uC2DC\uC2A4\uD15C \uAC00\uB3D9"
+  startDescText: "\uBAA8\uB4C8 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
+  startTitleColor: {r: 0, g: 1, b: 1, a: 1}
   spawnPoint: {fileID: 7154704847653265603}
   barrierEla: {fileID: 5132786214549564024}
   statue: {fileID: 6591054330482880536}
+  stageBounds: {fileID: 0}
   rewardPrefab: {fileID: 0}
   rewardSpawnPoint: {fileID: 0}
   moduleRewardCount: 1
+--- !u!61 &5622412419144254636
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4874768350431733968}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -1.038909, y: 0.57738304}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 31.19419, y: 32.788105}
+  m_EdgeRadius: 0
 --- !u!1 &5132786214549564024
 GameObject:
   m_ObjectHideFlags: 0

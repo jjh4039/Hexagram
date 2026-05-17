@@ -45952,6 +45952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fd8be33c43312c4fbbd5dd561398bdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialManager
+  nextSceneName: Main
   fadeImage: {fileID: 1134285986}
   introText: {fileID: 769695001}
   skipNoticeContainer: {fileID: 978052148}
@@ -48364,6 +48365,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c36520ba89e5fd49b870ded2666fa26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PauseUIController
+  isTutorialMode: 1
   pauseRoot: {fileID: 2077577926}
   bgRect: {fileID: 831879143}
   textGroup: {fileID: 1616089304}
@@ -48382,6 +48384,7 @@ MonoBehaviour:
   floatSpeed: 1.5
   normalColor: {r: 0.254717, g: 0.254717, b: 0.254717, a: 1}
   selectColor: {r: 1, g: 0.8745098, b: 0.45882353, a: 1}
+  disableColor: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 0.2}
   sfxMove: {fileID: 8300000, guid: 416dd7836ebbe29439fcc46d2ad8dae3, type: 3}
   sfxSubmit: {fileID: 8300000, guid: d88993aadaded1f4583f681ef5225622, type: 3}
   sfxOpen: {fileID: 8300000, guid: d88993aadaded1f4583f681ef5225622, type: 3}
@@ -61647,6 +61650,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 1
+  isStartingRoom: 0
+  startTitleText: "\uC2DC\uC2A4\uD15C \uAC00\uB3D9"
+  startDescText: "\uBAA8\uB4C8 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
+  startTitleColor: {r: 0, g: 1, b: 1, a: 1}
   spawnPoint: {fileID: 1599630581223390866}
   barrierEla: {fileID: 0}
   statue: {fileID: 1773503604}

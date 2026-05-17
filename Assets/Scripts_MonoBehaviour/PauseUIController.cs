@@ -5,37 +5,42 @@ using TMPro;
 
 public class PauseUIController : MonoBehaviour
 {
+    [Header("Settings")]
+    [Tooltip("체크 시 튜토리얼 모드로 간주하고 '게임 포기' 버튼을 비활성화합니다.")]
+    [SerializeField] private bool isTutorialMode = false; // ★ 추가됨: 튜토리얼 모드 플래그
+
     [Header("UI References")]
-    [SerializeField] private GameObject pauseRoot;           // 일시정지 최상위 오브젝트
-    [SerializeField] private RectTransform bgRect;           // 크기 애니메이션용 배경
-    [SerializeField] private CanvasGroup textGroup;          // 페이드용 텍스트 그룹
-    [SerializeField] private TextMeshProUGUI[] menuTexts;    // 선택지 텍스트 배열
-    [SerializeField] private TextMeshProUGUI progressText;   // 진행도 텍스트 UI
-    [SerializeField] private TextMeshProUGUI playTimeText;   // 플레이타임 텍스트 UI
-    [SerializeField] private SettingUIController settingUI;  // 설정창 UI 컨트롤러 연결
+    [SerializeField] private GameObject pauseRoot;           
+    [SerializeField] private RectTransform bgRect;           
+    [SerializeField] private CanvasGroup textGroup;          
+    [SerializeField] private TextMeshProUGUI[] menuTexts;    
+    [SerializeField] private TextMeshProUGUI progressText;   
+    [SerializeField] private TextMeshProUGUI playTimeText;   
+    [SerializeField] private SettingUIController settingUI;  
 
     [Header("Animation Settings")]
-    [SerializeField] private float targetBgHeight = 400f;    // 배경 최대 높이
-    [SerializeField] private float bgExpandDuration = 0.25f; // 배경 확장 시간
-    [SerializeField] private float textFadeDuration = 0.2f;  // 텍스트 페이드 시간
+    [SerializeField] private float targetBgHeight = 400f;    
+    [SerializeField] private float bgExpandDuration = 0.25f; 
+    [SerializeField] private float textFadeDuration = 0.2f;  
 
     [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 10f;     // 부유 진폭
-    [SerializeField] private float floatSpeed = 2f;          // 부유 속도
+    [SerializeField] private float floatAmplitude = 10f;     
+    [SerializeField] private float floatSpeed = 2f;          
 
     [Header("Colors & Sounds")]
-    [SerializeField] private Color normalColor = Color.gray; // 비활성 색상
-    [SerializeField] private Color selectColor = Color.white;// 선택 색상
-    [SerializeField] private AudioClip sfxMove;              // 이동 사운드
-    [SerializeField] private AudioClip sfxSubmit;            // 결정 사운드
-    [SerializeField] private AudioClip sfxOpen;              // 메뉴 오픈 사운드
+    [SerializeField] private Color normalColor = Color.gray; 
+    [SerializeField] private Color selectColor = Color.white;
+    [SerializeField] private Color disableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); // ★ 추가됨: 비활성화 색상 (어두운 반투명 회색)
+    [SerializeField] private AudioClip sfxMove;              
+    [SerializeField] private AudioClip sfxSubmit;            
+    [SerializeField] private AudioClip sfxOpen;              
 
-    private bool _isPaused = false;                          // 일시정지 상태 여부
-    private bool _isAnimating = false;                       // 애니메이션 진행 여부
-    private int _currentIndex = 0;                           // 현재 선택된 메뉴 인덱스
+    private bool _isPaused = false;                          
+    private bool _isAnimating = false;                       
+    private int _currentIndex = 0;                           
 
-    private Coroutine _animCoroutine;                        // 애니메이션 코루틴 캐싱
-    private Vector2 _bgOriginAnchoredPos;                    // 배경 초기 위치
+    private Coroutine _animCoroutine;                        
+    private Vector2 _bgOriginAnchoredPos;                    
 
     private void Start()
     {
@@ -147,6 +152,13 @@ public class PauseUIController : MonoBehaviour
     private void ChangeSelection(int dir)
     {
         _currentIndex = (_currentIndex + dir + menuTexts.Length) % menuTexts.Length;
+
+        // ★ 수정됨: 튜토리얼 모드일 때 인덱스 2번(게임 포기)을 건너뛰도록 처리
+        if (isTutorialMode && _currentIndex == 2)
+        {
+            _currentIndex = (_currentIndex + dir + menuTexts.Length) % menuTexts.Length;
+        }
+
         if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
         UpdateSelectionVisuals();
     }
@@ -156,6 +168,15 @@ public class PauseUIController : MonoBehaviour
         for (int i = 0; i < menuTexts.Length; i++)
         {
             if (menuTexts[i] == null) continue;
+
+            // ★ 수정됨: 튜토리얼 모드에서 2번 인덱스는 아예 비활성화 색상으로 고정
+            if (isTutorialMode && i == 2)
+            {
+                menuTexts[i].color = disableColor;
+                menuTexts[i].rectTransform.localScale = Vector3.one;
+                continue;
+            }
+
             bool isSelected = (i == _currentIndex);
             menuTexts[i].color = isSelected ? selectColor : normalColor;
             menuTexts[i].rectTransform.localScale = isSelected ? Vector3.one * 1.1f : Vector3.one;
@@ -190,6 +211,9 @@ public class PauseUIController : MonoBehaviour
 
     private void ExecuteSelection()
     {
+        // ★ 수정됨: 튜토리얼 모드인데 2번 인덱스 실행 시 차단 (안전장치)
+        if (isTutorialMode && _currentIndex == 2) return;
+
         if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);
 
         switch (_currentIndex)
@@ -203,14 +227,12 @@ public class PauseUIController : MonoBehaviour
             case 2: // 게임 포기
                 if (ConfirmUIController.instance != null)
                 {
-                    // 자신(일시정지 창)을 닫는 동작만 콜백으로 덧붙여서 넘김
                     ConfirmUIController.instance.ShowPopupByIndex(0, () => ResumeGame());
                 }
                 break;
             case 3: // 게임 종료
                 if (ConfirmUIController.instance != null)
                 {
-                    // 자신(일시정지 창)을 닫는 동작만 콜백으로 덧붙여서 넘김
                     ConfirmUIController.instance.ShowPopupByIndex(1, () => ResumeGame());
                 }
                 break;

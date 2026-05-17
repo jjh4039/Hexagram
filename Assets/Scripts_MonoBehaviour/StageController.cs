@@ -10,7 +10,8 @@ public class StageController : MonoBehaviour
     public bool isSafeStage = false;                      // 안전 방 여부
 
     [Header("Start Room Settings (Intro)")]
-    public bool isStartingRoom = false;                   // ★ 시작 방 여부 (체크 시 인트로 실행)
+    public bool isStartingRoom = false;                   // 시작 방 여부 (체크 시 인트로 실행)
+    public float startFadeDelay = 1.5f;                   // 페이드 인이 끝날 때까지 대기할 시간
     public string startTitleText = "시스템 가동";          // 시작 방 진입 시 띄울 제목
     public string startDescText = "모듈 테스트를 시작합니다."; // 시작 방 진입 시 띄울 설명
     public Color startTitleColor = Color.cyan;            // 제목 색상
@@ -32,6 +33,7 @@ public class StageController : MonoBehaviour
     private List<Enemy> activeEnemies = new List<Enemy>(); // 현재 활성화된 적 목록
     private bool isCleared = false;                        // 스테이지 클리어 여부
     private bool isInitialized = false;                    // 스테이지 초기화 여부
+    private bool isBattleStarted = false;                  // ★ 추가: 대기 시간 동안 Update 검사를 막는 플래그
 
     private Dictionary<int, List<EnemySpawner>> waveSpawners = new Dictionary<int, List<EnemySpawner>>();
     private int currentWave = 1;                           // 현재 진행 중인 웨이브 번호
@@ -88,10 +90,22 @@ public class StageController : MonoBehaviour
         if (!isSafeStage) UpdateEnemyCountUI();
         if (ArtifactManager.instance != null) ArtifactManager.instance.OnStageEnterTrigger();
 
-        // ★ 조작 제어 없이 순수하게 텍스트 메시지만 출력
+        StartCoroutine(Co_DelayedStart());
+    }
+
+    private IEnumerator Co_DelayedStart()
+    {
+        yield return new WaitForSeconds(startFadeDelay);
+
         if (isStartingRoom && StageMessageUI.instance != null)
         {
             StageMessageUI.instance.ShowCustomEntryMessage(startTitleText, startDescText, startTitleColor);
+        }
+
+        if (!isSafeStage)
+        {
+            isBattleStarted = true; // ★ 여기서 플래그를 켜주어야 Update가 돌아갑니다.
+            StartWave(1);
         }
     }
 
@@ -108,8 +122,6 @@ public class StageController : MonoBehaviour
                 waveSpawners[spawner.waveNumber] = new List<EnemySpawner>();
             waveSpawners[spawner.waveNumber].Add(spawner);
         }
-
-        if (!isSafeStage && waveSpawners.Count > 0) StartWave(1);
     }
 
     private void StartWave(int waveIndex)
@@ -142,7 +154,7 @@ public class StageController : MonoBehaviour
 
     private void Update()
     {
-        if (isCleared) return;
+        if (isCleared || !isBattleStarted) return; // ★ 수정: 전투 시작 전(페이드 중)에는 적 0마리 검사 금지
         CheckBattleStatus();
     }
 

@@ -80,6 +80,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1261265467-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-277477129-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1948743305-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1479832444-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -321,6 +322,10 @@ MonoBehaviour:
           iconNameOrGuid: sv_icon_dot15_pix16_gizmo
           isIconRecursive: 1
           isColorRecursive: 0
+        - colorIndex: 1
+          iconNameOrGuid: PreMatCylinder
+          isIconRecursive: 1
+          isColorRecursive: 1
     - goDatas_byGlobalId:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-1212806268-0

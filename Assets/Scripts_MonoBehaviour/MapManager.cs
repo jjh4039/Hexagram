@@ -178,14 +178,12 @@ public class MapManager : MonoBehaviour
 
     public void ToggleMap()
     {
-        // 수정: 페이드 진행 중일 경우 입력을 완전히 무시 (비정상적인 연속 입력 차단)
         if (_fadeCoroutine != null) return;
 
         bool isOpening = !mapVisualRoot.activeSelf;
 
         if (isOpening)
         {
-            // 열 때는 즉시 UI 조작 모드로 변경
             if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
         }
 
@@ -196,8 +194,9 @@ public class MapManager : MonoBehaviour
         {
             float halfFade = fadeDuration * 0.5f;
 
-            if (CinematicManager.instance != null)
-                yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(0f, 1f, halfFade));
+            // ★ 수정: TransitionManager를 사용하여 글로벌 페이드 연동
+            if (TransitionManager.Instance != null)
+                yield return StartCoroutine(TransitionManager.Instance.Co_FadeToBlack(halfFade));
 
             if (isOpen)
             {
@@ -207,18 +206,17 @@ public class MapManager : MonoBehaviour
                 StartCoroutine(ScanSequence());
                 yield return new WaitForSecondsRealtime(0.05f);
 
-                if (CinematicManager.instance != null)
-                    yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(1f, 0f, halfFade));
+                if (TransitionManager.Instance != null)
+                    yield return StartCoroutine(TransitionManager.Instance.Co_FadeToClear(halfFade));
             }
             else
             {
                 _isScanning = false;
                 mapVisualRoot.SetActive(false);
 
-                if (CinematicManager.instance != null)
-                    yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(1f, 0f, halfFade));
+                if (TransitionManager.Instance != null)
+                    yield return StartCoroutine(TransitionManager.Instance.Co_FadeToClear(halfFade));
 
-                // 수정: 맵을 닫을 때, 페이드 아웃 연출이 모두 끝난 뒤에 Normal 조작으로 복귀
                 if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
             }
 
@@ -629,12 +627,13 @@ public class MapManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        if (CinematicManager.instance != null)
-            yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(0f, 1f, 0.5f));
+        // ★ 수정: TransitionManager를 사용하여 화면을 완전히 까맣게 덮음 (0.5초)
+        if (TransitionManager.Instance != null)
+            yield return StartCoroutine(TransitionManager.Instance.Co_FadeToBlack(0.5f));
 
+        // 화면이 까매진 상태에서 맵 UI 숨기고, 조작 권한 반환 및 스테이지 셋업 진행
         mapVisualRoot.SetActive(false);
         _isScanning = false;
-
         _needsNewNodes = true;
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
@@ -646,7 +645,8 @@ public class MapManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.1f);
 
-        if (CinematicManager.instance != null)
-            yield return StartCoroutine(CinematicManager.instance.Co_GlobalFade(1f, 0f, 0.5f));
+        // ★ 수정: TransitionManager를 사용하여 화면을 다시 밝게 함 (0.5초)
+        if (TransitionManager.Instance != null)
+            yield return StartCoroutine(TransitionManager.Instance.Co_FadeToClear(0.5f));
     }
 }

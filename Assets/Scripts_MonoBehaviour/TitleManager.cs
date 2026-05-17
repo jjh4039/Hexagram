@@ -6,10 +6,17 @@ using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
+    // ★ 추가: 에디터 테스트용 씬 선택 모드
+    public enum SceneTestMode { Auto, ForceTutorial, ForceMain }
+
+    [Header("Debug Settings")]
+    [Tooltip("Auto: 데이터 검사 / ForceTutorial: 튜토리얼 강제 / ForceMain: 메인 강제")]
+    [SerializeField] private SceneTestMode testTargetScene = SceneTestMode.Auto;
+
     [Header("Scene Transition")]
-    [SerializeField] private CanvasGroup fadeOverlay;
-    [SerializeField] private string nextSceneName = "";
-    [SerializeField] private float sceneFadeDuration = 1.5f; // 씬 페이드 인/아웃 소요 시간
+    [SerializeField] private string tutorialSceneName = "Tutorial"; 
+    [SerializeField] private string mainSceneName = "Main";         
+    [SerializeField] private float sceneFadeDuration = 1.5f; 
     [SerializeField] private AudioClip startSound;
 
     [Header("UI Reference")]
@@ -22,9 +29,9 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private SettingUIController settingUI;
 
     [Header("Animation Settings")]
-    [SerializeField] private float logoFadeDuration = 1f;   // 타이틀 로고 페이드 소요 시간
-    [SerializeField] private float delayBetween = 0.5f;     // 텍스트 등장 대기 시간
-    [SerializeField] private float textFadeDuration = 0.5f;  // 메뉴 텍스트 페이드 소요 시간
+    [SerializeField] private float logoFadeDuration = 1f;   
+    [SerializeField] private float delayBetween = 0.5f;     
+    [SerializeField] private float textFadeDuration = 0.5f;  
 
     [Header("Idle Floating Settings")]
     [SerializeField] private float floatSpeed = 2f;
@@ -62,11 +69,9 @@ public class TitleManager : MonoBehaviour
         if (textGroup != null) textGroup.alpha = 0f;
         if (titleRect != null) _baseY = titleRect.anchoredPosition.y;
 
-        // [수정] 씬 시작 시 화면을 완전히 검은색으로 덮어둠
-        if (fadeOverlay != null)
+        if (TransitionManager.Instance != null)
         {
-            fadeOverlay.alpha = 1f;
-            fadeOverlay.gameObject.SetActive(true);
+            TransitionManager.Instance.SetBlackScreen(true);
         }
     }
 
@@ -104,23 +109,13 @@ public class TitleManager : MonoBehaviour
 
     private IEnumerator IntroSequence()
     {
-        float timer = 0f;
-
-        // 0. 최초 씬 페이드 인 (화면 밝아짐)
-        if (fadeOverlay != null)
+        if (TransitionManager.Instance != null)
         {
-            while (timer < 1f)
-            {
-                timer += Time.deltaTime / sceneFadeDuration;
-                fadeOverlay.alpha = Mathf.Lerp(1f, 0f, timer);
-                yield return null;
-            }
-            fadeOverlay.gameObject.SetActive(false);
+            yield return StartCoroutine(TransitionManager.Instance.Co_FadeToClear(sceneFadeDuration));
         }
 
-        timer = 0f;
+        float timer = 0f;
 
-        // 1. 로고 페이드 인
         while (timer < 1f)
         {
             timer += Time.deltaTime / logoFadeDuration;
@@ -128,14 +123,11 @@ public class TitleManager : MonoBehaviour
             yield return null;
         }
 
-        // 2. 대기 시간
         yield return new WaitForSeconds(delayBetween);
 
         _isInputActive = true;
-
         timer = 0f;
 
-        // 3. 텍스트 페이드 인
         while (timer < 1f)
         {
             timer += Time.deltaTime / textFadeDuration;
@@ -250,7 +242,7 @@ public class TitleManager : MonoBehaviour
 
         if (_currentIndex == 0)
         {
-            _isInputActive = false; // 중복 입력 차단
+            _isInputActive = false; 
             StartCoroutine(TransitionToGame());
         }
         else if (_currentIndex == 1)
@@ -274,29 +266,36 @@ public class TitleManager : MonoBehaviour
             SoundManager.instance.PlaySFX(startSound);
         }
 
-        if (fadeOverlay != null)
+        string targetScene = "";
+
+        // ★ 테스트 모드 분기 처리
+        if (testTargetScene == SceneTestMode.ForceTutorial)
         {
-            fadeOverlay.gameObject.SetActive(true);
-            float timer = 0f;
-            while (timer < sceneFadeDuration)
-            {
-                timer += Time.unscaledDeltaTime;
-                fadeOverlay.alpha = Mathf.Clamp01(timer / sceneFadeDuration);
-                yield return null;
-            }
+            targetScene = tutorialSceneName;
         }
-        else
+        else if (testTargetScene == SceneTestMode.ForceMain)
         {
-            yield return new WaitForSeconds(sceneFadeDuration);
+            targetScene = mainSceneName;
+        }
+        else // Auto (정상 동작)
+        {
+            bool isTutorialClear = false;
+            if (DataManager.instance != null && DataManager.instance.data != null)
+            {
+                isTutorialClear = DataManager.instance.data.isTutorialClear;
+            }
+            targetScene = isTutorialClear ? mainSceneName : tutorialSceneName;
         }
 
-        if (!string.IsNullOrEmpty(nextSceneName))
+        if (TransitionManager.Instance != null)
         {
-            SceneManager.LoadScene(nextSceneName);
+            TransitionManager.Instance.LoadScene(targetScene, sceneFadeDuration, sceneFadeDuration);
         }
         else
         {
-            Debug.LogWarning("이동할 씬 이름이 설정되지 않았습니다.");
+            SceneManager.LoadScene(targetScene);
         }
+
+        yield return null;
     }
 }

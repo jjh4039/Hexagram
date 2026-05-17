@@ -3,10 +3,10 @@ using System.IO;
 
 public class DataManager : MonoBehaviour
 {
-    public static DataManager instance;     // 싱글톤 인스턴스
+    public static DataManager instance;     
 
-    public GameData data;                   // 실제 메모리에 들고 있을 세이브 데이터
-    private string savePath;                // 저장될 물리적 파일 경로
+    public GameData data;                   
+    private string savePath;                
 
     private void Awake()
     {
@@ -14,7 +14,7 @@ public class DataManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            savePath = Application.persistentDataPath + "/SaveData.json"; // 기기별 안전한 저장 경로
+            savePath = Application.persistentDataPath + "/SaveData.json"; 
             LoadGame();
         }
         else
