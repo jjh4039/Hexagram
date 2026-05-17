@@ -29,6 +29,7 @@ public class EnemyBird : Enemy
     [Header("Projectile")]
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 10f;
+    [SerializeField] private float projectileDamage = 15f; // 투사체 데미지 설정 추가
 
     [Header("Homing")]
     [SerializeField] private float homingStrength = 5f;
@@ -51,8 +52,8 @@ public class EnemyBird : Enemy
     private bool isAttacking = false;
     private bool isStunned = false;
 
-    private List<GameObject> maxRectInstances = new List<GameObject>(); // 패턴 확장에 따른 리스트화
-    private List<GameObject> currentRectInstances = new List<GameObject>(); // 패턴 확장에 따른 리스트화
+    private List<GameObject> maxRectInstances = new List<GameObject>(); 
+    private List<GameObject> currentRectInstances = new List<GameObject>();
     private Coroutine attackCoroutine;
     private Coroutine stunCoroutine;
 
@@ -267,7 +268,7 @@ public class EnemyBird : Enemy
             GameObject proj = Instantiate(projectilePrefab, headPoint.position, Quaternion.identity);
             EnemyProjectile projectile = proj.GetComponent<EnemyProjectile>();
             if (projectile != null)
-                projectile.Initialize(dir, projectileSpeed);
+                projectile.Initialize(dir, projectileSpeed, projectileDamage); // 설정한 투사체 데미지 전달
         }
 
         if (rigid != null)

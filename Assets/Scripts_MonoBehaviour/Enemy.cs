@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
     [Header("Stats")]
     [SerializeField] protected float maxHealth = 100f;
     [SerializeField] protected float currentHealth;
+    [SerializeField] protected float contactDamage = 10f; // 몸통 박치기 데미지
 
     [Header("Effect")]
     [SerializeField] private GameObject damageTextPrefab;
@@ -38,6 +39,7 @@ public class Enemy : MonoBehaviour
     protected bool isDead = false;
 
     public bool IsDead => isDead;
+    public float ContactDamage => contactDamage; // 플레이어가 접근할 수 있도록 프로퍼티 추가
 
     protected virtual void Awake()
     {

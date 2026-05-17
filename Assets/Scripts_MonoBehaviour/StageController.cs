@@ -2,17 +2,24 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using TMPro;
+using System.Collections;
 
 public class StageController : MonoBehaviour
 {
     [Header("Stage Type")]
     public bool isSafeStage = false;                      // 안전 방 여부
 
+    [Header("Start Room Settings (Intro)")]
+    public bool isStartingRoom = false;                   // ★ 시작 방 여부 (체크 시 인트로 실행)
+    public string startTitleText = "시스템 가동";          // 시작 방 진입 시 띄울 제목
+    public string startDescText = "모듈 테스트를 시작합니다."; // 시작 방 진입 시 띄울 설명
+    public Color startTitleColor = Color.cyan;            // 제목 색상
+
     [Header("Settings")]
     public Transform spawnPoint;                          // 플레이어 시작 위치
     public GameObject barrierEla;                         // 전투 진입 차단벽
     public Statue statue;                                 // 출구 석상
-    public Collider2D stageBounds;                        // 카메라 제한용 콜라이더 (추가됨)
+    public Collider2D stageBounds;                        // 카메라 제한용 콜라이더
 
     [Header("Reward Settings")]
     public GameObject rewardPrefab;                       // 맵에 생성될 보상 프리팹
@@ -44,7 +51,6 @@ public class StageController : MonoBehaviour
         GameObject player = GameManager.instance.player.gameObject;
         if (player != null && spawnPoint != null) player.transform.position = spawnPoint.position;
 
-        // 추가된 카메라 경계 설정 호출
         if (CameraFollow.instance != null && stageBounds != null)
         {
             CameraFollow.instance.SetCameraBounds(stageBounds.bounds);
@@ -81,6 +87,12 @@ public class StageController : MonoBehaviour
 
         if (!isSafeStage) UpdateEnemyCountUI();
         if (ArtifactManager.instance != null) ArtifactManager.instance.OnStageEnterTrigger();
+
+        // ★ 조작 제어 없이 순수하게 텍스트 메시지만 출력
+        if (isStartingRoom && StageMessageUI.instance != null)
+        {
+            StageMessageUI.instance.ShowCustomEntryMessage(startTitleText, startDescText, startTitleColor);
+        }
     }
 
     private void InitializeWaves()

@@ -35,17 +35,17 @@ public class EnemyProjectile : MonoBehaviour
         Destroy(gameObject, lifeTime);
     }
 
-    public void Initialize(Vector2 direction, float overrideSpeed)
+    // 초기화 시 데미지도 받아와 덮어씌움
+    public void Initialize(Vector2 direction, float overrideSpeed, float projDamage)
     {
         moveDir = direction.normalized;
         speed = overrideSpeed;
+        damage = projDamage; // 에너미 스크립트에서 받아온 투사체 데미지 적용
 
         RotateToDirection();
 
-        // 현재 스케일을 기준으로 저장 (0.5든 1이든 대응)
         baseScale = transform.localScale;
 
-        // 이전 코루틴 정리 (풀링 대비)
         if (scaleCoroutine != null)
             StopCoroutine(scaleCoroutine);
 
@@ -64,7 +64,6 @@ public class EnemyProjectile : MonoBehaviour
             hitPosition,
             Quaternion.identity);
 
-        // 진행 방향 반대로 향하게
         effect.transform.right = -moveDir;
     }
 
@@ -76,7 +75,6 @@ public class EnemyProjectile : MonoBehaviour
         Vector3 enlarged = baseScale * spawnScaleMultiplier;
         Vector3 undershoot = baseScale * 0.95f;
 
-        // 1단계: 확대 → 살짝 작게
         while (t < halfTime)
         {
             t += Time.deltaTime;
@@ -85,7 +83,6 @@ public class EnemyProjectile : MonoBehaviour
             yield return null;
         }
 
-        // 2단계: 살짝 작게 → 원래 크기
         t = 0f;
         while (t < halfTime)
         {

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; // Queue를 사용하기 위해 추가
+using System.Collections.Generic; 
 
 public class EnemyBoss : Enemy
 {
@@ -16,8 +16,8 @@ public class EnemyBoss : Enemy
     [SerializeField] private float spriteScale = 1f;
 
     [Header("Intro Settings")]
-    [SerializeField] private float introTriggerRadius = 12f;       // 보스 인식 범위
-    private bool isAwake = false;                                  // 보스 기상 여부
+    [SerializeField] private float introTriggerRadius = 12f;       
+    private bool isAwake = false;                                  
 
     [Header("Phase Settings")]
     [SerializeField] private float enragePauseTime = 2.0f;
@@ -51,7 +51,6 @@ public class EnemyBoss : Enemy
     [SerializeField] private AnimationCurve dashSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0);
 
     [Header("Pattern 1: Dash Damage & Visuals")]
-    [SerializeField] private float baseContactDamage = 10f;
     [SerializeField] private float dashDamageMultiplier = 1.5f;
     [SerializeField] private int trailPoolSize = 10;
     [SerializeField] private float trailSpawnDelay = 0.04f;
@@ -69,7 +68,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private GameObject aoeEffectPrefab;
 
-    [Header("Pattern 2: AoE Indicator (자녀 오브젝트 연결)")]
+    [Header("Pattern 2: AoE Indicator")]
     [SerializeField] private GameObject attackMaxRangeObj;
     [SerializeField] private GameObject attackRangeObj;
     [SerializeField] private float aoeVisualScale = 4.5f;
@@ -77,6 +76,7 @@ public class EnemyBoss : Enemy
     [Header("Pattern 2: Enrage Projectiles (Optional)")]
     [SerializeField] private GameObject aoeProjectilePrefab;
     [SerializeField] private float aoeProjectileSpeed = 10f;
+    [SerializeField] private float aoeProjectileDamage = 15f; // 보스 투사체 데미지 설정 추가
 
     [Header("Pattern 3: Multi-Lines (Earth Spikes)")]
     [SerializeField] private float linesChargeTime = 1.5f;
@@ -115,7 +115,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private AudioClip sfxEnrageRoar;
 
     [Header("Death Settings")]
-    [SerializeField] private Sprite deadStatueSprite;              // 처치 시 변할 석상 이미지
+    [SerializeField] private Sprite deadStatueSprite;              
 
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
@@ -130,10 +130,10 @@ public class EnemyBoss : Enemy
     private Queue<GameObject> trailPool = new Queue<GameObject>();
     private GameObject trailContainer;
 
-    private Transform telegraphContainer;                          // 장판 전용 폴더
+    private Transform telegraphContainer;                          
 
     public bool IsDashing => isDashing;
-    public float BaseContactDamage => baseContactDamage;
+    public float BaseContactDamage => contactDamage; // 부모 클래스(Enemy)의 contactDamage를 사용하도록 일원화
     public float DashDamageMultiplier => dashDamageMultiplier;
 
     protected override void Awake()
@@ -162,13 +162,11 @@ public class EnemyBoss : Enemy
             auraParticle.Stop();
         }
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
-
-        // ★ 기존의 즉시 실행되던 컷신 로직을 StartIntroSequence()로 분리했습니다.
     }
 
     private void StartIntroSequence()
     {
-        isAwake = true; // 인식 완료
+        isAwake = true; 
 
         if (bossBGM != null && SoundManager.instance != null)
         {
@@ -185,7 +183,7 @@ public class EnemyBoss : Enemy
                 },
                 onSunsetDone: () =>
                 {
-                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.4f, 1f); // ★ 진동 세기 증가
+                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.4f, 1f); 
                     if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
                     if (anim != null) anim.SetTrigger("Start");
                 },
@@ -263,14 +261,13 @@ public class EnemyBoss : Enemy
     {
         if (isDead || target == null) return;
 
-        // ★ 보스가 아직 깨어나지 않았다면 진입 거리를 측정합니다.
         if (!isAwake)
         {
             if (Vector2.Distance(transform.position, target.position) <= introTriggerRadius)
             {
                 StartIntroSequence();
             }
-            return;                                                // 대기 중엔 다른 행동 무시
+            return;                                                
         }
 
         if (!isAttacking)
@@ -301,7 +298,7 @@ public class EnemyBoss : Enemy
 
         if (anim != null) anim.SetTrigger("Enrage");
         if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.2f);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.5f, 1f); // ★ 진동 세기 증가
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.5f, 1f); 
 
         KnockbackPlayer();
 
@@ -531,7 +528,7 @@ public class EnemyBoss : Enemy
         if (isDead) yield break;
 
         if (anim != null) anim.SetTrigger("Slam");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.45f); // ★ 진동 세기 증가
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.45f); 
 
         if (sfxAoeExplode != null) SoundManager.instance.PlaySFX(sfxAoeExplode, 0.9f);
 
@@ -1000,7 +997,7 @@ public class EnemyBoss : Enemy
 
             if (projectileScript != null)
             {
-                projectileScript.Initialize(dir, aoeProjectileSpeed);
+                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage); // 설정된 보스 투사체 데미지 전달
             }
         }
     }

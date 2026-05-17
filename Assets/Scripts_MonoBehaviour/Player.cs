@@ -168,7 +168,6 @@ public class Player : MonoBehaviour
     {
         if (!canControl || _isDashing) return;
 
-        // 튜토리얼이 아닐 때만 안전지대 무한 대시 허용
         bool isSafeZone = (InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone) && !isTutorial;
 
         if (!isSafeZone && stats.currentDashStacks < 1f) return;
@@ -224,7 +223,6 @@ public class Player : MonoBehaviour
     {
         if (_isDashing) return;
 
-        // ★ [수정] 넉백 중이거나 '반동 중'일 때는 Move()로 속도를 덮어씌우지 않음
         if (!isKnockedBack && !isRecoiling) Move();
         CheckContactDamage();
     }
@@ -269,12 +267,18 @@ public class Player : MonoBehaviour
         {
             float finalDamage = bodyContactDamage;
             Collider2D hitCollider = _contactResults[0];
+            
             EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
+            Enemy enemy = hitCollider.GetComponent<Enemy>();
 
             if (boss)
             {
                 finalDamage = boss.BaseContactDamage;
                 if (boss.IsDashing) finalDamage *= boss.DashDamageMultiplier;
+            }
+            else if (enemy)
+            {
+                finalDamage = enemy.ContactDamage; // 에너미 스크립트에서 설정한 접촉 데미지로 덮어씌움
             }
 
             OnDamage(finalDamage);
@@ -475,8 +479,6 @@ public class Player : MonoBehaviour
         }
 
         StartCoroutine(Co_FadeOutBGM());
-
-        // 불가피한 수정: 프레임 드랍으로 인해 색상 초기화가 무시되는 현상을 막기 위해 추가 코루틴 실행
         StartCoroutine(Co_ForceCleanVisuals());
 
         if (CinematicManager.instance != null)
@@ -504,17 +506,16 @@ public class Player : MonoBehaviour
         }
     }
 
-    // 불가피한 수정: 죽음 연출의 시작과 끝 타이밍에 색상을 한 번 더 강제로 덮어씌웁니다
     private IEnumerator Co_ForceCleanVisuals()
     {
-        yield return new WaitForEndOfFrame(); // 현재 프레임 연산 종료 직후 1차 복구
+        yield return new WaitForEndOfFrame();
         if (spriteRenderer != null)
         {
             spriteRenderer.color = Color.white;
             spriteRenderer.material = _originalMaterial;
         }
 
-        yield return new WaitForSecondsRealtime(1.5f); // 컷신 시간이 완전히 멈추는 시점에 2차 복구
+        yield return new WaitForSecondsRealtime(1.5f);
         if (spriteRenderer != null)
         {
             spriteRenderer.color = Color.white;

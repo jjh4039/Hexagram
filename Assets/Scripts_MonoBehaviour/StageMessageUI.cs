@@ -25,7 +25,6 @@ public class StageMessageUI : MonoBehaviour
     [SerializeField] private float rewardInterval = 0.15f;
     [SerializeField] private ModuleData[] rewardDatas;
 
-    // ★ [추가됨] 남은 강화 스택을 표시할 텍스트 컴포넌트
     [SerializeField] private TextMeshProUGUI pendingCountText;
 
     [Header("--- Enemy Count UI (New) ---")]
@@ -67,7 +66,6 @@ public class StageMessageUI : MonoBehaviour
     private int pendingModuleRewards = 0;
     private bool isRewardUIPresenting = false;
 
-    // ★ [추가됨] 석상이 모듈 강화가 모두 끝났는지 확인하기 위한 프로퍼티
     public bool IsRewardQueueEmpty => pendingModuleRewards <= 0 && !isRewardUIPresenting;
 
     private void Awake()
@@ -86,7 +84,7 @@ public class StageMessageUI : MonoBehaviour
         if (enemyCountGroup != null) enemyCountGroup.alpha = 0f;
         isEnemyCountVisible = false;
 
-        UpdatePendingCountText(); // 초기화
+        UpdatePendingCountText(); 
     }
 
     private void ResetAllUI()
@@ -102,17 +100,34 @@ public class StageMessageUI : MonoBehaviour
             if (rewardItems[i].rect != null) rewardItems[i].rect.localScale = originalScales[i];
         }
 
-        // 초기화 시 텍스트도 숨김
         if (pendingCountText != null) pendingCountText.alpha = 0f;
     }
 
+    // 맵 이동 시 사용되는 기본 메시지 (앞에 '모듈 : '이 붙음)
     public void ShowEntryMessage(string title, string desc, Color color)
     {
         if (entryTitle != null) entryTitle.text = "모듈 : " + title;
         if (entryDesc != null) entryDesc.text = desc;
-        if (color != null)
+        if (color != null && entryTitle != null)
         {
-            if (entryTitle != null) entryTitle.color = color;
+            color.a = 1f; // 알파값 강제 보정
+            entryTitle.color = color;
+        }
+
+        StopCurrentCoroutine();
+        ResetAllUI();
+        currentCoroutine = StartCoroutine(EntryFadeSequence());
+    }
+
+    // ★ 시작 방 인트로용 커스텀 메시지 (입력한 텍스트 그대로 출력)
+    public void ShowCustomEntryMessage(string title, string desc, Color color)
+    {
+        if (entryTitle != null) entryTitle.text = title;
+        if (entryDesc != null) entryDesc.text = desc;
+        if (color != null && entryTitle != null)
+        {
+            color.a = 1f; // 알파값이 0인 상태로 넘어오는 것을 방지
+            entryTitle.color = color;
         }
 
         StopCurrentCoroutine();
@@ -123,9 +138,13 @@ public class StageMessageUI : MonoBehaviour
     private IEnumerator EntryFadeSequence()
     {
         if (entryGroup == null) yield break;
-        yield return new WaitForSeconds(startDelay);
+        
+        entryGroup.alpha = 0f; // 시작 전 알파값 초기화 보장
+        
+        // ★ TimeScale이 0이어도 대기할 수 있도록 Realtime 사용
+        yield return new WaitForSecondsRealtime(startDelay);
         yield return FadeIn(entryGroup);
-        yield return new WaitForSeconds(waitTime);
+        yield return new WaitForSecondsRealtime(waitTime);
         yield return FadeOut(entryGroup);
     }
 
@@ -146,7 +165,7 @@ public class StageMessageUI : MonoBehaviour
     public void QueueModuleReward(int count = 1)
     {
         pendingModuleRewards += count;
-        UpdatePendingCountText(); // 스택 추가 시 텍스트 갱신
+        UpdatePendingCountText(); 
 
         if (!isRewardUIPresenting && pendingModuleRewards > 0)
         {
@@ -158,7 +177,7 @@ public class StageMessageUI : MonoBehaviour
     {
         if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
 
-        ResetAllUI(); // 다른 UI(예: 클리어 메시지)가 떠있을 경우 덮어쓰기 위해 리셋
+        ResetAllUI(); 
 
         if (clearGroup != null)
         {
@@ -168,7 +187,6 @@ public class StageMessageUI : MonoBehaviour
         QueueModuleReward(count);
     }
 
-    // ★ [추가됨] 남은 횟수를 "xN" 형태로 텍스트 갱신
     private void UpdatePendingCountText()
     {
         if (pendingCountText != null)
@@ -179,7 +197,6 @@ public class StageMessageUI : MonoBehaviour
             }
             else
             {
-                // 1번만 남았거나 없으면 텍스트를 비워 깔끔하게 유지합니다.
                 pendingCountText.text = "";
             }
         }
@@ -199,13 +216,13 @@ public class StageMessageUI : MonoBehaviour
         if (rewardGroup != null)
         {
             rewardGroup.alpha = 1f;
-            if (pendingCountText != null) pendingCountText.alpha = 1f; // 텍스트 보이기
+            if (pendingCountText != null) pendingCountText.alpha = 1f; 
 
             SetRandomRewardTexts();
             for (int i = 0; i < rewardItems.Length; i++)
             {
                 StartCoroutine(AnimateRewardItem(rewardItems[i], i));
-                yield return new WaitForSecondsRealtime(rewardInterval); // UI 중에는 TimeScale 0을 대비해 Realtime 사용
+                yield return new WaitForSecondsRealtime(rewardInterval); 
             }
             canSelectReward = true;
         }
@@ -246,7 +263,7 @@ public class StageMessageUI : MonoBehaviour
 
         while (timer < fadeInTime)
         {
-            timer += Time.unscaledDeltaTime; // TimeScale 0 대응
+            timer += Time.unscaledDeltaTime; 
             float t = timer / fadeInTime;
             float curveT = appearanceCurve.Evaluate(t);
             item.group.alpha = t;
@@ -279,7 +296,7 @@ public class StageMessageUI : MonoBehaviour
         canSelectReward = false;
 
         pendingModuleRewards--;
-        UpdatePendingCountText(); // 차감 직후 텍스트 갱신
+        UpdatePendingCountText(); 
 
         if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.1f);
         if (rewardItems[index].glowEffect != null) rewardItems[index].glowEffect.enabled = true;
@@ -297,12 +314,10 @@ public class StageMessageUI : MonoBehaviour
 
         if (pendingModuleRewards > 0)
         {
-            // 아직 보상이 남았으면 다시 팝업
             StartCoroutine(WaitAndNextReward(0.4f));
         }
         else
         {
-            // 모든 보상 선택 완료
             StartCoroutine(WaitAndClose(0.4f));
         }
     }
@@ -318,7 +333,6 @@ public class StageMessageUI : MonoBehaviour
         yield return new WaitForSecondsRealtime(delay);
         HideAllClearUI();
 
-        // ★ 이벤트 등 강제로 열었을 경우, 조작 권한을 원상복구합니다.
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI)
         {
             InputStateManager.Instance.CloseUI();
@@ -368,7 +382,6 @@ public class StageMessageUI : MonoBehaviour
             if (clearGroup != null) clearGroup.alpha = 1 - t;
             if (rewardGroup != null) rewardGroup.alpha = 1 - t;
 
-            // 패널 사라질 때 스택 텍스트도 같이 사라짐
             if (pendingCountText != null) pendingCountText.alpha = 1 - t;
             yield return null;
         }
