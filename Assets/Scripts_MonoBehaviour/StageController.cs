@@ -12,7 +12,7 @@ public class StageController : MonoBehaviour
 
     [Header("Start Room Settings (Intro)")]
     public bool isStartingRoom = false;                   // 시작 방 여부 (체크 시 인트로 실행)
-    public float startFadeDelay = 1.5f;                   // 페이드 인이 끝날 때까지 대기할 시간
+    public float startFadeDelay = 0.5f;                   // 페이드 인이 끝날 때까지 대기할 시간
     public string startTitleText = "시스템 가동";          // 시작 방 진입 시 띄울 제목
     public string startDescText = "모듈 테스트를 시작합니다."; // 시작 방 진입 시 띄울 설명
     public Color startTitleColor = Color.cyan;            // 제목 색상

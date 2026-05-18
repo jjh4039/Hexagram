@@ -128,8 +128,6 @@ public class EnemyBoss : Enemy
     [Header("Death Settings")]
     [SerializeField] private Sprite deadStatueSprite;
 
-    private GameObject maxRectInstance;
-    private GameObject currentRectInstance;
     private GameObject sniperMaxInstance;
     private GameObject sniperCurrentInstance;
 
@@ -143,7 +141,10 @@ public class EnemyBoss : Enemy
 
     private Transform telegraphContainer;
 
-    // ★ 추가: 그림자 보호용 변수
+    // ★ 로컬 풀 용도 리스트
+    private List<GameObject> poolMaxRects = new List<GameObject>();
+    private List<GameObject> poolCurRects = new List<GameObject>();
+
     private SpriteRenderer shadowSr;
     private Color shadowOriginalColor;
 
@@ -178,14 +179,45 @@ public class EnemyBoss : Enemy
         }
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
 
-        // ★ 그림자 초기 색상 백업 (Inspector에서 지정된 shadowObject의 SpriteRenderer 활용)
-        // Enemy.cs에 선언된 shadowObject를 찾아 활용합니다.
-        Transform shadowT = transform.Find("Shadow"); // 만약 이름이 다르다면 Inspector에서 넣은 오브젝트를 쓰셔도 됩니다.
+        Transform shadowT = transform.Find("Shadow"); 
         if (shadowT != null)
         {
             shadowSr = shadowT.GetComponent<SpriteRenderer>();
             if (shadowSr != null) shadowOriginalColor = shadowSr.color;
         }
+    }
+
+    // ★ 추가: 로컬 풀에서 오브젝트를 가져오는 함수
+    private GameObject GetMaxRect(Vector3 pos)
+    {
+        foreach (var r in poolMaxRects)
+        {
+            if (!r.activeSelf)
+            {
+                r.transform.position = pos;
+                r.SetActive(true);
+                return r;
+            }
+        }
+        var obj = Instantiate(dashMaxRangeOrigin, pos, Quaternion.identity, telegraphContainer);
+        poolMaxRects.Add(obj);
+        return obj;
+    }
+
+    private GameObject GetCurRect(Vector3 pos)
+    {
+        foreach (var r in poolCurRects)
+        {
+            if (!r.activeSelf)
+            {
+                r.transform.position = pos;
+                r.SetActive(true);
+                return r;
+            }
+        }
+        var obj = Instantiate(dashCurrentRangeOrigin, pos, Quaternion.identity, telegraphContainer);
+        poolCurRects.Add(obj);
+        return obj;
     }
 
     private void StartIntroSequence()
@@ -236,7 +268,6 @@ public class EnemyBoss : Enemy
             elapsed += Time.deltaTime;
             spriteRenderer.color = Color.Lerp(startColor, endColor, elapsed / duration);
 
-            // ★ 보스가 하얘질 때 그림자 색상은 굳건히 원본(보통 반투명 검정)으로 고정!
             if (shadowSr != null) shadowSr.color = shadowOriginalColor;
 
             yield return null;
@@ -254,7 +285,6 @@ public class EnemyBoss : Enemy
             {
                 maxHealth = maxHealth * healthMultiplier;
                 currentHealth = maxHealth;
-                Debug.Log($"[이벤트 적용] 보스 체력 배율 {healthMultiplier}x 적용됨. 최종 체력: {maxHealth}");
             }
         }
 
@@ -265,7 +295,6 @@ public class EnemyBoss : Enemy
 
         if (forceEnrage)
         {
-            Debug.Log("테스트 모드: 컷신 종료 후 보스 체력 강제 50% 삭감!");
             currentHealth = maxHealth * 0.5f;
 
             yield return new WaitForSeconds(0.5f);
@@ -306,11 +335,9 @@ public class EnemyBoss : Enemy
         {
             isEnraged = false;
             if (spriteRenderer != null) spriteRenderer.color = Color.white;
-            Debug.Log("보스 폭주 강제 해제!");
         }
     }
 
-    // ★ 수정: 컷신 트리거 닿기 전에 원거리 무기로 선빵 치는 것 완벽 차단
     public override void TakeDamage(float damage, bool isCritical = false)
     {
         if (!isAwake || isDead) return;
@@ -322,7 +349,6 @@ public class EnemyBoss : Enemy
 
     private IEnumerator Co_EnragePattern()
     {
-        Debug.Log("보스 폭주 패턴 시작! 포효 및 넉백 발동!");
         isEnraged = true;
         isAttacking = true;
         rigid.linearVelocity = Vector2.zero;
@@ -368,7 +394,6 @@ public class EnemyBoss : Enemy
         }
 
         isAttacking = false;
-        Debug.Log("폭주 포효 완료! 광폭화 전투 돌입.");
     }
 
     private void KnockbackPlayer()
@@ -403,16 +428,15 @@ public class EnemyBoss : Enemy
 
                 if (isFirstPattern)
                 {
-                    patternIndex = 1; // 첫 조우 무조건 돌진
+                    patternIndex = 1; 
                     isFirstPattern = false;
                 }
                 else if (patternCounter % crossGridFrequency == 0)
                 {
-                    patternIndex = 4; // 주기마다 각성기 강제 발동
+                    patternIndex = 4; 
                 }
                 else
                 {
-                    // 1, 2, 3 패턴 중에서 이전 패턴과 겹치지 않게 무작위 선택
                     do
                     {
                         patternIndex = Random.Range(1, 4);
@@ -476,7 +500,6 @@ public class EnemyBoss : Enemy
 
         float dirX = target.position.x - transform.position.x;
 
-        // 겹쳤을 때 미세한 차이로 반응하지 않도록 데드존 설정
         if (Mathf.Abs(dirX) < 0.1f) return;
 
         float targetSign = Mathf.Sign(dirX);
@@ -514,14 +537,15 @@ public class EnemyBoss : Enemy
 
             Vector2 currentDir = (target.position - transform.position).normalized;
 
+            // ★ 수정: 로컬 풀 사용
+            GameObject maxRectInstance = null;
+            GameObject currentRectInstance = null;
+
             if (dashMaxRangeOrigin != null)
-                maxRectInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
+                maxRectInstance = GetMaxRect(transform.position);
 
             if (dashCurrentRangeOrigin != null)
-                currentRectInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
-
-            if (maxRectInstance != null) { maxRectInstance.transform.SetParent(telegraphContainer); maxRectInstance.SetActive(true); }
-            if (currentRectInstance != null) { currentRectInstance.transform.SetParent(telegraphContainer); currentRectInstance.SetActive(true); }
+                currentRectInstance = GetCurRect(transform.position);
 
             float timer = 0f;
             while (timer < currentChargeTime && !isDead)
@@ -678,15 +702,16 @@ public class EnemyBoss : Enemy
             float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
             wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
 
+            // ★ 수정: 로컬 풀 사용
             if (dashMaxRangeOrigin != null)
             {
-                GameObject maxObj = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
-                maxObj.transform.SetParent(telegraphContainer); maxObj.SetActive(true); maxRects.Add(maxObj);
+                GameObject maxObj = GetMaxRect(transform.position);
+                maxRects.Add(maxObj);
             }
             if (dashCurrentRangeOrigin != null)
             {
-                GameObject curObj = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
-                curObj.transform.SetParent(telegraphContainer); curObj.SetActive(true); currentRects.Add(curObj);
+                GameObject curObj = GetCurRect(transform.position);
+                currentRects.Add(curObj);
             }
         }
 
@@ -732,15 +757,16 @@ public class EnemyBoss : Enemy
                     Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
                     reverseDirections.Add(toPlayerDir);
 
+                    // ★ 수정: 로컬 풀 사용
                     if (dashMaxRangeOrigin != null)
                     {
-                        GameObject maxObj = Instantiate(dashMaxRangeOrigin, startPos, Quaternion.identity);
-                        maxObj.transform.SetParent(telegraphContainer); maxObj.SetActive(true); maxRects.Add(maxObj);
+                        GameObject maxObj = GetMaxRect(startPos);
+                        maxRects.Add(maxObj);
                     }
                     if (dashCurrentRangeOrigin != null)
                     {
-                        GameObject curObj = Instantiate(dashCurrentRangeOrigin, startPos, Quaternion.identity);
-                        curObj.transform.SetParent(telegraphContainer); curObj.SetActive(true); currentRects.Add(curObj);
+                        GameObject curObj = GetCurRect(startPos);
+                        currentRects.Add(curObj);
                     }
                 }
 
@@ -798,18 +824,13 @@ public class EnemyBoss : Enemy
 
         if (isEnraged || forceEnrage)
         {
+            // ★ 수정: 로컬 풀 사용
             if (dashMaxRangeOrigin != null)
-            {
-                sniperMaxInstance = Instantiate(dashMaxRangeOrigin, transform.position, Quaternion.identity);
-                sniperMaxInstance.transform.SetParent(telegraphContainer);
-                sniperMaxInstance.SetActive(true);
-            }
+                sniperMaxInstance = GetMaxRect(transform.position);
+            
             if (dashCurrentRangeOrigin != null)
-            {
-                sniperCurrentInstance = Instantiate(dashCurrentRangeOrigin, transform.position, Quaternion.identity);
-                sniperCurrentInstance.transform.SetParent(telegraphContainer);
-                sniperCurrentInstance.SetActive(true);
-            }
+                sniperCurrentInstance = GetCurRect(transform.position);
+            
             isSniperTracking = true;
 
             float totalSniperChargeTime = gridChargeTime + (gridFireDelay * 2f);
@@ -865,8 +886,8 @@ public class EnemyBoss : Enemy
                 if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.5f, 0.4f);
             }
 
-            if (sniperMaxInstance != null) Destroy(sniperMaxInstance);
-            if (sniperCurrentInstance != null) Destroy(sniperCurrentInstance);
+            if (sniperMaxInstance != null) sniperMaxInstance.SetActive(false);
+            if (sniperCurrentInstance != null) sniperCurrentInstance.SetActive(false);
         }
 
         if (anim != null) anim.SetTrigger("StopGatherHands");
@@ -906,10 +927,9 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(true, index);
 
-                GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
-                telegraph.transform.SetParent(telegraphContainer);
+                // ★ 수정: 로컬 풀 사용
+                GameObject telegraph = GetCurRect(data.startPos);
                 telegraph.transform.localScale = Vector3.one;
-                telegraph.SetActive(true);
 
                 SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
                 if (sr != null)
@@ -930,10 +950,9 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(false, index);
 
-                GameObject telegraph = Instantiate(dashCurrentRangeOrigin, data.startPos, Quaternion.identity);
-                telegraph.transform.SetParent(telegraphContainer);
+                // ★ 수정: 로컬 풀 사용
+                GameObject telegraph = GetCurRect(data.startPos);
                 telegraph.transform.localScale = Vector3.one;
-                telegraph.SetActive(true);
 
                 SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
                 if (sr != null)
@@ -964,7 +983,8 @@ public class EnemyBoss : Enemy
             yield return null;
         }
 
-        foreach (var m in markers) if (m != null) Destroy(m);
+        // ★ 파괴 대신 비활성화
+        foreach (var m in markers) if (m != null) m.SetActive(false);
         yield return new WaitForSeconds(gridTelegraphGap);
     }
 
@@ -1083,13 +1103,12 @@ public class EnemyBoss : Enemy
         {
             float angle = i * angleStep;
             Vector2 dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-
-            GameObject proj = Instantiate(aoeProjectilePrefab, transform.position, Quaternion.identity);
-            EnemyProjectile projectileScript = proj.GetComponent<EnemyProjectile>();
+            
+            EnemyProjectile projectileScript = EnemyProjectile.Spawn(aoeProjectilePrefab, transform.position, Quaternion.identity);
 
             if (projectileScript != null)
             {
-                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage);
+                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage); 
             }
         }
     }
@@ -1213,13 +1232,9 @@ public class EnemyBoss : Enemy
         if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
         if (attackRangeObj != null) attackRangeObj.SetActive(false);
 
-        if (telegraphContainer != null)
-        {
-            foreach (Transform child in telegraphContainer)
-            {
-                Destroy(child.gameObject);
-            }
-        }
+        // ★ 로컬 풀 요소들 모두 끄기
+        foreach (var r in poolMaxRects) if (r != null) r.SetActive(false);
+        foreach (var r in poolCurRects) if (r != null) r.SetActive(false);
     }
 
     protected override void OnHit() { if (isDead) return; }
@@ -1228,7 +1243,6 @@ public class EnemyBoss : Enemy
     {
         isDead = true;
 
-        // ★ 보스가 죽으면 무조건 플레이어를 무적 상태로 만듦
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
             GameManager.instance.player.isInvincible = true;

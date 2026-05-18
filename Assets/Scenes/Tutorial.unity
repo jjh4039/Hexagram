@@ -12285,6 +12285,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 227549788}
   m_CullTransparentMesh: 1
+--- !u!1 &232181880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 232181881}
+  m_Layer: 0
+  m_Name: OJP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &232181881
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232181880}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 54.30117, y: 6.98009, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &246703211
 GameObject:
   m_ObjectHideFlags: 0
@@ -16188,6 +16219,9 @@ MonoBehaviour:
   ghostInterval: 0.03
   ghostFadeTime: 0.4
   ghostColor: {r: 1, g: 1, b: 1, a: 0.3529412}
+  poolParent: {fileID: 232181881}
+  ghostPoolSize: 20
+  dustPoolSize: 5
   dashDustPrefab: {fileID: 1933968925968223398, guid: 608a931a078dc09488fb087538f82d1d, type: 3}
   shakeDuration: 0.05
   shakeMagnitude: 0.02
@@ -51477,11 +51511,15 @@ MonoBehaviour:
   gunRecoilDistance: 0.3
   gunRecoilDuration: 0.2
   minRecoilDuration: 0.05
+  hitEffectPrefab: {fileID: 7757028540236576826, guid: 0033ac8e664fc73479f29d8d0f3d365a, type: 3}
   shakeDuration: 0.05
   shakeMagnitude: 0.02
   sfxShoot: {fileID: 8300000, guid: f8f3a8347d84bbe4f8a46fda53926978, type: 3}
   sfxEmpty: {fileID: 8300000, guid: c8670a08157ae6e4c949f8652814c4c2, type: 3}
   damageTextPrefab: {fileID: 642625774705958115, guid: 5fa2cbeba5bfdfe4ebbde5ccb77f303f, type: 3}
+  poolParent: {fileID: 232181881}
+  bulletPoolSize: 30
+  hitEffectPoolSize: 20
 --- !u!1 &1734931968
 GameObject:
   m_ObjectHideFlags: 0
@@ -68982,3 +69020,4 @@ SceneRoots:
   - {fileID: 2136822832}
   - {fileID: 2048864214}
   - {fileID: 2022016648}
+  - {fileID: 232181881}

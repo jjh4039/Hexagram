@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class EnemyProjectileFlash : MonoBehaviour
 {
@@ -6,17 +7,49 @@ public class EnemyProjectileFlash : MonoBehaviour
     [SerializeField] private float scaleMultiplier = 1.4f;
 
     private float timer;
-    private Vector3 startScale;
+    private Vector3 baseScale;
     private SpriteRenderer spriteRenderer;
     private Color startColor;
+
+    // ★ 이펙트 풀링용 큐 및 컨테이너
+    private static Queue<EnemyProjectileFlash> pool = new Queue<EnemyProjectileFlash>();
+    private static Transform poolContainer;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        startScale = transform.localScale;
+        baseScale = transform.localScale;
 
         if (spriteRenderer != null)
             startColor = spriteRenderer.color;
+    }
+    
+    public static EnemyProjectileFlash Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
+    {
+        if (poolContainer == null)
+            poolContainer = new GameObject("EnemyProjectileFlash_Pool").transform;
+
+        EnemyProjectileFlash epf;
+        if (pool.Count > 0)
+        {
+            epf = pool.Dequeue();
+            epf.transform.position = position;
+            epf.transform.rotation = rotation;
+            epf.gameObject.SetActive(true);
+        }
+        else
+        {
+            GameObject obj = Instantiate(prefab, position, rotation, poolContainer);
+            epf = obj.GetComponent<EnemyProjectileFlash>();
+        }
+        return epf;
+    }
+
+    private void OnEnable()
+    {
+        timer = 0f;
+        transform.localScale = baseScale;
+        if (spriteRenderer != null) spriteRenderer.color = startColor;
     }
 
     private void Update()
@@ -25,11 +58,10 @@ public class EnemyProjectileFlash : MonoBehaviour
         float t = timer / duration;
 
         transform.localScale = Vector3.Lerp(
-            startScale * scaleMultiplier,
-            startScale * 0.8f,
+            baseScale * scaleMultiplier,
+            baseScale * 0.8f,
             t);
 
-        // 점점 투명해짐
         if (spriteRenderer != null)
         {
             Color c = startColor;
@@ -39,7 +71,9 @@ public class EnemyProjectileFlash : MonoBehaviour
 
         if (timer >= duration)
         {
-            Destroy(gameObject);
+            // ★ Destroy 대신 비활성화 후 큐에 반환
+            gameObject.SetActive(false);
+            pool.Enqueue(this);
         }
     }
 }

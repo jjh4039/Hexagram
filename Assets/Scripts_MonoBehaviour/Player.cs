@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     public bool isTutorial = false;
 
     [Header("Hit And Invincibility")]
-    [SerializeField] public bool isInvincible = false; // ★ 수정: Boss 스크립트에서 제어할 수 있도록 public으로 변경
+    [SerializeField] public bool isInvincible = false;
     [SerializeField] private float invincibleTime = 0.8f;
     [SerializeField] private float blinkSpeed = 0.2f;
     [SerializeField] private float bodyContactDamage = 5f;
@@ -58,6 +58,17 @@ public class Player : MonoBehaviour
     [SerializeField] private float ghostInterval = 0.03f;
     [SerializeField] private float ghostFadeTime = 0.4f;
     [SerializeField] private Color ghostColor = new Color(0.6f, 0.6f, 1f, 0.4f);
+
+    [Header("Object Pool Settings")]
+    [Tooltip("잔상 및 이펙트 풀 컨테이너들이 생성될 부모 위치 (비워두면 최상단에 생성)")]
+    [SerializeField] private Transform poolParent; 
+    [SerializeField] private int ghostPoolSize = 20; 
+    [SerializeField] private int dustPoolSize = 5; 
+    
+    private Queue<GameObject> _ghostPool = new Queue<GameObject>(); 
+    private Transform _ghostPoolContainer; 
+    private Queue<GameObject> _dustPool = new Queue<GameObject>(); 
+    private Transform _dustPoolContainer; 
 
     [Header("Effects")]
     [SerializeField] private GameObject dashDustPrefab;
@@ -102,6 +113,8 @@ public class Player : MonoBehaviour
         {
             stats.ResetDiceRuntimeStats();
         }
+
+        InitPools();
     }
 
     private void Start()
@@ -267,7 +280,7 @@ public class Player : MonoBehaviour
         {
             float finalDamage = bodyContactDamage;
             Collider2D hitCollider = _contactResults[0];
-
+            
             EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
             Enemy enemy = hitCollider.GetComponent<Enemy>();
 
@@ -393,8 +406,7 @@ public class Player : MonoBehaviour
 
         if (dashDustPrefab != null)
         {
-            GameObject dust = Instantiate(dashDustPrefab, transform.position, Quaternion.identity);
-            Destroy(dust, 1.0f);
+            CreateDust();
         }
 
         if (sfxDash != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxDash, 0.4f);
@@ -419,23 +431,67 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void CreateGhost()
+    // --- Object Pool 초기화 ---
+    private void InitPools()
+    {
+        // 고스트 풀 초기화
+        _ghostPoolContainer = new GameObject("Player_GhostPool").transform;
+        if (poolParent != null) _ghostPoolContainer.SetParent(poolParent);
+        
+        for (int i = 0; i < ghostPoolSize; i++)
+        {
+            GameObject ghostObj = CreateNewGhostObject();
+            ghostObj.SetActive(false);
+            _ghostPool.Enqueue(ghostObj);
+        }
+
+        // 먼지 풀 초기화
+        _dustPoolContainer = new GameObject("Player_DustPool").transform;
+        if (poolParent != null) _dustPoolContainer.SetParent(poolParent);
+
+        if (dashDustPrefab != null)
+        {
+            for (int i = 0; i < dustPoolSize; i++)
+            {
+                GameObject dustObj = Instantiate(dashDustPrefab, _dustPoolContainer);
+                dustObj.SetActive(false);
+                _dustPool.Enqueue(dustObj);
+            }
+        }
+    }
+
+    private GameObject CreateNewGhostObject()
     {
         GameObject ghostObj = new GameObject("DashGhost");
+        ghostObj.transform.SetParent(_ghostPoolContainer);
+        ghostObj.AddComponent<SpriteRenderer>();
+        return ghostObj;
+    }
+
+    private void CreateGhost()
+    {
+        GameObject ghostObj;
+        
+        if (_ghostPool.Count > 0)
+            ghostObj = _ghostPool.Dequeue(); 
+        else
+            ghostObj = CreateNewGhostObject(); 
+
         ghostObj.transform.position = transform.position;
         ghostObj.transform.localScale = transform.localScale;
 
-        SpriteRenderer sr = ghostObj.AddComponent<SpriteRenderer>();
+        SpriteRenderer sr = ghostObj.GetComponent<SpriteRenderer>();
         sr.sprite = spriteRenderer.sprite;
         sr.color = ghostColor;
         sr.flipX = spriteRenderer.flipX;
         sr.sortingLayerID = spriteRenderer.sortingLayerID;
         sr.sortingOrder = spriteRenderer.sortingOrder - 1;
 
-        StartCoroutine(FadeOutAndDestroy(ghostObj, sr));
+        ghostObj.SetActive(true);
+        StartCoroutine(FadeOutAndReturnGhost(ghostObj, sr));
     }
 
-    private IEnumerator FadeOutAndDestroy(GameObject obj, SpriteRenderer sr)
+    private IEnumerator FadeOutAndReturnGhost(GameObject obj, SpriteRenderer sr)
     {
         float timer = 0f;
         Color startColor = sr.color;
@@ -448,7 +504,31 @@ public class Player : MonoBehaviour
             yield return null;
         }
 
-        Destroy(obj);
+        obj.SetActive(false); 
+        _ghostPool.Enqueue(obj); 
+    }
+
+    private void CreateDust()
+    {
+        GameObject dustObj;
+
+        if (_dustPool.Count > 0)
+            dustObj = _dustPool.Dequeue();
+        else
+            dustObj = Instantiate(dashDustPrefab, _dustPoolContainer);
+
+        dustObj.transform.position = transform.position;
+        dustObj.transform.rotation = Quaternion.identity;
+        
+        dustObj.SetActive(true);
+        StartCoroutine(DeactivateAndReturnDust(dustObj, 1.0f));
+    }
+
+    private IEnumerator DeactivateAndReturnDust(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        obj.SetActive(false);
+        _dustPool.Enqueue(obj);
     }
 
     public void OnDie()
@@ -465,6 +545,18 @@ public class Player : MonoBehaviour
         {
             spriteRenderer.color = Color.white;
             spriteRenderer.material = _originalMaterial;
+        }
+
+        // 사망 시 진행 중이던 잔상/먼지들 화면에서 숨기기
+        if (_ghostPoolContainer != null)
+        {
+            foreach (Transform child in _ghostPoolContainer)
+                child.gameObject.SetActive(false);
+        }
+        if (_dustPoolContainer != null)
+        {
+            foreach (Transform child in _dustPoolContainer)
+                child.gameObject.SetActive(false);
         }
 
         if (InputStateManager.Instance != null)

@@ -96,8 +96,8 @@ public class Enemy : MonoBehaviour
         if (damageTextPrefab != null)
         {
             Vector3 randomOffset = new Vector3(Random.Range(-0.2f, 0.2f), 0.7f, 0);
-            GameObject hud = Instantiate(damageTextPrefab, transform.position + randomOffset, Quaternion.identity);
-            hud.GetComponent<DamageText>().Setup(damage, isCritical);
+            DamageText hud = DamageText.Spawn(damageTextPrefab, transform.position + randomOffset);
+            hud.Setup(damage, isCritical);
         }
 
         if (gameObject.activeInHierarchy && sr != null && flashMaterial != null)

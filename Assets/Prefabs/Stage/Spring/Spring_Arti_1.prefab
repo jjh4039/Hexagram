@@ -5463,6 +5463,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 1
+  isBossStage: 0
+  isStartingRoom: 0
+  startFadeDelay: 0.5
+  startTitleText: "\uC2DC\uC2A4\uD15C \uAC00\uB3D9"
+  startDescText: "\uBAA8\uB4C8 \uD14C\uC2A4\uD2B8\uB97C \uC2DC\uC791\uD569\uB2C8\uB2E4."
+  startTitleColor: {r: 0, g: 1, b: 1, a: 1}
   spawnPoint: {fileID: 7154704847653265603}
   barrierEla: {fileID: 0}
   statue: {fileID: 6591054330482880536}

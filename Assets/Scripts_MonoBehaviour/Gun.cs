@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 public class Gun : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class Gun : MonoBehaviour
     [SerializeField] private float minRecoilDuration = 0.05f;
 
     [Header("VFX Settings")]
+    [SerializeField] private GameObject hitEffectPrefab; 
     [SerializeField] private float shakeDuration = 0.05f;
     [SerializeField] private float shakeMagnitude = 0.02f;
 
@@ -35,6 +37,15 @@ public class Gun : MonoBehaviour
     [SerializeField] private GameObject damageTextPrefab;
     private bool isAiming = false;
 
+    [Header("Object Pool Settings")]
+    [SerializeField] private Transform poolParent; 
+    [SerializeField] private int bulletPoolSize = 30;
+    [SerializeField] private int hitEffectPoolSize = 20;
+    
+    private static Queue<GameObject> _bulletPool = new Queue<GameObject>();
+    private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
+    private static Transform _poolContainer; 
+
     private void Awake()
     {
         weaponManager = GetComponentInParent<WeaponManager>();
@@ -42,6 +53,37 @@ public class Gun : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
 
         if (lineRenderer != null) lineRenderer.useWorldSpace = true;
+
+        InitPools();
+    }
+
+    private void InitPools()
+    {
+        if (_poolContainer == null)
+        {
+            _poolContainer = new GameObject("Gun_ObjectPool").transform;
+            if (poolParent != null) _poolContainer.SetParent(poolParent);
+        }
+
+        if (_bulletPool.Count == 0 && bulletPrefab != null)
+        {
+            for (int i = 0; i < bulletPoolSize; i++)
+            {
+                GameObject obj = Instantiate(bulletPrefab, _poolContainer);
+                obj.SetActive(false);
+                _bulletPool.Enqueue(obj);
+            }
+        }
+
+        if (_hitEffectPool.Count == 0 && hitEffectPrefab != null)
+        {
+            for (int i = 0; i < hitEffectPoolSize; i++)
+            {
+                GameObject obj = Instantiate(hitEffectPrefab, _poolContainer);
+                obj.SetActive(false);
+                _hitEffectPool.Enqueue(obj);
+            }
+        }
     }
 
     private void OnDisable()
@@ -161,19 +203,68 @@ public class Gun : MonoBehaviour
 
         Vector2 safeMuzzlePos = GetSafeMuzzlePosition();
 
-        GameObject bulletObj = Instantiate(bulletPrefab, safeMuzzlePos, muzzlePoint.rotation);
-        Bullet bullet = bulletObj.GetComponent<Bullet>();
+        GameObject bulletObj;
+        if (_bulletPool.Count > 0)
+        {
+            bulletObj = _bulletPool.Dequeue();
+        }
+        else
+        {
+            bulletObj = Instantiate(bulletPrefab, _poolContainer); 
+        }
 
+        bulletObj.transform.position = safeMuzzlePos;
+        bulletObj.transform.rotation = muzzlePoint.rotation;
+        
+        Bullet bullet = bulletObj.GetComponent<Bullet>();
         if (bullet != null)
         {
-            // 수정: UpdateVisuals가 삭제되었으므로, 탄환 프리팹 고유의 설정대로 생성
             bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance,
                 stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult);
         }
 
+        bulletObj.SetActive(true); 
+
         if (sfxShoot != null) SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
         Recoil(recoilDur);
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
+    }
+
+    public static void ReturnBullet(GameObject obj)
+    {
+        obj.SetActive(false);
+        _bulletPool.Enqueue(obj);
+    }
+
+    public static void SpawnHitEffect(Vector3 position, Quaternion rotation, Material mat, Color col)
+    {
+        if (_hitEffectPool.Count == 0) return; 
+
+        GameObject vfxObj = _hitEffectPool.Dequeue();
+        
+        vfxObj.transform.position = position;
+        vfxObj.transform.rotation = rotation * Quaternion.Euler(0f, 0f, 180f);
+
+        ParticleSystem ps = vfxObj.GetComponent<ParticleSystem>();
+        ParticleSystemRenderer psr = vfxObj.GetComponent<ParticleSystemRenderer>();
+
+        if (psr != null && mat != null) psr.material = mat;
+        if (ps != null)
+        {
+            var main = ps.main;
+            main.startColor = col;
+        }
+
+        vfxObj.SetActive(true);
+        if (ps != null) ps.Play();
+
+        DelayReturner returner = vfxObj.GetComponent<DelayReturner>();
+        if (returner == null) returner = vfxObj.AddComponent<DelayReturner>();
+        
+        returner.StartDelayReturn(1.0f, () => {
+            vfxObj.SetActive(false);
+            _hitEffectPool.Enqueue(vfxObj);
+        });
     }
 
     private void Recoil(float dur)
@@ -263,8 +354,22 @@ public class Gun : MonoBehaviour
     private void SpawnAmmoEmptyText()
     {
         if (damageTextPrefab == null) return;
-        GameObject obj = Instantiate(damageTextPrefab, mouseWorldPos, Quaternion.identity);
-        DamageText dt = obj.GetComponent<DamageText>();
+        
+        DamageText dt = DamageText.Spawn(damageTextPrefab, mouseWorldPos);
         if (dt != null) dt.Setup("총알 부족!", Color.red, 2f);
+    }
+}
+
+public class DelayReturner : MonoBehaviour
+{
+    public void StartDelayReturn(float delay, System.Action onComplete)
+    {
+        StartCoroutine(Co_Delay(delay, onComplete));
+    }
+
+    private System.Collections.IEnumerator Co_Delay(float d, System.Action act)
+    {
+        yield return new WaitForSeconds(d);
+        act?.Invoke();
     }
 }

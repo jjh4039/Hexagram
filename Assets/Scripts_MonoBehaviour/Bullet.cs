@@ -7,7 +7,6 @@ public class Bullet : MonoBehaviour
     public float lifeTime = 2f;
 
     [Header("VFX")]
-    [SerializeField] private GameObject hitEffectPrefab;
     [SerializeField] private float damageMultiplier = 1.0f;
 
     private Rigidbody2D rigid;
@@ -26,6 +25,9 @@ public class Bullet : MonoBehaviour
     private float cachedDiceDamageMultiplier = 1f;
     private float cachedDiceRangedDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
+
+    // ★ 추가: 풀링을 위한 라이프타임 코루틴용 변수
+    private Coroutine lifeTimerCoroutine;
 
     private void Awake()
     {
@@ -69,10 +71,41 @@ public class Bullet : MonoBehaviour
         cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
 
-    private void Start()
+    // ★ OnEnable: 풀에서 꺼내어 활성화될 때마다 초기화
+    private void OnEnable()
     {
-        rigid.linearVelocity = transform.right * speed;
-        Destroy(gameObject, lifeTime);
+        hasHit = false;
+
+        if (spriteRenderer != null) spriteRenderer.enabled = true;
+        if (col != null) col.enabled = true;
+        
+        if (rigid != null)
+        {
+            rigid.bodyType = RigidbodyType2D.Dynamic;
+            rigid.linearVelocity = transform.right * speed;
+        }
+
+        ParticleSystem[] particles = GetComponentsInChildren<ParticleSystem>();
+        foreach (ParticleSystem ps in particles)
+        {
+            ps.Play();
+        }
+
+        TrailRenderer trail = GetComponentInChildren<TrailRenderer>();
+        if (trail != null)
+        {
+            trail.Clear(); // 이전 궤적 초기화
+            trail.emitting = true;
+        }
+
+        // 특정 시간이 지나도 안 부딪히면 스스로 풀로 돌아감
+        lifeTimerCoroutine = StartCoroutine(Co_LifeTimer());
+    }
+
+    private System.Collections.IEnumerator Co_LifeTimer()
+    {
+        yield return new WaitForSeconds(lifeTime);
+        if (!hasHit) HideAndDelayReturn();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -82,6 +115,7 @@ public class Bullet : MonoBehaviour
         if (collision.CompareTag("Enemy"))
         {
             hasHit = true;
+            if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
 
             Enemy enemy = collision.GetComponent<Enemy>();
             if (enemy != null)
@@ -90,17 +124,19 @@ public class Bullet : MonoBehaviour
                 SpawnHitEffect(transform.position);
             }
 
-            HideAndDelayDestroy();
+            HideAndDelayReturn();
         }
         else if (collision.CompareTag("Wall"))
         {
             hasHit = true;
+            if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
+
             SpawnHitEffect(transform.position);
-            HideAndDelayDestroy();
+            HideAndDelayReturn();
         }
     }
 
-    private void HideAndDelayDestroy()
+    private void HideAndDelayReturn()
     {
         if (spriteRenderer != null)
             spriteRenderer.enabled = false;
@@ -126,32 +162,20 @@ public class Bullet : MonoBehaviour
             trail.emitting = false;
         }
 
-        Destroy(gameObject, 0.5f);
+        // 트레일 등 잔여 이펙트가 꺼지길 기다린 후 풀로 반환
+        Invoke(nameof(ReturnToPool), 0.5f);
+    }
+
+    private void ReturnToPool()
+    {
+        // Gun 스크립트에서 관리하는 Bullet Pool로 반환
+        Gun.ReturnBullet(this.gameObject);
     }
 
     private void SpawnHitEffect(Vector3 position)
     {
-        if (hitEffectPrefab == null) return;
-
-        Quaternion reverseRotation = transform.rotation * Quaternion.Euler(0f, 0f, 180f);
-        GameObject vfx = Instantiate(hitEffectPrefab, position, reverseRotation);
-
-        ParticleSystem ps = vfx.GetComponent<ParticleSystem>();
-        ParticleSystemRenderer psr = vfx.GetComponent<ParticleSystemRenderer>();
-
-        if (psr != null && myMaterial != null)
-        {
-            psr.material = myMaterial;
-        }
-
-        if (ps != null)
-        {
-            var main = ps.main;
-            main.startColor = myColor;
-            ps.Play();
-        }
-
-        Destroy(vfx, 1.0f);
+        // Gun 스크립트에서 관리하는 이펙트 풀을 통해 생성
+        Gun.SpawnHitEffect(position, transform.rotation, myMaterial, myColor);
     }
 
     private void CalculateAndDealDamage(Enemy enemy)
@@ -178,7 +202,6 @@ public class Bullet : MonoBehaviour
 
         enemy.TakeDamage(damageInt, isCritical);
 
-        // ★ [추가됨] 총 누적 데미지 수치 증가
         if (GameManager.instance != null)
         {
             GameManager.instance.totalDamageDealt += damageInt;

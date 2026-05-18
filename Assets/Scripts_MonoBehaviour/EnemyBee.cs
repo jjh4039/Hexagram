@@ -5,9 +5,9 @@ using UnityEngine;
 public class EnemyBee : Enemy
 {
     [Header("Elite Settings")]
-    [SerializeField] private bool isElite = false; // 엘리트 몬스터 여부
-    [SerializeField] private int eliteProjCount = 5; // 엘리트 발사체 개수
-    [SerializeField] private float eliteSpreadAngle = 15f; // 발사체 간격 각도
+    [SerializeField] private bool isElite = false; 
+    [SerializeField] private int eliteProjCount = 5; 
+    [SerializeField] private float eliteSpreadAngle = 15f; 
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
@@ -31,7 +31,7 @@ public class EnemyBee : Enemy
     [Header("Projectile")]
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float projectileSpeed = 10f;
-    [SerializeField] private float projectileDamage = 15f; // 투사체 데미지 설정 추가
+    [SerializeField] private float projectileDamage = 15f; 
 
     [Header("Homing")]
     [SerializeField] private float homingStrength = 5f;
@@ -54,8 +54,8 @@ public class EnemyBee : Enemy
     private bool isAttacking = false;
     private bool isStunned = false;
 
-    private List<GameObject> maxRectInstances = new List<GameObject>();
-    private List<GameObject> currentRectInstances = new List<GameObject>();
+    private List<GameObject> maxRectInstances = new List<GameObject>(); // 로컬 풀
+    private List<GameObject> currentRectInstances = new List<GameObject>(); // 로컬 풀
     private Coroutine attackCoroutine;
     private Coroutine stunCoroutine;
 
@@ -160,15 +160,16 @@ public class EnemyBee : Enemy
 
         if (maxRangeRectPrefab != null && currentRectPrefab != null)
         {
+            // ★ 수정: 로컬 풀에서 부족한 만큼만 생성하고, 재사용합니다.
             for (int i = 0; i < projCount; i++)
             {
-                GameObject maxRect = Instantiate(maxRangeRectPrefab);
-                maxRect.SetActive(true);
-                maxRectInstances.Add(maxRect);
-
-                GameObject curRect = Instantiate(currentRectPrefab);
-                curRect.SetActive(true);
-                currentRectInstances.Add(curRect);
+                if (i >= maxRectInstances.Count)
+                {
+                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, transform));
+                    currentRectInstances.Add(Instantiate(currentRectPrefab, transform));
+                }
+                maxRectInstances[i].SetActive(true);
+                currentRectInstances[i].SetActive(true);
             }
         }
 
@@ -262,14 +263,12 @@ public class EnemyBee : Enemy
             if (projectileFlashPrefab != null)
             {
                 Vector3 flashPos = headPoint.position + (Vector3)(dir.normalized * flashDistance);
-                GameObject flash = Instantiate(projectileFlashPrefab, flashPos, Quaternion.identity);
-                flash.transform.right = dir;
+                EnemyProjectileFlash.Spawn(projectileFlashPrefab, flashPos, Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg));
             }
 
-            GameObject proj = Instantiate(projectilePrefab, headPoint.position, Quaternion.identity);
-            EnemyProjectile projectile = proj.GetComponent<EnemyProjectile>();
+            EnemyProjectile projectile = EnemyProjectile.Spawn(projectilePrefab, headPoint.position, Quaternion.identity);
             if (projectile != null)
-                projectile.Initialize(dir, projectileSpeed, projectileDamage); // 설정한 투사체 데미지 전달
+                projectile.Initialize(dir, projectileSpeed, projectileDamage);
         }
 
         if (rigid != null)
@@ -326,17 +325,12 @@ public class EnemyBee : Enemy
 
     void ClearRectangles()
     {
+        // ★ 수정: 파괴하지 않고 안 보이게 끕니다.
         foreach (var rect in maxRectInstances)
-        {
-            if (rect != null) Destroy(rect);
-        }
-        maxRectInstances.Clear();
+            if (rect != null) rect.SetActive(false);
 
         foreach (var rect in currentRectInstances)
-        {
-            if (rect != null) Destroy(rect);
-        }
-        currentRectInstances.Clear();
+            if (rect != null) rect.SetActive(false);
     }
 
     protected override void Die()

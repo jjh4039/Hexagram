@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Sword_Effect : MonoBehaviour
@@ -28,6 +29,10 @@ public class Sword_Effect : MonoBehaviour
     private float cachedCriticalDamageMultiplier = 1.5f;
     private float cachedDiceDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
+
+    private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
+    private static Queue<GameObject> _critHitEffectPool = new Queue<GameObject>();
+    private static Transform _effectPoolContainer; 
 
     private void Awake()
     {
@@ -147,11 +152,16 @@ public class Sword_Effect : MonoBehaviour
         if (enemy == null || !enemy.gameObject.activeSelf) return;
         if (GameManager.instance == null || GameManager.instance.player == null) return;
 
-        GameObject selectedEffectPrefab = isCritical && criticalHitEffectPrefab != null
-            ? criticalHitEffectPrefab
-            : hitEffectPrefab;
+        GameObject prefab = isCritical ? criticalHitEffectPrefab : hitEffectPrefab;
+        Queue<GameObject> targetPool = isCritical ? _critHitEffectPool : _hitEffectPool;
 
-        if (selectedEffectPrefab == null) return;
+        if (prefab == null) return;
+
+        // ★ 수정: Find를 쓰지 않고, 그냥 최상단에 전용 폴더를 하나 만듭니다.
+        if (_effectPoolContainer == null)
+        {
+            _effectPoolContainer = new GameObject("SwordHitEffect_Pool").transform;
+        }
 
         Transform playerTransform = GameManager.instance.player.transform;
         Vector3 playerPosition = playerTransform.position;
@@ -170,9 +180,28 @@ public class Sword_Effect : MonoBehaviour
         angle += Random.Range(-randomRotationOffset, randomRotationOffset);
 
         Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
-        GameObject vfx = Instantiate(selectedEffectPrefab, hitPosition, rotation);
+        
+        GameObject vfx;
+        if (targetPool.Count > 0)
+        {
+            vfx = targetPool.Dequeue();
+            vfx.transform.position = hitPosition;
+            vfx.transform.rotation = rotation;
+            vfx.SetActive(true);
+        }
+        else
+        {
+            vfx = Instantiate(prefab, hitPosition, rotation, _effectPoolContainer);
+        }
 
-        Destroy(vfx, hitEffectLifetime);
+        SwordEffectReturner returner = vfx.GetComponent<SwordEffectReturner>();
+        if (returner == null) returner = vfx.AddComponent<SwordEffectReturner>();
+
+        returner.StartDelayReturn(hitEffectLifetime, () =>
+        {
+            vfx.SetActive(false);
+            targetPool.Enqueue(vfx);
+        });
     }
 
     private IEnumerator FadeOutRoutine()
@@ -197,5 +226,19 @@ public class Sword_Effect : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+    }
+}
+
+public class SwordEffectReturner : MonoBehaviour
+{
+    public void StartDelayReturn(float delay, System.Action onComplete)
+    {
+        StartCoroutine(Co_Delay(delay, onComplete));
+    }
+
+    private System.Collections.IEnumerator Co_Delay(float d, System.Action act)
+    {
+        yield return new WaitForSeconds(d);
+        act?.Invoke();
     }
 }

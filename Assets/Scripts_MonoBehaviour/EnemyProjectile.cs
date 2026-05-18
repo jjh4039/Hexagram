@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnemyProjectile : MonoBehaviour
 {
@@ -21,33 +22,66 @@ public class EnemyProjectile : MonoBehaviour
 
     private Rigidbody2D rigid;
     private Vector2 moveDir;
-
     private Vector3 baseScale;
     private Coroutine scaleCoroutine;
+    private Coroutine lifeTimerCoroutine;
+
+    // ★ 투사체 풀링용 큐 및 컨테이너
+    private static Queue<EnemyProjectile> pool = new Queue<EnemyProjectile>();
+    private static Transform poolContainer;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
     }
-
-    private void Start()
+    
+    public static EnemyProjectile Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
     {
-        Destroy(gameObject, lifeTime);
+        if (poolContainer == null)
+            poolContainer = new GameObject("EnemyProjectile_Pool").transform;
+
+        EnemyProjectile ep;
+        if (pool.Count > 0)
+        {
+            ep = pool.Dequeue();
+            ep.transform.position = position;
+            ep.transform.rotation = rotation;
+            ep.gameObject.SetActive(true);
+        }
+        else
+        {
+            GameObject obj = Instantiate(prefab, position, rotation, poolContainer);
+            ep = obj.GetComponent<EnemyProjectile>();
+        }
+        return ep;
     }
 
-    // 초기화 시 데미지도 받아와 덮어씌움
+    private void OnEnable()
+    {
+        if (baseScale == Vector3.zero) 
+            baseScale = transform.localScale;
+
+        if (lifeTimerCoroutine != null) 
+            StopCoroutine(lifeTimerCoroutine);
+        
+        lifeTimerCoroutine = StartCoroutine(Co_LifeTimer());
+    }
+
+    private IEnumerator Co_LifeTimer()
+    {
+        yield return new WaitForSeconds(lifeTime);
+        ReturnToPool();
+    }
+
     public void Initialize(Vector2 direction, float overrideSpeed, float projDamage)
     {
         moveDir = direction.normalized;
         speed = overrideSpeed;
-        damage = projDamage; // 에너미 스크립트에서 받아온 투사체 데미지 적용
+        damage = projDamage;
 
         RotateToDirection();
 
-        baseScale = transform.localScale;
-
-        if (scaleCoroutine != null)
-            StopCoroutine(scaleCoroutine);
+        if (scaleCoroutine != null) StopCoroutine(scaleCoroutine);
 
         transform.localScale = baseScale * spawnScaleMultiplier;
         scaleCoroutine = StartCoroutine(Co_RecoverScale());
@@ -58,13 +92,8 @@ public class EnemyProjectile : MonoBehaviour
     void SpawnHitEffect(Vector3 hitPosition)
     {
         if (hitEffectPrefab == null) return;
-
-        GameObject effect = Instantiate(
-            hitEffectPrefab,
-            hitPosition,
-            Quaternion.identity);
-
-        effect.transform.right = -moveDir;
+        // ★ 타격 이펙트도 풀링으로 스폰
+        EnemyProjectileFlash.Spawn(hitEffectPrefab, hitPosition, Quaternion.Euler(0, 0, transform.eulerAngles.z + 180f));
     }
 
     IEnumerator Co_RecoverScale()
@@ -110,14 +139,25 @@ public class EnemyProjectile : MonoBehaviour
                 player.OnDamage(damage);
 
             SpawnHitEffect(transform.position);
-            Destroy(gameObject);
+            ReturnToPool();
             return;
         }
 
         if (collision.CompareTag("Wall"))
         {
             SpawnHitEffect(transform.position);
-            Destroy(gameObject);
+            ReturnToPool();
         }
+    }
+
+    // 파괴 대신 풀로 반환
+    private void ReturnToPool()
+    {
+        if (scaleCoroutine != null) StopCoroutine(scaleCoroutine);
+        if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
+        
+        rigid.linearVelocity = Vector2.zero;
+        gameObject.SetActive(false);
+        pool.Enqueue(this);
     }
 }
