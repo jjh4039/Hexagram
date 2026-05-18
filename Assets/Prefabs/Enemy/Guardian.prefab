@@ -212,7 +212,7 @@ Transform:
   m_GameObject: {fileID: 3631550658033742925}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.79, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -322,8 +322,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01de2e9febf8eab469096837a017fa4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBoss
-  maxHealth: 1200
+  maxHealth: 20
   currentHealth: 0
+  contactDamage: 10
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 7695696144402463716}
   hpBarRoot: {fileID: 0}
@@ -382,7 +383,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  baseContactDamage: 10
   dashDamageMultiplier: 1.5
   trailPoolSize: 10
   trailSpawnDelay: 0.04
@@ -404,6 +404,7 @@ MonoBehaviour:
   aoeVisualScale: 4.5
   aoeProjectilePrefab: {fileID: 3884799456776141231, guid: 5ea31c18297883c48ac46cf18ea3a1e9, type: 3}
   aoeProjectileSpeed: 10
+  aoeProjectileDamage: 15
   linesChargeTime: 1.5
   minLines: 7
   maxLines: 10

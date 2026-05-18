@@ -39,10 +39,10 @@ public class EnemySpawner : MonoBehaviour
         // 4. 진짜 몬스터 생성
         if (enemyPrefab != null)
         {
-            // 몬스터를 먼저 맵에 생성합니다.
-            GameObject spawnedObj = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
-            
-            // ★ [수정된 부분] 몬스터 생성 직후, 파티클을 생성하며 몬스터(spawnedObj.transform)를 부모로 지정합니다.
+            // ★ [수정됨] 4번째 매개변수로 transform을 넣어 스포너의 자식으로 생성합니다.
+            GameObject spawnedObj = Instantiate(enemyPrefab, transform.position, Quaternion.identity, this.transform);
+
+            // 몬스터 생성 직후, 파티클을 생성하며 몬스터(spawnedObj.transform)를 부모로 지정합니다.
             if (spawnEffectPrefab != null)
             {
                 Instantiate(spawnEffectPrefab, transform.position, Quaternion.identity, spawnedObj.transform);

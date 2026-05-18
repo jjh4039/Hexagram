@@ -81,6 +81,9 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-277477129-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1948743305-0
         - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1479832444-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-773806240-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-315138532-0
+        - globalObjectIdString: GlobalObjectId_V1-2-8c9cfa26abfee488c85f1582747f6a02-1854434271-0
         values:
         - colorIndex: 2
           iconNameOrGuid: 
@@ -326,6 +329,18 @@ MonoBehaviour:
           iconNameOrGuid: PreMatCylinder
           isIconRecursive: 1
           isColorRecursive: 1
+        - colorIndex: 5
+          iconNameOrGuid: Favorite
+          isIconRecursive: 1
+          isColorRecursive: 1
+        - colorIndex: 3
+          iconNameOrGuid: sv_icon_dot12_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 1
+        - colorIndex: 3
+          iconNameOrGuid: sv_icon_dot12_pix16_gizmo
+          isIconRecursive: 1
+          isColorRecursive: 1
     - goDatas_byGlobalId:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-1212806268-0
@@ -351,6 +366,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-662214109-0
         - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-2047921347-0
         - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-1798819673-0
+        - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-1530519511-0
         values:
         - colorIndex: 2
           iconNameOrGuid: Settings Icon
@@ -389,6 +405,10 @@ MonoBehaviour:
           isIconRecursive: 0
           isColorRecursive: 0
         - colorIndex: 3
+          iconNameOrGuid: 
+          isIconRecursive: 0
+          isColorRecursive: 1
+        - colorIndex: 5
           iconNameOrGuid: 
           isIconRecursive: 0
           isColorRecursive: 1

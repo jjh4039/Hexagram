@@ -11,7 +11,10 @@ public class Statue : MonoBehaviour
 
     [Header("Tutorial Cutscene")]
     public bool isTutorial = false;
-    public Transform cutsceneCameraTarget;    
+    public Transform cutsceneCameraTarget;
+
+    [Header("Main Boss Cutscene")]
+    public bool isFirstBossStatue = false;     // ★ 추가: 첫 번째 보스 처치 후 등장하는 석상 여부
 
     private bool isPlayerNearby = false;       // 플레이어 접근 여부
     private bool isActivated = false;          // 활성화 상태 여부
@@ -41,22 +44,34 @@ public class Statue : MonoBehaviour
     {
         if (!isPlayerNearby) return;
 
-        // ★ [수정됨] 튜토리얼 모드일 경우 지정된 카메라 타겟으로 컷신 실행
+        // 튜토리얼 컷신
         if (isTutorial)
         {
             if (TutorialManager.Instance != null && !TutorialManager.Instance.IsCutsceneActive)
             {
-                // 컷신 시작 전, 상호작용 UI와 아웃라인을 끕니다.
                 if (interactEffect != null) interactEffect.SetActive(false);
                 if (statueWomanRenderer != null && outLineMaterial.Length > 0)
                     statueWomanRenderer.material = outLineMaterial[0];
 
-                // 카메라 타겟이 비어있으면 석상 자신을 비추도록 방어 코드 추가
                 Transform targetTransform = cutsceneCameraTarget != null ? cutsceneCameraTarget : this.transform;
-
                 TutorialManager.Instance.StartFinalCutscene(targetTransform);
             }
             return;
+        }
+
+        // ★ 신규: 첫 번째 보스 컷신 연동
+        if (isFirstBossStatue)
+        {
+            if (MainManager.Instance != null && !MainManager.Instance.IsCutsceneActive)
+            {
+                if (interactEffect != null) interactEffect.SetActive(false);
+                if (statueWomanRenderer != null && outLineMaterial.Length > 0)
+                    statueWomanRenderer.material = outLineMaterial[0];
+
+                Transform targetTransform = cutsceneCameraTarget != null ? cutsceneCameraTarget : this.transform;
+                MainManager.Instance.StartFirstBossCutscene(targetTransform);
+            }
+            return; // 컷신을 틀었으므로 맵 이동 무시
         }
 
         if (!isActivated) return;
@@ -85,11 +100,12 @@ public class Statue : MonoBehaviour
         {
             isPlayerNearby = true;
 
-            // ★ [수정됨] 활성화되어 있거나 튜토리얼용 석상일 때만 효과 켜기
-            if (isActivated || isTutorial)
+            // ★ 수정: 활성화되어 있거나 특수 석상일 때만 효과 켜기
+            if (isActivated || isTutorial || isFirstBossStatue)
             {
-                // 컷신 진행 중에는 효과를 켜지 않도록 방어 코드 추가
+                // 컷신 진행 중에는 효과 켜지 않기
                 if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
+                if (MainManager.Instance != null && MainManager.Instance.IsCutsceneActive) return;
 
                 if (interactEffect != null) interactEffect.SetActive(true);
                 if (statueWomanRenderer != null && outLineMaterial.Length > 1)

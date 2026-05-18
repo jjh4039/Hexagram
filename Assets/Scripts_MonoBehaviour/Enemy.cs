@@ -135,7 +135,15 @@ public class Enemy : MonoBehaviour
             anim.Play("Enemy_Die", 0, 0f);
 
         if (scrapPrefab != null && Random.Range(0, 100) < dropChance)
-            Instantiate(scrapPrefab, transform.position, Quaternion.identity);
+        {
+            Transform scrapParent = null;
+            if (GameManager.instance != null && GameManager.instance.currentStageObj != null)
+            {
+                scrapParent = GameManager.instance.currentStageObj.transform;
+            }
+
+            Instantiate(scrapPrefab, transform.position, Quaternion.identity, scrapParent);
+        }
 
         if (hpBarObject != null && gameObject.activeInHierarchy)
             StartCoroutine(FadeOutHpBar());

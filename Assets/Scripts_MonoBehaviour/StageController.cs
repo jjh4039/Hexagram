@@ -8,6 +8,7 @@ public class StageController : MonoBehaviour
 {
     [Header("Stage Type")]
     public bool isSafeStage = false;                      // 안전 방 여부
+    public bool isBossStage = false;                      // ★ 추가: 보스 방 여부 (체크 시 몬스터 카운트 미출력)
 
     [Header("Start Room Settings (Intro)")]
     public bool isStartingRoom = false;                   // 시작 방 여부 (체크 시 인트로 실행)
@@ -33,7 +34,7 @@ public class StageController : MonoBehaviour
     private List<Enemy> activeEnemies = new List<Enemy>(); // 현재 활성화된 적 목록
     private bool isCleared = false;                        // 스테이지 클리어 여부
     private bool isInitialized = false;                    // 스테이지 초기화 여부
-    private bool isBattleStarted = false;                  // ★ 추가: 대기 시간 동안 Update 검사를 막는 플래그
+    private bool isBattleStarted = false;                  // 대기 시간 동안 Update 검사를 막는 플래그
 
     private Dictionary<int, List<EnemySpawner>> waveSpawners = new Dictionary<int, List<EnemySpawner>>();
     private int currentWave = 1;                           // 현재 진행 중인 웨이브 번호
@@ -63,11 +64,11 @@ public class StageController : MonoBehaviour
         if (isSafeStage)
         {
             if (barrierEla != null) barrierEla.SetActive(true);
-            
+
             SpawnReward();
-            
-            if (statue != null) statue.ActivateStatue(CurrentRewardItem); 
-            
+
+            if (statue != null) statue.ActivateStatue(CurrentRewardItem);
+
             if (StageMessageUI.instance != null) StageMessageUI.instance.HideEnemyCountUI();
             isCleared = true;
 
@@ -104,7 +105,7 @@ public class StageController : MonoBehaviour
 
         if (!isSafeStage)
         {
-            isBattleStarted = true; // ★ 여기서 플래그를 켜주어야 Update가 돌아갑니다.
+            isBattleStarted = true;
             StartWave(1);
         }
     }
@@ -154,7 +155,7 @@ public class StageController : MonoBehaviour
 
     private void Update()
     {
-        if (isCleared || !isBattleStarted) return; // ★ 수정: 전투 시작 전(페이드 중)에는 적 0마리 검사 금지
+        if (isCleared || !isBattleStarted) return;
         CheckBattleStatus();
     }
 
@@ -168,7 +169,8 @@ public class StageController : MonoBehaviour
         if (deadCount > 0)
         {
             totalRemainingEnemies -= deadCount;
-            if (StageMessageUI.instance != null)
+            // ★ 수정: 보스 스테이지가 아닐 때만 몬스터 카운트 업데이트
+            if (!isBossStage && StageMessageUI.instance != null)
                 StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies, true);
         }
 
@@ -177,6 +179,9 @@ public class StageController : MonoBehaviour
 
     private void UpdateEnemyCountUI()
     {
+        // ★ 수정: 보스 스테이지면 아예 텍스트 출력을 무시함
+        if (isBossStage) return;
+
         if (StageMessageUI.instance != null)
         {
             StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies);
@@ -188,7 +193,7 @@ public class StageController : MonoBehaviour
         if (rewardPrefab != null && rewardSpawnPoint != null)
         {
             GameObject rewardObj = Instantiate(rewardPrefab, rewardSpawnPoint.position, Quaternion.identity, rewardSpawnPoint);
-            
+
             CurrentRewardTransform = rewardObj.transform;
             CurrentRewardItem = rewardObj.GetComponent<IRewardItem>();
         }
@@ -205,9 +210,16 @@ public class StageController : MonoBehaviour
 
         if (StageMessageUI.instance)
         {
+            // 남은 몬스터 수 UI는 무조건 닫아줌
             StageMessageUI.instance.HideEnemyCountUI();
-            StageMessageUI.instance.ShowClearMessage();
-            StageMessageUI.instance.QueueModuleReward(moduleRewardCount);
+
+            // ★ 수정: 보상 개수가 1개 이상일 때만 'CLEAR' 텍스트와 보상 창을 띄움
+            if (moduleRewardCount > 0)
+            {
+                StageMessageUI.instance.ShowClearMessage();
+                StageMessageUI.instance.QueueModuleReward(moduleRewardCount);
+            }
+            // 0개라면 아무 UI도 띄우지 않고 깔끔하게 조작 권한만 넘김
         }
 
         if (!isSafeStage)

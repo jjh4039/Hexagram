@@ -82,9 +82,9 @@ public class GameManager : MonoBehaviour
 
     public void AddScrap(int amount)
     {
-        float multiplier = scrapPercentage;           // 기본 배율(1) + 보너스 비율 계산
+        float multiplier = scrapPercentage;            // 기본 배율(1) + 보너스 비율 계산
         int finalAmount = Mathf.CeilToInt(amount * multiplier); // 소수점 올림으로 최종 획득량 산출
-    
+
         currentScrap += finalAmount;                            // 최종 계산된 스크랩 적용
     }
 
@@ -109,15 +109,18 @@ public class GameManager : MonoBehaviour
             {
                 _controller.InitStage();
             }
-            
-            if (_controller)
-                _controller.InitStage();
 
             if (CameraFollow.instance)
                 CameraFollow.instance.SnapToTarget();
 
-            if (StageMessageUI.instance)
-                StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description, stageData.themeColor);
+            // ★ 수정: 진행도가 100 미만(일반/안전 스테이지)일 때만 Entry 텍스트를 띄움
+            if (currentProgress < 100)
+            {
+                if (StageMessageUI.instance)
+                {
+                    StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description, stageData.themeColor);
+                }
+            }
         }
         else
         {

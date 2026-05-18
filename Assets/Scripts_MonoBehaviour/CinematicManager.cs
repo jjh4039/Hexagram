@@ -8,10 +8,6 @@ public class CinematicManager : MonoBehaviour
 {
     public static CinematicManager instance;
 
-    [Header("Global Fade")]
-    [SerializeField] private Image globalFadeOverlay;              // 전역 화면 덮기용 검은 이미지
-    [SerializeField] private float sceneLoadFadeTime = 0.5f;       // 씬 진입 시 밝아지는 시간
-
     [Header("Cinematic Bars UI")]
     [SerializeField] private RectTransform topBar;                 // 상단 검은 줄
     [SerializeField] private RectTransform bottomBar;              // 하단 검은 줄
@@ -48,12 +44,6 @@ public class CinematicManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-
-        if (globalFadeOverlay != null)
-        {
-            globalFadeOverlay.gameObject.SetActive(true);
-            globalFadeOverlay.color = Color.black;
-        }
     }
 
     private void Start()
@@ -67,29 +57,6 @@ public class CinematicManager : MonoBehaviour
                 hiddenUIGroups.Add(cg);
             }
         }
-
-        if (globalFadeOverlay != null)
-        {
-            StartCoroutine(Co_GlobalFade(1f, 0f, sceneLoadFadeTime));
-        }
-    }
-    
-    public IEnumerator Co_GlobalFade(float start, float end, float duration)
-    {
-        if (globalFadeOverlay == null) yield break;
-
-        globalFadeOverlay.gameObject.SetActive(true);
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            globalFadeOverlay.color = new Color(0, 0, 0, Mathf.Lerp(start, end, elapsed / duration));
-            yield return null;
-        }
-
-        globalFadeOverlay.color = new Color(0, 0, 0, end);
-        if (end == 0f) globalFadeOverlay.gameObject.SetActive(false);
     }
 
     public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
