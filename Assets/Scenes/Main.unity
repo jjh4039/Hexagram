@@ -8678,7 +8678,7 @@ GameObject:
   - component: {fileID: 392940245}
   - component: {fileID: 392940246}
   m_Layer: 5
-  m_Name: Balance (Off)_
+  m_Name: Balance (Off)
   m_TagString: Untagged
   m_Icon: {fileID: -5397416234189338067, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -12486,7 +12486,7 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 0
   m_Interactable: 1
-  m_BlocksRaycasts: 1
+  m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
 --- !u!114 &576062875
 MonoBehaviour:
@@ -12502,7 +12502,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -18150,8 +18150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f36e11ba804356429399130c996ce25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  maxHealth: 20
-  currentHealth: 20
+  maxHealth: 999
+  currentHealth: 0
   maxAmmo: 500
   currentAmmo: 300
   ammoRechargeRate: 100
@@ -27367,7 +27367,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1299400497}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bafd463bb33a57744ad0b2af7df27eec, type: 3}
   m_Name: 
@@ -46937,7 +46937,7 @@ MonoBehaviour:
   currentScrap: 0
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 0
+  currentProgress: 100
   maxProgress: 100
   currentPlayTime: 1213
   totalDamageDealt: 2133

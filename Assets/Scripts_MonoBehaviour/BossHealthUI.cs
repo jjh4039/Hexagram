@@ -21,6 +21,10 @@ public class BossHealthUI : MonoBehaviour
     private float maxHP;
     private Coroutine bufferCoroutine;
 
+    // ★ 추가: 인트로 연출 중에도 깎인 체력을 기억하기 위한 변수
+    private float currentTargetFill = 1f;
+    private bool isIntroFilling = false;
+
     private void Awake() => instance = this;
 
     public void SetupBoss(string name, float maxHealth)
@@ -35,9 +39,10 @@ public class BossHealthUI : MonoBehaviour
 
         if (hpText != null) hpText.text = $"0 / {maxHP:N0}";
 
-        // ★ 투명도를 0으로 둔 상태로 코루틴 시작
         bossCanvasGroup.alpha = 0f;
 
+        currentTargetFill = 1f;
+        isIntroFilling = true;
         StartCoroutine(Co_IntroFill());
     }
 
@@ -51,13 +56,16 @@ public class BossHealthUI : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
-            // ★ 초반 0.5초 동안 체력바 UI 자체가 스르륵 나타남
+            // 초반 0.5초 동안 체력바 UI 자체가 스르륵 나타남
             bossCanvasGroup.alpha = Mathf.Clamp01(elapsed / 0.5f);
 
-            bufferSlider2.value = Mathf.Lerp(0, 1f, t * 1.5f);
-            bufferSlider1.value = Mathf.Lerp(0, 1f, t * 1.25f);
-            flashSlider.value = Mathf.Lerp(0, 1f, t);
-            mainSlider.value = Mathf.Lerp(0, 1f, t);
+            // ★ 1이 아니라 '목표 체력(currentTargetFill)'에 비례해서 차오르게 변경
+            float currentFill = Mathf.Lerp(0, currentTargetFill, t);
+
+            bufferSlider2.value = Mathf.Lerp(0, currentTargetFill, t * 1.5f);
+            bufferSlider1.value = Mathf.Lerp(0, currentTargetFill, t * 1.25f);
+            flashSlider.value = currentFill;
+            mainSlider.value = currentFill;
 
             if (hpText != null)
             {
@@ -68,21 +76,24 @@ public class BossHealthUI : MonoBehaviour
             yield return null;
         }
 
-        mainSlider.value = 1f;
-        flashSlider.value = 1f;
-        bufferSlider1.value = 1f;
-        bufferSlider2.value = 1f;
+        isIntroFilling = false;
         bossCanvasGroup.alpha = 1f;
-        if (hpText != null) hpText.text = $"{maxHP:N0} / {maxHP:N0}";
+
+        // 인트로 종료 후 정확한 최종 수치로 동기화
+        UpdateBossHealth(currentTargetFill * maxHP);
     }
 
     public void UpdateBossHealth(float currentHP)
     {
         float targetFill = currentHP / maxHP;
+        currentTargetFill = targetFill; // ★ 인트로 중에도 깎인 체력 비율 갱신
 
         // 텍스트 업데이트
         if (hpText != null)
             hpText.text = $"{Mathf.Max(0, currentHP):N0} / {maxHP:N0}";
+
+        // ★ 인트로가 진행 중일 때는 UI가 차오르는 연출만 하도록 아래 슬라이더 로직은 스킵
+        if (isIntroFilling) return;
 
         // 1. 메인 바는 즉각 반응
         mainSlider.value = targetFill;
@@ -104,7 +115,6 @@ public class BossHealthUI : MonoBehaviour
 
     private IEnumerator Co_BufferFollow(float target)
     {
-        // Lerp 속도는 기호에 따라 인스펙터 변수로 빼셔도 좋습니다.
         while (Mathf.Abs(bufferSlider2.value - target) > 0.001f)
         {
             bufferSlider1.value = Mathf.Lerp(bufferSlider1.value, target, Time.deltaTime * 5f);

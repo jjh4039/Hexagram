@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 
 public class EnemyBoss : Enemy
 {
@@ -16,8 +16,19 @@ public class EnemyBoss : Enemy
     [SerializeField] private float spriteScale = 1f;
 
     [Header("Intro Settings")]
-    [SerializeField] private float introTriggerRadius = 12f;       
-    private bool isAwake = false;                                  
+    [SerializeField] private float introTriggerRadius = 12f;
+    private bool isAwake = false;
+
+    [Header("Boss AI Logic")]
+    [Tooltip("몇 번의 공격마다 4번(각성기) 패턴을 사용할지 결정합니다.")]
+    [SerializeField] private int crossGridFrequency = 4;
+    [Tooltip("플레이어와 겹쳤을 때 빠른 방향 전환(와리가리)을 막는 딜레이 시간")]
+    [SerializeField] private float flipCooldown = 0.3f;
+
+    private bool isFirstPattern = true;
+    private int patternCounter = 0;
+    private int lastPatternIndex = -1;
+    private float lastFlipTime = 0f;
 
     [Header("Phase Settings")]
     [SerializeField] private float enragePauseTime = 2.0f;
@@ -76,7 +87,7 @@ public class EnemyBoss : Enemy
     [Header("Pattern 2: Enrage Projectiles (Optional)")]
     [SerializeField] private GameObject aoeProjectilePrefab;
     [SerializeField] private float aoeProjectileSpeed = 10f;
-    [SerializeField] private float aoeProjectileDamage = 15f; // 보스 투사체 데미지 설정 추가
+    [SerializeField] private float aoeProjectileDamage = 15f;
 
     [Header("Pattern 3: Multi-Lines (Earth Spikes)")]
     [SerializeField] private float linesChargeTime = 1.5f;
@@ -115,7 +126,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private AudioClip sfxEnrageRoar;
 
     [Header("Death Settings")]
-    [SerializeField] private Sprite deadStatueSprite;              
+    [SerializeField] private Sprite deadStatueSprite;
 
     private GameObject maxRectInstance;
     private GameObject currentRectInstance;
@@ -130,10 +141,14 @@ public class EnemyBoss : Enemy
     private Queue<GameObject> trailPool = new Queue<GameObject>();
     private GameObject trailContainer;
 
-    private Transform telegraphContainer;                          
+    private Transform telegraphContainer;
+
+    // ★ 추가: 그림자 보호용 변수
+    private SpriteRenderer shadowSr;
+    private Color shadowOriginalColor;
 
     public bool IsDashing => isDashing;
-    public float BaseContactDamage => contactDamage; // 부모 클래스(Enemy)의 contactDamage를 사용하도록 일원화
+    public float BaseContactDamage => contactDamage;
     public float DashDamageMultiplier => dashDamageMultiplier;
 
     protected override void Awake()
@@ -162,11 +177,20 @@ public class EnemyBoss : Enemy
             auraParticle.Stop();
         }
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
+
+        // ★ 그림자 초기 색상 백업 (Inspector에서 지정된 shadowObject의 SpriteRenderer 활용)
+        // Enemy.cs에 선언된 shadowObject를 찾아 활용합니다.
+        Transform shadowT = transform.Find("Shadow"); // 만약 이름이 다르다면 Inspector에서 넣은 오브젝트를 쓰셔도 됩니다.
+        if (shadowT != null)
+        {
+            shadowSr = shadowT.GetComponent<SpriteRenderer>();
+            if (shadowSr != null) shadowOriginalColor = shadowSr.color;
+        }
     }
 
     private void StartIntroSequence()
     {
-        isAwake = true; 
+        isAwake = true;
 
         if (bossBGM != null && SoundManager.instance != null)
         {
@@ -183,7 +207,7 @@ public class EnemyBoss : Enemy
                 },
                 onSunsetDone: () =>
                 {
-                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.4f, 1f); 
+                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.4f, 1f);
                     if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
                     if (anim != null) anim.SetTrigger("Start");
                 },
@@ -211,9 +235,14 @@ public class EnemyBoss : Enemy
         {
             elapsed += Time.deltaTime;
             spriteRenderer.color = Color.Lerp(startColor, endColor, elapsed / duration);
+
+            // ★ 보스가 하얘질 때 그림자 색상은 굳건히 원본(보통 반투명 검정)으로 고정!
+            if (shadowSr != null) shadowSr.color = shadowOriginalColor;
+
             yield return null;
         }
         spriteRenderer.color = endColor;
+        if (shadowSr != null) shadowSr.color = shadowOriginalColor;
     }
 
     private IEnumerator Co_PostCutsceneSetup()
@@ -267,7 +296,7 @@ public class EnemyBoss : Enemy
             {
                 StartIntroSequence();
             }
-            return;                                                
+            return;
         }
 
         if (!isAttacking)
@@ -281,9 +310,11 @@ public class EnemyBoss : Enemy
         }
     }
 
+    // ★ 수정: 컷신 트리거 닿기 전에 원거리 무기로 선빵 치는 것 완벽 차단
     public override void TakeDamage(float damage, bool isCritical = false)
     {
-        if (isDead) return;
+        if (!isAwake || isDead) return;
+
         base.TakeDamage(damage, isCritical);
         if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
         if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.04f);
@@ -298,7 +329,7 @@ public class EnemyBoss : Enemy
 
         if (anim != null) anim.SetTrigger("Enrage");
         if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.2f);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.5f, 1f); 
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.5f, 1f);
 
         KnockbackPlayer();
 
@@ -360,7 +391,38 @@ public class EnemyBoss : Enemy
         {
             if (isStunned) { yield return null; continue; }
 
-            int patternIndex = (forcePatternIndex == 0) ? Random.Range(1, 5) : forcePatternIndex;
+            int patternIndex = 1;
+
+            if (forcePatternIndex != 0)
+            {
+                patternIndex = forcePatternIndex;
+            }
+            else
+            {
+                patternCounter++;
+
+                if (isFirstPattern)
+                {
+                    patternIndex = 1; // 첫 조우 무조건 돌진
+                    isFirstPattern = false;
+                }
+                else if (patternCounter % crossGridFrequency == 0)
+                {
+                    patternIndex = 4; // 주기마다 각성기 강제 발동
+                }
+                else
+                {
+                    // 1, 2, 3 패턴 중에서 이전 패턴과 겹치지 않게 무작위 선택
+                    do
+                    {
+                        patternIndex = Random.Range(1, 4);
+                    }
+                    while (patternIndex == lastPatternIndex);
+                }
+            }
+
+            lastPatternIndex = patternIndex;
+
             yield return StartCoroutine(ExecutePattern(patternIndex));
 
             yield return new WaitForSeconds(dealTime);
@@ -406,6 +468,36 @@ public class EnemyBoss : Enemy
         }
 
         isAttacking = false;
+    }
+
+    private void LookAtTarget()
+    {
+        if (target == null) return;
+
+        float dirX = target.position.x - transform.position.x;
+
+        // 겹쳤을 때 미세한 차이로 반응하지 않도록 데드존 설정
+        if (Mathf.Abs(dirX) < 0.1f) return;
+
+        float targetSign = Mathf.Sign(dirX);
+        float currentSign = Mathf.Sign(transform.localScale.x);
+
+        if (targetSign != currentSign)
+        {
+            if (Time.time >= lastFlipTime + flipCooldown)
+            {
+                LookAtDirection(dirX);
+                lastFlipTime = Time.time;
+            }
+        }
+    }
+
+    private void LookAtDirection(float dirX)
+    {
+        if (dirX > 0)
+            transform.localScale = new Vector3(spriteScale, spriteScale, 1);
+        else
+            transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
     }
 
     IEnumerator Co_Pattern1_Dash()
@@ -528,7 +620,7 @@ public class EnemyBoss : Enemy
         if (isDead) yield break;
 
         if (anim != null) anim.SetTrigger("Slam");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.45f); 
+        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.45f);
 
         if (sfxAoeExplode != null) SoundManager.instance.PlaySFX(sfxAoeExplode, 0.9f);
 
@@ -997,7 +1089,7 @@ public class EnemyBoss : Enemy
 
             if (projectileScript != null)
             {
-                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage); // 설정된 보스 투사체 데미지 전달
+                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage);
             }
         }
     }
@@ -1130,24 +1222,17 @@ public class EnemyBoss : Enemy
         }
     }
 
-    private void LookAtTarget()
-    {
-        LookAtDirection(target.position.x - transform.position.x);
-    }
-
-    private void LookAtDirection(float dirX)
-    {
-        if (dirX > 0)
-            transform.localScale = new Vector3(spriteScale, spriteScale, 1);
-        else
-            transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
-    }
-
     protected override void OnHit() { if (isDead) return; }
 
     protected override void Die()
     {
         isDead = true;
+
+        // ★ 보스가 죽으면 무조건 플레이어를 무적 상태로 만듦
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            GameManager.instance.player.isInvincible = true;
+        }
 
         StopAllCoroutines();
         ClearRectangles();

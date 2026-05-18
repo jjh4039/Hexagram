@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     public bool isTutorial = false;
 
     [Header("Hit And Invincibility")]
-    [SerializeField] private bool isInvincible = false;
+    [SerializeField] public bool isInvincible = false; // ★ 수정: Boss 스크립트에서 제어할 수 있도록 public으로 변경
     [SerializeField] private float invincibleTime = 0.8f;
     [SerializeField] private float blinkSpeed = 0.2f;
     [SerializeField] private float bodyContactDamage = 5f;
@@ -267,7 +267,7 @@ public class Player : MonoBehaviour
         {
             float finalDamage = bodyContactDamage;
             Collider2D hitCollider = _contactResults[0];
-            
+
             EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
             Enemy enemy = hitCollider.GetComponent<Enemy>();
 
@@ -278,7 +278,7 @@ public class Player : MonoBehaviour
             }
             else if (enemy)
             {
-                finalDamage = enemy.ContactDamage; // 에너미 스크립트에서 설정한 접촉 데미지로 덮어씌움
+                finalDamage = enemy.ContactDamage;
             }
 
             OnDamage(finalDamage);

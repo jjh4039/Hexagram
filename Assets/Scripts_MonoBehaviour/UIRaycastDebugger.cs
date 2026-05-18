@@ -6,11 +6,11 @@ using UnityEngine.InputSystem;
 
 public class UIRaycastDebugger : MonoBehaviour
 {
-    [SerializeField] private GraphicRaycaster raycaster;
-    [SerializeField] private EventSystem eventSystem;
+    [SerializeField] private GraphicRaycaster raycaster;  // 광선 추적을 수행할 캔버스의 레이캐스터
+    [SerializeField] private EventSystem eventSystem;     // 이벤트를 처리할 시스템
 
-    private PointerEventData pointerData;
-    private readonly List<RaycastResult> results = new();
+    private PointerEventData pointerData;                 // 마우스 위치 데이터를 담을 객체
+    private readonly List<RaycastResult> results = new(); // 레이캐스트 결과를 담을 리스트
 
     private void Update()
     {
@@ -30,9 +30,23 @@ public class UIRaycastDebugger : MonoBehaviour
         raycaster.Raycast(pointerData, results);
 
         Debug.Log("=== UI Raycast Results ===");
-        foreach (var result in results)
+        for (int i = 0; i < results.Count; i++)
         {
-            Debug.Log(result.gameObject.name);
+            string fullPath = GetTransformPath(results[i].gameObject.transform);
+            Debug.Log($"[{i}] {fullPath}");
         }
+    }
+
+    private string GetTransformPath(Transform current)
+    {
+        string path = current.name;
+
+        while (current.parent != null)
+        {
+            current = current.parent;
+            path = current.name + " / " + path;
+        }
+
+        return path;
     }
 }
