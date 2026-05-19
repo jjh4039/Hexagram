@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-// 상점 UI의 연출 및 입력을 관리하는 컨트롤러
 public class ShopUIController : MonoBehaviour
 {
     [SerializeField] private GameObject shopRoot;
@@ -15,6 +15,9 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private CanvasGroup shopVisualGroup;
     [SerializeField] private CanvasGroup screenGlowGroup;
     [SerializeField] private CanvasGroup screenContentGroup;
+
+    [Header("Shop Logic - Artifacts")]
+    [SerializeField] private ShopHoverSystem[] artifactSlots; 
 
     [Header("LED")]
     [SerializeField] private Image[] leds;
@@ -45,6 +48,7 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private float screenFadeOutDuration = 0.15f;
     
     private bool _isOpen;
+    private bool _isPopulated; 
     private RectTransform _shopRect;
     private Vector2 _closedAnchoredPos;
     private Vector2 _openAnchoredPos;
@@ -53,8 +57,6 @@ public class ShopUIController : MonoBehaviour
     private Coroutine _ledRoutine;
 
     public bool IsOpen => _isOpen;
-
-    // ★ [핵심 추가] 상점 열림/닫힘 상태를 외부에 알리는 이벤트
     public event Action<bool> OnShopStateChanged;
 
     private void Awake()
@@ -96,11 +98,16 @@ public class ShopUIController : MonoBehaviour
     public void OpenShop()
     {
         if (shopRoot == null || _isOpen) return;
-
         if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
 
         _isOpen = true;
-        OnShopStateChanged?.Invoke(true); // 이벤트 발송
+        OnShopStateChanged?.Invoke(true); 
+
+        if (!_isPopulated)
+        {
+            GenerateShopItems();
+            _isPopulated = true;
+        }
 
         if (CameraFollow.instance != null) CameraFollow.instance.SetUIOffset(shopCameraOffset);
 
@@ -119,15 +126,94 @@ public class ShopUIController : MonoBehaviour
         _ledRoutine = StartCoroutine(LedOnRoutine());
     }
 
+    private void GenerateShopItems()
+    {
+        if (ArtifactManager.instance == null || artifactSlots == null || artifactSlots.Length == 0) return;
+
+        List<ArtifactData> availableArtifacts = new List<ArtifactData>();
+        
+        foreach (var artifact in ArtifactManager.instance.allArtifacts)
+        {
+            if (!ArtifactManager.instance.myArtifacts.Contains(artifact))
+            {
+                availableArtifacts.Add(artifact);
+            }
+        }
+
+        for (int i = 0; i < availableArtifacts.Count; i++)
+        {
+            ArtifactData temp = availableArtifacts[i];
+            int randomIndex = UnityEngine.Random.Range(i, availableArtifacts.Count);
+            availableArtifacts[i] = availableArtifacts[randomIndex];
+            availableArtifacts[randomIndex] = temp;
+        }
+
+        for (int i = 0; i < artifactSlots.Length; i++)
+        {
+            if (i < availableArtifacts.Count)
+            {
+                ArtifactData selectedData = availableArtifacts[i];
+                int slotIndex = i; 
+                
+                artifactSlots[i].gameObject.SetActive(true);
+                artifactSlots[i].SetupSlot(selectedData, () => TryBuyArtifact(slotIndex, selectedData));
+            }
+            else
+            {
+                artifactSlots[i].gameObject.SetActive(false); 
+            }
+        }
+    }
+
+    // ★ 수정: 가격 부족 시 PlayerFeedbackUI 연결
+    private void TryBuyArtifact(int slotIndex, ArtifactData data)
+    {
+        if (GameManager.instance == null || data == null) return;
+
+        int currentScrap = GameManager.instance.currentScrap;
+
+        if (currentScrap >= data.basePrice)
+        {
+            GameManager.instance.currentScrap -= data.basePrice;
+            ArtifactManager.instance.AddArtifact(data);
+            artifactSlots[slotIndex].SetSoldOut();
+
+            Debug.Log($"[상점] {data.artifactName} 구매 완료! 남은 스크랩: {GameManager.instance.currentScrap}");
+        }
+        else
+        {
+            // ★ 수정: 피드백 UI 출력 (인덱스 6: "스크랩이 부족합니다.")
+            if (PlayerFeedbackUI.Instance != null)
+            {
+                PlayerFeedbackUI.Instance.ShowWarning(6);
+            }
+            Debug.Log($"[상점] 스크랩 부족! 필요: {data.basePrice}, 보유: {currentScrap}");
+        }
+    }
+
+    public void OnClickReroll()
+    {
+        int rerollCost = 50; 
+        if (GameManager.instance.currentScrap >= rerollCost)
+        {
+            GameManager.instance.currentScrap -= rerollCost;
+            GenerateShopItems(); 
+        }
+        else
+        {
+            if (PlayerFeedbackUI.Instance != null)
+                PlayerFeedbackUI.Instance.ShowWarning(6);
+        }
+    }
+
     public void CloseShop()
     {
         if (shopRoot == null || !_isOpen) return;
 
         _isOpen = false;
-        OnShopStateChanged?.Invoke(false); // 이벤트 발송
+        OnShopStateChanged?.Invoke(false); 
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
-
         if (CameraFollow.instance != null) CameraFollow.instance.ResetUIOffset();
 
         if (_slideRoutine != null) StopCoroutine(_slideRoutine);

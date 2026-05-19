@@ -1,20 +1,25 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
-public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("References")]
     [SerializeField] private CanvasGroup slotBackgroundGroup;
     [SerializeField] private RectTransform artifactRect;
     [SerializeField] private Image artifactImage;
 
-    [Header("Preview Text")]
-    [SerializeField] private string itemTitle = "트럼프 카드";
-    [SerializeField][TextArea(2, 4)] private string itemDescription = "연속으로 같은 면이 나왔을 때\n공격력이 10% 상승한다.";
+    [Header("Purchase Logic")]
+    [SerializeField] private TextMeshProUGUI priceText;       
+    [SerializeField] private GameObject soldOutOverlay;       
 
-    [Header("Tooltip Color")]
-    [SerializeField] private Color tooltipBackgroundColor = new Color(0.23f, 0.07f, 0.28f, 1f);
+    [Header("Grade Visuals")]
+    [SerializeField] private Image slotFrameImage; // 등급 색상을 입힐 슬롯 이미지
+    [SerializeField] private Color commonColor = new Color(1f, 1f, 1f, 1f); 
+    [SerializeField] private Color rareColor = new Color(0.6f, 0.87f, 1f, 1f); 
+    [SerializeField] private Color epicColor = new Color(0.81f, 0.43f, 0.98f, 1f); 
+    [SerializeField] private Color legendaryColor = new Color(0.6f, 1f, 0.43f, 1f); 
 
     [Header("Slot Alpha")]
     [SerializeField] private float normalSlotAlpha = 0.2f;
@@ -29,9 +34,13 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color hoverColor = new Color(1.08f, 1.08f, 1.08f, 1f);
 
+    public ArtifactData CurrentArtifact { get; private set; }
     private bool _isHovering;
+    private bool _isSoldOut;
     private Vector3 _artifactBaseScale;
     private Vector2 _artifactBaseAnchoredPos;
+
+    private UnityEngine.Events.UnityAction _onPurchaseClick;
 
     private void Awake()
     {
@@ -48,9 +57,33 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
             artifactImage.color = normalColor;
     }
 
+    public void SetupSlot(ArtifactData data, UnityEngine.Events.UnityAction onPurchaseClick)
+    {
+        CurrentArtifact = data;
+        _isSoldOut = false;
+        _onPurchaseClick = onPurchaseClick; 
+
+        if (artifactImage != null) artifactImage.sprite = data.icon;
+        if (priceText != null) priceText.text = data.basePrice.ToString();
+        if (soldOutOverlay != null) soldOutOverlay.SetActive(false);
+
+        if (slotFrameImage != null) slotFrameImage.color = GetGradeColor(data.grade);
+    }
+
+    public void SetSoldOut()
+    {
+        _isSoldOut = true;
+        _isHovering = false;
+
+        if (soldOutOverlay != null) soldOutOverlay.SetActive(true);
+        if (ShopTooltipUI.Instance != null) ShopTooltipUI.Instance.HideTooltip();
+        
+        if (artifactImage != null) artifactImage.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+    }
+
     private void Update()
     {
-        if (artifactRect == null || artifactImage == null || slotBackgroundGroup == null)
+        if (artifactRect == null || artifactImage == null || slotBackgroundGroup == null || _isSoldOut)
             return;
 
         float speed = transitionDuration <= 0.0001f ? 999f : (1f / transitionDuration);
@@ -58,43 +91,32 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
         float targetAlpha = _isHovering ? hoverSlotAlpha : normalSlotAlpha;
         slotBackgroundGroup.alpha = Mathf.Lerp(slotBackgroundGroup.alpha, targetAlpha, Time.unscaledDeltaTime * speed);
 
-        Vector3 targetScale = _isHovering
-            ? _artifactBaseScale * hoverScale
-            : _artifactBaseScale;
+        Vector3 targetScale = _isHovering ? _artifactBaseScale * hoverScale : _artifactBaseScale;
+        artifactRect.localScale = Vector3.Lerp(artifactRect.localScale, targetScale, Time.unscaledDeltaTime * speed);
 
-        artifactRect.localScale = Vector3.Lerp(
-            artifactRect.localScale,
-            targetScale,
-            Time.unscaledDeltaTime * speed
-        );
+        Vector2 targetPos = _isHovering ? _artifactBaseAnchoredPos + new Vector2(0f, floatOffsetY) : _artifactBaseAnchoredPos;
+        artifactRect.anchoredPosition = Vector2.Lerp(artifactRect.anchoredPosition, targetPos, Time.unscaledDeltaTime * speed);
 
-        Vector2 targetPos = _isHovering
-            ? _artifactBaseAnchoredPos + new Vector2(0f, floatOffsetY)
-            : _artifactBaseAnchoredPos;
-
-        artifactRect.anchoredPosition = Vector2.Lerp(
-            artifactRect.anchoredPosition,
-            targetPos,
-            Time.unscaledDeltaTime * speed
-        );
-
-        artifactImage.color = Color.Lerp(
-            artifactImage.color,
-            _isHovering ? hoverColor : normalColor,
-            Time.unscaledDeltaTime * speed
-        );
+        artifactImage.color = Color.Lerp(artifactImage.color, _isHovering ? hoverColor : normalColor, Time.unscaledDeltaTime * speed);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (_isSoldOut || CurrentArtifact == null) return;
         _isHovering = true;
 
         if (ShopTooltipUI.Instance != null)
         {
+            Color gradeColor = GetGradeColor(CurrentArtifact.grade);
+
+            string hexColor = ColorUtility.ToHtmlStringRGB(gradeColor);
+            string gradeText = $"<color=#{hexColor}>[ {CurrentArtifact.grade} ]</color>\n\n";
+            string finalDescription = gradeText + CurrentArtifact.description;
+
             ShopTooltipUI.Instance.ShowTooltip(
-                itemTitle,
-                itemDescription,
-                tooltipBackgroundColor,
+                CurrentArtifact.artifactName,
+                finalDescription,
+                gradeColor,
                 ShopTooltipUI.TooltipAnchorType.TopLeft
             );
         }
@@ -102,26 +124,43 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (_isSoldOut) return;
         _isHovering = false;
 
         if (ShopTooltipUI.Instance != null)
             ShopTooltipUI.Instance.HideTooltip();
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!_isSoldOut && eventData.button == PointerEventData.InputButton.Left)
+        {
+            _onPurchaseClick?.Invoke();
+        }
+    }
+
     private void OnDisable()
     {
         _isHovering = false;
 
-        if (slotBackgroundGroup != null)
-            slotBackgroundGroup.alpha = normalSlotAlpha;
-
+        if (slotBackgroundGroup != null) slotBackgroundGroup.alpha = normalSlotAlpha;
         if (artifactRect != null)
         {
             artifactRect.localScale = _artifactBaseScale;
             artifactRect.anchoredPosition = _artifactBaseAnchoredPos;
         }
+        if (artifactImage != null && !_isSoldOut) artifactImage.color = normalColor;
+    }
 
-        if (artifactImage != null)
-            artifactImage.color = normalColor;
+    private Color GetGradeColor(ArtifactGrade grade)
+    {
+        switch (grade)
+        {
+            case ArtifactGrade.Common: return commonColor;
+            case ArtifactGrade.Rare: return rareColor;
+            case ArtifactGrade.Epic: return epicColor;
+            case ArtifactGrade.Legendary: return legendaryColor;
+            default: return commonColor;
+        }
     }
 }

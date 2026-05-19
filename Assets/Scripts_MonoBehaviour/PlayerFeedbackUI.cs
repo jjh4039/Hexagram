@@ -16,23 +16,24 @@ public class PlayerFeedbackUI : MonoBehaviour
         "전투 중에는 열 수 없습니다.",
         "전투 중에는 획득할 수 없습니다.",
         "아티팩트를 더 이상 획득할 수 없습니다. (최대 10)",
-        "수정구가 힘을 잃어 사용할 수 없습니다",
+        "수정구가 힘을 잃어 사용할 수 없습니다.",
         "보상을 먼저 획득해야 합니다.",
-        "모듈 정화 완료 시 사라집니다."
+        "정화 작업 완료까지 경로가 차단됩니다.",
+        "스크랩이 부족합니다." // ★ 추가됨 (Index: 6)
     };
 
     [Header("Animation Settings")]
-    [SerializeField] private float fadeInTime = 0.1f;  // 페이드인 속도
-    [SerializeField] private float displayTime = 1.5f; // 표시 시간
-    [SerializeField] private float fadeOutTime = 0.5f; // 페이드아웃 속도
-    [SerializeField] private float floatSpeed = 0.5f;  // 상승 속도
+    [SerializeField] private float fadeInTime = 0.1f;  
+    [SerializeField] private float displayTime = 1.5f; 
+    [SerializeField] private float fadeOutTime = 0.5f; 
+    [SerializeField] private float floatSpeed = 0.5f;  
 
     [Header("Sound Settings")]
-    [SerializeField] private AudioClip warningSound;   // 출력 사운드
+    [SerializeField] private AudioClip warningSound;   
 
-    private Coroutine currentRoutine; // 실행중인 코루틴
-    private float remainTime;         // 남은 표시 시간
-    private Vector3 startLocalPos;    // 초기 위치
+    private Coroutine currentRoutine; 
+    private float remainTime;         
+    private Vector3 startLocalPos;    
 
     private void Awake()
     {
@@ -62,7 +63,6 @@ public class PlayerFeedbackUI : MonoBehaviour
             feedbackText.text = "알 수 없는 오류입니다.";
         }
 
-        // 사운드 재생 로직 추가
         if (warningSound != null && SoundManager.instance != null)
         {
             SoundManager.instance.PlaySFX(warningSound);

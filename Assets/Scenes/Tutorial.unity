@@ -15592,10 +15592,13 @@ MonoBehaviour:
   slotBackgroundGroup: {fileID: 371032653}
   artifactRect: {fileID: 831448720}
   artifactImage: {fileID: 831448721}
-  itemTitle: "\uAC15\uD654 \uCF54\uC5B4 : \uC0AC\uACFC"
-  itemDescription: "<color=#99DFFF>[ Rare ]</color>\n\n\uC8FC\uC0AC\uC704 [ 4 ] \uD6A8\uACFC\uAC00
-    \uBC1C\uB3D9 \uC911\uC77C \uB54C\n\uBC29\uC5B4\uB825\uC774 30% \uC0C1\uC2B9\uD55C\uB2E4."
-  tooltipBackgroundColor: {r: 0.6, g: 0.8745098, b: 1, a: 1}
+  priceText: {fileID: 0}
+  soldOutOverlay: {fileID: 0}
+  slotFrameImage: {fileID: 0}
+  commonColor: {r: 1, g: 1, b: 1, a: 1}
+  rareColor: {r: 0.6, g: 0.87, b: 1, a: 1}
+  epicColor: {r: 0.81, g: 0.43, b: 0.98, a: 1}
+  legendaryColor: {r: 0.6, g: 1, b: 0.43, a: 1}
   normalSlotAlpha: 0.1
   hoverSlotAlpha: 0.5
   hoverScale: 1.03
@@ -32357,6 +32360,7 @@ MonoBehaviour:
   shopVisualGroup: {fileID: 934260892}
   screenGlowGroup: {fileID: 1802655536}
   screenContentGroup: {fileID: 1239960073}
+  artifactSlots: []
   leds:
   - {fileID: 1554375424}
   - {fileID: 1210796136}
@@ -39600,10 +39604,13 @@ MonoBehaviour:
   slotBackgroundGroup: {fileID: 491088056}
   artifactRect: {fileID: 1775860777}
   artifactImage: {fileID: 1775860778}
-  itemTitle: "\uD2B8\uB7FC\uD504 \uCE74\uB4DC"
-  itemDescription: "<color=#D070FB>[ Epic ]</color>\n\n\uC5F0\uC18D\uC73C\uB85C \uAC19\uC740
-    \uBA74\uC774 \uB098\uC654\uC744 \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
-  tooltipBackgroundColor: {r: 0.8156863, g: 0.4392157, b: 0.9843137, a: 1}
+  priceText: {fileID: 0}
+  soldOutOverlay: {fileID: 0}
+  slotFrameImage: {fileID: 0}
+  commonColor: {r: 1, g: 1, b: 1, a: 1}
+  rareColor: {r: 0.6, g: 0.87, b: 1, a: 1}
+  epicColor: {r: 0.81, g: 0.43, b: 0.98, a: 1}
+  legendaryColor: {r: 0.6, g: 1, b: 0.43, a: 1}
   normalSlotAlpha: 0.1
   hoverSlotAlpha: 0.5
   hoverScale: 1.03
@@ -48764,10 +48771,13 @@ MonoBehaviour:
   slotBackgroundGroup: {fileID: 203536848}
   artifactRect: {fileID: 1431384160}
   artifactImage: {fileID: 1431384161}
-  itemTitle: "\uD074\uB85C\uBC84 \uADC0\uAC78\uC774"
-  itemDescription: "<color=#FFF88E>[ Legendary ]</color>\n\n\uCE58\uBA85\uD0C0 \uD655\uB960\uC774
-    15%,\n\uCE58\uBA85\uD0C0 \uD53C\uD574\uAC00 10% \uC99D\uAC00\uD55C\uB2E4."
-  tooltipBackgroundColor: {r: 1, g: 0.972549, b: 0.5568628, a: 1}
+  priceText: {fileID: 0}
+  soldOutOverlay: {fileID: 0}
+  slotFrameImage: {fileID: 0}
+  commonColor: {r: 1, g: 1, b: 1, a: 1}
+  rareColor: {r: 0.6, g: 0.87, b: 1, a: 1}
+  epicColor: {r: 0.81, g: 0.43, b: 0.98, a: 1}
+  legendaryColor: {r: 0.6, g: 1, b: 0.43, a: 1}
   normalSlotAlpha: 0.1
   hoverSlotAlpha: 0.5
   hoverScale: 1.03
@@ -58174,7 +58184,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7536773200586401938, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: maxHealth
-      value: 300
+      value: 999
+      objectReference: {fileID: 0}
+    - target: {fileID: 7536773200586401938, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: dropChance
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7536773200586401938, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
+      propertyPath: contactDamage
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8794176841949738511, guid: e3cb0230c1a34284a89443b608c9d2b6, type: 3}
       propertyPath: m_IsActive

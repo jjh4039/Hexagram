@@ -179,7 +179,7 @@ MonoBehaviour:
   scrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
   minScrapCount: 10
   maxScrapCount: 20
-  scrapBaseValue: 15
+  scrapBaseValue: 10
   burstSound: {fileID: 8300000, guid: c7735646247fee04aa577b69ad01d4c4, type: 3}
   floatHeight: 2
   burstDuration: 0.5
