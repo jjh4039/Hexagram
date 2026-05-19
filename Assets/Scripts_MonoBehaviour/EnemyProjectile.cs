@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public class EnemyProjectile : MonoBehaviour
 {
+    [Header("Pool Settings")]
+    [Tooltip("프리팹별로 다른 인덱스를 설정하세요 (예: 벌=0, 엘리트벌=1, 새=2)")]
+    public int poolIndex = 0; // ★ 인스펙터에서 설정할 수 있는 풀 인덱스
+
     [Header("Damage")]
     [SerializeField] private float damage = 10f;
 
@@ -26,8 +30,8 @@ public class EnemyProjectile : MonoBehaviour
     private Coroutine scaleCoroutine;
     private Coroutine lifeTimerCoroutine;
 
-    // ★ 투사체 풀링용 큐 및 컨테이너
-    private static Queue<EnemyProjectile> pool = new Queue<EnemyProjectile>();
+    // ★ 인덱스별로 분류되는 딕셔너리 큐 (프리팹이 달라도 인덱스가 같으면 같은 풀, 인덱스가 다르면 다른 풀 사용)
+    private static Dictionary<int, Queue<EnemyProjectile>> poolDict = new Dictionary<int, Queue<EnemyProjectile>>();
     private static Transform poolContainer;
 
     private void Awake()
@@ -40,10 +44,20 @@ public class EnemyProjectile : MonoBehaviour
         if (poolContainer == null)
             poolContainer = new GameObject("EnemyProjectile_Pool").transform;
 
-        EnemyProjectile ep;
-        if (pool.Count > 0)
+        // ★ 스폰할 프리팹이 가지고 있는 poolIndex를 읽어옵니다.
+        EnemyProjectile prefabScript = prefab.GetComponent<EnemyProjectile>();
+        int targetIndex = prefabScript != null ? prefabScript.poolIndex : 0;
+
+        // 해당 인덱스의 풀이 없으면 새로 생성
+        if (!poolDict.ContainsKey(targetIndex))
         {
-            ep = pool.Dequeue();
+            poolDict[targetIndex] = new Queue<EnemyProjectile>();
+        }
+
+        EnemyProjectile ep;
+        if (poolDict[targetIndex].Count > 0)
+        {
+            ep = poolDict[targetIndex].Dequeue();
             ep.transform.position = position;
             ep.transform.rotation = rotation;
             ep.gameObject.SetActive(true);
@@ -52,6 +66,7 @@ public class EnemyProjectile : MonoBehaviour
         {
             GameObject obj = Instantiate(prefab, position, rotation, poolContainer);
             ep = obj.GetComponent<EnemyProjectile>();
+            ep.poolIndex = targetIndex; // 생성된 객체에 확실히 인덱스 각인
         }
         return ep;
     }
@@ -92,7 +107,7 @@ public class EnemyProjectile : MonoBehaviour
     void SpawnHitEffect(Vector3 hitPosition)
     {
         if (hitEffectPrefab == null) return;
-        // ★ 타격 이펙트도 풀링으로 스폰
+        // 타격 이펙트도 풀링으로 스폰
         EnemyProjectileFlash.Spawn(hitEffectPrefab, hitPosition, Quaternion.Euler(0, 0, transform.eulerAngles.z + 180f));
     }
 
@@ -150,7 +165,7 @@ public class EnemyProjectile : MonoBehaviour
         }
     }
 
-    // 파괴 대신 풀로 반환
+    // 파괴 대신 본인의 인덱스 풀로 반환
     private void ReturnToPool()
     {
         if (scaleCoroutine != null) StopCoroutine(scaleCoroutine);
@@ -158,6 +173,12 @@ public class EnemyProjectile : MonoBehaviour
         
         rigid.linearVelocity = Vector2.zero;
         gameObject.SetActive(false);
-        pool.Enqueue(this);
+
+        // 안전망
+        if (!poolDict.ContainsKey(poolIndex))
+        {
+            poolDict[poolIndex] = new Queue<EnemyProjectile>();
+        }
+        poolDict[poolIndex].Enqueue(this);
     }
 }

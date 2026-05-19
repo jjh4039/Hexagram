@@ -59,6 +59,9 @@ public class EnemyBee : Enemy
     private Coroutine attackCoroutine;
     private Coroutine stunCoroutine;
 
+    // ★ 조준선들을 모아둘 전용 최상단 폴더
+    private static Transform telegraphPoolContainer;
+
     protected override void Awake()
     {
         base.Awake();
@@ -158,14 +161,21 @@ public class EnemyBee : Enemy
         Vector2 currentDir = (target.position - headPoint.position).normalized;
         int projCount = isElite ? eliteProjCount : 1;
 
+        // ★ DamageText 방식처럼 최상단 폴더가 없으면 생성
+        if (telegraphPoolContainer == null)
+        {
+            telegraphPoolContainer = new GameObject("EnemyBee_Telegraph_Pool").transform;
+        }
+
         if (maxRangeRectPrefab != null && currentRectPrefab != null)
         {
             for (int i = 0; i < projCount; i++)
             {
                 if (i >= maxRectInstances.Count)
                 {
-                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, transform));
-                    currentRectInstances.Add(Instantiate(currentRectPrefab, transform));
+                    // ★ 생성 시 telegraphPoolContainer에 넣습니다.
+                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, telegraphPoolContainer));
+                    currentRectInstances.Add(Instantiate(currentRectPrefab, telegraphPoolContainer));
                 }
                 maxRectInstances[i].SetActive(true);
                 currentRectInstances[i].SetActive(true);
@@ -239,24 +249,13 @@ public class EnemyBee : Enemy
         return dirs;
     }
 
-    // ★ [핵심 수정] 자식으로 남아있으면서 부모 Flip 무력화하는 로직
     void UpdateRectangle(GameObject rect, Vector2 dir, float length)
     {
         if (rect == null) return;
 
-        // 1. 스케일 보정: 부모의 Scale.x가 -1이면 자식도 -1이 됨. 
-        // 1 / (-1) = -1을 곱해서 최종 스케일을 1로 만듦.
-        rect.transform.localScale = new Vector3(1f / transform.localScale.x, 1f, 1f);
-
-        // 2. 위치 보정
+        // ★ 이제 월드에 존재하는 독립 오브젝트이므로, 위치와 방향만 세팅하면 됩니다.
         rect.transform.position = headPoint.position;
-
-        // 3. 회전 보정: 부모가 Flip 되면 회전값도 거울 반전됨. 
-        // Flip 상태에 따라 각도를 반전시켜주면 flip되어도 똑바로 나감.
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-        if (transform.localScale.x < 0) angle = -angle; 
-        
-        rect.transform.rotation = Quaternion.Euler(0, 0, angle);
+        rect.transform.right = dir;
 
         SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
         if (sr != null)
@@ -353,5 +352,15 @@ public class EnemyBee : Enemy
             rigid.linearVelocity = Vector2.zero;
             rigid.simulated = false;
         }
+    }
+
+    // ★ EnemyBee 오브젝트가 삭제될 때 자신이 생성한 조준선들도 깔끔하게 제거
+    private void OnDestroy()
+    {
+        foreach (var rect in maxRectInstances)
+            if (rect != null) Destroy(rect);
+
+        foreach (var rect in currentRectInstances)
+            if (rect != null) Destroy(rect);
     }
 }

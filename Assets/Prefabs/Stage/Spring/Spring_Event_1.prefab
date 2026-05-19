@@ -2016,7 +2016,7 @@ Tilemap:
     m_Data: {r: 4.5e-44, g: 4.5e-44, b: 4.5e-44, a: 4.5e-44}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7411765, g: 0.7411765, b: 0.7411765, a: 1}
   m_Origin: {x: -42, y: -7, z: 0}
   m_Size: {x: 55, y: 26, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
@@ -5224,7 +5224,7 @@ Tilemap:
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7411765, g: 0.7411765, b: 0.7411765, a: 1}
   m_Origin: {x: -14, y: 0, z: 0}
   m_Size: {x: 26, y: 16, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
@@ -5413,7 +5413,7 @@ GameObject:
   - component: {fileID: 4172972491651275590}
   - component: {fileID: 7612280223243454478}
   m_Layer: 0
-  m_Name: Spring_Arti_1
+  m_Name: Spring_Event_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6492,7 +6492,7 @@ Tilemap:
     m_Data: {r: 4.5e-44, g: 4.5e-44, b: 4.5e-44, a: 4.5e-44}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.7411765, g: 0.7411765, b: 0.7411765, a: 1}
   m_Origin: {x: -42, y: -7, z: 0}
   m_Size: {x: 55, y: 26, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
@@ -6796,7 +6796,7 @@ Transform:
   - {fileID: 1210731809693286615}
   - {fileID: 3020868946365298988}
   - {fileID: 8837643527387636611}
-  - {fileID: 5881579337065833671}
+  - {fileID: 1870129456940235690}
   m_Father: {fileID: 6127454702898223684}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &340883942152842100
@@ -6810,6 +6810,18 @@ PrefabInstance:
     - target: {fileID: 1245715134332073466, guid: 5d4b50886ad1a294e8fda850983aba04, type: 3}
       propertyPath: m_Name
       value: TX Props_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6443070378923237138, guid: 5d4b50886ad1a294e8fda850983aba04, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 6443070378923237138, guid: 5d4b50886ad1a294e8fda850983aba04, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 6443070378923237138, guid: 5d4b50886ad1a294e8fda850983aba04, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
       objectReference: {fileID: 0}
     - target: {fileID: 9087857046008613111, guid: 5d4b50886ad1a294e8fda850983aba04, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6869,6 +6881,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3389066184001566513, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
       propertyPath: m_Name
       value: TX Plant 93
@@ -6931,6 +6955,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3389066184001566513, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
       propertyPath: m_Name
       value: TX Plant 93 (2)
@@ -7037,6 +7073,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: TX Plant 90 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 9127314285733249406, guid: 2c626506997c2a947953a674381845de, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127314285733249406, guid: 2c626506997c2a947953a674381845de, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127314285733249406, guid: 2c626506997c2a947953a674381845de, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7096,6 +7144,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2970997719970384929, guid: b3ae8d43c09cd0847a20bf4dc9568e60, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 2970997719970384929, guid: b3ae8d43c09cd0847a20bf4dc9568e60, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 2970997719970384929, guid: b3ae8d43c09cd0847a20bf4dc9568e60, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 2970997719970384929, guid: b3ae8d43c09cd0847a20bf4dc9568e60, type: 3}
       propertyPath: m_SortingOrder
       value: 4
       objectReference: {fileID: 0}
@@ -7112,6 +7172,68 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2908429594343671321, guid: b3ae8d43c09cd0847a20bf4dc9568e60, type: 3}
   m_PrefabInstance: {fileID: 2800092939474675611}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4106087319332916714
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6512233340611325326}
+    m_Modifications:
+    - target: {fileID: 1053312231391446039, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_Name
+      value: EventBall
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.491
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.48
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+--- !u!4 &1870129456940235690 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
+  m_PrefabInstance: {fileID: 4106087319332916714}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4240997964130440453
 PrefabInstance:
@@ -7198,6 +7320,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3389066184001566513, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
       propertyPath: m_Name
       value: TX Plant 93 (4)
@@ -7260,6 +7394,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 1374431227707104538, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374431227707104538, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374431227707104538, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 2864685464909876235, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
       propertyPath: m_Name
       value: TX Plant_80 (1)
@@ -7366,6 +7512,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6698669994145284546, guid: b3e7ca871b68f7c4da24bb75705474d8, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 6698669994145284546, guid: b3e7ca871b68f7c4da24bb75705474d8, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 6698669994145284546, guid: b3e7ca871b68f7c4da24bb75705474d8, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7384,6 +7542,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 600436326811650218, guid: e5520f67418cabe4db6e8546830caeaa, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 600436326811650218, guid: e5520f67418cabe4db6e8546830caeaa, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 600436326811650218, guid: e5520f67418cabe4db6e8546830caeaa, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 662845298122113682, guid: e5520f67418cabe4db6e8546830caeaa, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.57
@@ -7446,6 +7616,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3389066184001566513, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
       propertyPath: m_Name
       value: TX Plant 93 (3)
@@ -7508,6 +7690,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 1374431227707104538, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374431227707104538, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 1374431227707104538, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 2864685464909876235, guid: ff6a31b1850fed04a9febb6c60f577ce, type: 3}
       propertyPath: m_Name
       value: TX Plant_80
@@ -7570,6 +7764,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 524915671569449876, guid: 3d507d7a63cd81b488fc49843ca14241, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 524915671569449876, guid: 3d507d7a63cd81b488fc49843ca14241, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 524915671569449876, guid: 3d507d7a63cd81b488fc49843ca14241, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3510398595120230058, guid: 3d507d7a63cd81b488fc49843ca14241, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.634062
@@ -7676,6 +7882,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5635573375385222617, guid: ec7368e18f2ef214ca5467a357143516, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635573375385222617, guid: ec7368e18f2ef214ca5467a357143516, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 5635573375385222617, guid: ec7368e18f2ef214ca5467a357143516, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7738,6 +7956,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: TX Plant 90
       objectReference: {fileID: 0}
+    - target: {fileID: 9127314285733249406, guid: 2c626506997c2a947953a674381845de, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127314285733249406, guid: 2c626506997c2a947953a674381845de, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 9127314285733249406, guid: 2c626506997c2a947953a674381845de, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7756,6 +7986,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 786676934175762236, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3389066184001566513, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
       propertyPath: m_Name
       value: TX Plant 93 (1)
@@ -7810,76 +8052,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7421420656091107477, guid: bdb68efd82dc9354d91e6fb7d934033e, type: 3}
   m_PrefabInstance: {fileID: 7844067762878775795}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &8111081071471202951
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 6512233340611325326}
-    m_Modifications:
-    - target: {fileID: 1053312231391446039, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_Name
-      value: EventBall
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.46
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.84
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
---- !u!4 &5881579337065833671 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2382343164304930368, guid: 05db8c998020d12439cd8b154bde09e0, type: 3}
-  m_PrefabInstance: {fileID: 8111081071471202951}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8468114856138442694
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7888,6 +8060,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6512233340611325326}
     m_Modifications:
+    - target: {fileID: 97153408946128145, guid: 750d7878d4592ec42b0109328e8c699d, type: 3}
+      propertyPath: m_Color.b
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 97153408946128145, guid: 750d7878d4592ec42b0109328e8c699d, type: 3}
+      propertyPath: m_Color.g
+      value: 0.7411765
+      objectReference: {fileID: 0}
+    - target: {fileID: 97153408946128145, guid: 750d7878d4592ec42b0109328e8c699d, type: 3}
+      propertyPath: m_Color.r
+      value: 0.7411765
+      objectReference: {fileID: 0}
     - target: {fileID: 3858095220414600192, guid: 750d7878d4592ec42b0109328e8c699d, type: 3}
       propertyPath: m_Name
       value: TX Plant_82

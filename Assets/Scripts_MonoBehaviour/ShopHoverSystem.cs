@@ -13,9 +13,13 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [Header("Purchase Logic")]
     [SerializeField] private TextMeshProUGUI priceText;       
     [SerializeField] private GameObject soldOutOverlay;       
+    [SerializeField] private GameObject priceContainer; // ★ 추가: 구매 시 통째로 비활성화시킬 가격 오브젝트
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxHover; // ★ 추가: 마우스 호버 시 효과음
 
     [Header("Grade Visuals")]
-    [SerializeField] private Image slotFrameImage; // 등급 색상을 입힐 슬롯 이미지
+    [SerializeField] private Image slotFrameImage; 
     [SerializeField] private Color commonColor = new Color(1f, 1f, 1f, 1f); 
     [SerializeField] private Color rareColor = new Color(0.6f, 0.87f, 1f, 1f); 
     [SerializeField] private Color epicColor = new Color(0.81f, 0.43f, 0.98f, 1f); 
@@ -65,7 +69,9 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
         if (artifactImage != null) artifactImage.sprite = data.icon;
         if (priceText != null) priceText.text = data.basePrice.ToString();
+        
         if (soldOutOverlay != null) soldOutOverlay.SetActive(false);
+        if (priceContainer != null) priceContainer.SetActive(true); // ★ 추가: 생성 시 가격표 다시 표시
 
         if (slotFrameImage != null) slotFrameImage.color = GetGradeColor(data.grade);
     }
@@ -76,9 +82,21 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
         _isHovering = false;
 
         if (soldOutOverlay != null) soldOutOverlay.SetActive(true);
+        if (priceContainer != null) priceContainer.SetActive(false); // ★ 추가: 구매 시 가격표 숨김
         if (ShopTooltipUI.Instance != null) ShopTooltipUI.Instance.HideTooltip();
         
         if (artifactImage != null) artifactImage.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+    }
+
+    // ★ 추가: 보유 스크랩에 맞춰 가격 텍스트 색상을 업데이트하는 함수
+    public void UpdatePriceColor(int currentScrap)
+    {
+        if (_isSoldOut || CurrentArtifact == null || priceText == null) return;
+
+        if (currentScrap >= CurrentArtifact.basePrice)
+            priceText.color = Color.black; // 구매 가능
+        else
+            priceText.color = Color.red; // 스크랩 부족
     }
 
     private void Update()
@@ -104,6 +122,12 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if (_isSoldOut || CurrentArtifact == null) return;
         _isHovering = true;
+
+        // ★ 추가: 호버 시 효과음 재생
+        if (sfxHover != null && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlaySFX(sfxHover, 0.4f, 0.1f);
+        }
 
         if (ShopTooltipUI.Instance != null)
         {

@@ -116,12 +116,12 @@ TextureImporter:
       name: SoldOut_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 4
-        width: 45
-        height: 14
+        x: 2
+        y: 64
+        width: 46
+        height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -134,11 +134,55 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: SoldOut_1
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 48
+        width: 46
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3367a6a07baef3140acb779b26e4f1bb
+      internalID: -615118878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SoldOut_2
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 32
+        width: 46
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ccc879c0e08de2a4daf9f067e6cee20d
+      internalID: -1612096203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 84d7d02f77248714a8060b9d91474057
     internalID: 0
     vertices: []
     indices: 
@@ -149,6 +193,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       SoldOut_0: 1794196367079246279
+      SoldOut_1: -615118878
+      SoldOut_2: -1612096203
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

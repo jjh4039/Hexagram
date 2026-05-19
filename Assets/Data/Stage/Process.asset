@@ -24,6 +24,8 @@ MonoBehaviour:
     prefabs:
     - {fileID: 4874768350431733968, guid: 8550a865b22ddf643ac7f1409197353e, type: 3}
     - {fileID: 4874768350431733968, guid: 619591207c540d741af8a31ba596caf1, type: 3}
+    - {fileID: 4874768350431733968, guid: e0ce1ff6c01cee94280eb0c5a3fa9496, type: 3}
+    - {fileID: 4874768350431733968, guid: d76ce52c8e6e2dc4cae44daf0836cdf8, type: 3}
   - seasonLabel: 
     prefabs: []
   - seasonLabel: 

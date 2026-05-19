@@ -157,6 +157,33 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
+    public void ApplyShopStat(ShopStatOptionHoverSystem.ShopStatType type, float percentValue)
+    {
+        float decimalValue = percentValue / 100f; 
+
+        switch (type)
+        {
+            case ShopStatOptionHoverSystem.ShopStatType.AttackPower:
+                meleeAttackPower *= (1f + decimalValue);
+                rangeAttackPower *= (1f + decimalValue);
+                break;
+            case ShopStatOptionHoverSystem.ShopStatType.AttackSpeed:
+                attackSpeed += decimalValue; 
+                break;
+            case ShopStatOptionHoverSystem.ShopStatType.MoveSpeed:
+                moveSpeed *= (1f + decimalValue);
+                break;
+            case ShopStatOptionHoverSystem.ShopStatType.CritChance:
+                criticalChance += decimalValue; 
+                break;
+            case ShopStatOptionHoverSystem.ShopStatType.CritDamage:
+                criticalDamageMultiplier += decimalValue; 
+                break;
+        }
+
+        SpawnDamageText("STAT UP!", Color.yellow, 4f); 
+    }
+
     private void Update()
     {
         UpdateDiceCharge();
@@ -243,7 +270,7 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (amount <= 0) return; // 0 이하 데미지는 안전하게 무시
+        if (amount <= 0) return; 
 
         if (_buffManager != null)
         {
@@ -275,13 +302,12 @@ public class PlayerStats : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
         SpawnDamageText($"+{amount}", Color.green, 3f); 
     }
-
-    private void SpawnDamageText(string message, Color color, float size)
+    
+    public void SpawnDamageText(string message, Color color, float size)
     {
         if (damageTextPrefab == null) return;
-
-        GameObject textObj = Instantiate(damageTextPrefab, transform.position + (Vector3.up * 0.5f), Quaternion.identity);
-        DamageText dmgText = textObj.GetComponent<DamageText>();
+        
+        DamageText dmgText = DamageText.Spawn(damageTextPrefab, transform.position + (Vector3.up * 0.5f));
 
         if (dmgText != null)
         {

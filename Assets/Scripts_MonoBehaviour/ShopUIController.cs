@@ -19,6 +19,13 @@ public class ShopUIController : MonoBehaviour
     [Header("Shop Logic - Artifacts")]
     [SerializeField] private ShopHoverSystem[] artifactSlots; 
 
+    [Header("Shop Logic - Stats")]
+    [SerializeField] private ShopStatOptionHoverSystem[] statSlots; 
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxPurchase; 
+    [SerializeField] private AudioClip sfxOpen; 
+
     [Header("LED")]
     [SerializeField] private Image[] leds;
     [SerializeField] private float ledOnInterval = 0.12f;
@@ -66,6 +73,8 @@ public class ShopUIController : MonoBehaviour
 
     private void Start()
     {
+        shopRoot.SetActive(true);
+        
         if (shopRoot == null || _shopRect == null) return;
 
         _openAnchoredPos = _shopRect.anchoredPosition;
@@ -103,6 +112,11 @@ public class ShopUIController : MonoBehaviour
         _isOpen = true;
         OnShopStateChanged?.Invoke(true); 
 
+        if (sfxOpen != null && SoundManager.instance != null)
+        {
+            SoundManager.instance.PlaySFX(sfxOpen, 1f, 0.05f);
+        }
+
         if (!_isPopulated)
         {
             GenerateShopItems();
@@ -128,47 +142,65 @@ public class ShopUIController : MonoBehaviour
 
     private void GenerateShopItems()
     {
-        if (ArtifactManager.instance == null || artifactSlots == null || artifactSlots.Length == 0) return;
-
-        List<ArtifactData> availableArtifacts = new List<ArtifactData>();
-        
-        foreach (var artifact in ArtifactManager.instance.allArtifacts)
+        if (ArtifactManager.instance != null && artifactSlots != null && artifactSlots.Length > 0)
         {
-            if (!ArtifactManager.instance.myArtifacts.Contains(artifact))
+            List<ArtifactData> availableArtifacts = new List<ArtifactData>();
+            
+            foreach (var artifact in ArtifactManager.instance.allArtifacts)
             {
-                availableArtifacts.Add(artifact);
+                if (!ArtifactManager.instance.myArtifacts.Contains(artifact))
+                {
+                    availableArtifacts.Add(artifact);
+                }
+            }
+
+            for (int i = 0; i < availableArtifacts.Count; i++)
+            {
+                ArtifactData temp = availableArtifacts[i];
+                int randomIndex = UnityEngine.Random.Range(i, availableArtifacts.Count);
+                availableArtifacts[i] = availableArtifacts[randomIndex];
+                availableArtifacts[randomIndex] = temp;
+            }
+
+            for (int i = 0; i < artifactSlots.Length; i++)
+            {
+                if (i < availableArtifacts.Count)
+                {
+                    ArtifactData selectedData = availableArtifacts[i];
+                    int slotIndex = i; 
+                    
+                    artifactSlots[i].gameObject.SetActive(true);
+                    artifactSlots[i].SetupSlot(selectedData, () => TryBuyArtifact(slotIndex, selectedData));
+                }
+                else
+                {
+                    artifactSlots[i].gameObject.SetActive(false); 
+                }
             }
         }
 
-        for (int i = 0; i < availableArtifacts.Count; i++)
+        if (statSlots != null)
         {
-            ArtifactData temp = availableArtifacts[i];
-            int randomIndex = UnityEngine.Random.Range(i, availableArtifacts.Count);
-            availableArtifacts[i] = availableArtifacts[randomIndex];
-            availableArtifacts[randomIndex] = temp;
+            for (int i = 0; i < statSlots.Length; i++)
+            {
+                statSlots[i].gameObject.SetActive(true);
+                statSlots[i].SetupOption(RefreshAllPrices);
+            }
         }
 
-        for (int i = 0; i < artifactSlots.Length; i++)
-        {
-            if (i < availableArtifacts.Count)
-            {
-                ArtifactData selectedData = availableArtifacts[i];
-                int slotIndex = i; 
-                
-                artifactSlots[i].gameObject.SetActive(true);
-                artifactSlots[i].SetupSlot(selectedData, () => TryBuyArtifact(slotIndex, selectedData));
-            }
-            else
-            {
-                artifactSlots[i].gameObject.SetActive(false); 
-            }
-        }
+        RefreshAllPrices(); 
     }
 
-    // ★ 수정: 가격 부족 시 PlayerFeedbackUI 연결
     private void TryBuyArtifact(int slotIndex, ArtifactData data)
     {
-        if (GameManager.instance == null || data == null) return;
+        if (GameManager.instance == null || data == null || ArtifactManager.instance == null) return;
+
+        if (ArtifactManager.instance.myArtifacts.Count >= 10)
+        {
+            if (PlayerFeedbackUI.Instance != null)
+                PlayerFeedbackUI.Instance.ShowWarning(2); 
+            return;
+        }
 
         int currentScrap = GameManager.instance.currentScrap;
 
@@ -178,14 +210,26 @@ public class ShopUIController : MonoBehaviour
             ArtifactManager.instance.AddArtifact(data);
             artifactSlots[slotIndex].SetSoldOut();
 
+            if (sfxPurchase != null && SoundManager.instance != null)
+            {
+                SoundManager.instance.PlaySFX(sfxPurchase, 0.6f, 0.1f);
+            }
+
+            // ★ 추가: 아티팩트 구매 시 텍스트 피드백 표시
+            if (GameManager.instance.stats != null)
+            {
+                GameManager.instance.stats.SpawnDamageText("ARTIFACT!", new Color(0.6f, 0.87f, 1f), 4f); 
+            }
+
             Debug.Log($"[상점] {data.artifactName} 구매 완료! 남은 스크랩: {GameManager.instance.currentScrap}");
+
+            RefreshAllPrices(); 
         }
         else
         {
-            // ★ 수정: 피드백 UI 출력 (인덱스 6: "스크랩이 부족합니다.")
             if (PlayerFeedbackUI.Instance != null)
             {
-                PlayerFeedbackUI.Instance.ShowWarning(6);
+                PlayerFeedbackUI.Instance.ShowWarning(6); 
             }
             Debug.Log($"[상점] 스크랩 부족! 필요: {data.basePrice}, 보유: {currentScrap}");
         }
@@ -203,6 +247,24 @@ public class ShopUIController : MonoBehaviour
         {
             if (PlayerFeedbackUI.Instance != null)
                 PlayerFeedbackUI.Instance.ShowWarning(6);
+        }
+    }
+
+    public void RefreshAllPrices()
+    {
+        if (GameManager.instance == null) return;
+        int currentScrap = GameManager.instance.currentScrap;
+
+        if (artifactSlots != null)
+        {
+            foreach (var slot in artifactSlots)
+                if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
+        }
+
+        if (statSlots != null)
+        {
+            foreach (var slot in statSlots)
+                if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
         }
     }
 
