@@ -702,7 +702,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -3551287784963028691, guid: ac9866ae5caf5c446805c89f31fd6b56, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.8018868, g: 0.78297436, b: 0.78297436, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -811,6 +811,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBird
   maxHealth: 100
   currentHealth: 0
+  contactDamage: 10
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 557059232405339050}
   hpBarRoot: {fileID: 1049529144550503409}
@@ -835,6 +836,7 @@ MonoBehaviour:
   headPoint: {fileID: 3082500935003000491}
   projectilePrefab: {fileID: 3884799456776141231, guid: 0b6b5802d57bcb34291acbef8ab7831c, type: 3}
   projectileSpeed: 10
+  projectileDamage: 15
   homingStrength: 5
   knockbackForce: 1.5
   stunTime: 0.25

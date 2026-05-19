@@ -54,8 +54,8 @@ public class EnemyBee : Enemy
     private bool isAttacking = false;
     private bool isStunned = false;
 
-    private List<GameObject> maxRectInstances = new List<GameObject>(); // 로컬 풀
-    private List<GameObject> currentRectInstances = new List<GameObject>(); // 로컬 풀
+    private List<GameObject> maxRectInstances = new List<GameObject>(); 
+    private List<GameObject> currentRectInstances = new List<GameObject>();
     private Coroutine attackCoroutine;
     private Coroutine stunCoroutine;
 
@@ -160,7 +160,6 @@ public class EnemyBee : Enemy
 
         if (maxRangeRectPrefab != null && currentRectPrefab != null)
         {
-            // ★ 수정: 로컬 풀에서 부족한 만큼만 생성하고, 재사용합니다.
             for (int i = 0; i < projCount; i++)
             {
                 if (i >= maxRectInstances.Count)
@@ -240,12 +239,24 @@ public class EnemyBee : Enemy
         return dirs;
     }
 
+    // ★ [핵심 수정] 자식으로 남아있으면서 부모 Flip 무력화하는 로직
     void UpdateRectangle(GameObject rect, Vector2 dir, float length)
     {
         if (rect == null) return;
 
+        // 1. 스케일 보정: 부모의 Scale.x가 -1이면 자식도 -1이 됨. 
+        // 1 / (-1) = -1을 곱해서 최종 스케일을 1로 만듦.
+        rect.transform.localScale = new Vector3(1f / transform.localScale.x, 1f, 1f);
+
+        // 2. 위치 보정
         rect.transform.position = headPoint.position;
-        rect.transform.right = dir;
+
+        // 3. 회전 보정: 부모가 Flip 되면 회전값도 거울 반전됨. 
+        // Flip 상태에 따라 각도를 반전시켜주면 flip되어도 똑바로 나감.
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        if (transform.localScale.x < 0) angle = -angle; 
+        
+        rect.transform.rotation = Quaternion.Euler(0, 0, angle);
 
         SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
         if (sr != null)
@@ -325,7 +336,6 @@ public class EnemyBee : Enemy
 
     void ClearRectangles()
     {
-        // ★ 수정: 파괴하지 않고 안 보이게 끕니다.
         foreach (var rect in maxRectInstances)
             if (rect != null) rect.SetActive(false);
 
