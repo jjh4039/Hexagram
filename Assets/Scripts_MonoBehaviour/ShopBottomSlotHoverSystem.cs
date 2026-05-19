@@ -1,52 +1,150 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
+    public enum BottomItemType { HealKit, WeightKit }
+    public enum ItemGrade { Low, Medium, High }
+
+    [Header("Slot Function Settings")]
+    [SerializeField] private BottomItemType itemType;
+
     [Header("References")]
     [SerializeField] private RectTransform caseRect;
     [SerializeField] private Image caseImage;
     [SerializeField] private RectTransform symbolRect;
     [SerializeField] private Image symbolImage;
+    [SerializeField] private GameObject soldOutOverlay; 
+    [SerializeField] private GameObject priceContainer; 
+    [SerializeField] private TextMeshProUGUI priceText; 
 
     [Header("Tooltip")]
-    [SerializeField] private string itemTitle = "응급 수리 키트";
-    [SerializeField][TextArea(2, 4)] private string itemDescription = "즉시 체력을 30 회복한다.";
+    [SerializeField] private string itemTitle = "아이템 이름";
+    [SerializeField][TextArea(2, 4)] private string itemDescription = "아이템 설명";
     [SerializeField] private Color tooltipBackgroundColor = new Color(0.14f, 0.22f, 0.18f, 1f);
 
-    [Header("Case")]
+    [Header("Weight Kit Settings")]
+    [SerializeField] private GameObject balancePrefab; 
+
+    [Header("Heal Kit Prices")]
+    [SerializeField] private int healLowPrice = 100;
+    [SerializeField] private int healMediumPrice = 100; 
+    [SerializeField] private int healHighPrice = 100;
+
+    [Header("Weight Kit Prices")]
+    [SerializeField] private int weightLowPrice = 100;
+    [SerializeField] private int weightMediumPrice = 200;
+    [SerializeField] private int weightHighPrice = 300;
+
+    [Header("Case Color Motion")]
     [SerializeField] private float caseHoverScale = 1.02f;
     [SerializeField] private Color normalCaseColor = new Color(0.72f, 0.72f, 0.72f, 1f);
     [SerializeField] private Color hoverCaseColor = new Color(0.82f, 0.88f, 0.88f, 1f);
+    [SerializeField] private Color soldOutCaseColor = new Color(0.35f, 0.35f, 0.35f, 1f); 
 
-    [Header("Symbol")]
+    [Header("Symbol Color Motion")]
     [SerializeField] private float symbolHoverScale = 1.05f;
     [SerializeField] private Color normalSymbolColor = new Color(0.65f, 0.65f, 0.65f, 1f);
     [SerializeField] private Color hoverSymbolColor = Color.white;
+    [SerializeField] private Color usedSymbolColor = new Color(0.3f, 0.3f, 0.3f, 0.6f); 
     [SerializeField] private float symbolFloatOffsetY = 1f;
 
     [Header("Motion")]
     [SerializeField] private float transitionDuration = 0.1f;
 
-    private bool _isHovering;
+    [Header("Audio")]
+    [SerializeField] private AudioClip sfxHover;
+    [SerializeField] private AudioClip sfxPurchase;
 
+    private bool _isHovering;
+    private bool _isSoldOut;
     private Vector3 _caseBaseScale;
     private Vector3 _symbolBaseScale;
     private Vector2 _symbolBasePos;
 
+    private int _currentPrice;
+    private ItemGrade _currentGrade;
+    private string _dynamicDescription; 
+    private Action _onScrapSpent;
+    private Vector3 _spawnPosition; 
+
+    private static int staticHealGradeIndex = 2; 
+    private static bool staticHealBoughtLastTime = false;
+
     private void Awake()
     {
-        if (caseRect != null)
-            _caseBaseScale = caseRect.localScale;
-
+        if (caseRect != null) _caseBaseScale = caseRect.localScale;
         if (symbolRect != null)
         {
             _symbolBaseScale = symbolRect.localScale;
             _symbolBasePos = symbolRect.anchoredPosition;
         }
 
+        if (soldOutOverlay != null) soldOutOverlay.SetActive(false);
         ApplyImmediate(false);
+    }
+
+    public void SetupBottomSlot(Action onScrapSpentCallback, Vector3 robotSpawnPos, bool isNewShop, bool isReroll)
+    {
+        _onScrapSpent = onScrapSpentCallback;
+        _spawnPosition = robotSpawnPos + new Vector3(0f, -3f, 0f);
+
+        _isSoldOut = false;
+        _isHovering = false;
+
+        if (soldOutOverlay != null) soldOutOverlay.SetActive(false);
+        if (priceContainer != null) priceContainer.SetActive(true);
+
+        int weightValue = 0;
+
+        if (itemType == BottomItemType.HealKit)
+        {
+            if (isNewShop)
+            {
+                if (staticHealBoughtLastTime) 
+                    staticHealGradeIndex = Mathf.Max(staticHealGradeIndex - 1, 0); 
+                else 
+                    staticHealGradeIndex = 2; 
+
+                staticHealBoughtLastTime = false; 
+            }
+            _currentGrade = (ItemGrade)staticHealGradeIndex;
+            _currentPrice = _currentGrade == ItemGrade.Low ? healLowPrice : (_currentGrade == ItemGrade.Medium ? healMediumPrice : healHighPrice);
+        }
+        else 
+        {
+            if (isNewShop || isReroll)
+            {
+                _currentGrade = (ItemGrade)UnityEngine.Random.Range(0, 3);
+            }
+            _currentPrice = _currentGrade == ItemGrade.Low ? weightLowPrice : (_currentGrade == ItemGrade.Medium ? weightMediumPrice : weightHighPrice);
+            weightValue = _currentGrade == ItemGrade.Low ? 2 : (_currentGrade == ItemGrade.Medium ? 4 : 6);
+        }
+
+        string gradeStr = _currentGrade == ItemGrade.Low ? "하급" : (_currentGrade == ItemGrade.Medium ? "중급" : "상급");
+        string cleanDesc = itemDescription.Replace("[하급]", "").Replace("[중급]", "").Replace("[상급]", "").Trim();
+        
+        // ★ 수정: 아이템 타입에 맞춰 동적 텍스트를 다르게 조립합니다.
+        if (itemType == BottomItemType.WeightKit)
+        {
+            _dynamicDescription = $"[{gradeStr} - {weightValue}%]\n\n{cleanDesc}";
+        }
+        else
+        {
+            _dynamicDescription = $"[{gradeStr}]\n\n{cleanDesc}";
+        }
+
+        if (priceText != null) priceText.text = _currentPrice.ToString();
+        ApplyImmediate(false);
+    }
+
+    public void UpdatePriceColor(int currentScrap)
+    {
+        if (_isSoldOut || priceText == null) return;
+        priceText.color = currentScrap >= _currentPrice ? Color.black : Color.red;
     }
 
     private void Update()
@@ -55,56 +153,117 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
 
         if (caseRect != null)
         {
-            Vector3 targetScale = _isHovering ? _caseBaseScale * caseHoverScale : _caseBaseScale;
+            Vector3 targetScale = (_isHovering && !_isSoldOut) ? _caseBaseScale * caseHoverScale : _caseBaseScale;
             caseRect.localScale = Vector3.Lerp(caseRect.localScale, targetScale, Time.unscaledDeltaTime * speed);
         }
 
         if (caseImage != null)
         {
-            Color targetColor = _isHovering ? hoverCaseColor : normalCaseColor;
+            Color targetColor = _isSoldOut ? soldOutCaseColor : (_isHovering ? hoverCaseColor : normalCaseColor);
             caseImage.color = Color.Lerp(caseImage.color, targetColor, Time.unscaledDeltaTime * speed);
         }
 
         if (symbolRect != null)
         {
-            Vector3 targetScale = _isHovering ? _symbolBaseScale * symbolHoverScale : _symbolBaseScale;
+            Vector3 targetScale = (_isHovering && !_isSoldOut) ? _symbolBaseScale * symbolHoverScale : _symbolBaseScale;
             symbolRect.localScale = Vector3.Lerp(symbolRect.localScale, targetScale, Time.unscaledDeltaTime * speed);
 
-            Vector2 targetPos = _isHovering
-                ? _symbolBasePos + new Vector2(0f, symbolFloatOffsetY)
-                : _symbolBasePos;
-
+            Vector2 targetPos = (_isHovering && !_isSoldOut) ? _symbolBasePos + new Vector2(0f, symbolFloatOffsetY) : _symbolBasePos;
             symbolRect.anchoredPosition = Vector2.Lerp(symbolRect.anchoredPosition, targetPos, Time.unscaledDeltaTime * speed);
         }
 
         if (symbolImage != null)
         {
-            Color targetColor = _isHovering ? hoverSymbolColor : normalSymbolColor;
+            Color targetColor = _isSoldOut ? usedSymbolColor : (_isHovering ? hoverSymbolColor : normalSymbolColor);
             symbolImage.color = Color.Lerp(symbolImage.color, targetColor, Time.unscaledDeltaTime * speed);
         }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (_isSoldOut) return;
         _isHovering = true;
+
+        if (sfxHover != null && SoundManager.instance != null)
+            SoundManager.instance.PlaySFX(sfxHover, 0.4f, 0.1f);
 
         if (ShopTooltipUI.Instance != null)
         {
-            ShopTooltipUI.Instance.ShowTooltip(
-                itemTitle,
-                itemDescription,
-                tooltipBackgroundColor,
-                ShopTooltipUI.TooltipAnchorType.BottomLeft
-            );
+            ShopTooltipUI.Instance.ShowTooltip(itemTitle, _dynamicDescription, tooltipBackgroundColor, ShopTooltipUI.TooltipAnchorType.BottomLeft);
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (_isSoldOut) return;
         _isHovering = false;
 
         if (ShopTooltipUI.Instance != null)
             ShopTooltipUI.Instance.HideTooltip();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (_isSoldOut || GameManager.instance == null || eventData.button != PointerEventData.InputButton.Left) return;
+
+        int currentScrap = GameManager.instance.currentScrap;
+
+        if (currentScrap >= _currentPrice)
+        {
+            GameManager.instance.currentScrap -= _currentPrice;
+
+            ExecuteItemEffect();
+
+            if (sfxPurchase != null && SoundManager.instance != null)
+                SoundManager.instance.PlaySFX(sfxPurchase, 0.65f, 0.1f);
+
+            SetSoldOut();
+            _onScrapSpent?.Invoke(); 
+        }
+        else
+        {
+            if (PlayerFeedbackUI.Instance != null)
+                PlayerFeedbackUI.Instance.ShowWarning(6); 
+        }
+    }
+
+    private void ExecuteItemEffect()
+    {
+        PlayerStats stats = GameManager.instance.stats;
+
+        if (itemType == BottomItemType.HealKit)
+        {
+            staticHealBoughtLastTime = true; 
+            int healAmount = Mathf.RoundToInt(stats.maxHealth * 0.33f);
+            stats.Heal(healAmount); 
+        }
+        else 
+        {
+            if (balancePrefab != null)
+            {
+                GameObject balanceObj = Instantiate(balancePrefab, _spawnPosition, Quaternion.identity);
+                Balance balanceScript = balanceObj.GetComponent<Balance>();
+                
+                if (balanceScript != null)
+                {
+                    float weightValue = _currentGrade == ItemGrade.Low ? 2f : (_currentGrade == ItemGrade.Medium ? 4f : 6f);
+                    balanceScript.Setup(weightValue);
+                }
+            }
+            if (stats != null) stats.SpawnDamageText("WEIGHT SPWN!", Color.cyan, 3.5f);
+        }
+    }
+
+    private void SetSoldOut()
+    {
+        _isSoldOut = true;
+        _isHovering = false;
+
+        if (soldOutOverlay != null) soldOutOverlay.SetActive(true);
+        if (priceContainer != null) priceContainer.SetActive(false);
+        if (ShopTooltipUI.Instance != null) ShopTooltipUI.Instance.HideTooltip();
+
+        ApplyImmediate(false);
     }
 
     private void OnDisable()
@@ -115,21 +274,18 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
 
     private void ApplyImmediate(bool isHovering)
     {
-        if (caseRect != null)
-            caseRect.localScale = isHovering ? _caseBaseScale * caseHoverScale : _caseBaseScale;
+        CanvasGroup cg = GetComponent<CanvasGroup>();
+        if (cg != null) cg.alpha = 1f;
 
-        if (caseImage != null)
-            caseImage.color = isHovering ? hoverCaseColor : normalCaseColor;
+        if (caseRect != null) caseRect.localScale = isHovering ? _caseBaseScale * caseHoverScale : _caseBaseScale;
+        if (caseImage != null) caseImage.color = _isSoldOut ? soldOutCaseColor : (isHovering ? hoverCaseColor : normalCaseColor);
 
         if (symbolRect != null)
         {
             symbolRect.localScale = isHovering ? _symbolBaseScale * symbolHoverScale : _symbolBaseScale;
-            symbolRect.anchoredPosition = isHovering
-                ? _symbolBasePos + new Vector2(0f, symbolFloatOffsetY)
-                : _symbolBasePos;
+            symbolRect.anchoredPosition = isHovering ? _symbolBasePos + new Vector2(0f, symbolFloatOffsetY) : _symbolBasePos;
         }
 
-        if (symbolImage != null)
-            symbolImage.color = isHovering ? hoverSymbolColor : normalSymbolColor;
+        if (symbolImage != null) symbolImage.color = _isSoldOut ? usedSymbolColor : (isHovering ? hoverSymbolColor : normalSymbolColor);
     }
 }

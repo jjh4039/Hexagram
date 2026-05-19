@@ -33,7 +33,7 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
     [Header("Main Color")]
     [SerializeField] private Color normalCaseColor = new Color(0.62f, 0.62f, 0.62f, 1f);
     [SerializeField] private Color hoverCaseColor = new Color(0.6f, 0.93f, 1f, 1f);
-    [SerializeField] private Color soldOutCaseColor = new Color(0.3f, 0.3f, 0.3f, 1f); // ★ 추가: 구매 시 변경될 케이스 색상
+    [SerializeField] private Color soldOutCaseColor = new Color(0.3f, 0.3f, 0.3f, 1f); 
     [SerializeField] private Color normalTextColor = new Color(0.92f, 0.92f, 0.92f, 1f);
     [SerializeField] private Color hoverTextColor = Color.white;
 
@@ -43,7 +43,7 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
     [Header("Reroll Color")]
     [SerializeField] private Color normalRerollColor = new Color(0.75f, 0.75f, 0.75f, 1f);
     [SerializeField] private Color hoverRerollColor = Color.white;
-    [SerializeField] private Color usedRerollColor = new Color(0.4f, 0.4f, 0.4f, 1f); // ★ 추가: 사용/품절 시 변경될 리롤 색상
+    [SerializeField] private Color usedRerollColor = new Color(0.4f, 0.4f, 0.4f, 1f); 
 
     private bool _isMainHovering;
     private bool _isRerollHovering;
@@ -60,6 +60,10 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
     public void SetHover(ShopHoverAreaRelay.HoverAreaType areaType, bool isHovering)
     {
+        // ★ 핵심 수정: Sold Out이거나 이미 리롤을 썼다면 소리 및 Hover 상태 진입을 완벽 차단
+        if (_isSoldOut) return;
+        if (areaType == ShopHoverAreaRelay.HoverAreaType.Reroll && _hasRerolled) return;
+
         if (isHovering && sfxHover != null && SoundManager.instance != null)
         {
             SoundManager.instance.PlaySFX(sfxHover, 0.4f, 0.1f);
@@ -68,11 +72,10 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
         switch (areaType)
         {
             case ShopHoverAreaRelay.HoverAreaType.Main:
-                if (!_isSoldOut) _isMainHovering = isHovering;
+                _isMainHovering = isHovering;
                 break;
-
             case ShopHoverAreaRelay.HoverAreaType.Reroll:
-                if (!_isSoldOut && !_hasRerolled) _isRerollHovering = isHovering;
+                _isRerollHovering = isHovering;
                 break;
         }
     }
@@ -94,8 +97,6 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
         if (soldOutOverlay != null) soldOutOverlay.SetActive(false);
         if (priceContainer != null) priceContainer.SetActive(true);
-        
-        // ★ 수정: 리롤 버튼 활성화 강제 로직 유지 (사라지지 않음)
         if (rerollImage != null) rerollImage.gameObject.SetActive(true);
 
         GenerateRandomStat();
@@ -156,8 +157,6 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
         _hasRerolled = true;
         _isRerollHovering = false;
         
-        // ★ 수정: 리롤 이미지 비활성화 삭제 (대신 Update 함수에서 색상이 변경됨)
-
         GenerateRandomStat();
         _onScrapSpent?.Invoke(); 
     }
@@ -198,7 +197,6 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
         if (soldOutOverlay != null) soldOutOverlay.SetActive(true);
         if (priceContainer != null) priceContainer.SetActive(false);
-        // ★ 수정: 리롤 이미지 비활성화 삭제
 
         ApplyImmediateVisual();
     }
@@ -218,7 +216,6 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
     private void UpdateMainVisual(float speed)
     {
-        // ★ 수정: 상태에 따라 스무스하게 색상을 전환하도록 조건 세분화
         if (caseRect != null)
         {
             Vector3 targetScale = (_isMainHovering && !_isSoldOut) ? _caseBaseScale * mainHoverScale : _caseBaseScale;
@@ -240,7 +237,6 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
     private void UpdateRerollVisual(float speed)
     {
-        // ★ 수정: 사용되었거나 품절일 경우를 확인
         bool isRerollDisabled = _isSoldOut || _hasRerolled;
 
         if (rerollRect != null)
@@ -265,10 +261,19 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
     private void ApplyImmediateVisual()
     {
+        CanvasGroup cg = GetComponent<CanvasGroup>();
+        if (cg != null) cg.alpha = 1f;
+
         if (caseRect != null) caseRect.localScale = _caseBaseScale;
         if (caseImage != null) caseImage.color = _isSoldOut ? soldOutCaseColor : normalCaseColor;
         if (descriptionText != null) descriptionText.color = normalTextColor;
         if (rerollRect != null) rerollRect.localScale = _rerollBaseScale;
-        if (rerollImage != null) rerollImage.color = (_isSoldOut || _hasRerolled) ? usedRerollColor : normalRerollColor;
+        if (rerollImage != null) 
+        {
+            rerollImage.color = (_isSoldOut || _hasRerolled) ? usedRerollColor : normalRerollColor;
+            Color c = rerollImage.color;
+            c.a = 1f;
+            rerollImage.color = c;
+        }
     }
 }

@@ -16,11 +16,10 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private CanvasGroup screenGlowGroup;
     [SerializeField] private CanvasGroup screenContentGroup;
 
-    [Header("Shop Logic - Artifacts")]
+    [Header("Shop Logic")]
     [SerializeField] private ShopHoverSystem[] artifactSlots; 
-
-    [Header("Shop Logic - Stats")]
     [SerializeField] private ShopStatOptionHoverSystem[] statSlots; 
+    [SerializeField] private ShopBottomSlotHoverSystem[] bottomSlots;
 
     [Header("Audio")]
     [SerializeField] private AudioClip sfxPurchase; 
@@ -55,13 +54,14 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private float screenFadeOutDuration = 0.15f;
     
     private bool _isOpen;
-    private bool _isPopulated; 
     private RectTransform _shopRect;
     private Vector2 _closedAnchoredPos;
     private Vector2 _openAnchoredPos;
 
     private Coroutine _slideRoutine;
     private Coroutine _ledRoutine;
+
+    private ShopRobot _currentRobot; // ★ 현재 상호작용 중인 로봇 추적
 
     public bool IsOpen => _isOpen;
     public event Action<bool> OnShopStateChanged;
@@ -73,8 +73,6 @@ public class ShopUIController : MonoBehaviour
 
     private void Start()
     {
-        shopRoot.SetActive(true);
-        
         if (shopRoot == null || _shopRect == null) return;
 
         _openAnchoredPos = _shopRect.anchoredPosition;
@@ -104,7 +102,7 @@ public class ShopUIController : MonoBehaviour
         if (_isOpen) CloseShop();
     }
 
-    public void OpenShop()
+    public void OpenShop(ShopRobot robot = null)
     {
         if (shopRoot == null || _isOpen) return;
         if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
@@ -113,21 +111,28 @@ public class ShopUIController : MonoBehaviour
         OnShopStateChanged?.Invoke(true); 
 
         if (sfxOpen != null && SoundManager.instance != null)
-        {
             SoundManager.instance.PlaySFX(sfxOpen, 1f, 0.05f);
+
+        // ★ [에러 수정] 비활성화 상태에서 하위 UI들이 Awake를 못 타는 버그 방지를 위해 가장 먼저 켜줌
+        shopRoot.SetActive(true);
+
+        // ★ 다른 로봇에게 말을 걸었는지 확인 (다른 로봇이면 상점 물품 초기화)
+        bool isNewShop = false;
+        if (robot != null && _currentRobot != robot)
+        {
+            _currentRobot = robot;
+            isNewShop = true; 
         }
 
-        if (!_isPopulated)
+        // 새로운 로봇이거나 최초 열림일 경우에만 상품 생성
+        if (isNewShop)
         {
-            GenerateShopItems();
-            _isPopulated = true;
+            GenerateShopItems(true, false);
         }
 
         if (CameraFollow.instance != null) CameraFollow.instance.SetUIOffset(shopCameraOffset);
 
-        shopRoot.SetActive(true);
         _shopRect.anchoredPosition = _closedAnchoredPos;
-
         backgroundGroup.alpha = backgroundStartAlpha;
         shopVisualGroup.alpha = visualStartAlpha;
         screenGlowGroup.alpha = glowStartAlpha;
@@ -140,18 +145,16 @@ public class ShopUIController : MonoBehaviour
         _ledRoutine = StartCoroutine(LedOnRoutine());
     }
 
-    private void GenerateShopItems()
+    private void GenerateShopItems(bool isNewShop, bool isReroll)
     {
-        if (ArtifactManager.instance != null && artifactSlots != null && artifactSlots.Length > 0)
+        // 1. 아티팩트
+        if (ArtifactManager.instance != null && artifactSlots != null)
         {
             List<ArtifactData> availableArtifacts = new List<ArtifactData>();
-            
             foreach (var artifact in ArtifactManager.instance.allArtifacts)
             {
                 if (!ArtifactManager.instance.myArtifacts.Contains(artifact))
-                {
                     availableArtifacts.Add(artifact);
-                }
             }
 
             for (int i = 0; i < availableArtifacts.Count; i++)
@@ -168,17 +171,14 @@ public class ShopUIController : MonoBehaviour
                 {
                     ArtifactData selectedData = availableArtifacts[i];
                     int slotIndex = i; 
-                    
                     artifactSlots[i].gameObject.SetActive(true);
                     artifactSlots[i].SetupSlot(selectedData, () => TryBuyArtifact(slotIndex, selectedData));
                 }
-                else
-                {
-                    artifactSlots[i].gameObject.SetActive(false); 
-                }
+                else artifactSlots[i].gameObject.SetActive(false); 
             }
         }
 
+        // 2. 스탯
         if (statSlots != null)
         {
             for (int i = 0; i < statSlots.Length; i++)
@@ -188,22 +188,33 @@ public class ShopUIController : MonoBehaviour
             }
         }
 
+        // 3. 하단 소모품 (수리키트, 무게추)
+        if (bottomSlots == null || bottomSlots.Length == 0)
+            bottomSlots = shopRoot.GetComponentsInChildren<ShopBottomSlotHoverSystem>(true);
+
+        if (bottomSlots != null)
+        {
+            Vector3 spawnPos = _currentRobot != null ? _currentRobot.transform.position : Vector3.zero;
+            for (int i = 0; i < bottomSlots.Length; i++)
+            {
+                bottomSlots[i].gameObject.SetActive(true);
+                bottomSlots[i].SetupBottomSlot(RefreshAllPrices, spawnPos, isNewShop, isReroll);
+            }
+        }
+
         RefreshAllPrices(); 
     }
 
     private void TryBuyArtifact(int slotIndex, ArtifactData data)
     {
         if (GameManager.instance == null || data == null || ArtifactManager.instance == null) return;
-
         if (ArtifactManager.instance.myArtifacts.Count >= 10)
         {
-            if (PlayerFeedbackUI.Instance != null)
-                PlayerFeedbackUI.Instance.ShowWarning(2); 
+            if (PlayerFeedbackUI.Instance != null) PlayerFeedbackUI.Instance.ShowWarning(2); 
             return;
         }
 
         int currentScrap = GameManager.instance.currentScrap;
-
         if (currentScrap >= data.basePrice)
         {
             GameManager.instance.currentScrap -= data.basePrice;
@@ -211,27 +222,16 @@ public class ShopUIController : MonoBehaviour
             artifactSlots[slotIndex].SetSoldOut();
 
             if (sfxPurchase != null && SoundManager.instance != null)
-            {
                 SoundManager.instance.PlaySFX(sfxPurchase, 0.6f, 0.1f);
-            }
 
-            // ★ 추가: 아티팩트 구매 시 텍스트 피드백 표시
             if (GameManager.instance.stats != null)
-            {
                 GameManager.instance.stats.SpawnDamageText("ARTIFACT!", new Color(0.6f, 0.87f, 1f), 4f); 
-            }
-
-            Debug.Log($"[상점] {data.artifactName} 구매 완료! 남은 스크랩: {GameManager.instance.currentScrap}");
 
             RefreshAllPrices(); 
         }
         else
         {
-            if (PlayerFeedbackUI.Instance != null)
-            {
-                PlayerFeedbackUI.Instance.ShowWarning(6); 
-            }
-            Debug.Log($"[상점] 스크랩 부족! 필요: {data.basePrice}, 보유: {currentScrap}");
+            if (PlayerFeedbackUI.Instance != null) PlayerFeedbackUI.Instance.ShowWarning(6); 
         }
     }
 
@@ -241,12 +241,13 @@ public class ShopUIController : MonoBehaviour
         if (GameManager.instance.currentScrap >= rerollCost)
         {
             GameManager.instance.currentScrap -= rerollCost;
-            GenerateShopItems(); 
+            
+            // ★ 새로고침(Reroll) 임을 알리고 재성성
+            GenerateShopItems(false, true); 
         }
         else
         {
-            if (PlayerFeedbackUI.Instance != null)
-                PlayerFeedbackUI.Instance.ShowWarning(6);
+            if (PlayerFeedbackUI.Instance != null) PlayerFeedbackUI.Instance.ShowWarning(6);
         }
     }
 
@@ -255,17 +256,9 @@ public class ShopUIController : MonoBehaviour
         if (GameManager.instance == null) return;
         int currentScrap = GameManager.instance.currentScrap;
 
-        if (artifactSlots != null)
-        {
-            foreach (var slot in artifactSlots)
-                if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
-        }
-
-        if (statSlots != null)
-        {
-            foreach (var slot in statSlots)
-                if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
-        }
+        if (artifactSlots != null) foreach (var slot in artifactSlots) if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
+        if (statSlots != null) foreach (var slot in statSlots) if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
+        if (bottomSlots != null) foreach (var slot in bottomSlots) if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
     }
 
     public void CloseShop()
@@ -316,7 +309,6 @@ public class ShopUIController : MonoBehaviour
             backgroundGroup.alpha = Mathf.Lerp(startBackgroundAlpha, endBackgroundAlpha, easedT);
 
             HandleFading(isOpening, elapsed, easedT, duration, startVisualAlpha, endVisualAlpha, startGlowAlpha, startContentAlpha);
-
             yield return null;
         }
 
@@ -333,86 +325,29 @@ public class ShopUIController : MonoBehaviour
     private void HandleFading(bool isOpening, float elapsed, float easedT, float duration, float startVis, float endVis, float startGlow, float startContent)
     {
         if (isOpening) shopVisualGroup.alpha = Mathf.Lerp(startVis, endVis, easedT);
-        else if (elapsed > screenFadeOutDelay)
-        {
-            float sT = Mathf.Clamp01((elapsed - screenFadeOutDelay) / screenFadeOutDuration);
-            shopVisualGroup.alpha = Mathf.Lerp(startVis, 0f, 1f - Mathf.Pow(1f - sT, 3f));
-        }
+        else if (elapsed > screenFadeOutDelay) { float sT = Mathf.Clamp01((elapsed - screenFadeOutDelay) / screenFadeOutDuration); shopVisualGroup.alpha = Mathf.Lerp(startVis, 0f, 1f - Mathf.Pow(1f - sT, 3f)); }
 
-        if (isOpening)
-        {
-            float glowTime = glowFadeDelay * duration;
-            if (elapsed > glowTime)
-            {
-                float gT = Mathf.Clamp01((elapsed - glowTime) / glowFadeDuration);
-                screenGlowGroup.alpha = gT < 0.5f ? Mathf.Lerp(glowStartAlpha, glowPeakAlpha, gT / 0.5f) : Mathf.Lerp(glowPeakAlpha, glowEndAlpha, (gT - 0.5f) / 0.5f);
-            }
-        }
-        else
-        {
-            float gT = Mathf.Clamp01(elapsed / screenFadeOutDuration);
-            screenGlowGroup.alpha = Mathf.Lerp(screenGlowGroup.alpha, 0f, 1f - Mathf.Pow(1f - gT, 3f));
-        }
+        if (isOpening) { float glowTime = glowFadeDelay * duration; if (elapsed > glowTime) { float gT = Mathf.Clamp01((elapsed - glowTime) / glowFadeDuration); screenGlowGroup.alpha = gT < 0.5f ? Mathf.Lerp(glowStartAlpha, glowPeakAlpha, gT / 0.5f) : Mathf.Lerp(glowPeakAlpha, glowEndAlpha, (gT - 0.5f) / 0.5f); } }
+        else { float gT = Mathf.Clamp01(elapsed / screenFadeOutDuration); screenGlowGroup.alpha = Mathf.Lerp(screenGlowGroup.alpha, 0f, 1f - Mathf.Pow(1f - gT, 3f)); }
 
-        if (isOpening)
-        {
-            float contentTime = contentFadeDelay * duration;
-            if (elapsed > contentTime)
-            {
-                float cT = Mathf.Clamp01((elapsed - contentTime) / contentFadeDuration);
-                screenContentGroup.alpha = Mathf.Lerp(startContent, contentEndAlpha, 1f - Mathf.Pow(1f - cT, 4f));
-            }
-        }
-        else
-        {
-            float cT = Mathf.Clamp01(elapsed / contentFadeOutDuration);
-            screenContentGroup.alpha = Mathf.Lerp(startContent, 0f, 1f - Mathf.Pow(1f - cT, 3f));
-        }
+        if (isOpening) { float contentTime = contentFadeDelay * duration; if (elapsed > contentTime) { float cT = Mathf.Clamp01((elapsed - contentTime) / contentFadeDuration); screenContentGroup.alpha = Mathf.Lerp(startContent, contentEndAlpha, 1f - Mathf.Pow(1f - cT, 4f)); } }
+        else { float cT = Mathf.Clamp01(elapsed / contentFadeOutDuration); screenContentGroup.alpha = Mathf.Lerp(startContent, 0f, 1f - Mathf.Pow(1f - cT, 3f)); }
     }
 
     private IEnumerator LedOnRoutine()
     {
         SetAllLedsAlpha(0f);
-        for (int i = 0; i < leds.Length; i++)
-        {
-            if (leds[i]) StartCoroutine(LedPulseRoutine(leds[i]));
-            yield return new WaitForSecondsRealtime(ledOnInterval);
-        }
+        for (int i = 0; i < leds.Length; i++) { if (leds[i]) StartCoroutine(LedPulseRoutine(leds[i])); yield return new WaitForSecondsRealtime(ledOnInterval); }
         _ledRoutine = null;
     }
 
     private IEnumerator LedOffRoutine()
     {
-        for (int i = leds.Length - 1; i >= 0; i--)
-        {
-            if (leds[i]) SetLedAlpha(leds[i], 0f);
-            yield return new WaitForSecondsRealtime(ledOffInterval);
-        }
+        for (int i = leds.Length - 1; i >= 0; i--) { if (leds[i]) SetLedAlpha(leds[i], 0f); yield return new WaitForSecondsRealtime(ledOffInterval); }
         _ledRoutine = null;
     }
 
-    private void SetAllLedsAlpha(float alpha)
-    {
-        if (leds == null) return;
-        foreach (var led in leds) if (led) SetLedAlpha(led, alpha);
-    }
-
-    private void SetLedAlpha(Image led, float alpha)
-    {
-        Color color = led.color;
-        color.a = alpha;
-        led.color = color;
-    }
-    
-    private IEnumerator LedPulseRoutine(Image led)
-    {
-        float t = 0f;
-        float duration = 0.06f;
-        while (t < duration) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Clamp01(t / duration)); yield return null; }
-        t = 0f;
-        while (t < duration * 0.5f) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Lerp(1f, 0.85f, t / (duration * 0.5f))); yield return null; }
-        t = 0f;
-        while (t < duration * 0.5f) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Lerp(0.85f, 1f, t / (duration * 0.5f))); yield return null; }
-        SetLedAlpha(led, 1f);
-    }
+    private void SetAllLedsAlpha(float alpha) { if (leds == null) return; foreach (var led in leds) if (led) SetLedAlpha(led, alpha); }
+    private void SetLedAlpha(Image led, float alpha) { Color color = led.color; color.a = alpha; led.color = color; }
+    private IEnumerator LedPulseRoutine(Image led) { float t = 0f; float duration = 0.06f; while (t < duration) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Clamp01(t / duration)); yield return null; } t = 0f; while (t < duration * 0.5f) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Lerp(1f, 0.85f, t / (duration * 0.5f))); yield return null; } t = 0f; while (t < duration * 0.5f) { t += Time.unscaledDeltaTime; SetLedAlpha(led, Mathf.Lerp(0.85f, 1f, t / (duration * 0.5f))); yield return null; } SetLedAlpha(led, 1f); }
 }

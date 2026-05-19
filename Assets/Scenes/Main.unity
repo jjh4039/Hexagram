@@ -2994,13 +2994,13 @@ MonoBehaviour:
   transitionDuration: 0.05
   normalCaseColor: {r: 1, g: 1, b: 1, a: 1}
   hoverCaseColor: {r: 0.6, g: 1, b: 0.9, a: 1}
-  soldOutCaseColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0.2}
+  soldOutCaseColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 0.29803923}
   normalTextColor: {r: 1, g: 1, b: 1, a: 1}
   hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   rerollHoverScale: 1.05
   normalRerollColor: {r: 1, g: 1, b: 1, a: 1}
   hoverRerollColor: {r: 0.6, g: 1, b: 0.9019608, a: 1}
-  usedRerollColor: {r: 0.36862746, g: 0.36862746, b: 0.36862746, a: 0.2}
+  usedRerollColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.29803923}
 --- !u!1 &156670691
 GameObject:
   m_ObjectHideFlags: 0
@@ -13999,6 +13999,7 @@ RectTransform:
   m_Children:
   - {fileID: 429565417}
   - {fileID: 1345887817}
+  - {fileID: 1365666236}
   - {fileID: 1384886121}
   m_Father: {fileID: 1933510767}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -14057,23 +14058,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d3e56235f08f5d46bc461c5fb501311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopBottomSlotHoverSystem
+  itemType: 1
   caseRect: {fileID: 429565417}
   caseImage: {fileID: 429565418}
   symbolRect: {fileID: 1345887817}
   symbolImage: {fileID: 1345887818}
+  soldOutOverlay: {fileID: 1365666235}
+  priceContainer: {fileID: 1384886120}
+  priceText: {fileID: 1927606144}
   itemTitle: "\uBB34\uAC8C\uCD94 \uD0A4\uD2B8"
-  itemDescription: "[\uC911\uAE09]\n\n\uC8FC\uC0AC\uC704 \uBA74\uC758 \uD655\uB960\uC744
-    \uC870\uC808\uD560 \uC218 \uC788\uB294\n\uBB34\uAC8C\uCD94\uB97C \uAD6C\uB9E4\uD560
-    \uC218 \uC788\uB2E4.\n\n"
+  itemDescription: "\uC8FC\uC0AC\uC704 \uBA74\uC758 \uD655\uB960\uC744 \uC870\uC808\uD560
+    \uC218 \uC788\uB294\n\uBB34\uAC8C\uCD94\uB97C \uC0DD\uC131\uD55C\uB2E4."
   tooltipBackgroundColor: {r: 1, g: 0.72137755, b: 0.4481132, a: 1}
+  balancePrefab: {fileID: 6360225803244919441, guid: 12e738894d2198e4dac1454b96e75ceb, type: 3}
+  healLowPrice: 100
+  healMediumPrice: 100
+  healHighPrice: 100
+  weightLowPrice: 100
+  weightMediumPrice: 180
+  weightHighPrice: 240
   caseHoverScale: 1.02
   normalCaseColor: {r: 1, g: 1, b: 1, a: 1}
   hoverCaseColor: {r: 0.6, g: 1, b: 0.8117647, a: 1}
+  soldOutCaseColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.29803923}
   symbolHoverScale: 1.04
   normalSymbolColor: {r: 1, g: 1, b: 1, a: 1}
   hoverSymbolColor: {r: 1, g: 0.79427105, b: 0.5943396, a: 1}
+  usedSymbolColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.101960786}
   symbolFloatOffsetY: 1
   transitionDuration: 0.05
+  sfxHover: {fileID: 8300000, guid: 416dd7836ebbe29439fcc46d2ad8dae3, type: 3}
+  sfxPurchase: {fileID: 8300000, guid: d88993aadaded1f4583f681ef5225622, type: 3}
 --- !u!1 &642444180
 GameObject:
   m_ObjectHideFlags: 0
@@ -16701,6 +16716,81 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 752753901}
+  m_CullTransparentMesh: 1
+--- !u!1 &754936092
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 754936093}
+  - component: {fileID: 754936095}
+  - component: {fileID: 754936094}
+  m_Layer: 5
+  m_Name: SoldOut
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &754936093
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754936092}
+  m_LocalRotation: {x: -0, y: -0, z: 0.06104851, w: 0.99813485}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1205820980}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 7}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 50, y: 17.391304}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &754936094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754936092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -1612096203, guid: 11e3ae7dfb619da4297eadbc1ca10805, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &754936095
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754936092}
   m_CullTransparentMesh: 1
 --- !u!1 &755374407
 GameObject:
@@ -21660,13 +21750,13 @@ MonoBehaviour:
   transitionDuration: 0.05
   normalCaseColor: {r: 1, g: 1, b: 1, a: 1}
   hoverCaseColor: {r: 0.6, g: 1, b: 0.9, a: 1}
-  soldOutCaseColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0.2}
+  soldOutCaseColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 0.29803923}
   normalTextColor: {r: 1, g: 1, b: 1, a: 1}
   hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   rerollHoverScale: 1.05
   normalRerollColor: {r: 1, g: 1, b: 1, a: 1}
   hoverRerollColor: {r: 0.6, g: 1, b: 0.9019608, a: 1}
-  usedRerollColor: {r: 0.36862746, g: 0.36862746, b: 0.36862746, a: 0.2}
+  usedRerollColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.29803923}
 --- !u!1 &976330095
 GameObject:
   m_ObjectHideFlags: 0
@@ -26127,6 +26217,7 @@ RectTransform:
   m_Children:
   - {fileID: 999366481}
   - {fileID: 1641343664}
+  - {fileID: 754936093}
   - {fileID: 760649060}
   m_Father: {fileID: 1933510767}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -26185,22 +26276,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d3e56235f08f5d46bc461c5fb501311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopBottomSlotHoverSystem
+  itemType: 0
   caseRect: {fileID: 999366481}
   caseImage: {fileID: 999366482}
   symbolRect: {fileID: 1641343664}
   symbolImage: {fileID: 1641343665}
+  soldOutOverlay: {fileID: 754936092}
+  priceContainer: {fileID: 760649059}
+  priceText: {fileID: 581541555}
   itemTitle: "\uC218\uB9AC \uD0A4\uD2B8"
-  itemDescription: "[\uD558\uAE09]\n\n\uC989\uC2DC \uCCB4\uB825\uC744 33% \uD68C\uBCF5\uD55C\uB2E4.\n\uB2E4\uC74C
+  itemDescription: "\uC989\uC2DC \uCCB4\uB825\uC744 33% \uD68C\uBCF5\uD55C\uB2E4.\n\uB2E4\uC74C
     \uC815\uBE44\uC18C\uC5D0\uC11C \uBE44\uC6A9\uC774 \uC99D\uAC00\uD55C\uB2E4."
   tooltipBackgroundColor: {r: 1, g: 0.6, b: 0.6, a: 1}
+  balancePrefab: {fileID: 0}
+  healLowPrice: 185
+  healMediumPrice: 150
+  healHighPrice: 100
+  weightLowPrice: 100
+  weightMediumPrice: 180
+  weightHighPrice: 240
   caseHoverScale: 1.02
   normalCaseColor: {r: 1, g: 1, b: 1, a: 1}
   hoverCaseColor: {r: 0.6, g: 1, b: 0.9019608, a: 1}
+  soldOutCaseColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.29803923}
   symbolHoverScale: 1.04
   normalSymbolColor: {r: 1, g: 1, b: 1, a: 1}
   hoverSymbolColor: {r: 1, g: 0.6, b: 0.6, a: 1}
+  usedSymbolColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.101960786}
   symbolFloatOffsetY: 1
   transitionDuration: 0.05
+  sfxHover: {fileID: 8300000, guid: 416dd7836ebbe29439fcc46d2ad8dae3, type: 3}
+  sfxPurchase: {fileID: 8300000, guid: d88993aadaded1f4583f681ef5225622, type: 3}
 --- !u!1 &1210126869
 GameObject:
   m_ObjectHideFlags: 0
@@ -29321,6 +29427,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1362914190}
   m_CullTransparentMesh: 1
+--- !u!1 &1365666235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1365666236}
+  - component: {fileID: 1365666238}
+  - component: {fileID: 1365666237}
+  m_Layer: 5
+  m_Name: SoldOut
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1365666236
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365666235}
+  m_LocalRotation: {x: -0, y: -0, z: 0.06104851, w: 0.99813485}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 642352456}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 7}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 50, y: 17.391304}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1365666237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365666235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -1612096203, guid: 11e3ae7dfb619da4297eadbc1ca10805, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1365666238
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365666235}
+  m_CullTransparentMesh: 1
 --- !u!1 &1366298971
 GameObject:
   m_ObjectHideFlags: 0
@@ -29949,6 +30130,9 @@ MonoBehaviour:
   - {fileID: 144069012}
   - {fileID: 972735673}
   - {fileID: 1445443149}
+  bottomSlots:
+  - {fileID: 1205820983}
+  - {fileID: 642352459}
   sfxPurchase: {fileID: 8300000, guid: d88993aadaded1f4583f681ef5225622, type: 3}
   sfxOpen: {fileID: 8300000, guid: 83f3c447b915bd94db39829696d09bc6, type: 3}
   leds:
@@ -31926,13 +32110,13 @@ MonoBehaviour:
   transitionDuration: 0.05
   normalCaseColor: {r: 1, g: 1, b: 1, a: 1}
   hoverCaseColor: {r: 0.6, g: 1, b: 0.9, a: 1}
-  soldOutCaseColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 0.2}
+  soldOutCaseColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 0.29803923}
   normalTextColor: {r: 1, g: 1, b: 1, a: 1}
   hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
   rerollHoverScale: 1.05
   normalRerollColor: {r: 1, g: 1, b: 1, a: 1}
   hoverRerollColor: {r: 0.6, g: 1, b: 0.9019608, a: 1}
-  usedRerollColor: {r: 0.36862746, g: 0.36862746, b: 0.36862746, a: 0.2}
+  usedRerollColor: {r: 0.22745098, g: 0.22745098, b: 0.22745098, a: 0.29803923}
 --- !u!1 &1448092415
 GameObject:
   m_ObjectHideFlags: 0
@@ -47518,7 +47702,7 @@ MonoBehaviour:
   currentScrap: 500
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 100
+  currentProgress: 0
   maxProgress: 100
   currentPlayTime: 1213
   totalDamageDealt: 2133
