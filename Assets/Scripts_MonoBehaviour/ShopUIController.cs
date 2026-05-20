@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using TMPro; 
 
 public class ShopUIController : MonoBehaviour
 {
@@ -16,9 +17,24 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private CanvasGroup screenGlowGroup;
     [SerializeField] private CanvasGroup screenContentGroup;
 
-    [Header("Shop Logic")]
+    [Header("Scrap UI & Punch")]
+    [SerializeField] private TextMeshProUGUI currentScrapText;
+    [SerializeField] private float scrapPunchScale = 1.3f;     
+    [SerializeField] private float scrapPunchDuration = 0.15f; 
+    [SerializeField] private Color scrapDeductColor = Color.red; // ★ 숫자가 깎일 때 변할 색상
+
+    private Vector3 _scrapTextOriginScale;
+    private Color _scrapOriginalColor; // 원래 색상 저장용
+    private Coroutine _scrapPunchRoutine;
+    private int _displayedScrap; 
+
+    [Header("Shop Logic - Artifacts")]
     [SerializeField] private ShopHoverSystem[] artifactSlots; 
+
+    [Header("Shop Logic - Stats")]
     [SerializeField] private ShopStatOptionHoverSystem[] statSlots; 
+
+    [Header("Shop Logic - Bottom Consumables")]
     [SerializeField] private ShopBottomSlotHoverSystem[] bottomSlots;
 
     [Header("Audio")]
@@ -54,6 +70,7 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private float screenFadeOutDuration = 0.15f;
     
     private bool _isOpen;
+    private bool _isPopulated; 
     private RectTransform _shopRect;
     private Vector2 _closedAnchoredPos;
     private Vector2 _openAnchoredPos;
@@ -61,7 +78,7 @@ public class ShopUIController : MonoBehaviour
     private Coroutine _slideRoutine;
     private Coroutine _ledRoutine;
 
-    private ShopRobot _currentRobot; // ★ 현재 상호작용 중인 로봇 추적
+    private ShopRobot _currentRobot; 
 
     public bool IsOpen => _isOpen;
     public event Action<bool> OnShopStateChanged;
@@ -78,6 +95,12 @@ public class ShopUIController : MonoBehaviour
         _openAnchoredPos = _shopRect.anchoredPosition;
         _closedAnchoredPos = _openAnchoredPos + new Vector2(slideDistance, 0f);
         _shopRect.anchoredPosition = _closedAnchoredPos;
+
+        if (currentScrapText != null) 
+        {
+            _scrapTextOriginScale = currentScrapText.rectTransform.localScale;
+            _scrapOriginalColor = currentScrapText.color;
+        }
 
         backgroundGroup.alpha = 0f;
         shopVisualGroup.alpha = 0f;
@@ -113,10 +136,16 @@ public class ShopUIController : MonoBehaviour
         if (sfxOpen != null && SoundManager.instance != null)
             SoundManager.instance.PlaySFX(sfxOpen, 1f, 0.05f);
 
-        // ★ [에러 수정] 비활성화 상태에서 하위 UI들이 Awake를 못 타는 버그 방지를 위해 가장 먼저 켜줌
         shopRoot.SetActive(true);
 
-        // ★ 다른 로봇에게 말을 걸었는지 확인 (다른 로봇이면 상점 물품 초기화)
+        if (GameManager.instance != null && currentScrapText != null)
+        {
+            _displayedScrap = GameManager.instance.currentScrap;
+            currentScrapText.text = _displayedScrap.ToString();
+            currentScrapText.rectTransform.localScale = _scrapTextOriginScale;
+            currentScrapText.color = _scrapOriginalColor;
+        }
+
         bool isNewShop = false;
         if (robot != null && _currentRobot != robot)
         {
@@ -124,7 +153,6 @@ public class ShopUIController : MonoBehaviour
             isNewShop = true; 
         }
 
-        // 새로운 로봇이거나 최초 열림일 경우에만 상품 생성
         if (isNewShop)
         {
             GenerateShopItems(true, false);
@@ -147,7 +175,6 @@ public class ShopUIController : MonoBehaviour
 
     private void GenerateShopItems(bool isNewShop, bool isReroll)
     {
-        // 1. 아티팩트
         if (ArtifactManager.instance != null && artifactSlots != null)
         {
             List<ArtifactData> availableArtifacts = new List<ArtifactData>();
@@ -178,7 +205,6 @@ public class ShopUIController : MonoBehaviour
             }
         }
 
-        // 2. 스탯
         if (statSlots != null)
         {
             for (int i = 0; i < statSlots.Length; i++)
@@ -188,7 +214,6 @@ public class ShopUIController : MonoBehaviour
             }
         }
 
-        // 3. 하단 소모품 (수리키트, 무게추)
         if (bottomSlots == null || bottomSlots.Length == 0)
             bottomSlots = shopRoot.GetComponentsInChildren<ShopBottomSlotHoverSystem>(true);
 
@@ -237,18 +262,8 @@ public class ShopUIController : MonoBehaviour
 
     public void OnClickReroll()
     {
-        int rerollCost = 50; 
-        if (GameManager.instance.currentScrap >= rerollCost)
-        {
-            GameManager.instance.currentScrap -= rerollCost;
-            
-            // ★ 새로고침(Reroll) 임을 알리고 재성성
-            GenerateShopItems(false, true); 
-        }
-        else
-        {
-            if (PlayerFeedbackUI.Instance != null) PlayerFeedbackUI.Instance.ShowWarning(6);
-        }
+        // ★ 리롤은 이제 비용 소모나 연출이 전혀 없습니다.
+        GenerateShopItems(false, true); 
     }
 
     public void RefreshAllPrices()
@@ -259,6 +274,74 @@ public class ShopUIController : MonoBehaviour
         if (artifactSlots != null) foreach (var slot in artifactSlots) if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
         if (statSlots != null) foreach (var slot in statSlots) if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
         if (bottomSlots != null) foreach (var slot in bottomSlots) if (slot.gameObject.activeSelf) slot.UpdatePriceColor(currentScrap);
+
+        UpdateScrapUI();
+    }
+
+    private void UpdateScrapUI()
+    {
+        if (currentScrapText == null || GameManager.instance == null) return;
+        
+        int targetScrap = GameManager.instance.currentScrap;
+        
+        // 차이가 발생했을 때(스크랩을 소모했을 때)만 펀치 연출 실행
+        if (_displayedScrap != targetScrap) 
+        {
+            if (_scrapPunchRoutine != null) StopCoroutine(_scrapPunchRoutine);
+            _scrapPunchRoutine = StartCoroutine(Co_SequentialScrapDeduction(_displayedScrap, targetScrap));
+        }
+        else
+        {
+            currentScrapText.text = _displayedScrap.ToString();
+        }
+    }
+
+    private IEnumerator Co_SequentialScrapDeduction(int startVal, int targetVal)
+    {
+        if (currentScrapText == null) yield break;
+
+        // ★ 깎이는 동안 텍스트 색상 변경
+        currentScrapText.color = scrapDeductColor;
+
+        float t = 0f;
+        float halfDuration = scrapPunchDuration * 0.5f;
+
+        // 1. 가볍게 한 번 커지기
+        while (t < halfDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            currentScrapText.rectTransform.localScale = Vector3.Lerp(_scrapTextOriginScale, _scrapTextOriginScale * scrapPunchScale, t / halfDuration);
+            yield return null;
+        }
+        currentScrapText.rectTransform.localScale = _scrapTextOriginScale * scrapPunchScale;
+
+        // 2. 숫자가 10번 주루루룩 깎임 (흔들림 제거)
+        int steps = 10;
+        float stepDelay = 0.03f; 
+        float diff = startVal - targetVal;
+
+        for (int i = 1; i <= steps; i++)
+        {
+            _displayedScrap = Mathf.RoundToInt(startVal - (diff / steps) * i);
+            currentScrapText.text = _displayedScrap.ToString();
+            yield return new WaitForSecondsRealtime(stepDelay);
+        }
+
+        _displayedScrap = targetVal;
+        currentScrapText.text = _displayedScrap.ToString();
+
+        // 3. 다시 작아지며 색상 원상복구
+        t = 0f;
+        while (t < halfDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            currentScrapText.rectTransform.localScale = Vector3.Lerp(_scrapTextOriginScale * scrapPunchScale, _scrapTextOriginScale, t / halfDuration);
+            yield return null;
+        }
+
+        currentScrapText.rectTransform.localScale = _scrapTextOriginScale;
+        currentScrapText.color = _scrapOriginalColor;
+        _scrapPunchRoutine = null;
     }
 
     public void CloseShop()

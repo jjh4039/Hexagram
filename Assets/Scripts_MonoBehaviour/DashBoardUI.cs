@@ -8,14 +8,18 @@ public class DashboardUI : MonoBehaviour
     public static DashboardUI instance;
 
     [Header("Main Objects")]
-    public GameObject dashboardPanel;   // 전체 팝업 창
-    public CanvasGroup dashboardCG;     // 투명도 조절용 컴포넌트
-    public Transform artifactGrid;      // 아티팩트가 생성될 그리드
-    public GameObject slotPrefab;       // 슬롯 프리팹
+    public GameObject dashboardPanel;
+    public CanvasGroup dashboardCG;
+    public Transform artifactGrid;
+    public GameObject slotPrefab;
+
+    // ★ 추가: 인벤토리 가능 여부 아이콘
+    [Header("Indicator")]
+    [SerializeField] private GameObject inventoryIndicator; 
 
     [Header("Animation Settings")]
-    public float fadeDuration = 0.2f;   // 애니메이션 재생 시간
-    public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f); // 시작과 종료 시점의 크기
+    public float fadeDuration = 0.2f;
+    public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f);
 
     [Header("Tooltip")]
     public GameObject tooltipGroup;
@@ -24,19 +28,19 @@ public class DashboardUI : MonoBehaviour
     public Vector2 tooltipOffset = new Vector2(15f, -15f);
 
     [Header("Tooltip Colors")]
-    public string hexLegendary = "#FFD000"; // 전설 등급 헥스코드
-    public string hexEpic = "#B591D1";      // 에픽 등급 헥스코드
-    public string hexRare = "#4AA8D8";      // 레어 등급 헥스코드
-    public string hexNormal = "#FFFFFF";    // 일반 등급 헥스코드
+    public string hexLegendary = "#FFD000";
+    public string hexEpic = "#B591D1";
+    public string hexRare = "#4AA8D8";
+    public string hexNormal = "#FFFFFF";
 
     [Header("Sound Effects")]
-    [SerializeField] private AudioClip sfxOpen;   // 창이 열릴 때 재생할 소리
-    [SerializeField] private AudioClip sfxClose;  // 창이 닫힐 때 재생할 소리
-    [SerializeField] private AudioClip sfxHover;  // 마우스를 올렸을 때 재생할 소리
+    [SerializeField] private AudioClip sfxOpen;
+    [SerializeField] private AudioClip sfxClose;
+    [SerializeField] private AudioClip sfxHover;
 
     public bool isOpen = false;
     private bool isTooltipActive = false;
-    private Coroutine fadeRoutine; // 실행 중인 애니메이션 관리 객체
+    private Coroutine fadeRoutine;
 
     private void Awake()
     {
@@ -51,26 +55,19 @@ public class DashboardUI : MonoBehaviour
 
         dashboardPanel.SetActive(false);
         if (tooltipGroup != null) tooltipGroup.SetActive(false);
-
-        // 기존의 독자적인 입력 시스템 생성 코드 삭제
     }
 
-    // 싱글톤 초기화를 보장하기 위해 OnEnable 대신 Start 사용
     private void Start()
     {
         if (InputStateManager.Instance == null) return;
 
         var actions = InputStateManager.Instance.Actions;
 
-        // 평상시와 전투 상태일 때 인벤토리 키를 누르면 열기 시도
         actions.Normal.Inventory.performed += OnInventoryPressed;
         actions.Combat.Inventory.performed += OnInventoryPressed;
-
-        // UI 상태일 때 닫기 키를 누르면 창 닫기
         actions.UI.CloseInventory.performed += OnCloseUIPressed;
     }
 
-    // OnDisable 대신 OnDestroy에서 메모리 해제
     private void OnDestroy()
     {
         if (InputStateManager.Instance == null) return;
@@ -84,14 +81,31 @@ public class DashboardUI : MonoBehaviour
 
     private void Update()
     {
+        // 툴팁 위치 업데이트
         if (isOpen && isTooltipActive && tooltipGroup != null)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
             tooltipGroup.transform.position = mousePos + tooltipOffset;
         }
+
+        // ★ 추가: 인벤토리 아이콘 상태 업데이트
+        UpdateIndicator();
     }
 
-    // 인벤토리 열기 시도 콜백
+    // ★ 아이콘 활성/비활성 로직
+    private void UpdateIndicator()
+    {
+        if (inventoryIndicator == null || InputStateManager.Instance == null) return;
+
+        // 인벤토리가 닫혀있고, 현재 상태가 UI가 아닌 'Normal'(자유 상태)일 때만 아이콘 표시
+        bool canOpen = !isOpen && InputStateManager.Instance.CurrentInputState == InputState.Normal;
+        
+        if (inventoryIndicator.activeSelf != canOpen)
+        {
+            inventoryIndicator.SetActive(canOpen);
+        }
+    }
+
     private void OnInventoryPressed(InputAction.CallbackContext context)
     {
         if (isOpen) return;
@@ -102,19 +116,17 @@ public class DashboardUI : MonoBehaviour
         }
         else
         {
-            // [교체됨] 디버그 로그 대신 화면에 플로팅 텍스트 띄우기 (0번: 전투 중 불가)
             if (PlayerFeedbackUI.Instance != null)
                 PlayerFeedbackUI.Instance.ShowWarning(0);
         }
     }
 
-    // 인벤토리 닫기 시도 콜백
     private void OnCloseUIPressed(InputAction.CallbackContext context)
     {
         if (isOpen)
         {
             CloseDashboard();
-            InputStateManager.Instance.CloseUI(); // 매니저에게 이전 상태로 복귀 요청
+            InputStateManager.Instance.CloseUI();
         }
     }
 
@@ -145,7 +157,6 @@ public class DashboardUI : MonoBehaviour
     private IEnumerator FadeRoutine(bool show)
     {
         float timer = 0f;
-
         float startAlpha = dashboardCG.alpha;
         float targetAlpha = show ? 1f : 0f;
 
@@ -158,7 +169,6 @@ public class DashboardUI : MonoBehaviour
         {
             timer += Time.unscaledDeltaTime;
             float t = timer / fadeDuration;
-
             t = Mathf.Sin(t * Mathf.PI * 0.5f);
 
             dashboardCG.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
@@ -193,9 +203,7 @@ public class DashboardUI : MonoBehaviour
         foreach (ArtifactData data in ArtifactManager.instance.myArtifacts)
         {
             GameObject newSlot = Instantiate(slotPrefab, artifactGrid);
-
             newSlot.transform.localScale = Vector3.one;
-
             newSlot.GetComponent<ArtifactSlot>().Setup(data);
         }
     }
@@ -203,7 +211,6 @@ public class DashboardUI : MonoBehaviour
     public void ShowTooltip(ArtifactData data)
     {
         if (tooltipGroup == null) return;
-
         if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
 
         isTooltipActive = true;
@@ -220,7 +227,6 @@ public class DashboardUI : MonoBehaviour
     public void ShowTooltipCommon(string title, string content)
     {
         if (tooltipGroup == null) return;
-
         if (SoundManager.instance) SoundManager.instance.PlaySFX(sfxHover, 0.3f, 0.1f);
 
         isTooltipActive = true;

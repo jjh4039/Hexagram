@@ -14,17 +14,17 @@ public class SoundManager : MonoBehaviour
 
     [Header("--- Background Music ---")]
     [SerializeField] private AudioSource bgmSource;
-    [SerializeField] private AudioSource bgmLoopSource; // 인스펙터에서 반드시 AudioSource를 추가로 할당해야 함
+    [SerializeField] private AudioSource bgmLoopSource;
 
     [Header("--- SFX Pooling ---")]
     [SerializeField] private int poolSize = 20;
 
     private List<AudioSource> sfxPool;
 
-    private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>(); // 동일 사운드 겹침 방지용
-    private const float MIN_SFX_INTERVAL = 0.05f; // 동일 사운드 재생 최소 간격
+    private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>();
+    private const float MIN_SFX_INTERVAL = 0.05f;
 
-    private Coroutine bgmFadeRoutine; // BGM 페이드 코루틴 추적용
+    private Coroutine bgmFadeRoutine; 
 
     private void Awake()
     {
@@ -38,6 +38,9 @@ public class SoundManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
+        // 백그라운드에서도 게임과 소리가 멈추지 않도록 설정 (동기화 꼬임 방지)
+        Application.runInBackground = true;
 
         InitializePool();
     }
@@ -91,7 +94,7 @@ public class SoundManager : MonoBehaviour
     {
         if (loopClip == null) return;
 
-        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); // 기존 페이드 중단
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); 
 
         bgmSource.Stop();
         if (bgmLoopSource != null) bgmLoopSource.Stop();
@@ -112,37 +115,40 @@ public class SoundManager : MonoBehaviour
 
             bgmSource.clip = introClip;
             bgmSource.loop = false;
-            bgmSource.volume = 0f; // 페이드 인을 위해 0부터 시작
+            bgmSource.volume = 0f; 
             bgmSource.PlayScheduled(startTime);
 
             if (bgmLoopSource != null)
             {
                 bgmLoopSource.clip = loopClip;
                 bgmLoopSource.loop = true;
-                bgmLoopSource.volume = finalVolume; // 루프는 타겟 볼륨으로 대기
+                bgmLoopSource.volume = finalVolume; 
                 bgmLoopSource.PlayScheduled(startTime + introDuration);
             }
 
-            bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, finalVolume, fadeInDuration));
+            // 페이드 인 함수에 목표 볼륨을 넘기지 않고 기간만 넘김 (실시간 볼륨 계산을 위해)
+            bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, fadeInDuration));
         }
     }
 
     public void StopBGM(float fadeOutDuration = 1f)
     {
-        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); // 기존 페이드 중단
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); 
         bgmFadeRoutine = StartCoroutine(Co_FadeOutBGM(fadeOutDuration));
     }
 
-    private IEnumerator Co_FadeInBGM(AudioSource source, float targetVolume, float duration)
+    private IEnumerator Co_FadeInBGM(AudioSource source, float duration)
     {
         float timer = 0f;
         while (timer < duration)
         {
-            timer += Time.unscaledDeltaTime; // 일시정지 중에도 페이드 적용
-            source.volume = Mathf.Lerp(0f, targetVolume, timer / duration);
+            timer += Time.unscaledDeltaTime;
+            // 매 프레임 최신 볼륨 세팅값을 다시 계산 (페이드 도중 볼륨 변경 시 대응)
+            float currentTargetVolume = masterVolume * bgmVolume;
+            source.volume = Mathf.Lerp(0f, currentTargetVolume, timer / duration);
             yield return null;
         }
-        source.volume = targetVolume;
+        source.volume = masterVolume * bgmVolume;
     }
 
     private IEnumerator Co_FadeOutBGM(float duration)
