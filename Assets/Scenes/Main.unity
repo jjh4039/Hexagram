@@ -17507,8 +17507,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ed802bfdd860e7488930a2334f6746a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainManager
-  mainBgmIntro: {fileID: 0}
-  mainBgmLoop: {fileID: 0}
+  mainBgmIntro: {fileID: 8300000, guid: 25027d6f23eba24459c71e7438e5b54e, type: 3}
+  mainBgmLoop: {fileID: 8300000, guid: 60d44cf6f5a13dc4a88d0130e422a827, type: 3}
+  bgmFadeInDuration: 1.5
   introTypingSound: {fileID: 8300000, guid: 27be0fc570c61ad4b8c2f9a60fb87896, type: 3}
   dialogueTypingSound: {fileID: 8300000, guid: d3c5a7d075f462748a9f67e19486a473, type: 3}
   speechBubbles:
@@ -48193,7 +48194,7 @@ MonoBehaviour:
   currentScrap: 500
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 0
+  currentProgress: 80
   maxProgress: 100
   currentPlayTime: 1213
   totalDamageDealt: 2133

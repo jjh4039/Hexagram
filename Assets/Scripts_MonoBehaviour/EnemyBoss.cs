@@ -117,8 +117,12 @@ public class EnemyBoss : Enemy
     [SerializeField] private float[] gridOffsetY = new float[] { 4.5f, 3f, 1.5f, 0f, -1.5f, -3f, -4.5f };
     [SerializeField] private float[] gridOffsetX = new float[] { -6f, -4.5f, -3f, -1.5f, 0f, 1.5f, 3f, 4.5f, 6f, 7.5f };
 
+    // ★ 수정: 보스 전용 인트로 + 루프 BGM 처리
     [Header("Sound")]
-    [SerializeField] private AudioClip bossBGM;
+    [SerializeField] private AudioClip bossBgmIntro;
+    [SerializeField] private AudioClip bossBgmLoop;
+    [SerializeField] private float bossBgmFadeInTime = 1.5f;
+    
     [SerializeField] private AudioClip sfxDashFire;
     [SerializeField] private AudioClip sfxAoeExplode;
     [SerializeField] private AudioClip sfxSpikeWave;
@@ -141,7 +145,6 @@ public class EnemyBoss : Enemy
 
     private Transform telegraphContainer;
 
-    // ★ 로컬 풀 용도 리스트
     private List<GameObject> poolMaxRects = new List<GameObject>();
     private List<GameObject> poolCurRects = new List<GameObject>();
 
@@ -187,7 +190,6 @@ public class EnemyBoss : Enemy
         }
     }
 
-    // ★ 추가: 로컬 풀에서 오브젝트를 가져오는 함수
     private GameObject GetMaxRect(Vector3 pos)
     {
         foreach (var r in poolMaxRects)
@@ -224,9 +226,10 @@ public class EnemyBoss : Enemy
     {
         isAwake = true;
 
-        if (bossBGM != null && SoundManager.instance != null)
+        // ★ 수정: 보스 조우 시 인트로+루프 BGM 페이드인 재생
+        if (bossBgmLoop != null && SoundManager.instance != null)
         {
-            SoundManager.instance.PlayBGM(bossBGM);
+            SoundManager.instance.PlayBGM(bossBgmLoop, bossBgmIntro, bossBgmFadeInTime);
         }
 
         if (CinematicManager.instance != null)
@@ -537,7 +540,6 @@ public class EnemyBoss : Enemy
 
             Vector2 currentDir = (target.position - transform.position).normalized;
 
-            // ★ 수정: 로컬 풀 사용
             GameObject maxRectInstance = null;
             GameObject currentRectInstance = null;
 
@@ -702,7 +704,6 @@ public class EnemyBoss : Enemy
             float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
             wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
 
-            // ★ 수정: 로컬 풀 사용
             if (dashMaxRangeOrigin != null)
             {
                 GameObject maxObj = GetMaxRect(transform.position);
@@ -757,7 +758,6 @@ public class EnemyBoss : Enemy
                     Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
                     reverseDirections.Add(toPlayerDir);
 
-                    // ★ 수정: 로컬 풀 사용
                     if (dashMaxRangeOrigin != null)
                     {
                         GameObject maxObj = GetMaxRect(startPos);
@@ -824,7 +824,6 @@ public class EnemyBoss : Enemy
 
         if (isEnraged || forceEnrage)
         {
-            // ★ 수정: 로컬 풀 사용
             if (dashMaxRangeOrigin != null)
                 sniperMaxInstance = GetMaxRect(transform.position);
             
@@ -927,7 +926,6 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(true, index);
 
-                // ★ 수정: 로컬 풀 사용
                 GameObject telegraph = GetCurRect(data.startPos);
                 telegraph.transform.localScale = Vector3.one;
 
@@ -950,7 +948,6 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(false, index);
 
-                // ★ 수정: 로컬 풀 사용
                 GameObject telegraph = GetCurRect(data.startPos);
                 telegraph.transform.localScale = Vector3.one;
 
@@ -983,7 +980,6 @@ public class EnemyBoss : Enemy
             yield return null;
         }
 
-        // ★ 파괴 대신 비활성화
         foreach (var m in markers) if (m != null) m.SetActive(false);
         yield return new WaitForSeconds(gridTelegraphGap);
     }
@@ -1232,7 +1228,6 @@ public class EnemyBoss : Enemy
         if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
         if (attackRangeObj != null) attackRangeObj.SetActive(false);
 
-        // ★ 로컬 풀 요소들 모두 끄기
         foreach (var r in poolMaxRects) if (r != null) r.SetActive(false);
         foreach (var r in poolCurRects) if (r != null) r.SetActive(false);
     }

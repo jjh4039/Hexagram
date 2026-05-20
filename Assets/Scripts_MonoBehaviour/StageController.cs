@@ -1,45 +1,43 @@
 using UnityEngine;
-using System.Collections.Generic;
-using System;
-using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 
 public class StageController : MonoBehaviour
 {
     [Header("Stage Type")]
-    public bool isSafeStage = false;                      // 안전 방 여부
-    public bool isBossStage = false;                      // ★ 추가: 보스 방 여부 (체크 시 몬스터 카운트 미출력)
+    public bool isSafeStage = false;                      
+    public bool isBossStage = false;                      
 
     [Header("Start Room Settings (Intro)")]
-    public bool isStartingRoom = false;                   // 시작 방 여부 (체크 시 인트로 실행)
-    public float startFadeDelay = 0.5f;                   // 페이드 인이 끝날 때까지 대기할 시간
-    public string startTitleText = "시스템 가동";          // 시작 방 진입 시 띄울 제목
-    public string startDescText = "모듈 테스트를 시작합니다."; // 시작 방 진입 시 띄울 설명
-    public Color startTitleColor = Color.cyan;            // 제목 색상
+    public bool isStartingRoom = false;                   
+    public float startFadeDelay = 0.5f;                   
+    public string startTitleText = "시스템 가동";          
+    public string startDescText = "모듈 테스트를 시작합니다."; 
+    public Color startTitleColor = Color.cyan;            
 
     [Header("Settings")]
-    public Transform spawnPoint;                          // 플레이어 시작 위치
-    public GameObject barrierEla;                         // 전투 진입 차단벽
-    public Statue statue;                                 // 출구 석상
-    public Collider2D stageBounds;                        // 카메라 제한용 콜라이더
+    public Transform spawnPoint;                          
+    public GameObject barrierEla;                         
+    public Statue statue;                                 
+    public Collider2D stageBounds;                        
 
     [Header("Reward Settings")]
-    public GameObject rewardPrefab;                       // 맵에 생성될 보상 프리팹
-    public Transform rewardSpawnPoint;                    // 보상이 생성될 위치
-    public int moduleRewardCount = 1;                     // 클리어 시 제공할 모듈 강화 횟수
+    public GameObject rewardPrefab;                       
+    public Transform rewardSpawnPoint;                    
+    public int moduleRewardCount = 1;                     
 
-    public Transform CurrentRewardTransform { get; private set; } // 생성된 보상의 좌표
-    public IRewardItem CurrentRewardItem { get; private set; }    // 생성된 보상의 인터페이스
+    public Transform CurrentRewardTransform { get; private set; } 
+    public IRewardItem CurrentRewardItem { get; private set; }    
 
-    private List<Enemy> activeEnemies = new List<Enemy>(); // 현재 활성화된 적 목록
-    private bool isCleared = false;                        // 스테이지 클리어 여부
-    private bool isInitialized = false;                    // 스테이지 초기화 여부
-    private bool isBattleStarted = false;                  // 대기 시간 동안 Update 검사를 막는 플래그
+    private List<Enemy> activeEnemies = new List<Enemy>(); 
+    private bool isCleared = false;                        
+    private bool isInitialized = false;                    
+    private bool isBattleStarted = false;                  
 
     private Dictionary<int, List<EnemySpawner>> waveSpawners = new Dictionary<int, List<EnemySpawner>>();
-    private int currentWave = 1;                           // 현재 진행 중인 웨이브 번호
-    private int pendingSpawns = 0;                         // 대기 중인 적 스폰 수
-    private int totalRemainingEnemies = 0;                 // 남은 전체 적 수
+    private int currentWave = 1;                           
+    private int pendingSpawns = 0;                         
+    private int totalRemainingEnemies = 0;                 
 
     private void Start()
     {
@@ -57,6 +55,12 @@ public class StageController : MonoBehaviour
         if (CameraFollow.instance != null && stageBounds != null)
         {
             CameraFollow.instance.SetCameraBounds(stageBounds.bounds);
+        }
+
+        // ★ 보스 스테이지 진입 시 기존 맵 브금을 페이드 아웃 시킵니다 (보스 조우 시 새 브금이 켜짐)
+        if (isBossStage && SoundManager.instance != null)
+        {
+            SoundManager.instance.StopBGM(1.5f);
         }
 
         InitializeWaves();
@@ -169,7 +173,6 @@ public class StageController : MonoBehaviour
         if (deadCount > 0)
         {
             totalRemainingEnemies -= deadCount;
-            // ★ 수정: 보스 스테이지가 아닐 때만 몬스터 카운트 업데이트
             if (!isBossStage && StageMessageUI.instance != null)
                 StageMessageUI.instance.UpdateEnemyCount(totalRemainingEnemies, true);
         }
@@ -179,7 +182,6 @@ public class StageController : MonoBehaviour
 
     private void UpdateEnemyCountUI()
     {
-        // ★ 수정: 보스 스테이지면 아예 텍스트 출력을 무시함
         if (isBossStage) return;
 
         if (StageMessageUI.instance != null)
@@ -210,16 +212,13 @@ public class StageController : MonoBehaviour
 
         if (StageMessageUI.instance)
         {
-            // 남은 몬스터 수 UI는 무조건 닫아줌
             StageMessageUI.instance.HideEnemyCountUI();
 
-            // ★ 수정: 보상 개수가 1개 이상일 때만 'CLEAR' 텍스트와 보상 창을 띄움
             if (moduleRewardCount > 0)
             {
                 StageMessageUI.instance.ShowClearMessage();
                 StageMessageUI.instance.QueueModuleReward(moduleRewardCount);
             }
-            // 0개라면 아무 UI도 띄우지 않고 깔끔하게 조작 권한만 넘김
         }
 
         if (!isSafeStage)

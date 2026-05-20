@@ -193,7 +193,7 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(2.5f);
 
         introText.text = "최하급 '주사위 모듈' 탑재 확인,\n즉각 폐기 처리를 권장합니다.";
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(4f);
 
         yield return StartCoroutine(Co_PlaySpeechBubbles());
 
@@ -230,13 +230,13 @@ public class TutorialManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         yield return StartCoroutine(Co_AnimateBubble(1, "그러면 그렇지, 다음이나 기다리자고.", true));
-        yield return new WaitForSeconds(2.2f);
+        yield return new WaitForSeconds(1.8f);
 
         Coroutine hide1 = StartCoroutine(Co_AnimateBubble(0, "", false));
         Coroutine hide2 = StartCoroutine(Co_AnimateBubble(1, "", false));
         yield return hide1;
         yield return hide2;
-        yield return new WaitForSeconds(1.4f);
+        yield return new WaitForSeconds(1.2f);
 
         yield return StartCoroutine(
             Co_AnimateBubble(0, "<size=130%>...<color=#5CE1E6>재검사 시험</color></size>은 어때?", true));
@@ -249,8 +249,8 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(Co_AnimateBubble(0, "", false));
         yield return new WaitForSeconds(0.2f);
 
-        ChangeBubbleText(1, "<size=120%><color=#FF5C5C>당장 쓰레기통에 버려.</color></size>");
-        yield return new WaitForSeconds(3f);
+        ChangeBubbleText(1, "<size=140%><color=#FF5C5C>당장 쓰레기통에 버려.</color></size>");
+        yield return new WaitForSeconds(2f);
 
         yield return StartCoroutine(Co_AnimateBubble(1, "", false));
     }

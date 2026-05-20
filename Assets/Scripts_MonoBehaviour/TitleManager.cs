@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
-    // ★ 추가: 에디터 테스트용 씬 선택 모드
     public enum SceneTestMode { Auto, ForceTutorial, ForceMain }
 
     [Header("Debug Settings")]
@@ -48,6 +47,8 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private Color highlightColor = Color.white;
 
     [Header("Sound Settings")]
+    [SerializeField] private AudioClip titleBGM; // ★ 추가: 타이틀에서 재생할 BGM
+    [SerializeField] private float bgmFadeDuration = 1f; // ★ 추가: BGM 페이드 인/아웃 시간
     [SerializeField] private AudioClip moveSound;
     [SerializeField] private AudioClip selectSound;
 
@@ -84,6 +85,12 @@ public class TitleManager : MonoBehaviour
             var actions = InputStateManager.Instance.Actions.UI;
             actions.MoveUI.performed += OnMoveInput;
             actions.Select.performed += OnSelectInput;
+        }
+
+        // ★ 추가: 타이틀 씬 시작 시 인트로 없이 루프 BGM 바로 재생
+        if (SoundManager.instance != null && titleBGM != null)
+        {
+            SoundManager.instance.PlayBGM(titleBGM, null, bgmFadeDuration);
         }
 
         UpdateMenuVisuals();
@@ -266,9 +273,14 @@ public class TitleManager : MonoBehaviour
             SoundManager.instance.PlaySFX(startSound);
         }
 
+        // ★ 추가: 게임 시작을 누르면 씬 전환 시간(sceneFadeDuration)에 맞춰 BGM도 자연스럽게 페이드 아웃
+        if (SoundManager.instance != null)
+        {
+            SoundManager.instance.StopBGM(sceneFadeDuration);
+        }
+
         string targetScene = "";
 
-        // ★ 테스트 모드 분기 처리
         if (testTargetScene == SceneTestMode.ForceTutorial)
         {
             targetScene = tutorialSceneName;
@@ -277,7 +289,7 @@ public class TitleManager : MonoBehaviour
         {
             targetScene = mainSceneName;
         }
-        else // Auto (정상 동작)
+        else 
         {
             bool isTutorialClear = false;
             if (DataManager.instance != null && DataManager.instance.data != null)

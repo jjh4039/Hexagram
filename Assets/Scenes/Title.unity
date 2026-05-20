@@ -3006,6 +3006,8 @@ MonoBehaviour:
   autoPanAmount: 20
   normalColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   highlightColor: {r: 1, g: 0.8745098, b: 0.45882353, a: 1}
+  titleBGM: {fileID: 8300000, guid: b0fd88fb1d97adb49b7a2b632384fca2, type: 3}
+  bgmFadeDuration: 1
   moveSound: {fileID: 8300000, guid: 416dd7836ebbe29439fcc46d2ad8dae3, type: 3}
   selectSound: {fileID: 8300000, guid: d88993aadaded1f4583f681ef5225622, type: 3}
 --- !u!4 &1212806270
@@ -4858,6 +4860,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TransitionManager
   fadeCanvasGroup: {fileID: 1784156428}
+  fadeInOnStart: 1
+  startFadeDuration: 1.5
 --- !u!4 &1958033376
 Transform:
   m_ObjectHideFlags: 0

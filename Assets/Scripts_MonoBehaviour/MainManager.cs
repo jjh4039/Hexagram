@@ -11,10 +11,11 @@ public class MainManager : MonoBehaviour
     [Header("BGM Settings")]
     public AudioClip mainBgmIntro;
     public AudioClip mainBgmLoop;
+    [SerializeField] private float bgmFadeInDuration = 1.5f; // ★ 추가: BGM 페이드 인 시간
 
     [Header("Audio Settings")]
-    public AudioClip introTypingSound;           // 인트로 텍스트 타이핑 사운드
-    public AudioClip dialogueTypingSound;        // 말풍선 텍스트 타이핑 사운드
+    public AudioClip introTypingSound;           
+    public AudioClip dialogueTypingSound;        
 
     [Header("Speech Bubbles (First Boss Cutscene)")]
     public CanvasGroup[] speechBubbles;
@@ -25,9 +26,9 @@ public class MainManager : MonoBehaviour
     public float bubbleMoveOffset = 5f;
 
     [Header("Ending Settings")]
-    public TextMeshProUGUI endingText1;          // ★ 수정: 첫 번째 줄 엔딩 텍스트
-    public TextMeshProUGUI endingText2;          // ★ 수정: 두 번째 줄 엔딩 텍스트
-    public string titleSceneName = "Title";      // 데모가 끝나고 돌아갈 타이틀 씬 이름
+    public TextMeshProUGUI endingText1;          
+    public TextMeshProUGUI endingText2;          
+    public string titleSceneName = "Title";      
 
     private bool isCutsceneActive = false;
     public bool IsCutsceneActive => isCutsceneActive;
@@ -41,7 +42,6 @@ public class MainManager : MonoBehaviour
 
     private void Start()
     {
-        // 말풍선 초기 세팅
         bubbleOriginalPos = new Vector2[speechBubbles.Length];
         for (int i = 0; i < speechBubbles.Length; i++)
         {
@@ -56,13 +56,12 @@ public class MainManager : MonoBehaviour
             }
         }
 
-        // 씬 시작 시 메인 BGM 플레이
+        // ★ 수정: 인트로와 루프가 있는 메인 BGM을 페이드 인하며 재생합니다.
         if (SoundManager.instance != null && mainBgmLoop != null)
         {
-            SoundManager.instance.PlayBGM(mainBgmLoop, mainBgmIntro, 1.5f);
+            SoundManager.instance.PlayBGM(mainBgmLoop, mainBgmIntro, bgmFadeInDuration);
         }
 
-        // 엔딩 텍스트들 투명하게 초기화
         if (endingText1 != null)
         {
             Color c = endingText1.color;
@@ -77,7 +76,6 @@ public class MainManager : MonoBehaviour
         }
     }
 
-    // 석상에서 호출할 함수
     public void StartFirstBossCutscene(Transform targetStatue)
     {
         StartCoroutine(Co_PlayFirstBossCutscene(targetStatue));
@@ -87,7 +85,6 @@ public class MainManager : MonoBehaviour
     {
         isCutsceneActive = true;
 
-        // 1. 플레이어 조작 제한 및 카메라 줌인
         if (InputStateManager.Instance != null) InputStateManager.Instance.ChangeInputState(InputState.UI);
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
@@ -108,17 +105,14 @@ public class MainManager : MonoBehaviour
             CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", true);
         }
 
-        // 엔딩 컷신 돌입 시 BGM을 서서히 끔
         if (SoundManager.instance != null) SoundManager.instance.StopBGM(2f);
 
         yield return new WaitForSeconds(1.5f);
 
-        // 2. 대화 연출 시작 (텍스트 3개 연속 출력)
         int bubbleIndex = 0;
         yield return StartCoroutine(Co_AnimateBubble(bubbleIndex, "제 1구역 통과 완료.", true));
         yield return new WaitForSeconds(2.5f);
 
-        // ★ 확정된 대사 (태그 마감 추가)
         ChangeBubbleText(bubbleIndex, "이례적인 생존은 <size=120%><color=#FF5C5C>데이터 지연</color></size>일 뿐입니다.");
         yield return new WaitForSeconds(3.0f);
 
@@ -128,41 +122,34 @@ public class MainManager : MonoBehaviour
         yield return StartCoroutine(Co_AnimateBubble(bubbleIndex, "", false));
         yield return new WaitForSeconds(1.0f);
 
-        // 3. 화면 완전 암전 (TransitionManager 사용)
         if (TransitionManager.Instance != null)
         {
             yield return StartCoroutine(TransitionManager.Instance.Co_FadeToBlack(2.0f));
         }
 
-        yield return new WaitForSeconds(1.0f); // 완전히 까매진 후 1초 정적
+        yield return new WaitForSeconds(1.0f); 
 
-        // 4. 중앙 엔딩(인트로 폼) 텍스트 누적 출력
         if (endingText1 != null && endingText2 != null)
         {
-            // 첫 번째 줄 출력
             endingText1.text = "프로토타입 버전 데모가 종료되었습니다.";
             yield return StartCoroutine(Co_FadeText(endingText1, 0f, 1f, 1.5f));
-            yield return new WaitForSeconds(1f); // 첫 번째 줄이 켜진 상태로 잠시 대기
+            yield return new WaitForSeconds(1f); 
 
-            // 두 번째 줄 출력
             endingText2.text = "플레이해주셔서 감사합니다.";
             yield return StartCoroutine(Co_FadeText(endingText2, 0f, 1f, 1.5f));
-            yield return new WaitForSeconds(2.0f); // 두 줄 모두 켜진 상태로 여운 대기
+            yield return new WaitForSeconds(2.0f); 
 
-            // 두 줄 동시에 페이드 아웃
             Coroutine fade1 = StartCoroutine(Co_FadeText(endingText1, 1f, 0f, 1.5f));
             Coroutine fade2 = StartCoroutine(Co_FadeText(endingText2, 1f, 0f, 1.5f));
             yield return fade1;
         }
         else
         {
-            yield return new WaitForSeconds(3.0f); // 텍스트가 없더라도 여운 대기
+            yield return new WaitForSeconds(3.0f); 
         }
 
-        // 5. 타이틀 씬으로 완전히 복귀
         if (TransitionManager.Instance != null)
         {
-            // 이미 화면이 까맣기 때문에 fadeOut은 0초로 스킵, 타이틀에서 밝아질 때 fadeIn 1.5초
             TransitionManager.Instance.LoadScene(titleSceneName, 0f, 1.5f);
         }
         else
@@ -171,10 +158,8 @@ public class MainManager : MonoBehaviour
         }
 
         isCutsceneActive = false;
-        // 맵 UI는 띄우지 않고 깔끔하게 종료!
     }
 
-    // 엔딩 텍스트 페이드용 코루틴
     private IEnumerator Co_FadeText(TextMeshProUGUI text, float startAlpha, float endAlpha, float duration)
     {
         float elapsed = 0f;
@@ -191,8 +176,6 @@ public class MainManager : MonoBehaviour
         c.a = endAlpha;
         text.color = c;
     }
-
-    // --- 말풍선 애니메이션 ---
 
     private IEnumerator Co_AnimateBubble(int index, string text, bool isShowing)
     {
@@ -269,8 +252,6 @@ public class MainManager : MonoBehaviour
         if (index >= speechTexts.Length) return;
         speechTexts[index].text = text;
     }
-
-    // --- 타이핑 사운드 함수 ---
 
     public void PlayIntroTypingSound()
     {
