@@ -6,6 +6,13 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
 
+    [System.Serializable]
+    public struct BgmVolumeData
+    {
+        public AudioClip clip;
+        [Range(0f, 2f)] public float volumeMultiplier; 
+    }
+
     [Header("--- Settings ---")]
     [Range(0f, 1f)] public float masterVolume = 0.5f;
 
@@ -16,15 +23,21 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource bgmLoopSource;
 
+    [Header("--- BGM Volume Tuning ---")]
+    public List<BgmVolumeData> bgmTuningList;
+    private float currentBgmMultiplier = 1f; 
+
     [Header("--- SFX Pooling ---")]
     [SerializeField] private int poolSize = 20;
 
     private List<AudioSource> sfxPool;
-
     private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>();
     private const float MIN_SFX_INTERVAL = 0.05f;
 
     private Coroutine bgmFadeRoutine; 
+    
+    // ★ 추가: 페이드 진행 중 환경설정 슬라이더 충돌 방지용 플래그
+    private bool isBgmFading = false; 
 
     private void Awake()
     {
@@ -39,7 +52,6 @@ public class SoundManager : MonoBehaviour
             return;
         }
 
-        // 백그라운드에서도 게임과 소리가 멈추지 않도록 설정 (동기화 꼬임 방지)
         Application.runInBackground = true;
 
         InitializePool();
@@ -95,19 +107,42 @@ public class SoundManager : MonoBehaviour
         if (loopClip == null) return;
 
         if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); 
+        isBgmFading = false; // 강제 중단 시 플래그 초기화
 
         bgmSource.Stop();
         if (bgmLoopSource != null) bgmLoopSource.Stop();
 
-        float finalVolume = masterVolume * bgmVolume;
+        currentBgmMultiplier = 1f; 
+        foreach (var bgmData in bgmTuningList)
+        {
+            if (bgmData.clip == loopClip)
+            {
+                currentBgmMultiplier = bgmData.volumeMultiplier;
+                break;
+            }
+        }
 
+        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier;
+
+        // ★ 수정: 인트로가 없을 때도 자연스럽게 페이드 인 적용
         if (introClip == null)
         {
             bgmSource.clip = loopClip;
             bgmSource.loop = true;
-            bgmSource.volume = finalVolume;
-            bgmSource.Play();
+            
+            if (fadeInDuration > 0f)
+            {
+                bgmSource.volume = 0f;
+                bgmSource.Play();
+                bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, fadeInDuration));
+            }
+            else
+            {
+                bgmSource.volume = finalVolume;
+                bgmSource.Play();
+            }
         }
+        // 인트로가 있을 때
         else
         {
             double introDuration = (double)introClip.samples / introClip.frequency;
@@ -115,7 +150,17 @@ public class SoundManager : MonoBehaviour
 
             bgmSource.clip = introClip;
             bgmSource.loop = false;
-            bgmSource.volume = 0f; 
+            
+            if (fadeInDuration > 0f)
+            {
+                bgmSource.volume = 0f; 
+                bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, fadeInDuration));
+            }
+            else
+            {
+                bgmSource.volume = finalVolume;
+            }
+            
             bgmSource.PlayScheduled(startTime);
 
             if (bgmLoopSource != null)
@@ -125,9 +170,6 @@ public class SoundManager : MonoBehaviour
                 bgmLoopSource.volume = finalVolume; 
                 bgmLoopSource.PlayScheduled(startTime + introDuration);
             }
-
-            // 페이드 인 함수에 목표 볼륨을 넘기지 않고 기간만 넘김 (실시간 볼륨 계산을 위해)
-            bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, fadeInDuration));
         }
     }
 
@@ -139,20 +181,22 @@ public class SoundManager : MonoBehaviour
 
     private IEnumerator Co_FadeInBGM(AudioSource source, float duration)
     {
+        isBgmFading = true;
         float timer = 0f;
         while (timer < duration)
         {
             timer += Time.unscaledDeltaTime;
-            // 매 프레임 최신 볼륨 세팅값을 다시 계산 (페이드 도중 볼륨 변경 시 대응)
-            float currentTargetVolume = masterVolume * bgmVolume;
+            float currentTargetVolume = masterVolume * bgmVolume * currentBgmMultiplier;
             source.volume = Mathf.Lerp(0f, currentTargetVolume, timer / duration);
             yield return null;
         }
-        source.volume = masterVolume * bgmVolume;
+        source.volume = masterVolume * bgmVolume * currentBgmMultiplier;
+        isBgmFading = false;
     }
 
     private IEnumerator Co_FadeOutBGM(float duration)
     {
+        isBgmFading = true;
         float startVolume1 = bgmSource != null ? bgmSource.volume : 0f;
         float startVolume2 = bgmLoopSource != null ? bgmLoopSource.volume : 0f;
         float timer = 0f;
@@ -179,6 +223,7 @@ public class SoundManager : MonoBehaviour
             bgmLoopSource.volume = 0f;
             bgmLoopSource.Stop();
         }
+        isBgmFading = false;
     }
 
     private AudioSource GetPooledSource()
@@ -218,8 +263,11 @@ public class SoundManager : MonoBehaviour
     public void SetBGMVolume(float volume)
     {
         bgmVolume = volume;
-        float finalVolume = masterVolume * bgmVolume;
         
+        // ★ 핵심: 현재 페이드 인/아웃 중이라면, 코루틴이 알아서 처리하게 냅두고 강제로 덮어씌우지 않음 (충돌 방지)
+        if (isBgmFading) return; 
+
+        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier; 
         if (bgmSource != null) bgmSource.volume = finalVolume;
         if (bgmLoopSource != null) bgmLoopSource.volume = finalVolume;
     }
@@ -232,8 +280,11 @@ public class SoundManager : MonoBehaviour
     public void SetMasterVolume(float volume)
     {
         masterVolume = volume;
-        float finalVolume = masterVolume * bgmVolume;
 
+        // ★ 핵심: 페이드 중이면 BGM 소스는 건드리지 않음 (SFX는 적용됨)
+        if (isBgmFading) return; 
+
+        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier; 
         if (bgmSource != null) bgmSource.volume = finalVolume;
         if (bgmLoopSource != null) bgmLoopSource.volume = finalVolume;
     }

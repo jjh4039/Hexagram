@@ -29,8 +29,8 @@ Transform:
   m_GameObject: {fileID: 3884799456776141231}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
+  m_LocalScale: {x: 0.66, y: 0.66, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7447227813141509964}
@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b10f18895d321e74d95bf9b0f1fe9a63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyProjectile
-  poolIndex: 2
+  poolIndex: 3
   damage: 10
   speed: 8
   lifeTime: 20

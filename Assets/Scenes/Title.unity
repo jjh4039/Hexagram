@@ -3860,6 +3860,14 @@ PrefabInstance:
       propertyPath: masterVolume
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[0].volumeMultiplier
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute
       value: 0

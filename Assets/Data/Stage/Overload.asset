@@ -22,7 +22,10 @@ MonoBehaviour:
   seasonPrefabs:
   - seasonLabel: "\uBD04"
     prefabs:
-    - {fileID: 4874768350431733968, guid: 226cc13364051044780c69c54542e2eb, type: 3}
+    - {fileID: 4874768350431733968, guid: d2cae443b1d2f884b82f6d5f5b18bdec, type: 3}
+    - {fileID: 4874768350431733968, guid: 416e89d9b35ff994b88d961d4a0bdc8d, type: 3}
+    - {fileID: 4874768350431733968, guid: b558c4466074d0943a5d013e8fa5205b, type: 3}
+    - {fileID: 4874768350431733968, guid: aa1efbea50768064aaf68d4d481db4e2, type: 3}
   - seasonLabel: "\uC5EC\uB984"
     prefabs: []
   - seasonLabel: "\uAC00\uC744"

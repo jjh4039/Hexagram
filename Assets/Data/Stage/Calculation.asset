@@ -20,9 +20,12 @@ MonoBehaviour:
   maxRise: 10
   moduleIcon: {fileID: -4202995753223041208, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
   seasonPrefabs:
-  - seasonLabel: 
+  - seasonLabel: "\uBD04"
     prefabs:
-    - {fileID: 4874768350431733968, guid: d76ce52c8e6e2dc4cae44daf0836cdf8, type: 3}
+    - {fileID: 4874768350431733968, guid: ac99d7d7920c3ae4696f39a8bb292d1f, type: 3}
+    - {fileID: 4874768350431733968, guid: 931480f523da7844a8baa9c2455fb7bd, type: 3}
+    - {fileID: 4874768350431733968, guid: 2c114114a25869a4ba0180d954eefb26, type: 3}
+    - {fileID: 4874768350431733968, guid: c6c60ce597ce4ca46b413e1436527525, type: 3}
   - seasonLabel: 
     prefabs: []
   - seasonLabel: 

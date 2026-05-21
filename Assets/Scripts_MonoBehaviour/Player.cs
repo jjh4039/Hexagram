@@ -434,7 +434,6 @@ public class Player : MonoBehaviour
     // --- Object Pool 초기화 ---
     private void InitPools()
     {
-        // 고스트 풀 초기화
         _ghostPoolContainer = new GameObject("Player_GhostPool").transform;
         if (poolParent != null) _ghostPoolContainer.SetParent(poolParent);
         
@@ -445,7 +444,6 @@ public class Player : MonoBehaviour
             _ghostPool.Enqueue(ghostObj);
         }
 
-        // 먼지 풀 초기화
         _dustPoolContainer = new GameObject("Player_DustPool").transform;
         if (poolParent != null) _dustPoolContainer.SetParent(poolParent);
 
@@ -547,7 +545,6 @@ public class Player : MonoBehaviour
             spriteRenderer.material = _originalMaterial;
         }
 
-        // 사망 시 진행 중이던 잔상/먼지들 화면에서 숨기기
         if (_ghostPoolContainer != null)
         {
             foreach (Transform child in _ghostPoolContainer)
@@ -570,7 +567,12 @@ public class Player : MonoBehaviour
             anim.SetTrigger("Die");
         }
 
-        StartCoroutine(Co_FadeOutBGM());
+        // ★ 수정: 사운드 매니저의 전용 페이드 아웃 기능 호출
+        if (SoundManager.instance != null)
+        {
+            SoundManager.instance.StopBGM(1.5f);
+        }
+
         StartCoroutine(Co_ForceCleanVisuals());
 
         if (CinematicManager.instance != null)
@@ -579,23 +581,6 @@ public class Player : MonoBehaviour
         }
 
         Debug.Log("Player: Dead");
-    }
-
-    private IEnumerator Co_FadeOutBGM()
-    {
-        if (SoundManager.instance == null) yield break;
-
-        float originalVolume = SoundManager.instance.bgmVolume;
-        int steps = 10;
-        float delayPerStep = 1.5f / steps;
-
-        for (int i = 1; i <= steps; i++)
-        {
-            yield return new WaitForSecondsRealtime(delayPerStep);
-
-            float targetVolume = originalVolume * (1f - (0.1f * i));
-            SoundManager.instance.SetBGMVolume(targetVolume);
-        }
     }
 
     private IEnumerator Co_ForceCleanVisuals()
