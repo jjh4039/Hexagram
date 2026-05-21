@@ -165,8 +165,9 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     private void OnDisable()
     {
+        if (ShopTooltipUI.Instance != null) ShopTooltipUI.Instance.HideTooltip();
+        
         _isHovering = false;
-
         if (slotBackgroundGroup != null) slotBackgroundGroup.alpha = normalSlotAlpha;
         if (artifactRect != null)
         {

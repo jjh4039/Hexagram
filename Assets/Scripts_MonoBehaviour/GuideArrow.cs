@@ -2,27 +2,27 @@ using UnityEngine;
 
 public class GuideArrow : MonoBehaviour
 {
-    public static GuideArrow Instance { get; private set; } // 전역 접근용 싱글톤
+    public static GuideArrow Instance { get; private set; } 
 
     [Header("Settings")]
-    public float radius = 0.55f;           // 플레이어 주변을 맴돌 반경
-    public float angleOffset = -135f;      // 이미지 영점 보정값
-    public float rewardHideDistance = 1.4f; // 보상을 향할 때 화살표 숨김 거리
-    public float statueHideDistance = 2.0f; // 석상을 향할 때 화살표 숨김 거리
+    public float radius = 0.55f;           
+    public float angleOffset = -135f;      
+    public float rewardHideDistance = 1.4f; 
+    public float statueHideDistance = 2.0f; 
 
     [Header("Sprites")]
-    public Sprite rewardSprite;            // 보상을 향할 때 스프라이트
-    public Sprite statueSprite;            // 석상을 향할 때 스프라이트
+    public Sprite rewardSprite;            
+    public Sprite statueSprite;            
 
     [Header("Runtime")]
-    public bool isVisible = false;         // 화살표 표시 여부 플래그
+    public bool isVisible = false;         
 
     private SpriteRenderer _spriteRenderer;
     
-    private Transform _playerTransform;    // 기준 플레이어 좌표
-    private Transform _rewardTransform;    // 보상 오브젝트 좌표
-    private IRewardItem _rewardItem;       // 보상 획득 상태 확인용
-    private Transform _statueTransform;    // 석상 오브젝트 좌표
+    private Transform _playerTransform;    
+    private Transform _rewardTransform;    
+    private IRewardItem _rewardItem;       
+    private Transform _statueTransform;    
 
     private void Awake()
     {
@@ -41,7 +41,7 @@ public class GuideArrow : MonoBehaviour
         _playerTransform = player;
         _rewardTransform = reward;
         _rewardItem = rewardItem;
-        _statueTransform = statue; // 연결된 석상의 실제 위치가 캐싱됩니다
+        _statueTransform = statue; 
         
         isVisible = true;
     }
@@ -54,6 +54,7 @@ public class GuideArrow : MonoBehaviour
 
     private void Update()
     {
+        // ★ 수정: 플레이어가 파괴(사망/씬전환)되었을 때 에러 방어 추가
         if (!isVisible || _playerTransform == null)
         {
             if (_spriteRenderer != null && _spriteRenderer.enabled) _spriteRenderer.enabled = false;
@@ -70,7 +71,6 @@ public class GuideArrow : MonoBehaviour
 
         float distanceToTarget = Vector2.Distance(_playerTransform.position, currentTarget.position);
         
-        // 현재 타겟이 석상인지 확인하여 알맞은 숨김 거리를 적용합니다
         float targetHideDistance = (currentTarget == _statueTransform) ? statueHideDistance : rewardHideDistance;
 
         if (distanceToTarget <= targetHideDistance)
@@ -87,30 +87,34 @@ public class GuideArrow : MonoBehaviour
     private Transform GetCurrentTarget()
     {
         bool hasUncollectedFloorReward = _rewardItem != null && !_rewardItem.IsCollected;
-        bool hasPendingModuleReward = StageMessageUI.instance != null && !StageMessageUI.instance.IsRewardQueueEmpty;
+        bool hasPendingModuleReward = StageMessageUI.instance && !StageMessageUI.instance.IsRewardQueueEmpty;
 
         if (hasUncollectedFloorReward || hasPendingModuleReward)
         {
-            if (_spriteRenderer != null)
+            if (_spriteRenderer)
             {
                 _spriteRenderer.sprite = rewardSprite;
                 _spriteRenderer.color = Color.white; 
             }
+            // ★ 수정: 보상 오브젝트가 파괴되었을 수 있으므로 널 체크
+            if (!_rewardTransform) return _statueTransform;
+            
             return _rewardTransform;
         }
         else
         {
-            if (_spriteRenderer != null)
+            if (_spriteRenderer)
             {
                 _spriteRenderer.sprite = statueSprite;
                 _spriteRenderer.color = Color.white; 
             }
-            return _statueTransform; // 정확한 석상의 좌표를 타겟으로 반환합니다
+            return _statueTransform; 
         }
     }
 
     private void UpdateArrowTransform(Transform target)
     {
+        if (target == null) return;
         Vector3 direction = (target.position - _playerTransform.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 

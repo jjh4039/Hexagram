@@ -63,6 +63,9 @@ public class Gun : MonoBehaviour
         {
             _poolContainer = new GameObject("Gun_ObjectPool").transform;
             if (poolParent != null) _poolContainer.SetParent(poolParent);
+
+            _bulletPool.Clear(); // 이전 씬의 파괴된 오브젝트 찌꺼기 제거
+            _hitEffectPool.Clear(); // 이전 씬의 파괴된 오브젝트 찌꺼기 제거
         }
 
         if (_bulletPool.Count == 0 && bulletPrefab != null)
@@ -203,12 +206,15 @@ public class Gun : MonoBehaviour
 
         Vector2 safeMuzzlePos = GetSafeMuzzlePosition();
 
-        GameObject bulletObj;
-        if (_bulletPool.Count > 0)
+        GameObject bulletObj = null;
+        
+        while (_bulletPool.Count > 0) // 파괴된 오브젝트 건너뛰기
         {
             bulletObj = _bulletPool.Dequeue();
+            if (bulletObj != null) break;
         }
-        else
+
+        if (bulletObj == null)
         {
             bulletObj = Instantiate(bulletPrefab, _poolContainer); 
         }
@@ -232,6 +238,7 @@ public class Gun : MonoBehaviour
 
     public static void ReturnBullet(GameObject obj)
     {
+        if (obj == null) return; // 파괴된 오브젝트 반환 방지
         obj.SetActive(false);
         _bulletPool.Enqueue(obj);
     }
@@ -240,7 +247,15 @@ public class Gun : MonoBehaviour
     {
         if (_hitEffectPool.Count == 0) return; 
 
-        GameObject vfxObj = _hitEffectPool.Dequeue();
+        GameObject vfxObj = null;
+
+        while (_hitEffectPool.Count > 0) // 파괴된 오브젝트 건너뛰기
+        {
+            vfxObj = _hitEffectPool.Dequeue();
+            if (vfxObj != null) break;
+        }
+
+        if (vfxObj == null) return; // 사용 가능한 이펙트가 없을 경우 취소
         
         vfxObj.transform.position = position;
         vfxObj.transform.rotation = rotation * Quaternion.Euler(0f, 0f, 180f);
@@ -262,8 +277,11 @@ public class Gun : MonoBehaviour
         if (returner == null) returner = vfxObj.AddComponent<DelayReturner>();
         
         returner.StartDelayReturn(1.0f, () => {
-            vfxObj.SetActive(false);
-            _hitEffectPool.Enqueue(vfxObj);
+            if (vfxObj != null) // 파괴 검사
+            {
+                vfxObj.SetActive(false);
+                _hitEffectPool.Enqueue(vfxObj);
+            }
         });
     }
 

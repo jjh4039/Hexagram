@@ -16,14 +16,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected Transform hpBarRoot;
     [SerializeField] private Transform hpBarFill;
     [SerializeField] private GameObject hpBarObject;
-    private float initialScaleX;
-    private SpriteRenderer[] hpBarSprites;
+    private float _initialScaleX;
+    private SpriteRenderer[] _hpBarSprites;
 
     [Header("Hit Flash")]
     [SerializeField] private Material flashMaterial;
-    protected Material originalMaterial;
-    private SpriteRenderer sr;
-    private Coroutine flashRoutine;
+    protected Material OriginalMaterial;
+    private SpriteRenderer _sr;
+    private Coroutine _flashRoutine;
 
     [SerializeField] private float hitStopDuration = 0.035f;
 
@@ -34,18 +34,18 @@ public class Enemy : MonoBehaviour
     [SerializeField] private GameObject scrapPrefab;
     [SerializeField][Range(0, 100)] private int dropChance = 100;
 
-    protected Animator anim;
-    private Collider2D col;
+    protected Animator Anim;
+    private Collider2D _col;
     protected bool isDead = false;
 
     public bool IsDead => isDead;
-    public float ContactDamage => contactDamage; // 플레이어가 접근할 수 있도록 프로퍼티 추가
+    public float ContactDamage => contactDamage; // 외부 접근용 프로퍼티
 
     protected virtual void Awake()
     {
-        anim = GetComponent<Animator>();
-        col = GetComponent<Collider2D>();
-        sr = GetComponent<SpriteRenderer>();
+        Anim = GetComponent<Animator>();
+        _col = GetComponent<Collider2D>();
+        _sr = GetComponent<SpriteRenderer>();
     }
 
     protected virtual void Start()
@@ -56,16 +56,16 @@ public class Enemy : MonoBehaviour
             scrapPrefab = GameManager.instance.commonScrapPrefab;
 
         if (hpBarFill != null)
-            initialScaleX = hpBarFill.localScale.x;
+            _initialScaleX = hpBarFill.localScale.x;
 
         if (hpBarObject != null)
         {
-            hpBarSprites = hpBarObject.GetComponentsInChildren<SpriteRenderer>();
+            _hpBarSprites = hpBarObject.GetComponentsInChildren<SpriteRenderer>();
             hpBarObject.SetActive(false);
         }
 
-        if (sr != null)
-            originalMaterial = sr.material;
+        if (_sr != null)
+            OriginalMaterial = _sr.material;
     }
 
     public virtual void TakeDamage(float damage, bool isCritical = false)
@@ -87,7 +87,7 @@ public class Enemy : MonoBehaviour
         {
             float ratio = currentHealth / maxHealth;
             if (ratio < 0) ratio = 0;
-            hpBarFill.localScale = new Vector3(initialScaleX * ratio, hpBarFill.localScale.y, hpBarFill.localScale.z);
+            hpBarFill.localScale = new Vector3(_initialScaleX * ratio, hpBarFill.localScale.y, hpBarFill.localScale.z);
         }
 
         if (sfxHit != null)
@@ -100,10 +100,10 @@ public class Enemy : MonoBehaviour
             hud.Setup(damage, isCritical);
         }
 
-        if (gameObject.activeInHierarchy && sr != null && flashMaterial != null)
+        if (gameObject.activeInHierarchy && _sr != null && flashMaterial != null)
         {
-            if (flashRoutine != null) StopCoroutine(flashRoutine);
-            flashRoutine = StartCoroutine(FlashRoutine());
+            if (_flashRoutine != null) StopCoroutine(_flashRoutine);
+            _flashRoutine = StartCoroutine(FlashRoutine());
         }
 
         if (currentHealth <= 0) Die();
@@ -112,27 +112,27 @@ public class Enemy : MonoBehaviour
 
     private IEnumerator FlashRoutine()
     {
-        sr.material = flashMaterial;
+        _sr.material = flashMaterial;
         yield return new WaitForSeconds(0.1f);
-        sr.material = originalMaterial;
-        flashRoutine = null;
+        _sr.material = OriginalMaterial;
+        _flashRoutine = null;
     }
 
     protected virtual void OnHit()
     {
-        if (anim != null)
-            anim.SetTrigger("Hit");
+        if (Anim != null)
+            Anim.SetTrigger("Hit");
     }
 
     protected virtual void Die()
     {
         isDead = true;
 
-        if (col != null) col.enabled = false;
+        if (_col != null) _col.enabled = false;
         if (shadowObject != null) shadowObject.SetActive(false);
 
-        if (anim != null)
-            anim.Play("Enemy_Die", 0, 0f);
+        if (Anim != null)
+            Anim.Play("Enemy_Die", 0, 0f);
 
         if (scrapPrefab != null && Random.Range(0, 100) < dropChance)
         {
@@ -156,15 +156,15 @@ public class Enemy : MonoBehaviour
         float duration = 0.5f;
         float elapsed = 0f;
 
-        if (hpBarSprites == null || hpBarSprites.Length == 0)
-            hpBarSprites = hpBarObject.GetComponentsInChildren<SpriteRenderer>();
+        if (_hpBarSprites == null || _hpBarSprites.Length == 0)
+            _hpBarSprites = hpBarObject.GetComponentsInChildren<SpriteRenderer>();
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
 
-            foreach (SpriteRenderer s in hpBarSprites)
+            foreach (SpriteRenderer s in _hpBarSprites)
             {
                 if (s != null)
                 {

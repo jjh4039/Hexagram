@@ -16,7 +16,6 @@ public class EnemySpawner : MonoBehaviour
     [Header("--- Wave Info ---")]
     public int waveNumber = 1;
 
-    // ★ 느낌표(Warning) 및 스폰 이펙트용 스태틱 풀
     private static Queue<GameObject> warningPool = new Queue<GameObject>();
     private static Queue<GameObject> spawnEffectPool = new Queue<GameObject>();
     private static Transform poolContainer;
@@ -26,61 +25,64 @@ public class EnemySpawner : MonoBehaviour
         StartCoroutine(SpawnSequence(onSpawnFinished));
     }
 
-    // ★ 스태틱 풀에서 꺼내오는 헬퍼 함수
     private GameObject GetFromPool(GameObject prefab, Queue<GameObject> pool, Vector3 pos, Transform parentObj = null)
     {
         if (prefab == null) return null;
 
         if (poolContainer == null)
+        {
             poolContainer = new GameObject("SpawnerEffect_Pool").transform;
+            warningPool.Clear(); // 씬 전환 시 파괴된 오브젝트 찌꺼기 제거
+            spawnEffectPool.Clear();
+        }
 
-        GameObject obj;
-        if (pool.Count > 0)
+        GameObject obj = null;
+
+        while (pool.Count > 0)
         {
             obj = pool.Dequeue();
+            if (obj) break; // 파괴된 오브젝트 건너뛰기
+        }
+
+        if (obj)
+        {
             obj.transform.position = pos;
             obj.transform.rotation = Quaternion.identity;
-            obj.transform.SetParent(parentObj != null ? parentObj : poolContainer);
+            obj.transform.SetParent(parentObj ? parentObj : poolContainer);
             obj.SetActive(true);
         }
         else
         {
-            obj = Instantiate(prefab, pos, Quaternion.identity, parentObj != null ? parentObj : poolContainer);
+            obj = Instantiate(prefab, pos, Quaternion.identity, parentObj ? parentObj : poolContainer);
         }
         return obj;
     }
 
-    // ★ 스태틱 풀로 반환하는 헬퍼 함수
     private void ReturnToPool(GameObject obj, Queue<GameObject> pool)
     {
-        if (obj == null) return; // 몬스터와 함께 파괴되었다면 무시
+        if (!obj) return; 
         
         obj.SetActive(false);
-        if (poolContainer != null) obj.transform.SetParent(poolContainer);
+        if (poolContainer) obj.transform.SetParent(poolContainer);
         pool.Enqueue(obj);
     }
 
     private IEnumerator SpawnSequence(Action<Enemy> onSpawnFinished)
     {
-        // 1. 느낌표 풀에서 가져오기
         GameObject warningEffect = GetFromPool(warningPrefab, warningPool, transform.position);
 
-        // 2. 대기 시간
         yield return new WaitForSeconds(spawnDelay);
 
-        // 3. 느낌표 풀로 반환 (Destroy 대체)
         ReturnToPool(warningEffect, warningPool);
 
-        // 4. 진짜 몬스터 생성 (이건 기존대로 Instantiate)
-        if (enemyPrefab != null)
+        if (enemyPrefab)
         {
             GameObject spawnedObj = Instantiate(enemyPrefab, transform.position, Quaternion.identity, this.transform);
 
-            // 5. 스폰 이펙트 생성 및 반환 예약
-            if (spawnEffectPrefab != null)
+            if (spawnEffectPrefab)
             {
                 GameObject spawnEffect = GetFromPool(spawnEffectPrefab, spawnEffectPool, transform.position, spawnedObj.transform);
-                StartCoroutine(Co_DelayReturn(spawnEffect, spawnEffectPool, 1.5f)); // 파티클 재생시간(1.5초) 후 반환
+                StartCoroutine(Co_DelayReturn(spawnEffect, spawnEffectPool, 1.5f)); 
             }
 
             Enemy enemyScript = spawnedObj.GetComponent<Enemy>();

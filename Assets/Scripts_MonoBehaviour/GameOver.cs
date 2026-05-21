@@ -29,7 +29,7 @@ public class GameOver : MonoBehaviour
     [SerializeField] private GameObject spacePromptObj;
 
     [Header("Result Value Texts")]
-    [SerializeField] private TextMeshProUGUI progressResultText; // 진행도 텍스트
+    [SerializeField] private TextMeshProUGUI progressResultText; 
     [SerializeField] private TextMeshProUGUI timeResultText;
     [SerializeField] private TextMeshProUGUI damageResultText;
     [SerializeField] private TextMeshProUGUI currentOwnedGemText;
@@ -106,7 +106,6 @@ public class GameOver : MonoBehaviour
             rewardFromTime = Mathf.FloorToInt(playTime / 600f);
             rewardFromDamage = damage / 1000;
 
-            // [수정됨] GameManager가 아닌 DataManager에서 영구 보석 데이터를 가져옴
             if (DataManager.instance != null)
             {
                 currentOwnedGems = DataManager.instance.data.totalGems;
@@ -187,8 +186,6 @@ public class GameOver : MonoBehaviour
             totalGainedReward++;
             currentOwnedGems++;
 
-            // [수정됨] GameManager.instance.diceGem++ 삭제 (DataManager 연동으로 대체)
-
             if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxCounting, 0.7f, 0.1f);
 
             UpdateRewardUI();
@@ -202,8 +199,6 @@ public class GameOver : MonoBehaviour
             rewardFromDamage--;
             totalGainedReward++;
             currentOwnedGems++;
-
-            // [수정됨] GameManager.instance.diceGem++ 삭제 (DataManager 연동으로 대체)
 
             if (SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxCounting, 0.7f, 0.1f);
 
@@ -260,6 +255,7 @@ public class GameOver : MonoBehaviour
 
             while (elapsed < fadeOutDuration)
             {
+                // ★ 핵심 수정: 타임스케일이 0이더라도 화면 암전 애니메이션이 정상 작동하도록 변경
                 elapsed += Time.unscaledDeltaTime;
                 startColor.a = Mathf.Clamp01(elapsed / fadeOutDuration);
                 fadeOutImage.color = startColor;
@@ -267,16 +263,23 @@ public class GameOver : MonoBehaviour
             }
         }
 
-        Debug.Log("타이틀로 이동 준비 완료");
-
-        // 정산이 모두 끝난 최종 보석 개수를 영구 데이터에 덮어씌우고 JSON 저장
         if (DataManager.instance != null)
         {
             DataManager.instance.data.totalGems = currentOwnedGems;
             DataManager.instance.SaveGame();
         }
 
+        // 씬 넘어가기 전에 무조건 타임스케일 1로 강제 복구 (프리징 버그 방지)
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Title");
+        
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.SetBlackScreen(true);
+            TransitionManager.Instance.LoadScene("Title", 0f, 1.5f);
+        }
+        else
+        {
+            SceneManager.LoadScene("Title");
+        }
     }
 }

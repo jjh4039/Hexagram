@@ -56,10 +56,10 @@ public class EnemySlime : Enemy
     {
         if (isDead) return;
 
-        if (anim != null)
-            anim.Play("Enemy_Hit", -1, 0f);
+        if (Anim)
+            Anim.Play("Enemy_Hit", -1, 0f);
 
-        if (rigid != null && target != null)
+        if (rigid && target)
         {
             rigid.linearVelocity = Vector2.zero;
             Vector2 knockbackDir = (transform.position - target.position).normalized;
@@ -79,7 +79,7 @@ public class EnemySlime : Enemy
 
     private void Update()
     {
-        if (isDead || target == null) return;
+        if (isDead || !target) return;
         LookAtTarget();
     }
 
@@ -118,53 +118,51 @@ public class EnemySlime : Enemy
 
     IEnumerator Co_IdleState()
     {
-        if (anim != null) anim.SetBool("isMoving", false);
+        if (Anim) Anim.SetBool("isMoving", false);
         yield return new WaitForSeconds(idleTime);
     }
 
     IEnumerator Co_MoveState()
     {
         float timer = 0f;
-        if (anim != null) anim.SetBool("isMoving", true);
+        if (Anim) Anim.SetBool("isMoving", true);
 
         while (timer < moveTime)
         {
             if (isDead || isStunned)
             {
-                if (rigid != null) rigid.linearVelocity = Vector2.zero;
+                if (rigid) rigid.linearVelocity = Vector2.zero;
                 yield break;
             }
 
             Vector2 dir = (target.position - transform.position).normalized;
 
-            // ★ 수정: AddForce 대신 linearVelocity를 사용하여 부하 상황에서도 일정한 속도 보장
-            if (rigid != null)
+            if (rigid)
                 rigid.linearVelocity = dir * moveSpeed;
 
-            timer += Time.fixedDeltaTime; // fixed 주기이므로 fixedDeltaTime 사용
-            yield return new WaitForFixedUpdate(); // 물리 주기에 맞춤
+            timer += Time.fixedDeltaTime; 
+            yield return new WaitForFixedUpdate(); 
         }
 
-        if (rigid != null) rigid.linearVelocity = Vector2.zero; // 이동 종료 후 미끄러짐 방지
-        if (anim != null) anim.SetBool("isMoving", false);
+        if (rigid) rigid.linearVelocity = Vector2.zero; 
+        if (Anim) Anim.SetBool("isMoving", false);
     }
 
     IEnumerator Co_AttackSequence()
     {
         isAttacking = true;
 
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim)
+            Anim.SetBool("isMoving", false);
 
-        // ===== 차징 연출 복구 =====
-        if (rangeBackground != null)
+        if (rangeBackground)
         {
             rangeBackground.SetActive(true);
             rangeBackground.transform.localScale =
                 new Vector3(indicatorScale, indicatorScale, 1f);
         }
 
-        if (attackIndicator != null)
+        if (attackIndicator)
         {
             attackIndicator.SetActive(true);
             attackIndicator.transform.localScale = Vector3.zero;
@@ -194,14 +192,14 @@ public class EnemySlime : Enemy
             yield return new WaitForSeconds(chargeTime);
         }
 
-        if (anim != null)
-            anim.SetTrigger("Attack");
+        if (Anim)
+            Anim.SetTrigger("Attack");
 
         yield return new WaitForSeconds(attackDelay);
 
         Vector2 impactPos = transform.position;
 
-        if (slamEffectPrefab != null)
+        if (slamEffectPrefab)
         {
             GameObject vfx =
                 Instantiate(slamEffectPrefab, impactPos, Quaternion.identity);
@@ -211,10 +209,10 @@ public class EnemySlime : Enemy
         Collider2D hit =
             Physics2D.OverlapCircle(impactPos, attackRadius, targetLayer);
 
-        if (hit != null)
+        if (hit)
         {
             Player player = hit.GetComponent<Player>();
-            if (player != null)
+            if (player)
                 player.OnDamage(damage);
         }
 
@@ -226,7 +224,7 @@ public class EnemySlime : Enemy
 
     private void DisableIndicators()
     {
-        if (rangeBackground != null) rangeBackground.SetActive(false);
-        if (attackIndicator != null) attackIndicator.SetActive(false);
+        if (rangeBackground) rangeBackground.SetActive(false);
+        if (attackIndicator) attackIndicator.SetActive(false);
     }
 }

@@ -57,6 +57,8 @@ public class EnemyBird : Enemy
     private Coroutine attackCoroutine;
     private Coroutine stunCoroutine;
 
+    private Transform telegraphContainer; // 독립된 조준선 전용 월드 컨테이너
+
     protected override void Awake()
     {
         base.Awake();
@@ -70,6 +72,8 @@ public class EnemyBird : Enemy
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
             target = playerObj.transform;
+
+        telegraphContainer = new GameObject($"{gameObject.name}_Telegraphs").transform; // 스케일 반전(Flip) 버그 방지용
 
         StartCoroutine(Co_BirdAI());
     }
@@ -121,8 +125,8 @@ public class EnemyBird : Enemy
     {
         if (isStunned || rigid == null || target == null) return;
 
-        if (anim != null)
-            anim.SetBool("isMoving", true);
+        if (Anim != null)
+            Anim.SetBool("isMoving", true);
 
         Vector2 dir = (target.position - transform.position).normalized;
         rigid.linearVelocity = dir * moveSpeed;
@@ -142,29 +146,28 @@ public class EnemyBird : Enemy
         ClearRectangles();
         isAttacking = false;
 
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim != null)
+            Anim.SetBool("isMoving", false);
     }
 
     IEnumerator Co_AttackSequence()
     {
         isAttacking = true;
 
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim != null)
+            Anim.SetBool("isMoving", false);
 
         Vector2 currentDir = (target.position - headPoint.position).normalized;
         int projCount = isElite ? 8 : 4;
 
         if (maxRangeRectPrefab != null && currentRectPrefab != null)
         {
-            // ★ 수정: 로컬 풀에서 부족한 만큼만 생성하고, 재사용합니다.
             for (int i = 0; i < projCount; i++)
             {
                 if (i >= maxRectInstances.Count)
                 {
-                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, transform));
-                    currentRectInstances.Add(Instantiate(currentRectPrefab, transform));
+                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, telegraphContainer));
+                    currentRectInstances.Add(Instantiate(currentRectPrefab, telegraphContainer));
                 }
                 maxRectInstances[i].SetActive(true);
                 currentRectInstances[i].SetActive(true);
@@ -201,8 +204,8 @@ public class EnemyBird : Enemy
 
         if (!isStunned && !isDead)
         {
-            if (anim != null)
-                anim.SetTrigger("Attack");
+            if (Anim != null)
+                Anim.SetTrigger("Attack");
 
             FireProjectiles(currentDir);
         }
@@ -295,8 +298,8 @@ public class EnemyBird : Enemy
 
         CancelAttack();
 
-        if (anim != null)
-            anim.Play("Enemy_Hit", -1, 0f);
+        if (Anim != null)
+            Anim.Play("Enemy_Hit", -1, 0f);
 
         if (rigid != null && target != null)
         {
@@ -313,8 +316,8 @@ public class EnemyBird : Enemy
 
     IEnumerator Co_Stun()
     {
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim != null)
+            Anim.SetBool("isMoving", false);
 
         yield return new WaitForSeconds(stunTime);
 
@@ -324,7 +327,6 @@ public class EnemyBird : Enemy
 
     void ClearRectangles()
     {
-        // ★ 수정: 파괴하지 않고 안 보이게 끕니다.
         foreach (var rect in maxRectInstances)
             if (rect != null) rect.SetActive(false);
 
@@ -342,5 +344,10 @@ public class EnemyBird : Enemy
             rigid.linearVelocity = Vector2.zero;
             rigid.simulated = false;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (telegraphContainer != null) Destroy(telegraphContainer.gameObject); // 컨테이너 파괴 시 자식(조준선) 일괄 삭제
     }
 }

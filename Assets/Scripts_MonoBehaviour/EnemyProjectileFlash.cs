@@ -25,13 +25,22 @@ public class EnemyProjectileFlash : MonoBehaviour
     
     public static EnemyProjectileFlash Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
     {
-        if (poolContainer == null)
+        if (!poolContainer)
+        {
             poolContainer = new GameObject("EnemyProjectileFlash_Pool").transform;
+            pool.Clear(); // 씬 전환 시 파괴된 오브젝트 찌꺼기 제거
+        }
 
-        EnemyProjectileFlash epf;
-        if (pool.Count > 0)
+        EnemyProjectileFlash epf = null;
+
+        while (pool.Count > 0)
         {
             epf = pool.Dequeue();
+            if (epf) break; // 파괴된 오브젝트 건너뛰기
+        }
+
+        if (epf)
+        {
             epf.transform.position = position;
             epf.transform.rotation = rotation;
             epf.gameObject.SetActive(true);
@@ -70,7 +79,6 @@ public class EnemyProjectileFlash : MonoBehaviour
 
         if (timer >= duration)
         {
-            // ★ Destroy 대신 비활성화 후 큐에 반환
             gameObject.SetActive(false);
             pool.Enqueue(this);
         }

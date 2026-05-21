@@ -22,7 +22,7 @@ public class EnemyBoss : Enemy
     [Header("Boss AI Logic")]
     [Tooltip("몇 번의 공격마다 4번(각성기) 패턴을 사용할지 결정합니다.")]
     [SerializeField] private int crossGridFrequency = 4;
-    [Tooltip("플레이어와 겹쳤을 때 빠른 방향 전환(와리가리)을 막는 딜레이 시간")]
+    [Tooltip("플레이어와 겹쳤을 때 빠른 방향 전환을 막는 딜레이 시간")]
     [SerializeField] private float flipCooldown = 0.3f;
 
     private bool isFirstPattern = true;
@@ -117,12 +117,10 @@ public class EnemyBoss : Enemy
     [SerializeField] private float[] gridOffsetY = new float[] { 4.5f, 3f, 1.5f, 0f, -1.5f, -3f, -4.5f };
     [SerializeField] private float[] gridOffsetX = new float[] { -6f, -4.5f, -3f, -1.5f, 0f, 1.5f, 3f, 4.5f, 6f, 7.5f };
 
-    // ★ 수정: 보스 전용 인트로 + 루프 BGM 처리
     [Header("Sound")]
     [SerializeField] private AudioClip bossBgmIntro;
     [SerializeField] private AudioClip bossBgmLoop;
     [SerializeField] private float bossBgmFadeInTime = 1.5f;
-    
     [SerializeField] private AudioClip sfxDashFire;
     [SerializeField] private AudioClip sfxAoeExplode;
     [SerializeField] private AudioClip sfxSpikeWave;
@@ -226,7 +224,6 @@ public class EnemyBoss : Enemy
     {
         isAwake = true;
 
-        // ★ 수정: 보스 조우 시 인트로+루프 BGM 페이드인 재생
         if (bossBgmLoop != null && SoundManager.instance != null)
         {
             SoundManager.instance.PlayBGM(bossBgmLoop, bossBgmIntro, bossBgmFadeInTime);
@@ -244,7 +241,7 @@ public class EnemyBoss : Enemy
                 {
                     if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(1.7f, 0.4f, 1f);
                     if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
-                    if (anim != null) anim.SetTrigger("Start");
+                    if (Anim != null) Anim.SetTrigger("Start");
                 },
                 onFinish: () =>
                 {
@@ -356,7 +353,7 @@ public class EnemyBoss : Enemy
         isAttacking = true;
         rigid.linearVelocity = Vector2.zero;
 
-        if (anim != null) anim.SetTrigger("Enrage");
+        if (Anim != null) Anim.SetTrigger("Enrage");
         if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.2f);
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(enragePauseTime, 0.5f, 1f);
 
@@ -468,7 +465,7 @@ public class EnemyBoss : Enemy
     IEnumerator Co_MoveTowardsPlayer(float moveDuration)
     {
         float timer = 0f;
-        if (anim != null) anim.SetBool("isMoving", true);
+        if (Anim != null) Anim.SetBool("isMoving", true);
         while (timer < moveDuration && !isDead && !isAttacking)
         {
             Vector2 dir = (target.position - transform.position).normalized;
@@ -477,14 +474,14 @@ public class EnemyBoss : Enemy
             yield return new WaitForFixedUpdate();
         }
         rigid.linearVelocity = Vector2.zero;
-        if (anim != null) anim.SetBool("isMoving", false);
+        if (Anim != null) Anim.SetBool("isMoving", false);
     }
 
     IEnumerator ExecutePattern(int patternIndex)
     {
         isAttacking = true;
         rigid.linearVelocity = Vector2.zero;
-        if (anim != null) anim.SetBool("isMoving", false);
+        if (Anim != null) Anim.SetBool("isMoving", false);
 
         switch (patternIndex)
         {
@@ -532,7 +529,7 @@ public class EnemyBoss : Enemy
 
         for (int i = 0; i < dashCount; i++)
         {
-            if (anim != null) anim.SetTrigger("ReadyDash");
+            if (Anim != null) Anim.SetTrigger("ReadyDash");
 
             float currentChargeTime = (i == 0) ? dashChargeTime : dashChargeTime * 0.5f;
             float currentDashDuration = (i == 0) ? dashDuration : dashDuration * 0.5f;
@@ -565,7 +562,7 @@ public class EnemyBoss : Enemy
 
             ClearRectangles();
 
-            if (anim != null) anim.SetTrigger("Dash");
+            if (Anim != null) Anim.SetTrigger("Dash");
             if (sfxDashFire != null) SoundManager.instance.PlaySFX(sfxDashFire, 1f, 0.1f);
 
             isDashing = true;
@@ -611,7 +608,7 @@ public class EnemyBoss : Enemy
 
     IEnumerator Co_Pattern2_AoE()
     {
-        if (anim != null) anim.SetTrigger("ReadySlam");
+        if (Anim != null) Anim.SetTrigger("ReadySlam");
 
         if (attackMaxRangeObj != null)
         {
@@ -645,7 +642,7 @@ public class EnemyBoss : Enemy
 
         if (isDead) yield break;
 
-        if (anim != null) anim.SetTrigger("Slam");
+        if (Anim != null) Anim.SetTrigger("Slam");
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.35f, 0.45f);
 
         if (sfxAoeExplode != null) SoundManager.instance.PlaySFX(sfxAoeExplode, 0.9f);
@@ -676,7 +673,7 @@ public class EnemyBoss : Enemy
 
     IEnumerator Co_Pattern3_MultiLines()
     {
-        if (anim != null) anim.SetTrigger("RaiseHand");
+        if (Anim != null) Anim.SetTrigger("RaiseHand");
 
         int lineCount = Random.Range(minLines, maxLines + 1);
 
@@ -804,7 +801,7 @@ public class EnemyBoss : Enemy
 
     IEnumerator Co_Pattern4_CrossGrid()
     {
-        if (anim != null) anim.SetTrigger("GatherHands");
+        if (Anim != null) Anim.SetTrigger("GatherHands");
         yield return new WaitForSeconds(gridStartupDelay);
 
         List<int> hSet1 = new List<int>(); List<int> hSet2 = new List<int>();
@@ -889,7 +886,7 @@ public class EnemyBoss : Enemy
             if (sniperCurrentInstance != null) sniperCurrentInstance.SetActive(false);
         }
 
-        if (anim != null) anim.SetTrigger("StopGatherHands");
+        if (Anim != null) Anim.SetTrigger("StopGatherHands");
         yield return new WaitForSeconds(gridRecoveryTime);
     }
 
@@ -1257,26 +1254,24 @@ public class EnemyBoss : Enemy
         if (BossHealthUI.Instance != null)
             BossHealthUI.Instance.HideUI();
 
-        if (trailContainer != null)
-            Destroy(trailContainer, trailLifeTime);
-
-        if (telegraphContainer != null)
-            Destroy(telegraphContainer.gameObject);
-
-        if (spriteRenderer != null && originalMaterial != null)
+        if (spriteRenderer != null && OriginalMaterial != null)
         {
-            spriteRenderer.material = originalMaterial;
+            spriteRenderer.material = OriginalMaterial;
             spriteRenderer.color = Color.white;
         }
 
-        if (anim != null) anim.enabled = false;
+        if (Anim != null) Anim.enabled = false;
 
         if (CinematicManager.Instance != null)
         {
             CinematicManager.Instance.PlayBossDeathCinematic(this);
         }
+    }
 
-        Debug.Log("숲의 관리자가 처치되었습니다. 시네마틱 시작!");
+    private void OnDestroy()
+    {
+        if (trailContainer != null) Destroy(trailContainer.gameObject);
+        if (telegraphContainer != null) Destroy(telegraphContainer.gameObject);
     }
 
     public void TurnIntoStatue()

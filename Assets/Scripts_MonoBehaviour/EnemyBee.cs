@@ -59,8 +59,7 @@ public class EnemyBee : Enemy
     private Coroutine attackCoroutine;
     private Coroutine stunCoroutine;
 
-    // ★ 조준선들을 모아둘 전용 최상단 폴더
-    private static Transform telegraphPoolContainer;
+    private Transform telegraphContainer; // 독립된 조준선 전용 월드 컨테이너
 
     protected override void Awake()
     {
@@ -75,6 +74,8 @@ public class EnemyBee : Enemy
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
             target = playerObj.transform;
+
+        telegraphContainer = new GameObject($"{gameObject.name}_Telegraphs").transform; // 스케일 분리용 독립 부모 생성
 
         StartCoroutine(Co_BeeAI());
     }
@@ -126,8 +127,8 @@ public class EnemyBee : Enemy
     {
         if (isStunned || rigid == null || target == null) return;
 
-        if (anim != null)
-            anim.SetBool("isMoving", true);
+        if (Anim != null)
+            Anim.SetBool("isMoving", true);
 
         Vector2 dir = (target.position - transform.position).normalized;
         rigid.linearVelocity = dir * moveSpeed;
@@ -147,25 +148,19 @@ public class EnemyBee : Enemy
         ClearRectangles();
         isAttacking = false;
 
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim != null)
+            Anim.SetBool("isMoving", false);
     }
 
     IEnumerator Co_AttackSequence()
     {
         isAttacking = true;
 
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim != null)
+            Anim.SetBool("isMoving", false);
 
         Vector2 currentDir = (target.position - headPoint.position).normalized;
         int projCount = isElite ? eliteProjCount : 1;
-
-        // ★ DamageText 방식처럼 최상단 폴더가 없으면 생성
-        if (telegraphPoolContainer == null)
-        {
-            telegraphPoolContainer = new GameObject("EnemyBee_Telegraph_Pool").transform;
-        }
 
         if (maxRangeRectPrefab != null && currentRectPrefab != null)
         {
@@ -173,9 +168,8 @@ public class EnemyBee : Enemy
             {
                 if (i >= maxRectInstances.Count)
                 {
-                    // ★ 생성 시 telegraphPoolContainer에 넣습니다.
-                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, telegraphPoolContainer));
-                    currentRectInstances.Add(Instantiate(currentRectPrefab, telegraphPoolContainer));
+                    maxRectInstances.Add(Instantiate(maxRangeRectPrefab, telegraphContainer));
+                    currentRectInstances.Add(Instantiate(currentRectPrefab, telegraphContainer));
                 }
                 maxRectInstances[i].SetActive(true);
                 currentRectInstances[i].SetActive(true);
@@ -212,8 +206,8 @@ public class EnemyBee : Enemy
 
         if (!isStunned && !isDead)
         {
-            if (anim != null)
-                anim.SetTrigger("Attack");
+            if (Anim != null)
+                Anim.SetTrigger("Attack");
 
             FireProjectiles(currentDir);
         }
@@ -253,7 +247,6 @@ public class EnemyBee : Enemy
     {
         if (rect == null) return;
 
-        // ★ 이제 월드에 존재하는 독립 오브젝트이므로, 위치와 방향만 세팅하면 됩니다.
         rect.transform.position = headPoint.position;
         rect.transform.right = dir;
 
@@ -306,8 +299,8 @@ public class EnemyBee : Enemy
 
         CancelAttack();
 
-        if (anim != null)
-            anim.Play("Enemy_Hit", -1, 0f);
+        if (Anim != null)
+            Anim.Play("Enemy_Hit", -1, 0f);
 
         if (rigid != null && target != null)
         {
@@ -324,8 +317,8 @@ public class EnemyBee : Enemy
 
     IEnumerator Co_Stun()
     {
-        if (anim != null)
-            anim.SetBool("isMoving", false);
+        if (Anim != null)
+            Anim.SetBool("isMoving", false);
 
         yield return new WaitForSeconds(stunTime);
 
@@ -354,13 +347,8 @@ public class EnemyBee : Enemy
         }
     }
 
-    // ★ EnemyBee 오브젝트가 삭제될 때 자신이 생성한 조준선들도 깔끔하게 제거
     private void OnDestroy()
     {
-        foreach (var rect in maxRectInstances)
-            if (rect != null) Destroy(rect);
-
-        foreach (var rect in currentRectInstances)
-            if (rect != null) Destroy(rect);
+        if (telegraphContainer != null) Destroy(telegraphContainer.gameObject); // 컨테이너 파괴 시 자식(조준선) 일괄 삭제
     }
 }

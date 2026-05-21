@@ -10,7 +10,7 @@ public class EarthSpike : MonoBehaviour
     [SerializeField] private float destroyTime = 1.0f;
 
     [Header("Visual Effects")]
-    [SerializeField] private GameObject debrisPrefab; // ★ 흙먼지 파티클 연결할 곳
+    [SerializeField] private GameObject debrisPrefab; // 흙먼지 파티클 프리팹
 
     private Collider2D col;
 
@@ -32,7 +32,7 @@ public class EarthSpike : MonoBehaviour
         if (debrisPrefab != null)
         {
             GameObject vfx = Instantiate(debrisPrefab, transform.position, Quaternion.identity);
-            Destroy(vfx, 1f); // 파티클은 1초 뒤 자동 삭제
+            Destroy(vfx, 1f); // 파티클 1초 뒤 자동 삭제
         }
 
         if (col != null) col.enabled = true;

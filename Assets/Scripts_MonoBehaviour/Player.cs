@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// 1
-
 public class Player : MonoBehaviour
 {
     [Header("Components")]
@@ -62,8 +60,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Color ghostColor = new Color(0.6f, 0.6f, 1f, 0.4f);
 
     [Header("Object Pool Settings")]
-    [Tooltip("잔상 및 이펙트 풀 컨테이너들이 생성될 부모 위치 (비워두면 최상단에 생성)")]
-    [SerializeField] private Transform poolParent; 
+    [SerializeField] private Transform poolParent; // 잔상 및 이펙트 최상위 부모
     [SerializeField] private int ghostPoolSize = 20; 
     [SerializeField] private int dustPoolSize = 5; 
     
@@ -433,7 +430,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    // --- Object Pool 초기화 ---
     private void InitPools()
     {
         _ghostPoolContainer = new GameObject("Player_GhostPool").transform;
@@ -470,12 +466,15 @@ public class Player : MonoBehaviour
 
     private void CreateGhost()
     {
-        GameObject ghostObj;
+        GameObject ghostObj = null;
         
-        if (_ghostPool.Count > 0)
-            ghostObj = _ghostPool.Dequeue(); 
-        else
-            ghostObj = CreateNewGhostObject(); 
+        while (_ghostPool.Count > 0)
+        {
+            ghostObj = _ghostPool.Dequeue();
+            if (ghostObj != null) break;
+        }
+
+        if (ghostObj == null) ghostObj = CreateNewGhostObject();
 
         ghostObj.transform.position = transform.position;
         ghostObj.transform.localScale = transform.localScale;
@@ -510,12 +509,15 @@ public class Player : MonoBehaviour
 
     private void CreateDust()
     {
-        GameObject dustObj;
+        GameObject dustObj = null;
 
-        if (_dustPool.Count > 0)
+        while (_dustPool.Count > 0)
+        {
             dustObj = _dustPool.Dequeue();
-        else
-            dustObj = Instantiate(dashDustPrefab, _dustPoolContainer);
+            if (dustObj != null) break;
+        }
+
+        if (dustObj == null) dustObj = Instantiate(dashDustPrefab, _dustPoolContainer);
 
         dustObj.transform.position = transform.position;
         dustObj.transform.rotation = Quaternion.identity;
@@ -550,12 +552,24 @@ public class Player : MonoBehaviour
         if (_ghostPoolContainer != null)
         {
             foreach (Transform child in _ghostPoolContainer)
-                child.gameObject.SetActive(false);
+            {
+                if (child.gameObject.activeSelf) 
+                {
+                    child.gameObject.SetActive(false);
+                    _ghostPool.Enqueue(child.gameObject);
+                }
+            }
         }
         if (_dustPoolContainer != null)
         {
             foreach (Transform child in _dustPoolContainer)
-                child.gameObject.SetActive(false);
+            {
+                if (child.gameObject.activeSelf) 
+                {
+                    child.gameObject.SetActive(false);
+                    _dustPool.Enqueue(child.gameObject);
+                }
+            }
         }
 
         if (InputStateManager.Instance != null)
@@ -569,7 +583,6 @@ public class Player : MonoBehaviour
             anim.SetTrigger("Die");
         }
 
-        // ★ 수정: 사운드 매니저의 전용 페이드 아웃 기능 호출
         if (SoundManager.instance != null)
         {
             SoundManager.instance.StopBGM(1.5f);

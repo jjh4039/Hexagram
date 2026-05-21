@@ -350,6 +350,8 @@ public class ShopUIController : MonoBehaviour
 
         _isOpen = false;
         OnShopStateChanged?.Invoke(false); 
+        
+        Time.timeScale = 1f; 
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
         if (CameraFollow.Instance != null) CameraFollow.Instance.ResetUIOffset();
