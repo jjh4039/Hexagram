@@ -11,7 +11,7 @@ public class MainManager : MonoBehaviour
     [Header("BGM Settings")]
     public AudioClip mainBgmIntro;
     public AudioClip mainBgmLoop;
-    [SerializeField] private float bgmFadeInDuration = 1.5f; // ★ 추가: BGM 페이드 인 시간
+    [SerializeField] private float bgmFadeInDuration = 1.5f; 
 
     [Header("Audio Settings")]
     public AudioClip introTypingSound;           
@@ -42,6 +42,13 @@ public class MainManager : MonoBehaviour
 
     private void Start()
     {
+        // ★ 메인 씬 진입 시 플레이어가 자유롭게 움직일 수 있도록 입력 상태를 초기화합니다.
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
+            InputStateManager.Instance.ChangeInputState(InputState.Normal);
+        }
+
         bubbleOriginalPos = new Vector2[speechBubbles.Length];
         for (int i = 0; i < speechBubbles.Length; i++)
         {
@@ -56,7 +63,6 @@ public class MainManager : MonoBehaviour
             }
         }
 
-        // ★ 수정: 인트로와 루프가 있는 메인 BGM을 페이드 인하며 재생합니다.
         if (SoundManager.instance != null && mainBgmLoop != null)
         {
             SoundManager.instance.PlayBGM(mainBgmLoop, mainBgmIntro, bgmFadeInDuration);

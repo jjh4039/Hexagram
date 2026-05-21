@@ -11,20 +11,19 @@ public class TransitionManager : MonoBehaviour
     [SerializeField] private CanvasGroup fadeCanvasGroup;
 
     [Header("Start Settings")]
-    [SerializeField] private bool fadeInOnStart = true;         // ★ 추가: 게임 최초 실행 시 페이드 인 여부
-    [SerializeField] private float startFadeDuration = 1.5f;    // ★ 추가: 최초 페이드 인 소요 시간
+    [SerializeField] private bool fadeInOnStart = true;         
+    [SerializeField] private float startFadeDuration = 1.5f;    
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            transform.SetParent(null); // 에러 방지 (최상위 강제 이동)
+            transform.SetParent(null); 
             DontDestroyOnLoad(gameObject); 
             
             if (fadeCanvasGroup != null)
             {
-                // ★ 수정: fadeInOnStart가 켜져 있으면 최초에 까만 화면으로 덮어둠
                 if (fadeInOnStart)
                 {
                     fadeCanvasGroup.alpha = 1f;
@@ -45,7 +44,6 @@ public class TransitionManager : MonoBehaviour
 
     private void Start()
     {
-        // ★ 추가: 게임(또는 씬)이 처음 시작될 때 스르륵 밝아지도록 코루틴 실행
         if (fadeInOnStart && Instance == this)
         {
             StartCoroutine(Co_FadeToClear(startFadeDuration));
@@ -69,6 +67,10 @@ public class TransitionManager : MonoBehaviour
             SetBlackScreen(true);
         }
 
+        // ★ 핵심 방어 로직: 씬을 넘어가기 직전 혹은 직후에 멈춰있던 시간(TimeScale)을 1로 강제 복구합니다.
+        // 게임 오버 연출이나 일시정지 상태에서 씬을 넘어가도 다음 씬이 멈추지 않게 해줍니다.
+        Time.timeScale = 1f;
+
         // 2. 비동기 씬 로딩 시작
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false; 
@@ -86,8 +88,6 @@ public class TransitionManager : MonoBehaviour
             yield return null;
         }
         
-        // 핵심 해결: 씬 로딩 직후 발생하는 거대한 프레임 드랍(렉)이 
-        // 완전히 안정화될 때까지 안전빵으로 3프레임 정도 더 대기합니다.
         yield return null;
         yield return null;
         yield return null;
@@ -113,7 +113,6 @@ public class TransitionManager : MonoBehaviour
 
         while (timer < duration)
         {
-            // Time Spike 방지. 한 프레임에 아무리 렉이 걸려도 최대 0.1초까지만 진행도를 올림
             timer += Mathf.Min(Time.unscaledDeltaTime, 0.1f); 
             fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, timer / duration);
             yield return null;
@@ -130,7 +129,6 @@ public class TransitionManager : MonoBehaviour
 
         while (timer < duration)
         {
-            // Time Spike 방지
             timer += Mathf.Min(Time.unscaledDeltaTime, 0.1f);
             fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, timer / duration);
             yield return null;

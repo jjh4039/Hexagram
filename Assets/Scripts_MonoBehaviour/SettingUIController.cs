@@ -6,39 +6,39 @@ using TMPro;
 
 public class SettingUIController : MonoBehaviour
 {
-    public bool IsOpen => _isOpen;                           // 외부 상태 참조용
+    public bool IsOpen => _isOpen;                           
 
     [Header("UI References")]
-    [SerializeField] private GameObject visualRoot;          // 껐다 켤 시각적 최상위 객체
-    [SerializeField] private CanvasGroup visualGroup;        // 전체 페이드용 그룹
-    [SerializeField] private RectTransform bgRect;           // 크기 애니메이션용 배경
-    [SerializeField] private TextMeshProUGUI[] menuTexts;    // 좌측 메뉴 이름 텍스트 배열
-    [SerializeField] private TextMeshProUGUI[] valueTexts;   // 우측 설정값 텍스트 배열
-    [SerializeField] private Slider[] volumeSliders;         // 볼륨 조절용 슬라이더 배열
+    [SerializeField] private GameObject visualRoot;          
+    [SerializeField] private CanvasGroup visualGroup;        
+    [SerializeField] private RectTransform bgRect;           
+    [SerializeField] private TextMeshProUGUI[] menuTexts;    
+    [SerializeField] private TextMeshProUGUI[] valueTexts;   
+    [SerializeField] private Slider[] volumeSliders;         
 
     [Header("Animation Settings")]
-    [SerializeField] private float targetBgHeight = 600f;    // 배경 최대 높이
-    [SerializeField] private float bgExpandDuration = 0.25f; // 배경 확장 시간
+    [SerializeField] private float targetBgHeight = 600f;    
+    [SerializeField] private float bgExpandDuration = 0.25f; 
 
     [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 10f;     // 부유 진폭
-    [SerializeField] private float floatSpeed = 2f;          // 부유 속도
+    [SerializeField] private float floatAmplitude = 10f;     
+    [SerializeField] private float floatSpeed = 2f;          
 
     [Header("Colors & Sounds")]
-    [SerializeField] private Color normalColor = Color.gray; // 비활성 색상
-    [SerializeField] private Color selectColor = Color.white;// 선택 색상
-    [SerializeField] private AudioClip sfxMove;              // 이동 사운드
-    [SerializeField] private AudioClip sfxAdjust;            // 값 조절 사운드
-    [SerializeField] private AudioClip sfxClose;             // 닫기 사운드
+    [SerializeField] private Color normalColor = Color.gray; 
+    [SerializeField] private Color selectColor = Color.white;
+    [SerializeField] private AudioClip sfxMove;              
+    [SerializeField] private AudioClip sfxAdjust;            
+    [SerializeField] private AudioClip sfxClose;             
 
-    private bool _isOpen = false;                            // 설정창 열림 여부
-    private bool _isAnimating = false;                       // 애니메이션 진행 여부
-    private int _currentIndex = 0;                           // 현재 선택된 메뉴 인덱스
+    private bool _isOpen = false;                            
+    private bool _isAnimating = false;                       
+    private int _currentIndex = 0;                           
 
-    private Coroutine _animCoroutine;                        // 애니메이션 코루틴 캐싱
-    private Vector2 _bgOriginAnchoredPos;                    // 배경 초기 위치
+    private Coroutine _animCoroutine;                        
+    private Vector2 _bgOriginAnchoredPos;                    
 
-    private int[] _currentValues = new int[6];               // 인덱스별 임시 설정값 저장
+    private int[] _currentValues = new int[6];               
 
     private readonly string[] _screenModes = { "창 모드", "테두리 없음", "전체 화면" };
     private readonly string[] _resolutions = { "1280 x 720", "1920 x 1080", "2560 x 1440" };
@@ -49,7 +49,7 @@ public class SettingUIController : MonoBehaviour
         if (visualRoot != null) visualRoot.SetActive(false);
         if (bgRect != null) _bgOriginAnchoredPos = bgRect.anchoredPosition;
 
-        LoadSettingsData();                                  // 더미 데이터 대신 실제 세이브 데이터 로드
+        LoadSettingsData();                                  
 
         if (InputStateManager.Instance != null)
         {
@@ -92,7 +92,6 @@ public class SettingUIController : MonoBehaviour
         }
         else
         {
-            // 매니저가 없을 경우의 기본값
             _currentValues[0] = 5; 
             _currentValues[1] = 5; 
             _currentValues[2] = 5; 
@@ -101,7 +100,6 @@ public class SettingUIController : MonoBehaviour
             _currentValues[5] = 1; 
         }
 
-        // 로드된 값을 실제 게임 시스템(소리, 해상도 등)에 즉시 적용
         for (int i = 0; i < 6; i++)
         {
             ApplySettingToSystem(i, _currentValues[i]);
@@ -120,7 +118,7 @@ public class SettingUIController : MonoBehaviour
         data.resolution = _currentValues[4];
         data.cameraShake = _currentValues[5];
 
-        DataManager.instance.SaveGame();                     // 변경된 값을 JSON으로 영구 저장
+        DataManager.instance.SaveGame();                     
     }
 
     private void ApplySettingToSystem(int index, int value)
@@ -138,19 +136,18 @@ public class SettingUIController : MonoBehaviour
                 break;
             case 3:
             case 4:
-                ApplyResolutionAndScreenMode();              // 창 모드 또는 해상도가 바뀌면 한 번에 갱신
+                ApplyResolutionAndScreenMode();              
                 break;
             case 5:
-                // 카메라 흔들림(추후 연동)
                 break;
         }
     }
 
     private void ApplyResolutionAndScreenMode()
     {
-        FullScreenMode mode = FullScreenMode.Windowed;                  // 기본값 창 모드
-        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     // 테두리 없는 전체화면
-        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; // 독점 전체화면
+        FullScreenMode mode = FullScreenMode.Windowed;                  
+        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     
+        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; 
 
         int width = 1920;
         int height = 1080;
@@ -159,7 +156,11 @@ public class SettingUIController : MonoBehaviour
         else if (_currentValues[4] == 1) { width = 1920; height = 1080; }
         else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
 
-        Screen.SetResolution(width, height, mode);                      // 세분화된 화면 모드 강제 적용
+        Screen.SetResolution(width, height, mode); 
+        
+        // ★ 프레임레이트 최적화 적용 (Vsync 활성화 또는 프레임 제한)
+        QualitySettings.vSyncCount = 1; 
+        Application.targetFrameRate = 60;                     
     }
 
 
@@ -244,8 +245,8 @@ public class SettingUIController : MonoBehaviour
             UpdateValueText(_currentIndex);
             UpdateSlider(_currentIndex);
 
-            ApplySettingToSystem(_currentIndex, _currentValues[_currentIndex]); // 실시간 시스템 연동
-            SaveSettingsData();                                                 // 실시간 데이터 저장
+            ApplySettingToSystem(_currentIndex, _currentValues[_currentIndex]); 
+            SaveSettingsData();                                                 
         }
     }
 
@@ -268,7 +269,7 @@ public class SettingUIController : MonoBehaviour
             
             menuTexts[i].color = isSelected ? selectColor : normalColor;
             
-            if (valueTexts[i] != null)
+            if (i < valueTexts.Length && valueTexts[i] != null) // 배열 범위 초과 에러 방지
             {
                 valueTexts[i].color = isSelected ? selectColor : normalColor;
                 UpdateValueText(i);
@@ -287,7 +288,7 @@ public class SettingUIController : MonoBehaviour
 
     private void UpdateValueText(int index)
     {
-        if (valueTexts[index] == null) return;
+        if (index >= valueTexts.Length || valueTexts[index] == null) return;
 
         string displayStr = "";
         switch (index)

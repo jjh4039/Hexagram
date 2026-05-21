@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
+    [Header("Auto Assigned References")]
     public Player player;
     public PlayerStats stats;
     public WeaponManager weaponManager;
@@ -18,22 +19,23 @@ public class GameManager : MonoBehaviour
     public VirtualCursor cursor;
     public ShopUIController shopUIController;
 
+    [Header("Stage Settings")]
     public GameObject currentStageObj;
-    public Transform stageParent;                          // 생성될 스테이지의 부모 트랜스폼
+    public Transform stageParent;                          
 
     [Header("Global Resources")]
     public GameObject commonScrapPrefab;
 
     [Header("Scrap Data & UI")]
     public int currentScrap = 0;
-    public float scrapPercentage = 1f;                     // 스크랩 획득 보너스 비율 (기본 1 = +100%)
+    public float scrapPercentage = 1f;                     
 
     private float _hitStopTimer = 0f;
     private bool _isHitStopping = false;
 
     private Coroutine _scrapPunchRoutine;
     private Vector3 _scrapTextOriginScale;
-    private int _lastStageIndex = -1;                      // 이전 스테이지 프리팹 인덱스
+    private int _lastStageIndex = -1;                      
 
     [Header("Season System")]
     public Season currentSeason = Season.Spring;
@@ -41,10 +43,9 @@ public class GameManager : MonoBehaviour
     public int maxProgress = 100;
 
     [Header("Play Time")]
-    public float currentPlayTime = 0f;                       // 플레이 타임
-    public int totalDamageDealt = 2133;                      // 누적 피해량
+    public float currentPlayTime = 0f;                       
+    public int totalDamageDealt = 2133;                      
 
-    // ★ 신규 추가: 이벤트 보스 체력 배율 (기본 1.0 = 100%)
     [Header("Event System")]
     public float eventBossHealthMultiplier = 1.0f;
 
@@ -52,6 +53,14 @@ public class GameManager : MonoBehaviour
     private Coroutine _hitStopCoroutine;
     private float _originalFixedDeltaTime;
     private StageController _controller;
+
+    private void Awake()
+    {
+        instance = this;
+        _originalFixedDeltaTime = Time.fixedDeltaTime;
+
+        FindSceneComponents();
+    }
 
     private void Start()
     {
@@ -70,23 +79,34 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-        instance = this;
-        _originalFixedDeltaTime = Time.fixedDeltaTime;
-    }
-
     private void Update()
     {
-        currentPlayTime += Time.deltaTime;                   // 매 프레임 플레이 타임 누적
+        currentPlayTime += Time.deltaTime;                   
+    }
+
+    private void FindSceneComponents()
+    {
+        if (player == null) player = FindFirstObjectByType<Player>();
+        if (player != null)
+        {
+            if (stats == null) stats = player.GetComponent<PlayerStats>();
+            if (weaponManager == null) weaponManager = player.GetComponentInChildren<WeaponManager>();
+        }
+        
+        if (mapManager == null) mapManager = FindFirstObjectByType<MapManager>();
+        if (bitManager == null) bitManager = FindFirstObjectByType<BitManager>();
+        if (balanceManager == null) balanceManager = FindFirstObjectByType<BalanceManager>();
+        if (cursor == null) cursor = FindFirstObjectByType<VirtualCursor>();
+        if (shopUIController == null) shopUIController = FindFirstObjectByType<ShopUIController>();
+        if (dice == null) dice = FindFirstObjectByType<Dice>();
     }
 
     public void AddScrap(int amount)
     {
-        float multiplier = scrapPercentage;            // 기본 배율(1) + 보너스 비율 계산
-        int finalAmount = Mathf.CeilToInt(amount * multiplier); // 소수점 올림으로 최종 획득량 산출
+        float multiplier = scrapPercentage;            
+        int finalAmount = Mathf.CeilToInt(amount * multiplier); 
 
-        currentScrap += finalAmount;                            // 최종 계산된 스크랩 적용
+        currentScrap += finalAmount;                            
     }
 
     public void LoadStage(StageData stageData)
@@ -124,7 +144,6 @@ public class GameManager : MonoBehaviour
             if (CameraFollow.instance)
                 CameraFollow.instance.SnapToTarget();
 
-            // 진행도가 100 미만(일반/안전 스테이지)일 때만 Entry 텍스트를 띄움
             if (currentProgress < 100)
             {
                 if (StageMessageUI.instance)
@@ -158,17 +177,17 @@ public class GameManager : MonoBehaviour
             {
                 if (InputStateManager.Instance && InputStateManager.Instance.CurrentInputState == InputState.UI)
                 {
-                    yield return null;                       // 일시정지 중에는 타이머 대기
+                    yield return null;                       
                     continue;
                 }
 
-                _hitStopTimer -= Time.unscaledDeltaTime;     // 일시정지가 아닐 때만 현실 시간 기준으로 감소
+                _hitStopTimer -= Time.unscaledDeltaTime;     
                 yield return null;
             }
 
             if (!InputStateManager.Instance || InputStateManager.Instance.CurrentInputState != InputState.UI)
             {
-                Time.timeScale = 1f;                         // 일시정지가 아닐 때만 시간 배율 복구
+                Time.timeScale = 1f;                         
                 Time.fixedDeltaTime = _originalFixedDeltaTime;
             }
 

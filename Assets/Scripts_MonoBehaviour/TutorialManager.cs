@@ -16,7 +16,7 @@ public class TutorialManager : MonoBehaviour
     public Image fadeImage;
 
     [Header("Intro Cutscene & Text Animator")]
-    public float initialDelay = 2.0f;              // 튜토리얼 씬 진입 후 최초 대기 시간
+    public float initialDelay = 2.0f;              
     public TextMeshProUGUI introText;
 
     [Header("Skip UI Settings")] 
@@ -92,6 +92,12 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(Co_PlayIntro());
     }
 
+    // ★ 추가: 코루틴 누수 에러 방어
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
     private void Update()
     {
         if (!isCutsceneActive) return;
@@ -105,7 +111,6 @@ public class TutorialManager : MonoBehaviour
             isSkipPressed = InputStateManager.Instance.Actions.UI.CloseUI.IsPressed();
         }
 
-        // 연출 시작 후 3초간 노출되도록 조건 수정
         bool shouldShowNotice = canSkip && ((introTimer <= 3.0f) || isSkipPressed);
         if (skipNoticeContainer != null)
         {
@@ -179,7 +184,6 @@ public class TutorialManager : MonoBehaviour
 
         yield return new WaitForSeconds(initialDelay);
 
-        // 대기가 끝난 후 타이머를 다시 0으로 맞춰 3초간 UI가 정상 노출되게 함
         introTimer = 0f; 
         canSkip = true; 
         if (skipNoticeContainer != null) skipNoticeContainer.SetActive(true);

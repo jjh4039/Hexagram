@@ -6,12 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
-    public enum SceneTestMode { Auto, ForceTutorial, ForceMain }
-
-    [Header("Debug Settings")]
-    [Tooltip("Auto: 데이터 검사 / ForceTutorial: 튜토리얼 강제 / ForceMain: 메인 강제")]
-    [SerializeField] private SceneTestMode testTargetScene = SceneTestMode.Auto;
-
     [Header("Scene Transition")]
     [SerializeField] private string tutorialSceneName = "Tutorial"; 
     [SerializeField] private string mainSceneName = "Main";         
@@ -47,8 +41,8 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private Color highlightColor = Color.white;
 
     [Header("Sound Settings")]
-    [SerializeField] private AudioClip titleBGM; // ★ 추가: 타이틀에서 재생할 BGM
-    [SerializeField] private float bgmFadeDuration = 1f; // ★ 추가: BGM 페이드 인/아웃 시간
+    [SerializeField] private AudioClip titleBGM; 
+    [SerializeField] private float bgmFadeDuration = 1f; 
     [SerializeField] private AudioClip moveSound;
     [SerializeField] private AudioClip selectSound;
 
@@ -87,7 +81,6 @@ public class TitleManager : MonoBehaviour
             actions.Select.performed += OnSelectInput;
         }
 
-        // ★ 추가: 타이틀 씬 시작 시 인트로 없이 루프 BGM 바로 재생
         if (SoundManager.instance != null && titleBGM != null)
         {
             SoundManager.instance.PlayBGM(titleBGM, null, bgmFadeDuration);
@@ -273,30 +266,17 @@ public class TitleManager : MonoBehaviour
             SoundManager.instance.PlaySFX(startSound);
         }
 
-        // ★ 추가: 게임 시작을 누르면 씬 전환 시간(sceneFadeDuration)에 맞춰 BGM도 자연스럽게 페이드 아웃
         if (SoundManager.instance != null)
         {
             SoundManager.instance.StopBGM(sceneFadeDuration);
         }
 
-        string targetScene = "";
-
-        if (testTargetScene == SceneTestMode.ForceTutorial)
+        // ★ 테스트 코드 삭제. 순수하게 DataManager의 진행도에 따라 로드
+        string targetScene = tutorialSceneName;
+        
+        if (DataManager.instance != null && DataManager.instance.data != null)
         {
-            targetScene = tutorialSceneName;
-        }
-        else if (testTargetScene == SceneTestMode.ForceMain)
-        {
-            targetScene = mainSceneName;
-        }
-        else 
-        {
-            bool isTutorialClear = false;
-            if (DataManager.instance != null && DataManager.instance.data != null)
-            {
-                isTutorialClear = DataManager.instance.data.isTutorialClear;
-            }
-            targetScene = isTutorialClear ? mainSceneName : tutorialSceneName;
+            targetScene = DataManager.instance.data.isTutorialClear ? mainSceneName : tutorialSceneName;
         }
 
         if (TransitionManager.Instance != null)

@@ -1535,6 +1535,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 485396737}
   m_CullTransparentMesh: 1
+--- !u!1 &616167594
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 616167596}
+  - component: {fileID: 616167595}
+  m_Layer: 0
+  m_Name: InputStateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &616167595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 616167594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a18b7c7b4b5393547a55fb50e08814ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputStateManager
+  currentPhase: 0
+  currentInputState: 0
+--- !u!4 &616167596
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 616167594}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1280, y: 720, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &643690151
 GameObject:
   m_ObjectHideFlags: 0
@@ -2977,7 +3023,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b89b112c3b6c2948a82e945c865235c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TitleManager
-  testTargetScene: 1
   tutorialSceneName: Tutorial
   mainSceneName: Main
   sceneFadeDuration: 2
@@ -3470,7 +3515,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1420600577}
   - component: {fileID: 1420600576}
-  - component: {fileID: 1420600578}
   m_Layer: 0
   m_Name: DataManager
   m_TagString: Untagged
@@ -3517,20 +3561,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1420600578
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1420600575}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a18b7c7b4b5393547a55fb50e08814ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InputStateManager
-  currentPhase: 0
-  currentInputState: 0
 --- !u!1 &1432850549
 GameObject:
   m_ObjectHideFlags: 0
@@ -4529,7 +4559,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1884872096}
-  - component: {fileID: 1884872097}
   - component: {fileID: 1884872098}
   m_Layer: 5
   m_Name: Choice
@@ -4560,29 +4589,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -270}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &1884872097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1884872095}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91ee36a79be019d488c25d3d35d247f9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerFeedbackUI
-  feedbackText: {fileID: 60801564}
-  warningMessages:
-  - "\uC804\uD22C \uC911\uC5D0\uB294 \uC5F4 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
-  - "\uC804\uD22C \uC911\uC5D0\uB294 \uD68D\uB4DD\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
-  - "\uC544\uD2F0\uD329\uD2B8\uB97C \uB354 \uC774\uC0C1 \uD68D\uB4DD\uD560 \uC218
-    \uC5C6\uC2B5\uB2C8\uB2E4. (\uCD5C\uB300 10)"
-  fadeInTime: 0.05
-  displayTime: 2
-  fadeOutTime: 0.2
-  floatSpeed: 0
-  warningSound: {fileID: 0}
 --- !u!225 &1884872098
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -5246,10 +5252,11 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 63897877}
   - {fileID: 1420600577}
-  - {fileID: 1212806270}
-  - {fileID: 1893155385}
-  - {fileID: 1856740067}
+  - {fileID: 616167596}
   - {fileID: 1647579179}
   - {fileID: 1958033376}
+  - {fileID: 1212806270}
+  - {fileID: 63897877}
+  - {fileID: 1893155385}
+  - {fileID: 1856740067}

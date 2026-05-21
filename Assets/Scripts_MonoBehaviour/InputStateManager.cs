@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-// 게임 상태와 입력을 총괄하는 매니저
 public class InputStateManager : MonoBehaviour
 {
     public static InputStateManager Instance { get; private set; }
@@ -24,10 +23,22 @@ public class InputStateManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // ★ 글로벌 매니저로서 씬 전환 시 생존 보장
+            
             inputActions = new PlayerInput();
             inputActions.Enable();
 
-            ChangeInputState(InputState.Normal);
+            // ★ 인포서 해제: 최초 생성 시에만 켜고, 씬 전환 시에는 기존 상태를 유지하여 강제 조작 활성화를 방지
+            if (inputActions != null)
+            {
+                inputActions.Normal.Disable();
+                inputActions.Combat.Disable();
+                inputActions.UI.Disable();
+                
+                if (currentInputState == InputState.Normal) inputActions.Normal.Enable();
+                else if (currentInputState == InputState.Combat) inputActions.Combat.Enable();
+                else if (currentInputState == InputState.UI) inputActions.UI.Enable();
+            }
         }
         else
         {
@@ -37,7 +48,9 @@ public class InputStateManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (inputActions != null) inputActions.Disable();
+        // 글로벌 인스턴스가 파괴될 때(게임 종료 등)만 디스에이블 처리
+        if (Instance == this && inputActions != null) 
+            inputActions.Disable();
     }
 
     public void ChangeInputState(InputState newState)
@@ -82,7 +95,6 @@ public class InputStateManager : MonoBehaviour
         else ChangeInputState(InputState.Normal);
     }
 
-    // 추가: 현재 상태(State)는 유지한 채 입력만 강제로 켜거나 끄는 함수
     public void SetInputActive(bool isActive)
     {
         if (isActive)

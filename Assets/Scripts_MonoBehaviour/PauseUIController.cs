@@ -7,7 +7,7 @@ public class PauseUIController : MonoBehaviour
 {
     [Header("Settings")]
     [Tooltip("체크 시 튜토리얼 모드로 간주하고 '게임 포기' 버튼을 비활성화합니다.")]
-    [SerializeField] private bool isTutorialMode = false; // ★ 추가됨: 튜토리얼 모드 플래그
+    [SerializeField] private bool isTutorialMode = false; 
 
     [Header("UI References")]
     [SerializeField] private GameObject pauseRoot;           
@@ -30,7 +30,7 @@ public class PauseUIController : MonoBehaviour
     [Header("Colors & Sounds")]
     [SerializeField] private Color normalColor = Color.gray; 
     [SerializeField] private Color selectColor = Color.white;
-    [SerializeField] private Color disableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); // ★ 추가됨: 비활성화 색상 (어두운 반투명 회색)
+    [SerializeField] private Color disableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); 
     [SerializeField] private AudioClip sfxMove;              
     [SerializeField] private AudioClip sfxSubmit;            
     [SerializeField] private AudioClip sfxOpen;              
@@ -62,7 +62,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (InputStateManager.Instance != null)
+        if (InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
         {
             var actions = InputStateManager.Instance.Actions;
             actions.Normal.Pause.performed -= OnPauseToggleInput;
@@ -153,7 +153,6 @@ public class PauseUIController : MonoBehaviour
     {
         _currentIndex = (_currentIndex + dir + menuTexts.Length) % menuTexts.Length;
 
-        // ★ 수정됨: 튜토리얼 모드일 때 인덱스 2번(게임 포기)을 건너뛰도록 처리
         if (isTutorialMode && _currentIndex == 2)
         {
             _currentIndex = (_currentIndex + dir + menuTexts.Length) % menuTexts.Length;
@@ -169,7 +168,6 @@ public class PauseUIController : MonoBehaviour
         {
             if (menuTexts[i] == null) continue;
 
-            // ★ 수정됨: 튜토리얼 모드에서 2번 인덱스는 아예 비활성화 색상으로 고정
             if (isTutorialMode && i == 2)
             {
                 menuTexts[i].color = disableColor;
@@ -211,7 +209,6 @@ public class PauseUIController : MonoBehaviour
 
     private void ExecuteSelection()
     {
-        // ★ 수정됨: 튜토리얼 모드인데 2번 인덱스 실행 시 차단 (안전장치)
         if (isTutorialMode && _currentIndex == 2) return;
 
         if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);
@@ -227,13 +224,14 @@ public class PauseUIController : MonoBehaviour
             case 2: // 게임 포기
                 if (ConfirmUIController.instance != null)
                 {
-                    ConfirmUIController.instance.ShowPopupByIndex(0, () => ResumeGame());
+                    // ★ UI가 닫히지 않고 바로 씬이 넘어가도 시간이 멈추지 않게 방어
+                    ConfirmUIController.instance.ShowPopupByIndex(0, () => { Time.timeScale = 1f; });
                 }
                 break;
             case 3: // 게임 종료
                 if (ConfirmUIController.instance != null)
                 {
-                    ConfirmUIController.instance.ShowPopupByIndex(1, () => ResumeGame());
+                    ConfirmUIController.instance.ShowPopupByIndex(1, () => { Time.timeScale = 1f; });
                 }
                 break;
         }
