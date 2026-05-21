@@ -3,10 +3,10 @@ using System.IO;
 
 public class DataManager : MonoBehaviour
 {
-    public static DataManager instance;     
+    public static DataManager instance;
 
-    public GameData data;                   
-    private string savePath;                
+    public GameData data;
+    private string savePath;
 
     private void Awake()
     {
@@ -14,7 +14,7 @@ public class DataManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            savePath = Application.persistentDataPath + "/SaveData.json"; 
+            savePath = Application.persistentDataPath + "/SaveData.json";
             LoadGame();
         }
         else
@@ -41,5 +41,12 @@ public class DataManager : MonoBehaviour
             data = new GameData();
             SaveGame();
         }
+    }
+
+    [ContextMenu("Reset Data")]
+    public void ResetData()
+    {
+        data = new GameData(); // 데이터 초기화
+        SaveGame(); // 파일 저장
     }
 }
