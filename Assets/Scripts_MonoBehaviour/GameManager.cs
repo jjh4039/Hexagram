@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour
 
     private Coroutine _scrapPunchRoutine;
     private Vector3 _scrapTextOriginScale;
+    private int _lastStageIndex = -1;                      // 이전 스테이지 프리팹 인덱스
 
     [Header("Season System")]
     public Season currentSeason = Season.Spring;
@@ -100,7 +101,17 @@ public class GameManager : MonoBehaviour
 
         if (seasonPrefabs != null && seasonPrefabs.Length > 0)
         {
-            int randomIndex = Random.Range(0, seasonPrefabs.Length);
+            int randomIndex = 0;
+
+            if (seasonPrefabs.Length > 1)
+            {
+                do
+                {
+                    randomIndex = Random.Range(0, seasonPrefabs.Length);
+                } while (randomIndex == _lastStageIndex);
+            }
+
+            _lastStageIndex = randomIndex;
             GameObject selectedPrefab = seasonPrefabs[randomIndex];
 
             currentStageObj = Instantiate(selectedPrefab, Vector3.zero, Quaternion.identity, stageParent);
@@ -113,7 +124,7 @@ public class GameManager : MonoBehaviour
             if (CameraFollow.instance)
                 CameraFollow.instance.SnapToTarget();
 
-            // ★ 수정: 진행도가 100 미만(일반/안전 스테이지)일 때만 Entry 텍스트를 띄움
+            // 진행도가 100 미만(일반/안전 스테이지)일 때만 Entry 텍스트를 띄움
             if (currentProgress < 100)
             {
                 if (StageMessageUI.instance)
