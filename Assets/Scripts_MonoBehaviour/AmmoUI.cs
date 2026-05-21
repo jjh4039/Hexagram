@@ -19,9 +19,9 @@ public class AmmoUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI scrapText;
     [SerializeField] private float scrapMoveDistance = 50f;
-    private Vector2 scrapOriginPos;
-    private Vector3 scrapTextOriginScale;
-    private Coroutine scrapPunchRoutine;
+    private Vector2 _scrapOriginPos;
+    private Vector3 _scrapTextOriginScale;
+    private Coroutine _scrapPunchRoutine;
 
     [Header("Ammo Status Colors")] [SerializeField]
     private Color emptyTextColor = Color.red; // 0~99
@@ -42,32 +42,32 @@ public class AmmoUI : MonoBehaviour
     [SerializeField] private float animDuration = 0.2f;
     [SerializeField] private RectTransform uiRoot;
 
-    private Coroutine scaleCoroutine;
-    private bool lastAimingState;
-    private int lastScrapCount = -1;
+    private Coroutine _scaleCoroutine;
+    private bool _lastAimingState;
+    private int _lastScrapCount = -1;
 
     private void Awake()
     {
         if (uiRoot == null) uiRoot = GetComponent<RectTransform>();
-        if (scrapText != null) scrapTextOriginScale = scrapText.transform.localScale;
-        if (scrapGroup != null) scrapOriginPos = scrapGroup.anchoredPosition;
+        if (scrapText != null) _scrapTextOriginScale = scrapText.transform.localScale;
+        if (scrapGroup != null) _scrapOriginPos = scrapGroup.anchoredPosition;
 
         if (normalAmmoSprite == null && bulletPanels.Length > 0) normalAmmoSprite = bulletPanels[0].sprite;
     }
 
     private void Update()
     {
-        if (GameManager.instance == null || GameManager.instance.weaponManager == null) return;
+        if (!GameManager.instance || !GameManager.instance.weaponManager) return;
 
         UpdateAmmoVisuals();
         UpdateScrapVisuals();
 
         bool currentAiming = GameManager.instance.weaponManager.IsAiming;
-        if (currentAiming != lastAimingState)
+        if (currentAiming != _lastAimingState)
         {
-            lastAimingState = currentAiming;
-            if (scaleCoroutine != null) StopCoroutine(scaleCoroutine);
-            scaleCoroutine = StartCoroutine(Co_ScaleAnimation(currentAiming));
+            _lastAimingState = currentAiming;
+            if (_scaleCoroutine != null) StopCoroutine(_scaleCoroutine);
+            _scaleCoroutine = StartCoroutine(Co_ScaleAnimation(currentAiming));
         }
     }
 
@@ -89,7 +89,7 @@ public class AmmoUI : MonoBehaviour
         ammoText[0].color = targetTextColor;
         ammoText[1].color = targetTextColor;
 
-        if (ammoText.Length > 2 && ammoText[2] != null)
+        if (ammoText.Length > 2 && ammoText[2])
         {
             ammoText[2].gameObject.SetActive(isMax);
             if (isMax) ammoText[2].color = maxAmmoTextColor;
@@ -118,7 +118,7 @@ public class AmmoUI : MonoBehaviour
         Vector3 startScale = uiRoot.localScale;
         Vector3 targetScale = Vector3.one * (isAiming ? aimingScale : normalScale);
         Vector2 startScrapPos = scrapGroup.anchoredPosition;
-        Vector2 targetScrapPos = isAiming ? scrapOriginPos + new Vector2(scrapMoveDistance, 0) : scrapOriginPos;
+        Vector2 targetScrapPos = isAiming ? _scrapOriginPos + new Vector2(scrapMoveDistance, 0) : _scrapOriginPos;
         Color startCaseColor = caseImages.Length > 0 ? caseImages[0].color : Color.white;
         Color targetCaseColor = isAiming ? caseAimingColor : caseNormalColor;
         float elapsed = 0f;
@@ -128,36 +128,36 @@ public class AmmoUI : MonoBehaviour
             float t = elapsed / animDuration;
             float curve = 1f - Mathf.Pow(1f - t, 3); // Ease-Out
             uiRoot.localScale = Vector3.Lerp(startScale, targetScale, curve);
-            if (scrapGroup != null) scrapGroup.anchoredPosition = Vector2.Lerp(startScrapPos, targetScrapPos, curve);
+            if (scrapGroup) scrapGroup.anchoredPosition = Vector2.Lerp(startScrapPos, targetScrapPos, curve);
             foreach (var img in caseImages)
             {
-                if (img != null) img.color = Color.Lerp(startCaseColor, targetCaseColor, curve);
+                if (img) img.color = Color.Lerp(startCaseColor, targetCaseColor, curve);
             }
 
             yield return null;
         }
 
         uiRoot.localScale = targetScale;
-        if (scrapGroup != null) scrapGroup.anchoredPosition = targetScrapPos;
+        if (scrapGroup) scrapGroup.anchoredPosition = targetScrapPos;
         foreach (var img in caseImages)
-            if (img != null)
+            if (img)
                 img.color = targetCaseColor;
     }
 
     private void UpdateScrapVisuals()
     {
-        if (scrapText == null) return;
+        if (!scrapText) return;
         int currentScrap = GameManager.instance.currentScrap;
-        if (currentScrap != lastScrapCount)
+        if (currentScrap != _lastScrapCount)
         {
             scrapText.text = currentScrap.ToString();
-            if (lastScrapCount != -1)
+            if (_lastScrapCount != -1)
             {
-                if (scrapPunchRoutine != null) StopCoroutine(scrapPunchRoutine);
-                scrapPunchRoutine = StartCoroutine(Co_ScrapPunch());
+                if (_scrapPunchRoutine != null) StopCoroutine(_scrapPunchRoutine);
+                _scrapPunchRoutine = StartCoroutine(Co_ScrapPunch());
             }
 
-            lastScrapCount = currentScrap;
+            _lastScrapCount = currentScrap;
         }
     }
 
@@ -165,16 +165,16 @@ public class AmmoUI : MonoBehaviour
     {
         float duration = 0.12f;
         float elapsed = 0f;
-        Vector3 targetScale = scrapTextOriginScale * 1.15f;
+        Vector3 targetScale = _scrapTextOriginScale * 1.15f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
             float scale = Mathf.Sin(t * Mathf.PI);
-            scrapText.transform.localScale = Vector3.Lerp(scrapTextOriginScale, targetScale, scale);
+            scrapText.transform.localScale = Vector3.Lerp(_scrapTextOriginScale, targetScale, scale);
             yield return null;
         }
 
-        scrapText.transform.localScale = scrapTextOriginScale;
+        scrapText.transform.localScale = _scrapTextOriginScale;
     }
 }

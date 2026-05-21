@@ -158,9 +158,8 @@ public class SettingUIController : MonoBehaviour
 
         Screen.SetResolution(width, height, mode); 
         
-        // ★ 프레임레이트 최적화 적용 (Vsync 활성화 또는 프레임 제한)
         QualitySettings.vSyncCount = 1; 
-        Application.targetFrameRate = 60;                     
+        Application.targetFrameRate = 144;                     
     }
 
 

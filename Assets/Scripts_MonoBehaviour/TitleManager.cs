@@ -9,7 +9,7 @@ public class TitleManager : MonoBehaviour
     [Header("Scene Transition")]
     [SerializeField] private string tutorialSceneName = "Tutorial"; 
     [SerializeField] private string mainSceneName = "Main";         
-    [SerializeField] private float sceneFadeDuration = 1.5f; 
+    [SerializeField] private float sceneFadeDuration = 2f; 
     [SerializeField] private AudioClip startSound;
 
     [Header("UI Reference")]
@@ -22,19 +22,19 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private SettingUIController settingUI;
 
     [Header("Animation Settings")]
-    [SerializeField] private float logoFadeDuration = 1f;   
-    [SerializeField] private float delayBetween = 0.5f;     
+    [SerializeField] private float logoFadeDuration = 1.5f;   
+    [SerializeField] private float delayBetween = 0.2f;     
     [SerializeField] private float textFadeDuration = 0.5f;  
 
     [Header("Idle Floating Settings")]
     [SerializeField] private float floatSpeed = 2f;
-    [SerializeField] private float floatAmount = 10f;
+    [SerializeField] private float floatAmount = 3f;
 
     [Header("Parallax Settings")]
     [SerializeField] private float parallaxLimit = 20f;
     [SerializeField] private float parallaxSmooth = 3f;
     [SerializeField] private float autoPanSpeed = 0.5f;
-    [SerializeField] private float autoPanAmount = 10f;
+    [SerializeField] private float autoPanAmount = 20f;
 
     [Header("Color Settings")]
     [SerializeField] private Color normalColor = Color.gray;
@@ -109,7 +109,7 @@ public class TitleManager : MonoBehaviour
 
     private IEnumerator IntroSequence()
     {
-        if (TransitionManager.Instance != null)
+        if (TransitionManager.Instance)
         {
             yield return StartCoroutine(TransitionManager.Instance.Co_FadeToClear(sceneFadeDuration));
         }
@@ -138,7 +138,7 @@ public class TitleManager : MonoBehaviour
 
     private void HandleParallaxBackground()
     {
-        if (background == null) return;
+        if (!background) return;
 
         Vector2 mouseOffset = Vector2.zero;
         if (Mouse.current != null)
@@ -158,7 +158,7 @@ public class TitleManager : MonoBehaviour
 
     private void HandleIdleFloating()
     {
-        if (_isFloatingActive && titleRect != null)
+        if (_isFloatingActive && titleRect)
         {
             _introTimer += Time.deltaTime;
             float floatingY = _baseY + (Mathf.Sin(_introTimer * floatSpeed) * floatAmount);
@@ -261,25 +261,24 @@ public class TitleManager : MonoBehaviour
 
     private IEnumerator TransitionToGame()
     {
-        if (SoundManager.instance != null && startSound != null)
+        if (SoundManager.instance && startSound)
         {
             SoundManager.instance.PlaySFX(startSound);
         }
 
-        if (SoundManager.instance != null)
+        if (SoundManager.instance)
         {
             SoundManager.instance.StopBGM(sceneFadeDuration);
         }
-
-        // ★ 테스트 코드 삭제. 순수하게 DataManager의 진행도에 따라 로드
+        
         string targetScene = tutorialSceneName;
         
-        if (DataManager.instance != null && DataManager.instance.data != null)
+        if (DataManager.instance && DataManager.instance.data != null)
         {
             targetScene = DataManager.instance.data.isTutorialClear ? mainSceneName : tutorialSceneName;
         }
 
-        if (TransitionManager.Instance != null)
+        if (TransitionManager.Instance)
         {
             TransitionManager.Instance.LoadScene(targetScene, sceneFadeDuration, sceneFadeDuration);
         }
