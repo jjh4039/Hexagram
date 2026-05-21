@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class ArtifactManager : MonoBehaviour
 {
-    public static ArtifactManager instance; // 전역 접근용 인스턴스
+    public static ArtifactManager Instance; // 전역 접근용 인스턴스
 
     public List<ArtifactData> myArtifacts = new List<ArtifactData>();
 
@@ -12,7 +12,7 @@ public class ArtifactManager : MonoBehaviour
 
     private void Awake()
     {
-        if (instance == null) instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 

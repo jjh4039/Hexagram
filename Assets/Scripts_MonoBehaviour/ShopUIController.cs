@@ -158,7 +158,7 @@ public class ShopUIController : MonoBehaviour
             GenerateShopItems(true, false);
         }
 
-        if (CameraFollow.instance != null) CameraFollow.instance.SetUIOffset(shopCameraOffset);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.SetUIOffset(shopCameraOffset);
 
         _shopRect.anchoredPosition = _closedAnchoredPos;
         backgroundGroup.alpha = backgroundStartAlpha;
@@ -175,12 +175,12 @@ public class ShopUIController : MonoBehaviour
 
     private void GenerateShopItems(bool isNewShop, bool isReroll)
     {
-        if (ArtifactManager.instance != null && artifactSlots != null)
+        if (ArtifactManager.Instance != null && artifactSlots != null)
         {
             List<ArtifactData> availableArtifacts = new List<ArtifactData>();
-            foreach (var artifact in ArtifactManager.instance.allArtifacts)
+            foreach (var artifact in ArtifactManager.Instance.allArtifacts)
             {
-                if (!ArtifactManager.instance.myArtifacts.Contains(artifact))
+                if (!ArtifactManager.Instance.myArtifacts.Contains(artifact))
                     availableArtifacts.Add(artifact);
             }
 
@@ -232,8 +232,8 @@ public class ShopUIController : MonoBehaviour
 
     private void TryBuyArtifact(int slotIndex, ArtifactData data)
     {
-        if (GameManager.instance == null || data == null || ArtifactManager.instance == null) return;
-        if (ArtifactManager.instance.myArtifacts.Count >= 10)
+        if (GameManager.instance == null || data == null || ArtifactManager.Instance == null) return;
+        if (ArtifactManager.Instance.myArtifacts.Count >= 10)
         {
             if (PlayerFeedbackUI.Instance != null) PlayerFeedbackUI.Instance.ShowWarning(2); 
             return;
@@ -243,7 +243,7 @@ public class ShopUIController : MonoBehaviour
         if (currentScrap >= data.basePrice)
         {
             GameManager.instance.currentScrap -= data.basePrice;
-            ArtifactManager.instance.AddArtifact(data);
+            ArtifactManager.Instance.AddArtifact(data);
             artifactSlots[slotIndex].SetSoldOut();
 
             if (sfxPurchase != null && SoundManager.instance != null)
@@ -352,7 +352,7 @@ public class ShopUIController : MonoBehaviour
         OnShopStateChanged?.Invoke(false); 
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
-        if (CameraFollow.instance != null) CameraFollow.instance.ResetUIOffset();
+        if (CameraFollow.Instance != null) CameraFollow.Instance.ResetUIOffset();
 
         if (_slideRoutine != null) StopCoroutine(_slideRoutine);
         _slideRoutine = StartCoroutine(SlideRoutine(false));

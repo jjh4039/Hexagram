@@ -66,7 +66,7 @@ public class BuffManager : MonoBehaviour
 
     private void Update()
     {
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI) return;
+        if (InputStateManager.Instance && InputStateManager.Instance.CurrentInputState == InputState.UI) return;
         UpdateBuffTimers();
     }
 

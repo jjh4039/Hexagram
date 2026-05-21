@@ -77,8 +77,8 @@ public class Enemy : MonoBehaviour
         if (GameManager.instance != null)
             GameManager.instance.HitStop(hitStopDuration);
 
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.HitShake(0.03f, 0.02f);
+        if (CameraFollow.Instance != null)
+            CameraFollow.Instance.HitShake(0.03f, 0.02f);
 
         if (hpBarObject != null && !hpBarObject.activeSelf)
             hpBarObject.SetActive(true);

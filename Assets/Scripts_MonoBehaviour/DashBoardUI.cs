@@ -13,7 +13,6 @@ public class DashboardUI : MonoBehaviour
     public Transform artifactGrid;
     public GameObject slotPrefab;
 
-    // ★ 추가: 인벤토리 가능 여부 아이콘
     [Header("Indicator")]
     [SerializeField] private GameObject inventoryIndicator; 
 
@@ -81,23 +80,19 @@ public class DashboardUI : MonoBehaviour
 
     private void Update()
     {
-        // 툴팁 위치 업데이트
-        if (isOpen && isTooltipActive && tooltipGroup != null)
+        if (isOpen && isTooltipActive && tooltipGroup)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
             tooltipGroup.transform.position = mousePos + tooltipOffset;
         }
 
-        // ★ 추가: 인벤토리 아이콘 상태 업데이트
         UpdateIndicator();
     }
 
-    // ★ 아이콘 활성/비활성 로직
     private void UpdateIndicator()
     {
-        if (inventoryIndicator == null || InputStateManager.Instance == null) return;
+        if (!inventoryIndicator || !InputStateManager.Instance) return;
 
-        // 인벤토리가 닫혀있고, 현재 상태가 UI가 아닌 'Normal'(자유 상태)일 때만 아이콘 표시
         bool canOpen = !isOpen && InputStateManager.Instance.CurrentInputState == InputState.Normal;
         
         if (inventoryIndicator.activeSelf != canOpen)
@@ -198,9 +193,10 @@ public class DashboardUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if (ArtifactManager.instance == null) return;
+        // ★ 수정: ArtifactManager.Instance 오타 수정 (instance 로 변경)
+        if (ArtifactManager.Instance == null) return;
 
-        foreach (ArtifactData data in ArtifactManager.instance.myArtifacts)
+        foreach (ArtifactData data in ArtifactManager.Instance.myArtifacts)
         {
             GameObject newSlot = Instantiate(slotPrefab, artifactGrid);
             newSlot.transform.localScale = Vector3.one;

@@ -4,7 +4,7 @@ using System.Collections;
 
 public class CameraFollow : MonoBehaviour
 {
-    public static CameraFollow instance;
+    public static CameraFollow Instance;
 
     [Header("Target")]
     public Transform player;
@@ -27,8 +27,8 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float aimTransitionSpeed = 5f;
 
     [Header("Cinematic Settings")]
-    public bool isCinematicFocus = false;
-    public bool isCinematicZoom = false;
+    public bool isCinematicFocus;
+    public bool isCinematicZoom;
     [SerializeField] private float cinematicZoomMultiplier = 0.8f;
     [SerializeField] private float cinematicZoomSpeed = 2.0f;
 
@@ -38,21 +38,19 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float shakeFrequency = 35f;
 
     [Header("Bounds Settings")]
-    public bool useBounds = false;
-    private Bounds currentBounds;
-
-    [Tooltip("벽에 닿았을 때 마우스로 더 볼 수 있는 여유 거리")]
+    public bool useBounds;
+    private Bounds _currentBounds;
     public float boundsPadding = 1.5f;
 
-    private bool _isCustomZooming = false;
+    private bool _isCustomZooming;
 
     private float _currentShakeDecay;
     private Vector3 _offset;
     private Vector3 _uiOffset;
     private Vector3 _currentUiOffset;
     private Vector3 _shakeOffset;
-    private float _shakeTimer = 0f;
-    private float _currentShakeMagnitude = 0f;
+    private float _shakeTimer;
+    private float _currentShakeMagnitude;
     private float _lastHitShakeTime = -1f;
     [SerializeField] private float hitShakeCooldown = 0.05f;
 
@@ -62,17 +60,17 @@ public class CameraFollow : MonoBehaviour
     private float _originalSmoothSpeed;
     private float _currentInfluence;
     private float _currentMaxOffset;
-    private Camera cam;
+    private Camera _cam;
 
-    private bool _wasAiming = false;
+    private bool _wasAiming;
     private float _dynamicBaseOrthoSize = 5f;
 
-    private Vector3 _smoothedMouseOffset; // 마우스 보정 부드러운 전환을 위한 변수
+    private Vector3 _smoothedMouseOffset; 
 
     private void Awake()
     {
-        instance = this;
-        cam = GetComponent<Camera>();
+        Instance = this;
+        _cam = GetComponent<Camera>();
     }
 
     void Start()
@@ -90,7 +88,7 @@ public class CameraFollow : MonoBehaviour
 
     public void HitShake(float duration, float magnitude, float customDecay = -1f)
     {
-        if (DataManager.instance != null && DataManager.instance.data.cameraShake == 0)
+        if (DataManager.instance && DataManager.instance.data.cameraShake == 0)
             return;
 
         if (magnitude <= _currentShakeMagnitude && Time.time - _lastHitShakeTime < hitShakeCooldown)
@@ -129,37 +127,42 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate()
     {
-        if (player == null) return;
+        if (!player) return;
 
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI)
+        bool isUIState = (InputStateManager.Instance && InputStateManager.Instance.CurrentInputState == InputState.UI);
+        
+        if (isUIState && !isCinematicFocus) 
         {
-            if (!isCinematicFocus) return;
+            // ★ 수정: UI 창이 열렸을 때 마우스 추적을 끊고 원래 위치로 부드럽게 복귀시킵니다.
+            _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, Vector3.zero, aimTransitionSpeed * Time.unscaledDeltaTime);
         }
 
         if (Mouse.current == null && !isCinematicFocus) return;
 
         bool isRightClickDown = Mouse.current != null && Mouse.current.rightButton.isPressed;
-        bool isGunEquipped = (weaponManager != null && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
-        bool isAiming = isRightClickDown && isGunEquipped;
+        bool isGunEquipped = (weaponManager && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
+        
+        // UI 상태가 아닐 때만 조준 활성화
+        bool isAiming = isRightClickDown && isGunEquipped && !isUIState; 
 
         if ((isAiming && !_wasAiming) || (isCinematicZoom && !_wasAiming))
         {
-            if (pixelCam == null || pixelCam.enabled)
+            if (!pixelCam || pixelCam.enabled)
             {
-                _dynamicBaseOrthoSize = cam.orthographicSize;
+                _dynamicBaseOrthoSize = _cam.orthographicSize;
             }
         }
         _wasAiming = isAiming || isCinematicZoom;
 
-        if (pixelCam != null)
+        if (pixelCam)
         {
             if (isAiming || isCinematicZoom || _isCustomZooming)
             {
                 pixelCam.enabled = false;
             }
-            else if (!pixelCam.enabled && Mathf.Abs(cam.orthographicSize - _dynamicBaseOrthoSize) < 0.01f)
+            else if (!pixelCam.enabled && Mathf.Abs(_cam.orthographicSize - _dynamicBaseOrthoSize) < 0.01f)
             {
-                cam.orthographicSize = _dynamicBaseOrthoSize;
+                _cam.orthographicSize = _dynamicBaseOrthoSize;
                 pixelCam.enabled = true;
             }
         }
@@ -176,12 +179,12 @@ public class CameraFollow : MonoBehaviour
         _currentInfluence = Mathf.Lerp(_currentInfluence, targetInfluence, aimTransitionSpeed * Time.deltaTime);
         _currentMaxOffset = Mathf.Lerp(_currentMaxOffset, targetMaxOffset, aimTransitionSpeed * Time.deltaTime);
 
-        if (cam != null && cam.orthographic && (pixelCam == null || !pixelCam.enabled))
+        if (_cam != null && _cam.orthographic && (!pixelCam || !pixelCam.enabled))
         {
             if (!_isCustomZooming)
             {
                 float dt = isCinematicZoom ? Time.unscaledDeltaTime : Time.deltaTime;
-                cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetOrthoSize, currentZoomSpeed * dt);
+                _cam.orthographicSize = Mathf.Lerp(_cam.orthographicSize, targetOrthoSize, currentZoomSpeed * dt);
             }
         }
 
@@ -196,10 +199,11 @@ public class CameraFollow : MonoBehaviour
 
         bool isTrackingRealPlayer = (GameManager.instance && player == GameManager.instance.player.transform);
 
-        if (isTrackingRealPlayer && !isCinematicFocus && Mouse.current != null && _uiOffset == Vector3.zero)
+        // UI 상태가 아닐 때만 마우스 추적 활성화
+        if (isTrackingRealPlayer && !isCinematicFocus && !isUIState && Mouse.current != null && _uiOffset == Vector3.zero)
         {
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-            Vector3 mouseWorldPos = cam.ScreenToWorldPoint(mouseScreenPos); // Camera.main 대신 캐싱된 cam 사용
+            Vector3 mouseWorldPos = _cam.ScreenToWorldPoint(mouseScreenPos); 
             Vector3 directionToMouse = mouseWorldPos - player.position;
             directionToMouse.z = 0;
 
@@ -207,27 +211,29 @@ public class CameraFollow : MonoBehaviour
             targetMouseOffset = Vector3.ClampMagnitude(targetMouseOffset, _currentMaxOffset);
         }
 
-        // 마우스 보정값을 즉시 적용하지 않고 부드럽게 보간 (튀는 현상 해결)
-        _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, targetMouseOffset, aimTransitionSpeed * Time.deltaTime);
-
-        if (useBounds && cam != null)
+        if (!isUIState)
         {
-            float camHeight = cam.orthographicSize;
-            float camWidth = camHeight * cam.aspect;
+            _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, targetMouseOffset, aimTransitionSpeed * Time.deltaTime);
+        }
 
-            float minX = currentBounds.min.x + camWidth - boundsPadding;
-            float maxX = currentBounds.max.x - camWidth + boundsPadding;
-            float minY = currentBounds.min.y + camHeight - boundsPadding;
-            float maxY = currentBounds.max.y - camHeight + boundsPadding;
+        if (useBounds && _cam != null)
+        {
+            float camHeight = _cam.orthographicSize;
+            float camWidth = camHeight * _cam.aspect;
 
-            if (minX > maxX) minX = maxX = currentBounds.center.x;
-            if (minY > maxY) minY = maxY = currentBounds.center.y;
+            float minX = _currentBounds.min.x + camWidth - boundsPadding;
+            float maxX = _currentBounds.max.x - camWidth + boundsPadding;
+            float minY = _currentBounds.min.y + camHeight - boundsPadding;
+            float maxY = _currentBounds.max.y - camHeight + boundsPadding;
+
+            if (minX > maxX) minX = maxX = _currentBounds.center.x;
+            if (minY > maxY) minY = maxY = _currentBounds.center.y;
 
             targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
             targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
         }
 
-        targetPosition += _smoothedMouseOffset; // 보간된 값을 더함
+        targetPosition += _smoothedMouseOffset; 
 
         Vector3 currentUnshakenPos = transform.position - _shakeOffset;
         float moveDt = isCinematicFocus ? Time.unscaledDeltaTime : Time.deltaTime;
@@ -246,7 +252,7 @@ public class CameraFollow : MonoBehaviour
 
     public void ResetTargetToPlayer()
     {
-        if (GameManager.instance != null && GameManager.instance.player != null)
+        if (GameManager.instance && GameManager.instance.player)
         {
             player = GameManager.instance.player.transform;
         }
@@ -255,9 +261,9 @@ public class CameraFollow : MonoBehaviour
 
     public void SnapToTarget()
     {
-        if (player == null) return;
+        if (!player) return;
         _currentUiOffset = _uiOffset;
-        _smoothedMouseOffset = Vector3.zero; // 강제 스냅 시 보정값도 초기화
+        _smoothedMouseOffset = Vector3.zero; 
         Vector3 targetPos = player.position + _offset + _currentUiOffset;
         transform.position = targetPos;
         _shakeOffset = Vector3.zero;
@@ -267,44 +273,44 @@ public class CameraFollow : MonoBehaviour
 
     public void SetUIOffset(Vector3 offset) { _uiOffset = offset; }
     public void ResetUIOffset() { _uiOffset = Vector3.zero; }
-    public void SetCameraBounds(Bounds bounds) { currentBounds = bounds; useBounds = true; }
+    public void SetCameraBounds(Bounds bounds) { _currentBounds = bounds; useBounds = true; }
     public void ClearCameraBounds() { useBounds = false; }
 
     public void SetInstantCustomZoom(float targetSize)
     {
-        if (cam == null) return;
+        if (!_cam) return;
 
         _isCustomZooming = true;
 
-        if (pixelCam != null && pixelCam.enabled)
+        if (pixelCam && pixelCam.enabled)
         {
             pixelCam.enabled = false;
-            _dynamicBaseOrthoSize = cam.orthographicSize;
+            _dynamicBaseOrthoSize = _cam.orthographicSize;
         }
         else if (_dynamicBaseOrthoSize <= 0f)
         {
-            _dynamicBaseOrthoSize = cam.orthographicSize;
+            _dynamicBaseOrthoSize = _cam.orthographicSize;
         }
 
-        cam.orthographicSize = targetSize;
+        _cam.orthographicSize = targetSize;
     }
 
     public IEnumerator Co_RestoreZoom(float duration)
     {
-        if (cam == null) yield break;
+        if (!_cam) yield break;
 
-        float startSize = cam.orthographicSize;
+        float startSize = _cam.orthographicSize;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
-            cam.orthographicSize = Mathf.Lerp(startSize, _dynamicBaseOrthoSize, t);
+            _cam.orthographicSize = Mathf.Lerp(startSize, _dynamicBaseOrthoSize, t);
             yield return null;
         }
 
-        cam.orthographicSize = _dynamicBaseOrthoSize;
+        _cam.orthographicSize = _dynamicBaseOrthoSize;
         _isCustomZooming = false;
     }
 }

@@ -141,8 +141,8 @@ public class GameManager : MonoBehaviour
                 _controller.InitStage();
             }
 
-            if (CameraFollow.instance)
-                CameraFollow.instance.SnapToTarget();
+            if (CameraFollow.Instance)
+                CameraFollow.Instance.SnapToTarget();
 
             if (currentProgress < 100)
             {

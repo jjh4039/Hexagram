@@ -98,17 +98,17 @@ public class MainManager : MonoBehaviour
             GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
         }
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
-            CameraFollow.instance.SetTarget(targetStatue);
-            CameraFollow.instance.isCinematicFocus = true;
-            CameraFollow.instance.isCinematicZoom = true;
+            CameraFollow.Instance.SetTarget(targetStatue);
+            CameraFollow.Instance.isCinematicFocus = true;
+            CameraFollow.Instance.isCinematicZoom = true;
         }
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(false));
-            CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", true);
+            StartCoroutine(CinematicManager.Instance.Co_FadeGameplayUI(false));
+            CinematicManager.Instance.StartCoroutine("Co_AnimateLetterBox", true);
         }
 
         if (SoundManager.instance != null) SoundManager.instance.StopBGM(2f);

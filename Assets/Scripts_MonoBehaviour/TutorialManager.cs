@@ -170,16 +170,16 @@ public class TutorialManager : MonoBehaviour
             GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
         }
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
-            CameraFollow.instance.isCinematicFocus = true;
-            CameraFollow.instance.SetInstantCustomZoom(2.4f);
+            CameraFollow.Instance.isCinematicFocus = true;
+            CameraFollow.Instance.SetInstantCustomZoom(2.4f);
         }
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(false));
-            CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", true);
+            StartCoroutine(CinematicManager.Instance.Co_FadeGameplayUI(false));
+            CinematicManager.Instance.StartCoroutine("Co_AnimateLetterBox", true);
         }
 
         yield return new WaitForSeconds(initialDelay);
@@ -210,19 +210,19 @@ public class TutorialManager : MonoBehaviour
 
         yield return StartCoroutine(Co_FadeOutScreen());
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
-            yield return StartCoroutine(CameraFollow.instance.Co_RestoreZoom(3f));
+            yield return StartCoroutine(CameraFollow.Instance.Co_RestoreZoom(3f));
         }
         else
         {
             yield return new WaitForSeconds(3f);
         }
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(true));
-            CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", false);
+            StartCoroutine(CinematicManager.Instance.Co_FadeGameplayUI(true));
+            CinematicManager.Instance.StartCoroutine("Co_AnimateLetterBox", false);
         }
 
         EndCutscene();
@@ -452,19 +452,19 @@ public class TutorialManager : MonoBehaviour
             fadeImage.gameObject.SetActive(false);
         }
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
-            yield return StartCoroutine(CameraFollow.instance.Co_RestoreZoom(3f));
+            yield return StartCoroutine(CameraFollow.Instance.Co_RestoreZoom(3f));
         }
         else
         {
             yield return new WaitForSeconds(3f);
         }
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(true));
-            CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", false);
+            StartCoroutine(CinematicManager.Instance.Co_FadeGameplayUI(true));
+            CinematicManager.Instance.StartCoroutine("Co_AnimateLetterBox", false);
         }
 
         EndCutscene();
@@ -477,9 +477,9 @@ public class TutorialManager : MonoBehaviour
 
         if (skipNoticeContainer != null) skipNoticeContainer.SetActive(false);
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
-            CameraFollow.instance.isCinematicFocus = false;
+            CameraFollow.Instance.isCinematicFocus = false;
         }
 
         if (InputStateManager.Instance != null)
@@ -531,17 +531,17 @@ public class TutorialManager : MonoBehaviour
             GameManager.instance.player.rigid.linearVelocity = Vector2.zero;
         }
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
-            CameraFollow.instance.SetTarget(statueTransform);
-            CameraFollow.instance.isCinematicFocus = true;
-            CameraFollow.instance.isCinematicZoom = true;
+            CameraFollow.Instance.SetTarget(statueTransform);
+            CameraFollow.Instance.isCinematicFocus = true;
+            CameraFollow.Instance.isCinematicZoom = true;
         }
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_FadeGameplayUI(false));
-            CinematicManager.instance.StartCoroutine("Co_AnimateLetterBox", true);
+            StartCoroutine(CinematicManager.Instance.Co_FadeGameplayUI(false));
+            CinematicManager.Instance.StartCoroutine("Co_AnimateLetterBox", true);
         }
 
         yield return new WaitForSeconds(1.5f);

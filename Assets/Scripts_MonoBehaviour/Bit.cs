@@ -5,25 +5,25 @@ using UnityEngine.InputSystem;
 public class Bit : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터페이스 상속
 {
     [SerializeField] private Material[] outLineMaterial; // 외곽선 머티리얼 배열
-    private SpriteRenderer spriteRenderer;               // 렌더러 컴포넌트
+    private SpriteRenderer _spriteRenderer;               // 렌더러 컴포넌트
     public GameObject keyGuide;                          // 상호작용 안내 UI
 
-    private bool isPlayerInRange = false;                // 플레이어 접근 여부
+    private bool _isPlayerInRange = false;                // 플레이어 접근 여부
     private bool _isCollected = false;                   // ★ [추가] 획득 완료 상태
 
     public bool IsCollected => _isCollected;             // ★ [추가] 인터페이스 구현부
 
     private void Start()
     {
-        spriteRenderer = GetComponentInChildren(typeof(SpriteRenderer)) as SpriteRenderer;
+        _spriteRenderer = GetComponentInChildren(typeof(SpriteRenderer)) as SpriteRenderer;
         if (keyGuide != null) keyGuide.SetActive(false);
     }
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (!isPlayerInRange) return;
+        if (!_isPlayerInRange) return;
 
-        if (ArtifactManager.instance != null && ArtifactManager.instance.myArtifacts.Count >= 10)
+        if (ArtifactManager.Instance != null && ArtifactManager.Instance.myArtifacts.Count >= 10)
         {
             if (PlayerFeedbackUI.Instance != null)
                 PlayerFeedbackUI.Instance.ShowWarning(2);
@@ -35,7 +35,7 @@ public class Bit : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터
 
     private void OnInteractCombat(InputAction.CallbackContext context)
     {
-        if (!isPlayerInRange) return;
+        if (!_isPlayerInRange) return;
 
         if (PlayerFeedbackUI.Instance != null)
             PlayerFeedbackUI.Instance.ShowWarning(1);
@@ -60,8 +60,8 @@ public class Bit : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInRange = true;
-            spriteRenderer.material = outLineMaterial[1];
+            _isPlayerInRange = true;
+            _spriteRenderer.material = outLineMaterial[1];
             if (keyGuide != null) keyGuide.SetActive(true);
 
             if (InputStateManager.Instance != null)
@@ -76,8 +76,8 @@ public class Bit : MonoBehaviour, IRewardItem // ★ [수정] IRewardItem 인터
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerInRange = false;
-            spriteRenderer.material = outLineMaterial[0];
+            _isPlayerInRange = false;
+            _spriteRenderer.material = outLineMaterial[0];
             if (keyGuide != null) keyGuide.SetActive(false);
 
             UnsubscribeInputs();

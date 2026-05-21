@@ -3,48 +3,48 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
-using UnityEngine.UI;
 
 public class ConfirmUIController : MonoBehaviour
 {
-    public static ConfirmUIController instance;            // 전역 접근용 싱글톤
+    public static ConfirmUIController Instance;            
 
-    public bool IsOpen => _isOpen;                         // 외부 상태 참조용
+    public bool IsOpen => _isOpen;                         
 
     [Header("UI References")]
-    [SerializeField] private GameObject visualRoot;        // 껐다 켤 시각적 최상위 객체
-    [SerializeField] private CanvasGroup visualGroup;      // 전체 페이드용 그룹
-    [SerializeField] private RectTransform bgRect;         // 크기 애니메이션용 배경
+    [SerializeField] private GameObject visualRoot;        
+    [SerializeField] private CanvasGroup visualGroup;      
+    [SerializeField] private RectTransform bgRect;         
     
     [Header("Text References")]
-    [SerializeField] private TextMeshProUGUI titleText;    // 팝업 제목 텍스트
-    [SerializeField] private TextMeshProUGUI messageText;  // 팝업 본문 텍스트
-    [SerializeField] private TextMeshProUGUI yesText;      // 수락 버튼 텍스트
-    [SerializeField] private TextMeshProUGUI noText;       // 거절 버튼 텍스트
+    [SerializeField] private TextMeshProUGUI titleText;    
+    [SerializeField] private TextMeshProUGUI messageText;  
+    [SerializeField] private TextMeshProUGUI yesText;      
+    [SerializeField] private TextMeshProUGUI noText;       
 
     [Header("Animation Settings")]
-    [SerializeField] private float targetBgScale = 1f;     // 배경 최대 스케일
-    [SerializeField] private float animDuration = 0.2f;    // 팝업 애니메이션 시간
+    [SerializeField] private float targetBgScale = 1f;     
+    [SerializeField] private float animDuration = 0.2f;    
 
     [Header("Colors & Sounds")]
-    [SerializeField] private Color normalColor = Color.gray; // 비활성 색상
-    [SerializeField] private Color selectColor = Color.white;// 선택 색상
-    [SerializeField] private AudioClip sfxMove;            // 이동 사운드
-    [SerializeField] private AudioClip sfxConfirm;         // 수락 사운드
-    [SerializeField] private AudioClip sfxCancel;          // 취소/거절 사운드
+    [SerializeField] private Color normalColor = Color.gray; 
+    [SerializeField] private Color selectColor = Color.white;
+    [SerializeField] private AudioClip sfxMove;            
+    [SerializeField] private AudioClip sfxConfirm;         
+    [SerializeField] private AudioClip sfxCancel;          
 
-    private bool _isOpen = false;                          // 팝업 열림 여부
-    private bool _isAnimating = false;                     // 애니메이션 진행 여부
-    private int _currentIndex = 1;                         // 0: Yes, 1: No (기본값 No)
+    private bool _isOpen;                          
+    private bool _isAnimating;                     
+    private int _currentIndex = 1;                         
 
-    private Action _onConfirmAction;                       // 수락 시 실행될 함수 캐싱
-    private Action _onCancelAction;                        // 거절 시 실행될 함수 캐싱
+    private Action _onConfirmAction;                       
+    private Action _onCancelAction;                        
 
-    private Coroutine _animCoroutine;                      // 애니메이션 코루틴 캐싱
+    private Coroutine _animCoroutine;                      
+    private bool _isSubscribed; // ★ 수정: 이벤트 중복 해제 방지용 플래그
 
     private void Awake()
     {
-        if (instance == null) instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
@@ -53,35 +53,40 @@ public class ConfirmUIController : MonoBehaviour
         if (visualRoot != null) visualRoot.SetActive(false);
     }
 
-    // [핵심 변경] 인덱스에 따라 로직을 내장 처리하고, 외부에서는 UI 조작 등 추가 동작(additionalAction)만 전달받습니다.
+    private void OnDestroy()
+    {
+        // 씬 전환 시 에러 방지
+        UnsubscribeInputs();
+    }
+
     public void ShowPopupByIndex(int popupIndex, Action additionalAction = null)
     {
-        string title = "";
-        string msg = "";
-        Action finalConfirmAction = null;
+        string title;
+        string msg;
+        Action finalConfirmAction ;
 
         switch (popupIndex)
         {
-            case 0: // 인덱스 0: 게임 포기
+            case 0: 
                 title = "게임 포기";
                 msg = "정말로 이번 도전을 포기하시겠습니까?";
                 finalConfirmAction = () => 
                 {
-                    additionalAction?.Invoke();             // 외부 UI 닫기 등 추가 동작 실행
-                    Time.timeScale = 1f;                    // 일시정지 상태에서 넘어왔을 수 있으므로 강제 복구
+                    additionalAction?.Invoke();             
+                    Time.timeScale = 1f;                    
                     if (GameManager.instance != null && GameManager.instance.player != null)
                     {
-                        GameManager.instance.player.OnDie(); // 실제 사망 연출 실행
+                        GameManager.instance.player.OnDie(); 
                     }
                 };
                 break;
                 
-            case 1: // 인덱스 1: 게임 종료
+            case 1: 
                 title = "게임 종료";
                 msg = "게임을 완전히 종료하시겠습니까?";
                 finalConfirmAction = () => 
                 {
-                    additionalAction?.Invoke();             // 외부 UI 닫기 등 추가 동작 실행
+                    additionalAction?.Invoke();             
                     #if UNITY_EDITOR
                         UnityEditor.EditorApplication.isPlaying = false;
                     #else
@@ -90,7 +95,7 @@ public class ConfirmUIController : MonoBehaviour
                 };
                 break;
                 
-            default: // 예외 처리
+            default: 
                 title = "확인";
                 msg = "계속 진행하시겠습니까?";
                 finalConfirmAction = () => { additionalAction?.Invoke(); };
@@ -117,12 +122,13 @@ public class ConfirmUIController : MonoBehaviour
 
         UpdateSelectionVisuals();
         
-        if (InputStateManager.Instance != null)
+        if (InputStateManager.Instance != null && !_isSubscribed)
         {
             var actions = InputStateManager.Instance.Actions.UI;
             actions.MoveUI.performed += OnNavigate;
             actions.CloseUI.performed += OnCloseUI;
             actions.Select.performed += OnSubmit;
+            _isSubscribed = true;
         }
 
         if (_animCoroutine != null) StopCoroutine(_animCoroutine);
@@ -133,16 +139,22 @@ public class ConfirmUIController : MonoBehaviour
     {
         if (!_isOpen || _isAnimating) return;
 
-        if (InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
+        UnsubscribeInputs();
+
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
+        _animCoroutine = StartCoroutine(AnimateClose());
+    }
+
+    private void UnsubscribeInputs()
+    {
+        if (_isSubscribed && InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
         {
             var actions = InputStateManager.Instance.Actions.UI;
             actions.MoveUI.performed -= OnNavigate;
             actions.CloseUI.performed -= OnCloseUI;
             actions.Select.performed -= OnSubmit;
+            _isSubscribed = false;
         }
-
-        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
-        _animCoroutine = StartCoroutine(AnimateClose());
     }
 
     private void OnNavigate(InputAction.CallbackContext ctx)
@@ -200,7 +212,7 @@ public class ConfirmUIController : MonoBehaviour
         visualRoot.SetActive(true);
 
         bgRect.localScale = Vector3.one * 0.8f;
-        if (visualGroup != null) visualGroup.alpha = 0f;
+        if (visualGroup) visualGroup.alpha = 0f;
 
         float elapsed = 0f;
 
@@ -211,13 +223,13 @@ public class ConfirmUIController : MonoBehaviour
             float easedT = 1f - Mathf.Pow(1f - t, 3f);
             
             bgRect.localScale = Vector3.Lerp(Vector3.one * 0.8f, Vector3.one * targetBgScale, easedT);
-            if (visualGroup != null) visualGroup.alpha = t;
+            if (visualGroup) visualGroup.alpha = t;
             
             yield return null;
         }
 
         bgRect.localScale = Vector3.one * targetBgScale;
-        if (visualGroup != null) visualGroup.alpha = 1f;
+        if (visualGroup) visualGroup.alpha = 1f;
 
         _isAnimating = false;
     }
@@ -236,7 +248,7 @@ public class ConfirmUIController : MonoBehaviour
             float easedT = t * t * t;
             
             bgRect.localScale = Vector3.Lerp(startScale, Vector3.one * 0.8f, easedT);
-            if (visualGroup != null) visualGroup.alpha = 1f - t;
+            if (visualGroup) visualGroup.alpha = 1f - t;
             
             yield return null;
         }

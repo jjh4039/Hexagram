@@ -87,7 +87,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (_isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
-        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
+        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
 
         if (!_isPaused) PauseGame();
         else ResumeGame();
@@ -97,7 +97,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
-        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
+        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
 
         Vector2 input = ctx.ReadValue<Vector2>();
 
@@ -109,7 +109,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
-        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
+        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
 
         ExecuteSelection();
     }
@@ -118,7 +118,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
-        if (ConfirmUIController.instance != null && ConfirmUIController.instance.IsOpen) return;
+        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
 
         if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);
         ResumeGame();
@@ -222,16 +222,16 @@ public class PauseUIController : MonoBehaviour
                 if (settingUI != null) settingUI.OpenSettings(); 
                 break;
             case 2: // 게임 포기
-                if (ConfirmUIController.instance != null)
+                if (ConfirmUIController.Instance != null)
                 {
                     // ★ UI가 닫히지 않고 바로 씬이 넘어가도 시간이 멈추지 않게 방어
-                    ConfirmUIController.instance.ShowPopupByIndex(0, () => { Time.timeScale = 1f; });
+                    ConfirmUIController.Instance.ShowPopupByIndex(0, () => { Time.timeScale = 1f; });
                 }
                 break;
             case 3: // 게임 종료
-                if (ConfirmUIController.instance != null)
+                if (ConfirmUIController.Instance != null)
                 {
-                    ConfirmUIController.instance.ShowPopupByIndex(1, () => { Time.timeScale = 1f; });
+                    ConfirmUIController.Instance.ShowPopupByIndex(1, () => { Time.timeScale = 1f; });
                 }
                 break;
         }

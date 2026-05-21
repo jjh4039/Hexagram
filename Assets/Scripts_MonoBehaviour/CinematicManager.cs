@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System.Collections;
 using System.Collections.Generic;
 
 public class CinematicManager : MonoBehaviour
 {
-    public static CinematicManager instance;
+    public static CinematicManager Instance;
 
     [Header("Cinematic Bars UI")]
     [SerializeField] private RectTransform topBar;                 // 상단 검은 줄
@@ -39,11 +38,11 @@ public class CinematicManager : MonoBehaviour
     [SerializeField] private GameObject[] uiElementsToHide;
     [SerializeField] private float uiFadeTime = 0.3f;              // UI가 사라지고 나타나는 속도
 
-    private List<CanvasGroup> hiddenUIGroups = new List<CanvasGroup>();
+    private readonly List<CanvasGroup> _hiddenUIGroups = new List<CanvasGroup>();
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 
     private void Start()
@@ -54,7 +53,7 @@ public class CinematicManager : MonoBehaviour
             {
                 CanvasGroup cg = obj.GetComponent<CanvasGroup>();
                 if (cg == null) cg = obj.AddComponent<CanvasGroup>();
-                hiddenUIGroups.Add(cg);
+                _hiddenUIGroups.Add(cg);
             }
         }
     }
@@ -67,10 +66,10 @@ public class CinematicManager : MonoBehaviour
         player.canControl = false;
         player.rigid.linearVelocity = Vector2.zero;
 
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false;
+        if (CameraFollow.Instance != null) CameraFollow.Instance.useBounds = false;
 
         StartCoroutine(Co_FadeGameplayUI(false));
-        CameraFollow.instance.SetTarget(bossTransform, cinematicCameraSpeed);
+        CameraFollow.Instance.SetTarget(bossTransform, cinematicCameraSpeed);
         yield return StartCoroutine(Co_AnimateLetterBox(true));
 
         onSunsetStart?.Invoke();
@@ -79,7 +78,7 @@ public class CinematicManager : MonoBehaviour
 
         yield return new WaitForSeconds(holdDuration + barAnimTime);
 
-        CameraFollow.instance.ResetTargetToPlayer();
+        CameraFollow.Instance.ResetTargetToPlayer();
 
         StartCoroutine(Co_AnimateLetterBox(false));
         StartCoroutine(Co_FadeGameplayUI(true));
@@ -88,7 +87,7 @@ public class CinematicManager : MonoBehaviour
 
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true);
 
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = true;
+        if (CameraFollow.Instance != null) CameraFollow.Instance.useBounds = true;
 
         onFinish?.Invoke();
     }
@@ -99,7 +98,7 @@ public class CinematicManager : MonoBehaviour
         float endAlpha = isShowing ? 1f : 0f;
         float elapsed = 0f;
 
-        foreach (var cg in hiddenUIGroups)
+        foreach (var cg in _hiddenUIGroups)
         {
             cg.interactable = isShowing;
             cg.blocksRaycasts = isShowing;
@@ -110,14 +109,14 @@ public class CinematicManager : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             float t = elapsed / uiFadeTime;
 
-            foreach (var cg in hiddenUIGroups)
+            foreach (var cg in _hiddenUIGroups)
             {
                 cg.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
             }
             yield return null;
         }
 
-        foreach (var cg in hiddenUIGroups)
+        foreach (var cg in _hiddenUIGroups)
         {
             cg.alpha = endAlpha;
         }
@@ -125,7 +124,7 @@ public class CinematicManager : MonoBehaviour
 
     public IEnumerator Co_AnimateLetterBox(bool isShowing)
     {
-        if (topBar == null || bottomBar == null) yield break;
+        if (!topBar || !bottomBar) yield break;
 
         topBar.gameObject.SetActive(true);
         bottomBar.gameObject.SetActive(true);
@@ -156,11 +155,11 @@ public class CinematicManager : MonoBehaviour
             bottomBar.gameObject.SetActive(false);
         }
     }
-
+    
     private IEnumerator Co_SunsetEffect()
     {
         GameObject gridObj = GameObject.Find("Grid");
-        if (gridObj == null) yield break;
+        if (!gridObj) yield break;
 
         Tilemap[] tilemaps = gridObj.GetComponentsInChildren<Tilemap>();
 
@@ -191,16 +190,16 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
     {
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
+        if (InputStateManager.Instance) InputStateManager.Instance.SetInputActive(false);
 
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false;
+        if (CameraFollow.Instance) CameraFollow.Instance.useBounds = false;
 
         Time.timeScale = slowMotionScale;
 
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.HitShake(0.5f, 0.15f);
+        if (CameraFollow.Instance)
+            CameraFollow.Instance.HitShake(0.5f, 0.15f);
 
-        if (whiteScreenGroup != null)
+        if (whiteScreenGroup)
         {
             whiteScreenGroup.gameObject.SetActive(true);
             float elapsed = 0f;
@@ -214,7 +213,7 @@ public class CinematicManager : MonoBehaviour
             whiteScreenGroup.alpha = 1f;
         }
 
-        if (boss != null)
+        if (boss)
         {
             boss.TurnIntoStatue();
         }
@@ -223,7 +222,7 @@ public class CinematicManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        if (whiteScreenGroup != null)
+        if (whiteScreenGroup)
         {
             float elapsed = 0f;
             float fadeInDuration = 1.5f;
@@ -237,11 +236,9 @@ public class CinematicManager : MonoBehaviour
             whiteScreenGroup.gameObject.SetActive(false);
         }
 
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(true);
-
-        Debug.Log("보스 처치 연출 완전 종료!");
+        if (InputStateManager.Instance) InputStateManager.Instance.SetInputActive(true);
     }
-
+    
     public void PlayGameOverCinematic(Transform playerTransform)
     {
         StartCoroutine(Co_GameOverCinematic(playerTransform));
@@ -249,28 +246,28 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_GameOverCinematic(Transform playerTransform)
     {
-        if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
+        if (InputStateManager.Instance) InputStateManager.Instance.SetInputActive(false);
 
-        if (CameraFollow.instance != null) CameraFollow.instance.useBounds = false;
+        if (CameraFollow.Instance) CameraFollow.Instance.useBounds = false;
 
         StartCoroutine(Co_FadeGameplayUI(false));
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance)
         {
-            CameraFollow.instance.isCinematicFocus = true;
-            CameraFollow.instance.isCinematicZoom = true;
+            CameraFollow.Instance.isCinematicFocus = true;
+            CameraFollow.Instance.isCinematicZoom = true;
         }
 
-        SpriteRenderer playerSR = playerTransform.GetComponentInChildren<SpriteRenderer>();
-        if (playerSR != null && worldBlackoutSprite != null)
+        SpriteRenderer playerSr = playerTransform.GetComponentInChildren<SpriteRenderer>();
+        if (playerSr && worldBlackoutSprite)
         {
             worldBlackoutSprite.sortingOrder = 30000;
-            playerSR.sortingOrder = 30001;
+            playerSr.sortingOrder = 30001;
         }
 
         float elapsed = 0f;
         float initialTimeScale = Time.timeScale;
 
-        if (worldBlackoutSprite != null)
+        if (worldBlackoutSprite)
         {
             worldBlackoutSprite.gameObject.SetActive(true);
             Color startColor = worldBlackoutSprite.color;
@@ -292,7 +289,7 @@ public class CinematicManager : MonoBehaviour
                 Time.timeScale = 0f;
             }
 
-            if (worldBlackoutSprite != null)
+            if (worldBlackoutSprite)
             {
                 Color c = worldBlackoutSprite.color;
                 c.a = Mathf.Lerp(0f, 1f, t);
@@ -306,12 +303,12 @@ public class CinematicManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(1.5f);
 
-        if (gameOverUI != null)
+        if (gameOverUI)
         {
             gameOverUI.SetActive(true);
         }
 
-        if (InputStateManager.Instance != null)
+        if (InputStateManager.Instance)
         {
             InputStateManager.Instance.SetInputActive(true);
             InputStateManager.Instance.ChangeInputState(InputState.UI);

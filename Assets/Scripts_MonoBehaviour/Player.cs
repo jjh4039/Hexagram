@@ -306,7 +306,7 @@ public class Player : MonoBehaviour
 
         if (stats) stats.TakeDamage((int)damage);
 
-        if (CameraFollow.instance) CameraFollow.instance.HitShake(hitShakeDuration, hitShakeMagnitude);
+        if (CameraFollow.Instance) CameraFollow.Instance.HitShake(hitShakeDuration, hitShakeMagnitude);
         if (GameManager.instance) GameManager.instance.HitStop(playerHitStopDuration);
         if (sfxHit && SoundManager.instance) SoundManager.instance.PlaySFX(sfxHit, 0.9f);
 
@@ -412,7 +412,7 @@ public class Player : MonoBehaviour
         }
 
         if (sfxDash != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxDash, 0.4f);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(shakeDuration, shakeMagnitude);
 
         rigid.linearVelocity = dashDir * dashSpeed;
         StartCoroutine(DashGhostRoutine());
@@ -577,9 +577,9 @@ public class Player : MonoBehaviour
 
         StartCoroutine(Co_ForceCleanVisuals());
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            CinematicManager.instance.PlayGameOverCinematic(this.transform);
+            CinematicManager.Instance.PlayGameOverCinematic(this.transform);
         }
 
         Debug.Log("Player: Dead");

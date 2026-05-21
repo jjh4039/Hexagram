@@ -227,7 +227,7 @@ public class Gun : MonoBehaviour
 
         if (sfxShoot != null) SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
         Recoil(recoilDur);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(shakeDuration, shakeMagnitude);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(shakeDuration, shakeMagnitude);
     }
 
     public static void ReturnBullet(GameObject obj)

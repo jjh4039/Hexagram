@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 
-// EventManager가 사용할 선택 데이터 클래스 (파일 상단에 배치)
 [Serializable]
 public class EventSelectionData
 {
@@ -14,7 +13,7 @@ public class EventSelectionData
 
     public bool IsValid()
     {
-        return selectedRisk != null && selectedReward != null;
+        return selectedRisk && selectedReward;
     }
 
     public float GetRiskValue(int stage)
@@ -42,7 +41,6 @@ public class EventSelectionData
     }
 }
 
-// 메인 EventManager 클래스
 public class EventManager : MonoBehaviour
 {
     public static EventManager Instance;
@@ -62,8 +60,8 @@ public class EventManager : MonoBehaviour
 
     [Header("Activation Feedback")]
     [SerializeField] private TextMeshProUGUI activationText;
-    [SerializeField] private float textFadeDuration = 0.5f;
-    [SerializeField] private float textDisplayDuration = 1.5f;
+    [SerializeField] private float textFadeDuration = 0.2f;
+    [SerializeField] private float textDisplayDuration = 1f;
 
     [Header("Debug Settings")]
     [SerializeField] private bool enableDebugInput = true;
@@ -75,7 +73,11 @@ public class EventManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) 
+        { 
+            Destroy(gameObject); 
+            return; 
+        }
         Instance = this;
 
         if (activationText != null)
@@ -89,7 +91,7 @@ public class EventManager : MonoBehaviour
 
     private void Start()
     {
-        if (enableDebugInput && InputStateManager.Instance != null)
+        if (enableDebugInput && InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
         {
             InputStateManager.Instance.Actions.Normal.DebugEvent.performed += OnDebugEventTrigger;
         }
@@ -97,7 +99,8 @@ public class EventManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (InputStateManager.Instance != null)
+        // ★ 수정: 오직 자신의 인스턴스일 때만 확실하게 이벤트를 해제하여 메모리 누수 및 중복 실행 방지
+        if (Instance == this && enableDebugInput && InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
         {
             InputStateManager.Instance.Actions.Normal.DebugEvent.performed -= OnDebugEventTrigger;
         }
@@ -241,9 +244,9 @@ public class EventManager : MonoBehaviour
                 else if (stage == 2) targetGrade = ArtifactGrade.Rare;
                 else if (stage >= 3) targetGrade = ArtifactGrade.Epic;
 
-                if (ArtifactManager.instance != null)
+                if (ArtifactManager.Instance != null)
                 {
-                    ArtifactManager.instance.GiveRandomArtifactByGrade(targetGrade);
+                    ArtifactManager.Instance.GiveRandomArtifactByGrade(targetGrade);
                 }
                 break;
 

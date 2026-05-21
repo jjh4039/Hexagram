@@ -20,8 +20,8 @@ public class BalanceManager : MonoBehaviour
     [Header("Main Image Floating Settings")]
     [SerializeField] private float floatSpeed = 3f;
     [SerializeField] private float floatAmplitude = 2f;
-    private Vector2 mainImageInitialPos;
-    private Coroutine floatCoroutine;
+    private Vector2 _mainImageInitialPos;
+    private Coroutine _floatCoroutine;
 
     [Header("Background Loop Settings")]
     [SerializeField] private float bgScaleMin = 0.9f;
@@ -55,11 +55,11 @@ public class BalanceManager : MonoBehaviour
     [SerializeField] private AudioClip sfxSelect;
     [SerializeField] private AudioClip sfxDecision;
 
-    private float currentWeightPercent = 5f;
+    private float _currentWeightPercent = 5f;
 
-    private int selectedIndex = -1;
-    private int currentHoverIndex = -1;
-    private bool isInitialized = false;
+    private int _selectedIndex = -1;
+    private int _currentHoverIndex = -1;
+    private bool _isInitialized = false;
 
     private void Awake()
     {
@@ -70,21 +70,29 @@ public class BalanceManager : MonoBehaviour
         if (contentCanvasGroup != null) contentCanvasGroup.alpha = 0f;
 
         if (mainFaceImage != null)
-            mainImageInitialPos = mainFaceImage.rectTransform.anchoredPosition;
+            _mainImageInitialPos = mainFaceImage.rectTransform.anchoredPosition;
 
         gameObject.SetActive(false);
     }
 
+    private void OnDestroy()
+    {
+        if (_isInitialized)
+        {
+            Time.timeScale = 1.0f;
+            if (InputStateManager.Instance != null) InputStateManager.Instance.CloseUI();
+        }
+    }
+
     public void OpenBalanceUI(float incomingWeightPercent)
     {
-        // 조작 상태를 UI로 바꿔달라고 요청
         if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
 
-        currentWeightPercent = incomingWeightPercent;
+        _currentWeightPercent = incomingWeightPercent;
 
-        isInitialized = false;
-        selectedIndex = -1;
-        currentHoverIndex = -1;
+        _isInitialized = false;
+        _selectedIndex = -1;
+        _currentHoverIndex = -1;
 
         if (confirmButtonImage != null) confirmButtonImage.gameObject.SetActive(false);
         if (mainCanvasGroup != null) mainCanvasGroup.alpha = 0f;
@@ -103,7 +111,7 @@ public class BalanceManager : MonoBehaviour
         gameObject.SetActive(true);
 
         if (backgroundImage != null) StartCoroutine(LoopBackgroundAnimation());
-        if (mainFaceImage != null) floatCoroutine = StartCoroutine(FloatMainImage());
+        if (mainFaceImage != null) _floatCoroutine = StartCoroutine(FloatMainImage());
 
         StartCoroutine(FadeInUI());
     }
@@ -130,12 +138,12 @@ public class BalanceManager : MonoBehaviour
         }
         if (contentCanvasGroup) contentCanvasGroup.alpha = 1f;
 
-        isInitialized = true;
+        _isInitialized = true;
     }
 
     private void Update()
     {
-        if (!isInitialized) return;
+        if (!_isInitialized) return;
 
         CheckMouseHover();
         CheckMouseClick();
@@ -143,7 +151,7 @@ public class BalanceManager : MonoBehaviour
 
     private void CheckMouseHover()
     {
-        if (selectedIndex != -1) return;
+        if (_selectedIndex != -1) return;
 
         Vector2 mousePos = Mouse.current.position.ReadValue();
         int newHoverIndex = -1;
@@ -158,9 +166,9 @@ public class BalanceManager : MonoBehaviour
             }
         }
 
-        if (currentHoverIndex != newHoverIndex)
+        if (_currentHoverIndex != newHoverIndex)
         {
-            currentHoverIndex = newHoverIndex;
+            _currentHoverIndex = newHoverIndex;
             UpdateMainImage();
         }
     }
@@ -194,12 +202,12 @@ public class BalanceManager : MonoBehaviour
 
     private void SelectFace(int newIndex)
     {
-        if (selectedIndex == newIndex) return;
+        if (_selectedIndex == newIndex) return;
 
-        selectedIndex = newIndex;
+        _selectedIndex = newIndex;
 
         if (sfxSelect && SoundManager.instance) 
-            SoundManager.instance.PlaySFX(sfxSelect, 0.6f, 0.1f);
+            SoundManager.instance.PlaySFX(sfxSelect, 0.6f);
 
         UpdateMainImage();
         UpdateProbabilityUI();
@@ -210,13 +218,13 @@ public class BalanceManager : MonoBehaviour
     {
         if (!mainFaceImage) return;
 
-        if (selectedIndex != -1)
+        if (_selectedIndex != -1)
         {
-            mainFaceImage.sprite = faceChoices[selectedIndex].highlightSprite;
+            mainFaceImage.sprite = faceChoices[_selectedIndex].highlightSprite;
         }
-        else if (currentHoverIndex != -1)
+        else if (_currentHoverIndex != -1)
         {
-            mainFaceImage.sprite = faceChoices[currentHoverIndex].highlightSprite;
+            mainFaceImage.sprite = faceChoices[_currentHoverIndex].highlightSprite;
         }
         else
         {
@@ -231,7 +239,7 @@ public class BalanceManager : MonoBehaviour
 
         float[] currentPercentages = GameManager.instance.dice.displayPercentages;
 
-        if (selectedIndex == -1)
+        if (_selectedIndex == -1)
         {
             for (int i = 0; i < 6; i++)
             {
@@ -244,7 +252,7 @@ public class BalanceManager : MonoBehaviour
         }
         else
         {
-            float[] predictedPercentages = GameManager.instance.dice.GetPredictedPercentages(selectedIndex, currentWeightPercent);
+            float[] predictedPercentages = GameManager.instance.dice.GetPredictedPercentages(_selectedIndex, _currentWeightPercent);
 
             for (int i = 0; i < 6; i++)
             {
@@ -252,7 +260,7 @@ public class BalanceManager : MonoBehaviour
                 {
                     probabilityTexts[i].text = predictedPercentages[i].ToString("F1") + "%";
 
-                    if (i == selectedIndex)
+                    if (i == _selectedIndex)
                         probabilityTexts[i].color = increaseTextColor;
                     else
                         probabilityTexts[i].color = decreaseTextColor;
@@ -267,13 +275,13 @@ public class BalanceManager : MonoBehaviour
 
         infoPanelObject.SetActive(true);
 
-        if (selectedIndex != -1 && GameManager.instance && GameManager.instance.dice)
+        if (_selectedIndex != -1 && GameManager.instance && GameManager.instance.dice)
         {
-            DiceData currentData = GameManager.instance.dice.diceList[selectedIndex];
+            DiceData currentData = GameManager.instance.dice.diceList[_selectedIndex];
 
-            float currentPercent = GameManager.instance.dice.displayPercentages[selectedIndex];
-            float[] predicted = GameManager.instance.dice.GetPredictedPercentages(selectedIndex, currentWeightPercent);
-            float predictedPercent = predicted[selectedIndex];
+            float currentPercent = GameManager.instance.dice.displayPercentages[_selectedIndex];
+            float[] predicted = GameManager.instance.dice.GetPredictedPercentages(_selectedIndex, _currentWeightPercent);
+            float predictedPercent = predicted[_selectedIndex];
 
             if (currentData)
             {
@@ -320,14 +328,14 @@ public class BalanceManager : MonoBehaviour
 
     public void OnConfirmButtonClick()
     {
-        if (selectedIndex == -1) return;
+        if (_selectedIndex == -1) return;
 
         if (sfxDecision && SoundManager.instance) 
             SoundManager.instance.PlaySFX(sfxDecision, 0.7f, 0.2f);
 
         if (GameManager.instance && GameManager.instance.dice)
         {
-            GameManager.instance.dice.AddPercentToFace(selectedIndex, currentWeightPercent);
+            GameManager.instance.dice.AddPercentToFace(_selectedIndex, _currentWeightPercent);
         }
 
         CloseBalanceUI();
@@ -335,8 +343,8 @@ public class BalanceManager : MonoBehaviour
 
     private void CloseBalanceUI()
     {
-        if (!isInitialized) return;
-        isInitialized = false;
+        if (!_isInitialized) return;
+        _isInitialized = false;
 
         if (confirmButtonImage) confirmButtonImage.gameObject.SetActive(false);
 
@@ -361,7 +369,6 @@ public class BalanceManager : MonoBehaviour
         if (mainCanvasGroup) mainCanvasGroup.alpha = 0f;
         if (contentCanvasGroup) contentCanvasGroup.alpha = 0f;
         
-        // 창이 완전히 닫히고 나면 평화 상태로 복귀
         if (InputStateManager.Instance) InputStateManager.Instance.CloseUI();
 
         gameObject.SetActive(false);
@@ -380,14 +387,15 @@ public class BalanceManager : MonoBehaviour
             backgroundImage.rectTransform.localRotation = Quaternion.Euler(0, 0, rotWave * bgRotationRange);
             yield return null;
         }
+        // ReSharper disable once IteratorNeverReturns
     }
 
     private IEnumerator FloatMainImage()
     {
         while (true)
         {
-            float newY = mainImageInitialPos.y + Mathf.Sin(Time.unscaledTime * floatSpeed) * floatAmplitude;
-            mainFaceImage.rectTransform.anchoredPosition = new Vector2(mainImageInitialPos.x, newY);
+            float newY = _mainImageInitialPos.y + Mathf.Sin(Time.unscaledTime * floatSpeed) * floatAmplitude;
+            mainFaceImage.rectTransform.anchoredPosition = new Vector2(_mainImageInitialPos.x, newY);
             yield return null;
         }
     }

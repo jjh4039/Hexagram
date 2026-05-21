@@ -52,9 +52,9 @@ public class StageController : MonoBehaviour
         GameObject player = GameManager.instance.player.gameObject;
         if (player != null && spawnPoint != null) player.transform.position = spawnPoint.position;
 
-        if (CameraFollow.instance != null && stageBounds != null)
+        if (CameraFollow.Instance != null && stageBounds != null)
         {
-            CameraFollow.instance.SetCameraBounds(stageBounds.bounds);
+            CameraFollow.Instance.SetCameraBounds(stageBounds.bounds);
         }
 
         // ★ 보스 스테이지 진입 시 기존 맵 브금을 페이드 아웃 시킵니다 (보스 조우 시 새 브금이 켜짐)
@@ -93,7 +93,7 @@ public class StageController : MonoBehaviour
         }
 
         if (!isSafeStage) UpdateEnemyCountUI();
-        if (ArtifactManager.instance != null) ArtifactManager.instance.OnStageEnterTrigger();
+        if (ArtifactManager.Instance != null) ArtifactManager.Instance.OnStageEnterTrigger();
 
         StartCoroutine(Co_DelayedStart());
     }

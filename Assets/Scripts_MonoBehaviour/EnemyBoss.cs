@@ -232,17 +232,17 @@ public class EnemyBoss : Enemy
             SoundManager.instance.PlayBGM(bossBgmLoop, bossBgmIntro, bossBgmFadeInTime);
         }
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            StartCoroutine(CinematicManager.instance.Co_PlayBossIntro(
+            StartCoroutine(CinematicManager.Instance.Co_PlayBossIntro(
                 this.transform,
                 onSunsetStart: () =>
                 {
-                    StartCoroutine(Co_WakeUpColorLerp(CinematicManager.instance.SunsetDuration));
+                    StartCoroutine(Co_WakeUpColorLerp(CinematicManager.Instance.SunsetDuration));
                 },
                 onSunsetDone: () =>
                 {
-                    if (CameraFollow.instance != null) CameraFollow.instance.HitShake(1.7f, 0.4f, 1f);
+                    if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(1.7f, 0.4f, 1f);
                     if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
                     if (anim != null) anim.SetTrigger("Start");
                 },
@@ -291,9 +291,9 @@ public class EnemyBoss : Enemy
             }
         }
 
-        if (BossHealthUI.instance != null)
+        if (BossHealthUI.Instance != null)
         {
-            BossHealthUI.instance.SetupBoss(bossName, maxHealth);
+            BossHealthUI.Instance.SetupBoss(bossName, maxHealth);
         }
 
         if (forceEnrage)
@@ -301,7 +301,7 @@ public class EnemyBoss : Enemy
             currentHealth = maxHealth * 0.5f;
 
             yield return new WaitForSeconds(0.5f);
-            if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
+            if (BossHealthUI.Instance != null) BossHealthUI.Instance.UpdateBossHealth(currentHealth);
         }
 
         if (auraParticle != null)
@@ -346,8 +346,8 @@ public class EnemyBoss : Enemy
         if (!isAwake || isDead) return;
 
         base.TakeDamage(damage, isCritical);
-        if (BossHealthUI.instance != null) BossHealthUI.instance.UpdateBossHealth(currentHealth);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.05f, 0.04f);
+        if (BossHealthUI.Instance != null) BossHealthUI.Instance.UpdateBossHealth(currentHealth);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.05f, 0.04f);
     }
 
     private IEnumerator Co_EnragePattern()
@@ -358,7 +358,7 @@ public class EnemyBoss : Enemy
 
         if (anim != null) anim.SetTrigger("Enrage");
         if (sfxEnrageRoar != null) SoundManager.instance.PlaySFX(sfxEnrageRoar, 1.2f);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(enragePauseTime, 0.5f, 1f);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(enragePauseTime, 0.5f, 1f);
 
         KnockbackPlayer();
 
@@ -598,7 +598,7 @@ public class EnemyBoss : Enemy
             if (debrisCoroutine != null) StopCoroutine(debrisCoroutine);
 
             rigid.linearVelocity = Vector2.zero;
-            if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.1f, 0.08f);
+            if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.1f, 0.08f);
 
             if (i == 0 && dashCount > 1)
             {
@@ -646,7 +646,7 @@ public class EnemyBoss : Enemy
         if (isDead) yield break;
 
         if (anim != null) anim.SetTrigger("Slam");
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.45f);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.35f, 0.45f);
 
         if (sfxAoeExplode != null) SoundManager.instance.PlaySFX(sfxAoeExplode, 0.9f);
 
@@ -731,7 +731,7 @@ public class EnemyBoss : Enemy
         ClearRectangles();
 
         if (isDead) yield break;
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.15f);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.2f, 0.15f);
 
         if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
         foreach (Vector2 dir in lineDirections)
@@ -789,7 +789,7 @@ public class EnemyBoss : Enemy
                 ClearRectangles();
 
                 if (isDead) yield break;
-                if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.25f, 0.2f);
+                if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.25f, 0.2f);
 
                 if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
                 for (int i = 0; i < wallHitPoints.Count; i++)
@@ -845,12 +845,12 @@ public class EnemyBoss : Enemy
 
         if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1f, 0.1f);
         FireVineSet(hSet1, null);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.2f);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.2f, 0.2f);
         yield return new WaitForSeconds(gridFireDelay);
 
         if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1f, 0.1f);
         FireVineSet(null, vSet1);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.2f, 0.2f);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.2f, 0.2f);
         yield return new WaitForSeconds(gridFireDelay);
 
         if (isEnraged || forceEnrage)
@@ -862,7 +862,7 @@ public class EnemyBoss : Enemy
 
         if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1.2f, 0.1f);
         FireVineSet(hSet2, vSet2);
-        if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.35f, 0.35f);
+        if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.35f, 0.35f);
 
         if (isEnraged || forceEnrage)
         {
@@ -882,7 +882,7 @@ public class EnemyBoss : Enemy
                 {
                     vineScript.Fire(vineDamage * 1.5f, lockedSniperLength);
                 }
-                if (CameraFollow.instance != null) CameraFollow.instance.HitShake(0.5f, 0.4f);
+                if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.5f, 0.4f);
             }
 
             if (sniperMaxInstance != null) sniperMaxInstance.SetActive(false);
@@ -1254,8 +1254,8 @@ public class EnemyBoss : Enemy
             rigid.simulated = false;
         }
 
-        if (BossHealthUI.instance != null)
-            BossHealthUI.instance.HideUI();
+        if (BossHealthUI.Instance != null)
+            BossHealthUI.Instance.HideUI();
 
         if (trailContainer != null)
             Destroy(trailContainer, trailLifeTime);
@@ -1271,9 +1271,9 @@ public class EnemyBoss : Enemy
 
         if (anim != null) anim.enabled = false;
 
-        if (CinematicManager.instance != null)
+        if (CinematicManager.Instance != null)
         {
-            CinematicManager.instance.PlayBossDeathCinematic(this);
+            CinematicManager.Instance.PlayBossDeathCinematic(this);
         }
 
         Debug.Log("숲의 관리자가 처치되었습니다. 시네마틱 시작!");

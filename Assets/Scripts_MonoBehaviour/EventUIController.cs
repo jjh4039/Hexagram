@@ -224,8 +224,8 @@ public class EventUIController : MonoBehaviour
         _isOpen = true;
         _isClosingFromConfirm = false;
 
-        if (CameraFollow.instance != null)
-            CameraFollow.instance.SetUIOffset(eventCameraOffset);
+        if (CameraFollow.Instance != null)
+            CameraFollow.Instance.SetUIOffset(eventCameraOffset);
 
         eventRoot.SetActive(true);
         panelRect.anchoredPosition = _closedAnchoredPos;
@@ -254,8 +254,8 @@ public class EventUIController : MonoBehaviour
 
         _isOpen = false;
 
-        if (CameraFollow.instance)
-            CameraFollow.instance.ResetUIOffset();
+        if (CameraFollow.Instance)
+            CameraFollow.Instance.ResetUIOffset();
 
         StopAllManagedCoroutines();
         _slideRoutine = StartCoroutine(SlideRoutine(false));

@@ -30,19 +30,24 @@ public class DamageText : MonoBehaviour
     {
         textMesh = GetComponent<TextMeshPro>();
     }
-
+    
     public static DamageText Spawn(GameObject prefab, Vector3 position)
     {
-        // ★ 수정: Find를 쓰지 않고, 그냥 최상단에 전용 폴더를 하나 만듭니다.
         if (poolContainer == null)
         {
             poolContainer = new GameObject("DamageText_Pool").transform;
         }
 
-        DamageText dt;
-        if (pool.Count > 0)
+        DamageText dt = null;
+        
+        while (pool.Count > 0)
         {
             dt = pool.Dequeue();
+            if (dt != null) break;
+        }
+
+        if (dt != null)
+        {
             dt.transform.position = position;
             dt.gameObject.SetActive(true);
         }
@@ -51,6 +56,7 @@ public class DamageText : MonoBehaviour
             GameObject obj = Instantiate(prefab, position, Quaternion.identity, poolContainer);
             dt = obj.GetComponent<DamageText>();
         }
+        
         return dt;
     }
 

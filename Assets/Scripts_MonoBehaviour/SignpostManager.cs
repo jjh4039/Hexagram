@@ -138,10 +138,10 @@ public class SignpostManager : MonoBehaviour
             }
         }
 
-        if (CameraFollow.instance != null)
+        if (CameraFollow.Instance != null)
         {
             float yOffset = (type == InteractType.Signpost) ? cameraUpOffset : -cameraDownOffset;
-            CameraFollow.instance.SetUIOffset(new Vector3(0, yOffset, 0)); // 카메라 위치 조정
+            CameraFollow.Instance.SetUIOffset(new Vector3(0, yOffset, 0)); // 카메라 위치 조정
         }
 
         if (data.currentAnim != null) StopCoroutine(data.currentAnim);
@@ -165,9 +165,9 @@ public class SignpostManager : MonoBehaviour
             data.spriteRenderer.material = signpostMaterials[0]; // 기본 머터리얼 복구
         }
 
-        if (activeInteractCount == 0 && CameraFollow.instance != null)
+        if (activeInteractCount == 0 && CameraFollow.Instance != null)
         {
-            CameraFollow.instance.ResetUIOffset(); // 카메라 위치 복구
+            CameraFollow.Instance.ResetUIOffset(); // 카메라 위치 복구
         }
 
         if (data.currentAnim != null) StopCoroutine(data.currentAnim);

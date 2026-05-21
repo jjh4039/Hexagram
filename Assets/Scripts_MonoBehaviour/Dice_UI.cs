@@ -102,6 +102,12 @@ public class Dice_UI : MonoBehaviour
         UpdateText(isMax);
     }
 
+    // ★ 추가: 씬 파괴 시 코루틴 NullReference 에러를 막기 위한 방어막
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
     public void PlayRollAnimation(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
     {
         if (isRolling) return;
@@ -320,7 +326,7 @@ public class Dice_UI : MonoBehaviour
             yield return null;
         }
 
-        Destroy(img.gameObject);
+        if (img != null && img.gameObject != null) Destroy(img.gameObject);
     }
 
     private void UpdateKeyGuide(bool isMax)

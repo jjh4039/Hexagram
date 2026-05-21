@@ -26,7 +26,6 @@ public class Bullet : MonoBehaviour
     private float cachedDiceRangedDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
 
-    // ★ 추가: 풀링을 위한 라이프타임 코루틴용 변수
     private Coroutine lifeTimerCoroutine;
 
     private void Awake()
@@ -71,7 +70,6 @@ public class Bullet : MonoBehaviour
         cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
 
-    // ★ OnEnable: 풀에서 꺼내어 활성화될 때마다 초기화
     private void OnEnable()
     {
         hasHit = false;
@@ -94,11 +92,10 @@ public class Bullet : MonoBehaviour
         TrailRenderer trail = GetComponentInChildren<TrailRenderer>();
         if (trail != null)
         {
-            trail.Clear(); // 이전 궤적 초기화
+            trail.Clear(); 
             trail.emitting = true;
         }
 
-        // 특정 시간이 지나도 안 부딪히면 스스로 풀로 돌아감
         lifeTimerCoroutine = StartCoroutine(Co_LifeTimer());
     }
 
@@ -162,19 +159,24 @@ public class Bullet : MonoBehaviour
             trail.emitting = false;
         }
 
-        // 트레일 등 잔여 이펙트가 꺼지길 기다린 후 풀로 반환
-        Invoke(nameof(ReturnToPool), 0.5f);
+        // ★ 수정: Invoke를 지우고 타임스케일에 영향받지 않는 코루틴으로 대체
+        StartCoroutine(Co_DelayReturnToPool());
     }
 
-    private void ReturnToPool()
+    private System.Collections.IEnumerator Co_DelayReturnToPool()
     {
-        // Gun 스크립트에서 관리하는 Bullet Pool로 반환
+        float timer = 0f;
+        while(timer < 0.5f)
+        {
+            timer += Time.unscaledDeltaTime;
+            yield return null;
+        }
+        
         Gun.ReturnBullet(this.gameObject);
     }
 
     private void SpawnHitEffect(Vector3 position)
     {
-        // Gun 스크립트에서 관리하는 이펙트 풀을 통해 생성
         Gun.SpawnHitEffect(position, transform.rotation, myMaterial, myColor);
     }
 
