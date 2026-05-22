@@ -117,7 +117,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.227, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 282503531381150120}
@@ -811,6 +811,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBee
   maxHealth: 150
   currentHealth: 150
+  contactDamage: 10
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 5297684560180859122}
   hpBarRoot: {fileID: 8120813024193562995}
@@ -837,6 +838,7 @@ MonoBehaviour:
   headPoint: {fileID: 3558411456846194529}
   projectilePrefab: {fileID: 3884799456776141231, guid: 18c109b2ce949254d8c94016553be8c7, type: 3}
   projectileSpeed: 10
+  projectileDamage: 8
   homingStrength: 5
   knockbackForce: 1.5
   stunTime: 0.25

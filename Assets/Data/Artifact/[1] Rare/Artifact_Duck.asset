@@ -17,7 +17,7 @@ MonoBehaviour:
     \uBC0F \uC774\uB3D9\uC18D\uB3C4\uAC00 \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: -5934446449810056419, guid: a28cbcc2598bc0e4fb9029a635117a99, type: 3}
   grade: 1
-  basePrice: 100
+  basePrice: 152
   type: 1
   condition: 7
   buffDuration: 10

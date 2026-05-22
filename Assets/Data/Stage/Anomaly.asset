@@ -17,7 +17,7 @@ MonoBehaviour:
     : <color=#9A9A9A>\uBB34\uC791\uC704</color>"
   themeColor: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 1}
   minRise: 7
-  maxRise: 10
+  maxRise: 12
   moduleIcon: {fileID: 648795973803437671, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
   seasonPrefabs:
   - seasonLabel: "\uBD04"

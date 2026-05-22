@@ -596,8 +596,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2032179c6a974da4c986fe617df0c834, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBird
-  maxHealth: 100
-  currentHealth: 0
+  maxHealth: 270
+  currentHealth: 270
+  contactDamage: 11
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 2988266434534392964}
   hpBarRoot: {fileID: 9027136692207409524}
@@ -622,6 +623,7 @@ MonoBehaviour:
   headPoint: {fileID: 3953427049940760713}
   projectilePrefab: {fileID: 3884799456776141231, guid: 65a6b84acae6a534e940fbce6577927a, type: 3}
   projectileSpeed: 10
+  projectileDamage: 9
   homingStrength: 5
   knockbackForce: 1.5
   stunTime: 0.25

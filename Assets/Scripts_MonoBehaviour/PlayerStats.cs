@@ -203,9 +203,17 @@ public class PlayerStats : MonoBehaviour
     private void UpdateDiceCharge()
     {
         if (currentDiceCharge >= maxDiceCharge) return;
-
+        
+        bool isTutorial = false;
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            isTutorial = GameManager.instance.player.isTutorial;
+        }
+        
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentPhase != GamePhase.InCombat)
-            return;
+        {
+            if (!isTutorial) return; // 튜토리얼이 아닐 때만 차단
+        }
 
         currentDiceCharge += dicePassiveChargeRate * diceChargeSpeedMultiplier * Time.deltaTime;
         currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);

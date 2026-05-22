@@ -250,7 +250,6 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
                     balanceScript.Setup(weightValue);
                 }
             }
-            if (stats != null) stats.SpawnDamageText("WEIGHT SPWN!", Color.cyan, 3.5f);
         }
     }
 

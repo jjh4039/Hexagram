@@ -7244,7 +7244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c35e2dc293b13e241a14cd8e201bdcea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemyPrefab: {fileID: 3522918068342987818, guid: 7f33c4dd40d81af44ab0e51a6f8fd976, type: 3}
+  enemyPrefab: {fileID: 8512275392704843948, guid: 5ccb7954cd8a17347ae43d4b4cc43bd7, type: 3}
   warningPrefab: {fileID: 2511136541265556103, guid: fd65f551b82a4474b8411a0cdaefd8d2, type: 3}
   spawnDelay: 1
   spawnEffectPrefab: {fileID: 2003268888159810025, guid: d74e62dc3aac01547b296e56de5bf092, type: 3}
@@ -7534,7 +7534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c35e2dc293b13e241a14cd8e201bdcea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemyPrefab: {fileID: 8512275392704843948, guid: 5ccb7954cd8a17347ae43d4b4cc43bd7, type: 3}
+  enemyPrefab: {fileID: 3522918068342987818, guid: 7f33c4dd40d81af44ab0e51a6f8fd976, type: 3}
   warningPrefab: {fileID: 2511136541265556103, guid: fd65f551b82a4474b8411a0cdaefd8d2, type: 3}
   spawnDelay: 1
   spawnEffectPrefab: {fileID: 2003268888159810025, guid: d74e62dc3aac01547b296e56de5bf092, type: 3}

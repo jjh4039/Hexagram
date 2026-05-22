@@ -72,36 +72,29 @@ public class BuffManager : MonoBehaviour
 
     public void ApplyStageDebuff(StageDebuffType type, float value, int stageDuration, Sprite icon = null)
     {
-        // 1. 0턴 지속이면 아예 버프를 생성하지 않고 무시
         if (stageDuration <= 0)
         {
             Debug.Log($"[디버프 무시] {type}의 지속 스테이지가 0이므로 생성하지 않습니다.");
             return;
         }
 
-        // ★ 2. 신규 추가: 받는 피해 증가 수치가 0% 이하라면 무시
         if (type == StageDebuffType.TakeMoreDamage && value <= 0f)
         {
             Debug.Log($"[디버프 무시] {type}의 수치가 0%이므로 생성하지 않습니다.");
             return;
         }
 
-        // 3. 이미 같은 종류의 디버프가 걸려있는지 확인
         ActiveBuff existingDebuff = activeBuffs.Find(b => b.isStageDuration && b.isDebuff && b.debuffType == type);
 
         if (existingDebuff != null)
         {
-            // 겹치면 남은 스테이지 횟수를 합침
             existingDebuff.remainingStages += stageDuration;
-
-            // 수치(예: 받는 피해 증가 %)는 기존 값과 새로운 값 중 더 빡센(높은) 값으로 유지
             existingDebuff.debuffValue = Mathf.Max(existingDebuff.debuffValue, value);
 
             Debug.Log($"디버프 중첩됨: {type}, 총 {existingDebuff.remainingStages}스테이지 지속으로 증가");
         }
         else
         {
-            // 걸려있지 않다면 새로 생성
             ActiveBuff newDebuff = new ActiveBuff
             {
                 debuffType = type,
@@ -360,20 +353,20 @@ public class BuffManager : MonoBehaviour
                         break;
                     case DiceEffectType.RangedMegaBuff: rangedDiceTotal += finalEffectValue; break;
                     case DiceEffectType.StrongAttackBuff: stats.diceStrongAttackStacks += buff.remainingCount; break;
+                    
+                    // ★ 수정: 체력 10% 비례 회복 및 시각 효과(초록 텍스트) 연동
                     case DiceEffectType.Heal:
                         if (!buff.instantApplied)
                         {
-                            if (!stats.cannotHeal)
-                            {
-                                // 수정됨: 원본 수치가 아닌 반감이 적용된 finalEffectValue를 기준으로 회복합니다.
-                                stats.currentHealth =
-                                    Mathf.Min(stats.currentHealth + Mathf.RoundToInt(finalEffectValue),
-                                        stats.maxHealth);
-                            }
+                            // finalEffectValue를 퍼센트(%) 수치로 취급하여 계산 (예: 10 입력 시 10%)
+                            float healAmount = stats.maxHealth * (finalEffectValue / 100f);
+                            int finalHealInt = Mathf.Max(1, Mathf.RoundToInt(healAmount)); // 최소 1은 회복 보장
+
+                            // PlayerStats의 Heal() 함수를 호출하여 cannotHeal 체크 및 초록색 UI 텍스트 팝업 처리를 위임함
+                            stats.Heal(finalHealInt);
 
                             buff.instantApplied = true;
                         }
-
                         break;
                 }
             }

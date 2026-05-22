@@ -504,8 +504,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 625a028028ccc014ab8a4004eccd9186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySlime
-  maxHealth: 80
-  currentHealth: 80
+  maxHealth: 120
+  currentHealth: 120
+  contactDamage: 10
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 8371458529271725179}
   hpBarRoot: {fileID: 6640949269554436846}

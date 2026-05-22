@@ -28,17 +28,19 @@ public class Panel_Stats : MonoBehaviour
         if (playerStats == null) return;
 
         hpText.text = $"{playerStats.currentHealth} / {playerStats.maxHealth}";
-        moveSpeedText.text = $"{(playerStats.moveSpeed / 5f) * 100f}%";
+        
+        // "0.#" 포맷을 사용하여 정수면 깔끔하게, 소수점이 있으면 1자리까지만 표기합니다.
+        moveSpeedText.text = $"{(playerStats.moveSpeed / 5f * 100f).ToString("0.#")}%";
 
-        meleeAtkText.text = $"{playerStats.meleeAttackPower:F2}";
-        rangedAtkText.text = $"{playerStats.rangeAttackPower:F2}";
-        atkSpeedText.text = $"{playerStats.attackSpeed * 100f}%";
+        meleeAtkText.text = playerStats.meleeAttackPower.ToString("0.#");
+        rangedAtkText.text = playerStats.rangeAttackPower.ToString("0.#");
+        atkSpeedText.text = $"{(playerStats.attackSpeed * 100f).ToString("0.#")}%";
 
-        critChanceText.text = $"{playerStats.criticalChance * 100f}%";
-        critDamageText.text = $"{playerStats.GetFinalCriticalDamageMultiplier() * 100f}%";
-        finalDamageText.text = $"{playerStats.finalAttackPower * 100f}%";
+        critChanceText.text = $"{(playerStats.criticalChance * 100f).ToString("0.#")}%";
+        critDamageText.text = $"{(playerStats.GetFinalCriticalDamageMultiplier() * 100f).ToString("0.#")}%";
+        finalDamageText.text = $"{(playerStats.finalAttackPower * 100f).ToString("0.#")}%";
 
-        diceChargeText.text = $"{playerStats.dicePassiveChargeRate}/s";
-        diceAmpText.text = $"{playerStats.finalDicePower * 100f}%";
+        diceChargeText.text = $"{playerStats.dicePassiveChargeRate.ToString("0.#")}/s";
+        diceAmpText.text = $"{(playerStats.finalDicePower * 100f).ToString("0.#")}%";
     }
 }

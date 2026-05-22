@@ -4,7 +4,7 @@ using System.Collections;
 public class Scrap : MonoBehaviour
 {
     [Header("Settings")] 
-    public int value = 1;                                // 스크랩의 기본 가치
+    public int value = 11;                                // 스크랩의 기본 가치
     [SerializeField] private float acceleration = 40f;   // 가속도
     [SerializeField] private float initialSpeed = 2f;    // 초기 속도
     [SerializeField] private float rotateSpeed = 720f;   // 회전 속도

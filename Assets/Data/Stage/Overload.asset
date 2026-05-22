@@ -16,8 +16,8 @@ MonoBehaviour:
   description: "\uB3CC\uC5F0\uBCC0\uC774 \uD504\uB85C\uC138\uC2A4\uB85C \uC9C4\uC785\uD569\uB2C8\uB2E4.\n\uBCF4\uC0C1
     : <color=#FF8A8A>\uC544\uD2F0\uD329\uD2B8</color>\n"
   themeColor: {r: 1, g: 0.5411765, b: 0.5411765, a: 1}
-  minRise: 12
-  maxRise: 17
+  minRise: 7
+  maxRise: 11
   moduleIcon: {fileID: 6091147021086159468, guid: dfc90700fb710c44294fea5bec3e3fd4, type: 3}
   seasonPrefabs:
   - seasonLabel: "\uBD04"

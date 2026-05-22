@@ -198,8 +198,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47198770d53a7754ab8b7be45fd66c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBee
-  maxHealth: 150
-  currentHealth: 150
+  maxHealth: 320
+  currentHealth: 320
+  contactDamage: 12
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
   shadowObject: {fileID: 1912169242669508633}
   hpBarRoot: {fileID: 746181786197361333}
@@ -226,6 +227,7 @@ MonoBehaviour:
   headPoint: {fileID: 3807457823872870941}
   projectilePrefab: {fileID: 3884799456776141231, guid: 5ea31c18297883c48ac46cf18ea3a1e9, type: 3}
   projectileSpeed: 10
+  projectileDamage: 9
   homingStrength: 5
   knockbackForce: 1.5
   stunTime: 0.25

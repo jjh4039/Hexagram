@@ -17,7 +17,7 @@ MonoBehaviour:
     \uB54C\n\uACF5\uACA9\uB825\uC774 45% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: 1401169777170141884, guid: b6eae4fc94bfd834a9c2b3e359290eda, type: 3}
   grade: 2
-  basePrice: 100
+  basePrice: 219
   type: 1
   condition: 8
   buffDuration: 10

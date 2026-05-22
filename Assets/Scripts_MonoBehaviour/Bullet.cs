@@ -159,7 +159,6 @@ public class Bullet : MonoBehaviour
             trail.emitting = false;
         }
 
-        // ★ 수정: Invoke를 지우고 타임스케일에 영향받지 않는 코루틴으로 대체
         StartCoroutine(Co_DelayReturnToPool());
     }
 
@@ -207,6 +206,11 @@ public class Bullet : MonoBehaviour
         if (GameManager.instance != null)
         {
             GameManager.instance.totalDamageDealt += damageInt;
+            // ★ 추가: 총알 적중 시 주사위 게이지 충전
+            if (GameManager.instance.stats != null)
+            {
+                GameManager.instance.stats.AddDiceChargeFromHit();
+            }
         }
     }
 }

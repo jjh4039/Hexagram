@@ -4,17 +4,16 @@ using UnityEngine;
 
 public class Sword_Effect : MonoBehaviour
 {
-    [Header("Settings")]
-    [SerializeField] private float duration = 0.5f;
+    [Header("Settings")] [SerializeField] private float duration = 0.5f;
     [SerializeField] private float damageMultiplier = 1.0f;
     [SerializeField] private int ammoGain = 10;
 
-    [Header("Multi Hit Settings")]
-    [SerializeField] private int hitCount;
+    [Header("Multi Hit Settings")] [SerializeField]
+    private int hitCount;
+
     [SerializeField] private float hitInterval;
 
-    [Header("Hit VFX")]
-    [SerializeField] private GameObject hitEffectPrefab;
+    [Header("Hit VFX")] [SerializeField] private GameObject hitEffectPrefab;
     [SerializeField] private GameObject criticalHitEffectPrefab;
     [SerializeField] private float baseRotationOffset = 0f;
     [SerializeField] private float randomRotationOffset = 12f;
@@ -32,7 +31,7 @@ public class Sword_Effect : MonoBehaviour
 
     private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
     private static Queue<GameObject> _critHitEffectPool = new Queue<GameObject>();
-    private static Transform _effectPoolContainer; 
+    private static Transform _effectPoolContainer;
 
     private void Awake()
     {
@@ -108,7 +107,6 @@ public class Sword_Effect : MonoBehaviour
 
         for (int i = 0; i < hitCount; i++)
         {
-            // ★ 수정: 다단 히트 도중에 적이 죽었거나 파괴되었는지 이중 체크
             if (enemy == null || enemy.gameObject == null || !enemy.gameObject.activeInHierarchy || enemy.IsDead)
                 yield break;
 
@@ -132,7 +130,9 @@ public class Sword_Effect : MonoBehaviour
                 GameManager.instance.totalDamageDealt += damageInt;
             }
 
-            // 대미지를 주고 나서 적이 파괴되었는지 한 번 더 체크 (오류 방지)
+            // ★ 추가: 검 타격 적중 시 주사위 게이지 충전
+            stats.AddDiceChargeFromHit();
+
             if (enemy == null || enemy.gameObject == null || !enemy.gameObject.activeInHierarchy)
                 yield break;
 
@@ -185,9 +185,9 @@ public class Sword_Effect : MonoBehaviour
         angle += Random.Range(-randomRotationOffset, randomRotationOffset);
 
         Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
-        
+
         GameObject vfx = null;
-        
+
         // 파괴된 객체 건너뛰기
         while (targetPool.Count > 0)
         {
