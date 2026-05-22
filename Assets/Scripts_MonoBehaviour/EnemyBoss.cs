@@ -523,6 +523,72 @@ public class EnemyBoss : Enemy
             transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
     }
 
+    // ★ 수정된 함수: MaxRect(배경)와 CurRect(진행바)의 처리를 구분하는 isMaxRect 파라미터 추가
+    void UpdateRectangle(GameObject rect, Vector2 dir, float requestedLength, float width, bool isMaxRect)
+    {
+        if (rect == null) return;
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+        Vector2 visualOffset = new Vector2(dashIndicatorOffset.x * facingDirection, dashIndicatorOffset.y);
+        Vector2 startPos = (Vector2)transform.position + visualOffset;
+
+        rect.transform.position = startPos;
+        rect.transform.right = dir.normalized;
+
+        float finalLength = requestedLength;
+
+        if (isMaxRect)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, requestedLength, wallLayer);
+            if (hit.collider != null)
+            {
+                finalLength = Mathf.Max(0, hit.distance - 0.5f);
+            }
+        }
+
+        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            float adjustedLength = finalLength + Mathf.Abs(dashIndicatorOffset.x);
+            sr.size = new Vector2(adjustedLength, width);
+        }
+    }
+
+    // ★ 수정된 함수: MaxRect(배경)와 CurRect(진행바)의 처리를 구분하는 isMaxRect 파라미터 추가
+    void UpdateRectangleFromPoint(GameObject rect, Vector2 startPos, Vector2 dir, float maxLimitLength, float progress, float width, bool isMaxRect)
+    {
+        if (rect == null) return;
+
+        rect.transform.position = startPos;
+        rect.transform.right = dir.normalized;
+
+        float finalLength = maxLimitLength;
+
+        if (isMaxRect)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, maxLimitLength, wallLayer);
+            if (hit.collider != null)
+            {
+                finalLength = Mathf.Max(0, hit.distance - 0.5f);
+            }
+        }
+
+        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            float currentLength = finalLength * progress;
+            sr.size = new Vector2(currentLength, width);
+        }
+    }
+
+    void ClearRectangles()
+    {
+        if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
+        if (attackRangeObj != null) attackRangeObj.SetActive(false);
+
+        foreach (var r in poolMaxRects) if (r != null) r.SetActive(false);
+        foreach (var r in poolCurRects) if (r != null) r.SetActive(false);
+    }
+
     IEnumerator Co_Pattern1_Dash()
     {
         int dashCount = (isEnraged || forceEnrage) ? 2 : 1;
@@ -553,8 +619,13 @@ public class EnemyBoss : Enemy
                 Vector2 targetDir = (target.position - transform.position).normalized;
                 currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * dashHomingStrength);
 
-                UpdateRectangle(maxRectInstance, currentDir, currentLimitLength, dashRectWidth);
-                UpdateRectangle(currentRectInstance, currentDir, currentLimitLength * (timer / currentChargeTime), dashRectWidth);
+                // ★ 수정: MaxRect는 true 전달
+                UpdateRectangle(maxRectInstance, currentDir, currentLimitLength, dashRectWidth, true);
+                
+                // ★ 수정: CurRect는 progress를 계산한 길이를 넘겨주고 false 전달
+                float currentProgressLength = currentLimitLength * (timer / currentChargeTime);
+                UpdateRectangle(currentRectInstance, currentDir, currentProgressLength, dashRectWidth, false);
+                
                 LookAtDirection(currentDir.x);
 
                 yield return null;
@@ -719,8 +790,15 @@ public class EnemyBoss : Enemy
             timer += Time.deltaTime;
             for (int i = 0; i < lineDirections.Count; i++)
             {
-                if (i < maxRects.Count) UpdateRectangle(maxRects[i], lineDirections[i], spikeMaxLimitLength, spikeRectWidth);
-                if (i < currentRects.Count) UpdateRectangle(currentRects[i], lineDirections[i], spikeMaxLimitLength * (timer / linesChargeTime), spikeRectWidth);
+                // ★ 수정: MaxRect는 true 전달, CurRect는 길이를 계산해서 넘겨주고 false 전달
+                if (i < maxRects.Count) 
+                    UpdateRectangle(maxRects[i], lineDirections[i], spikeMaxLimitLength, spikeRectWidth, true);
+                
+                if (i < currentRects.Count) 
+                {
+                    float currentProgressLength = spikeMaxLimitLength * (timer / linesChargeTime);
+                    UpdateRectangle(currentRects[i], lineDirections[i], currentProgressLength, spikeRectWidth, false);
+                }
             }
             yield return null;
         }
@@ -777,8 +855,11 @@ public class EnemyBoss : Enemy
                     for (int i = 0; i < reverseDirections.Count; i++)
                     {
                         Vector2 startPos = wallHitPoints[i];
-                        if (i < maxRects.Count) UpdateRectangleFromPoint(maxRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
-                        if (i < currentRects.Count) UpdateRectangleFromPoint(currentRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
+                        // ★ 수정: MaxRect는 true 전달, CurRect는 false 전달
+                        if (i < maxRects.Count) 
+                            UpdateRectangleFromPoint(maxRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth, true);
+                        if (i < currentRects.Count) 
+                            UpdateRectangleFromPoint(currentRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth, false);
                     }
                     yield return null;
                 }
@@ -1179,54 +1260,6 @@ public class EnemyBoss : Enemy
             }
             yield return null;
         }
-    }
-
-    void UpdateRectangle(GameObject rect, Vector2 dir, float requestedLength, float width)
-    {
-        if (rect == null) return;
-        float facingDirection = Mathf.Sign(transform.localScale.x);
-        Vector2 visualOffset = new Vector2(dashIndicatorOffset.x * facingDirection, dashIndicatorOffset.y);
-        Vector2 startPos = (Vector2)transform.position + visualOffset;
-
-        rect.transform.position = startPos;
-        rect.transform.right = dir.normalized;
-
-        RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, requestedLength, wallLayer);
-        float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 0.5f) : requestedLength;
-
-        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            float adjustedLength = finalLength + Mathf.Abs(dashIndicatorOffset.x);
-            sr.size = new Vector2(adjustedLength, width);
-        }
-    }
-
-    void UpdateRectangleFromPoint(GameObject rect, Vector2 startPos, Vector2 dir, float maxLimitLength, float progress, float width)
-    {
-        if (rect == null) return;
-
-        rect.transform.position = startPos;
-        rect.transform.right = dir.normalized;
-
-        RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, maxLimitLength, wallLayer);
-        float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 0.5f) : maxLimitLength;
-
-        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            float currentLength = finalLength * progress;
-            sr.size = new Vector2(currentLength, width);
-        }
-    }
-
-    void ClearRectangles()
-    {
-        if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
-        if (attackRangeObj != null) attackRangeObj.SetActive(false);
-
-        foreach (var r in poolMaxRects) if (r != null) r.SetActive(false);
-        foreach (var r in poolCurRects) if (r != null) r.SetActive(false);
     }
 
     protected override void OnHit() { if (isDead) return; }

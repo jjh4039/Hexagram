@@ -47941,7 +47941,7 @@ MonoBehaviour:
   currentScrap: 500
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 0
+  currentProgress: 100
   maxProgress: 100
   currentPlayTime: 0
   totalDamageDealt: 0
