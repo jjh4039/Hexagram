@@ -13,14 +13,14 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Dice Charge Stats")]
     public float maxDiceCharge = 300f;
-    public float currentDiceCharge;
+    public float currentDiceCharge = 100f;
     public float dicePassiveChargeRate = 5f;
     public float diceHitChargeAmount = 2f;
     public float finalDicePower = 1f;
 
     [Header("Attack Power Stats")]
     public float meleeAttackPower = 10f;
-    public float rangeAttackPower = 8f;
+    public float rangeAttackPower = 12f;
     public float finalAttackPower = 1f;
 
     [Header("Critical Stats")]
@@ -67,6 +67,13 @@ public class PlayerStats : MonoBehaviour
     private void Start()
     {
         _buffManager = GetComponent<BuffManager>();
+
+        // ★ 추가: 영구 성장 요소 - 보유한 누적 보석 수만큼 최대 체력 1씩 증가
+        if (DataManager.instance != null && DataManager.instance.data != null)
+        {
+            maxHealth += DataManager.instance.data.totalGems;
+        }
+
         currentHealth = maxHealth;
         currentAmmo = maxAmmo;
         currentDashStacks = maxDashStacks;
@@ -212,7 +219,7 @@ public class PlayerStats : MonoBehaviour
         
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentPhase != GamePhase.InCombat)
         {
-            if (!isTutorial) return; // 튜토리얼이 아닐 때만 차단
+            if (!isTutorial) return; 
         }
 
         currentDiceCharge += dicePassiveChargeRate * diceChargeSpeedMultiplier * Time.deltaTime;
@@ -245,7 +252,6 @@ public class PlayerStats : MonoBehaviour
 
     public float GetFinalMoveSpeed() => moveSpeed * diceMoveSpeedMultiplier;
     
-    // ★ 수정 2: 최종 공격 속도 200%(2.0f) 제한 로직
     public float GetFinalAttackSpeed() 
     {
         float speed = attackSpeed * diceAttackSpeedMultiplier;

@@ -395,7 +395,7 @@ MonoBehaviour:
   debrisOffset: {x: 0, y: 0}
   aoeChargeTime: 2
   hugeAoeRadius: 9
-  aoeDamage: 20
+  aoeDamage: 14
   aoeRecoveryTime: 1
   targetLayer:
     serializedVersion: 2
@@ -406,14 +406,14 @@ MonoBehaviour:
   aoeVisualScale: 4.5
   aoeProjectilePrefab: {fileID: 3884799456776141231, guid: 5ea31c18297883c48ac46cf18ea3a1e9, type: 3}
   aoeProjectileSpeed: 10
-  aoeProjectileDamage: 15
+  aoeProjectileDamage: 12
   linesChargeTime: 1.5
   minLines: 7
   maxLines: 10
   linesRecoveryTime: 0.5
   spikeRectWidth: 1.5
   earthSpikePrefab: {fileID: 2672971857138975614, guid: abaf29a3ec4be8a4685ac7f0fda36d82, type: 3}
-  spikeDamage: 15
+  spikeDamage: 12
   spikeDistance: 1.5
   spikeSpawnDelay: 0.05
   spikeMaxLimitLength: 30
@@ -424,7 +424,7 @@ MonoBehaviour:
   gridFireDelay: 1
   gridRecoveryTime: 2
   giantVinePrefab: {fileID: 4870788589606769806, guid: d29520996d520ef47ad350853b00de7d, type: 3}
-  vineDamage: 25
+  vineDamage: 15
   wallLayer:
     serializedVersion: 2
     m_Bits: 128

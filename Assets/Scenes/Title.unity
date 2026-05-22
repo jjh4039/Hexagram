@@ -3885,16 +3885,72 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2112667407}
     - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
-      propertyPath: masterVolume
-      value: 0.5
+      propertyPath: bgmTuningList.Array.size
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
-      propertyPath: bgmTuningList.Array.size
-      value: 1
-      objectReference: {fileID: 0}
+      propertyPath: bgmTuningList.Array.data[0].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: b0fd88fb1d97adb49b7a2b632384fca2, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[1].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 25027d6f23eba24459c71e7438e5b54e, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[2].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 60d44cf6f5a13dc4a88d0130e422a827, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[3].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 1f1c4f5f2a66cba49ac79816f36aa8c9, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[4].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 8bb3feb8aff8f154c88a6c91a52bfb5f, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[5].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 8c588730bb0b1d7418dddc95b7f0fb87, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[6].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: f133c0917451246409bf14db2eb0f688, type: 3}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[7].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: ceb7a7d0c763a5c47a04d551a78d5edc, type: 3}
     - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: bgmTuningList.Array.data[0].volumeMultiplier
-      value: 0
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[1].volumeMultiplier
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[2].volumeMultiplier
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[3].volumeMultiplier
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[4].volumeMultiplier
+      value: 1.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[5].volumeMultiplier
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[6].volumeMultiplier
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7851072750950421915, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
+      propertyPath: bgmTuningList.Array.data[7].volumeMultiplier
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 8929732602425395252, guid: d3a14d4dafe94a546935296ac34cb4f7, type: 3}
       propertyPath: Mute

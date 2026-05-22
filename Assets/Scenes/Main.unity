@@ -18564,12 +18564,12 @@ MonoBehaviour:
   currentAmmo: 0
   ammoRechargeRate: 10
   maxDiceCharge: 300
-  currentDiceCharge: 0
+  currentDiceCharge: 100
   dicePassiveChargeRate: 5
   diceHitChargeAmount: 2
   finalDicePower: 1
   meleeAttackPower: 10
-  rangeAttackPower: 8
+  rangeAttackPower: 12
   finalAttackPower: 1
   criticalChance: 0.2
   criticalDamageMultiplier: 1.5
