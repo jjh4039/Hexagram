@@ -1593,7 +1593,7 @@ GameObject:
   - component: {fileID: 643690154}
   - component: {fileID: 643690153}
   m_Layer: 5
-  m_Name: ScreenShake
+  m_Name: VSync
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1639,7 +1639,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD654\uBA74 \uD754\uB4E4\uB9BC"
+  m_text: "\uC218\uC9C1 \uB3D9\uAE30\uD654"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
   m_sharedMaterial: {fileID: -742173420960112056, guid: 13c0e52de687d2b4f82df3fefe39206f, type: 2}
@@ -3543,8 +3543,7 @@ MonoBehaviour:
     sfxVolume: 5
     screenMode: 1
     resolution: 1
-    cameraShake: 1
-    hasSavedRun: 0
+    vSync: 1
     currentRunHp: 100
 --- !u!4 &1420600577
 Transform:

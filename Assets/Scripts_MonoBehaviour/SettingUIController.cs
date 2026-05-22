@@ -31,9 +31,9 @@ public class SettingUIController : MonoBehaviour
     [SerializeField] private AudioClip sfxAdjust;            
     [SerializeField] private AudioClip sfxClose;             
 
-    private bool _isOpen = false;                            
-    private bool _isAnimating = false;                       
-    private int _currentIndex = 0;                           
+    private bool _isOpen;                            
+    private bool _isAnimating;                       
+    private int _currentIndex;                           
 
     private Coroutine _animCoroutine;                        
     private Vector2 _bgOriginAnchoredPos;                    
@@ -42,7 +42,7 @@ public class SettingUIController : MonoBehaviour
 
     private readonly string[] _screenModes = { "창 모드", "테두리 없음", "전체 화면" };
     private readonly string[] _resolutions = { "1280 x 720", "1920 x 1080", "2560 x 1440" };
-    private readonly string[] _shakeModes = { "OFF", "ON" };
+    private readonly string[] _vSyncModes = { "OFF", "ON" };
 
     private void Start()
     {
@@ -88,7 +88,7 @@ public class SettingUIController : MonoBehaviour
             _currentValues[2] = data.sfxVolume;
             _currentValues[3] = data.screenMode;
             _currentValues[4] = data.resolution;
-            _currentValues[5] = data.cameraShake;
+            _currentValues[5] = data.vSync;
         }
         else
         {
@@ -116,7 +116,7 @@ public class SettingUIController : MonoBehaviour
         data.sfxVolume = _currentValues[2];
         data.screenMode = _currentValues[3];
         data.resolution = _currentValues[4];
-        data.cameraShake = _currentValues[5];
+        data.vSync = _currentValues[5];
 
         DataManager.instance.SaveGame();                     
     }
@@ -136,9 +136,8 @@ public class SettingUIController : MonoBehaviour
                 break;
             case 3:
             case 4:
-                ApplyResolutionAndScreenMode();              
-                break;
             case 5:
+                ApplyResolutionAndScreenMode();
                 break;
         }
     }
@@ -158,8 +157,12 @@ public class SettingUIController : MonoBehaviour
 
         Screen.SetResolution(width, height, mode); 
         
-        QualitySettings.vSyncCount = 1; 
-        Application.targetFrameRate = 144;                     
+        QualitySettings.vSyncCount = _currentValues[5]; 
+        
+        if (QualitySettings.vSyncCount == 0)
+            Application.targetFrameRate = 144; // VSync가 꺼져있을 때만 144 프레임 제한 적용
+        else
+            Application.targetFrameRate = -1;  // VSync가 켜져있으면 엔진이 모니터 주사율에 자동 동기화
     }
 
 
@@ -233,7 +236,7 @@ public class SettingUIController : MonoBehaviour
                 break;
             
             case 5:
-                _currentValues[_currentIndex] = _currentValues[_currentIndex] == 0 ? 1 : 0;
+                _currentValues[_currentIndex] = (_currentValues[_currentIndex] == 0) ? 1 : 0;
                 valueChanged = true;
                 break;
         }
@@ -304,7 +307,7 @@ public class SettingUIController : MonoBehaviour
                 displayStr = _resolutions[_currentValues[index]];
                 break;
             case 5:
-                displayStr = _shakeModes[_currentValues[index]];
+                displayStr = _vSyncModes[_currentValues[index]];
                 break;
         }
 

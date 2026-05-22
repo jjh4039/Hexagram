@@ -28,7 +28,7 @@ public class EnemyProjectileFlash : MonoBehaviour
         if (!poolContainer)
         {
             poolContainer = new GameObject("EnemyProjectileFlash_Pool").transform;
-            pool.Clear(); // 씬 전환 시 파괴된 오브젝트 찌꺼기 제거
+            pool.Clear(); 
         }
 
         EnemyProjectileFlash epf = null;
@@ -36,7 +36,7 @@ public class EnemyProjectileFlash : MonoBehaviour
         while (pool.Count > 0)
         {
             epf = pool.Dequeue();
-            if (epf) break; // 파괴된 오브젝트 건너뛰기
+            if (epf) break; 
         }
 
         if (epf)
@@ -62,7 +62,8 @@ public class EnemyProjectileFlash : MonoBehaviour
 
     private void Update()
     {
-        timer += Time.deltaTime;
+        // ★ 수정: 타격 시 시간이 멈춰도 이펙트는 시원하게 터지도록 Unscaled 적용
+        timer += Time.unscaledDeltaTime;
         float t = timer / duration;
 
         transform.localScale = Vector3.Lerp(

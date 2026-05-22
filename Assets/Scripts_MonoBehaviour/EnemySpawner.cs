@@ -32,7 +32,7 @@ public class EnemySpawner : MonoBehaviour
         if (poolContainer == null)
         {
             poolContainer = new GameObject("SpawnerEffect_Pool").transform;
-            warningPool.Clear(); // 씬 전환 시 파괴된 오브젝트 찌꺼기 제거
+            warningPool.Clear(); 
             spawnEffectPool.Clear();
         }
 
@@ -41,7 +41,7 @@ public class EnemySpawner : MonoBehaviour
         while (pool.Count > 0)
         {
             obj = pool.Dequeue();
-            if (obj) break; // 파괴된 오브젝트 건너뛰기
+            if (obj) break; 
         }
 
         if (obj)
@@ -81,7 +81,7 @@ public class EnemySpawner : MonoBehaviour
 
             if (spawnEffectPrefab)
             {
-                GameObject spawnEffect = GetFromPool(spawnEffectPrefab, spawnEffectPool, transform.position, spawnedObj.transform);
+                GameObject spawnEffect = GetFromPool(spawnEffectPrefab, spawnEffectPool, transform.position);
                 StartCoroutine(Co_DelayReturn(spawnEffect, spawnEffectPool, 1.5f)); 
             }
 

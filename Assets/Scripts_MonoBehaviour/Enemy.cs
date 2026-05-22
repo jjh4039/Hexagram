@@ -6,7 +6,7 @@ public class Enemy : MonoBehaviour
     [Header("Stats")]
     [SerializeField] protected float maxHealth = 100f;
     [SerializeField] protected float currentHealth;
-    [SerializeField] protected float contactDamage = 10f; // 몸통 박치기 데미지
+    [SerializeField] protected float contactDamage = 10f; 
 
     [Header("Effect")]
     [SerializeField] private GameObject damageTextPrefab;
@@ -39,7 +39,7 @@ public class Enemy : MonoBehaviour
     protected bool isDead = false;
 
     public bool IsDead => isDead;
-    public float ContactDamage => contactDamage; // 외부 접근용 프로퍼티
+    public float ContactDamage => contactDamage; 
 
     protected virtual void Awake()
     {
@@ -74,11 +74,16 @@ public class Enemy : MonoBehaviour
 
         currentHealth -= damage;
 
-        if (GameManager.instance != null)
-            GameManager.instance.HitStop(hitStopDuration);
+        // ★ 수정: 타격감이 너무 과해지는(화면이 덜덜 떨리는) 현상 방지
+        // 치명타가 터졌을 때만 히트스톱과 화면 흔들림을 주어 타격감을 극대화합니다.
+        if (isCritical)
+        {
+            if (GameManager.instance != null)
+                GameManager.instance.HitStop(hitStopDuration);
 
-        if (CameraFollow.Instance != null)
-            CameraFollow.Instance.HitShake(0.03f, 0.02f);
+            if (CameraFollow.Instance != null)
+                CameraFollow.Instance.HitShake(0.04f, 0.025f);
+        }
 
         if (hpBarObject != null && !hpBarObject.activeSelf)
             hpBarObject.SetActive(true);
@@ -113,8 +118,10 @@ public class Enemy : MonoBehaviour
     private IEnumerator FlashRoutine()
     {
         _sr.material = flashMaterial;
-        yield return new WaitForSeconds(0.1f);
-        _sr.material = OriginalMaterial;
+        // 타임스케일에 영향을 받지 않는 플래시 효과
+        yield return new WaitForSecondsRealtime(0.08f); 
+        
+        if (_sr != null) _sr.material = OriginalMaterial;
         _flashRoutine = null;
     }
 
@@ -166,7 +173,8 @@ public class Enemy : MonoBehaviour
 
             foreach (SpriteRenderer s in _hpBarSprites)
             {
-                if (s != null)
+                // ★ 수정: 파괴 과정 중 NullReference 에러를 막기 위한 이중 방어
+                if (s != null && s.gameObject != null) 
                 {
                     Color c = s.color;
                     s.color = new Color(c.r, c.g, c.b, alpha);
@@ -176,7 +184,7 @@ public class Enemy : MonoBehaviour
             yield return null;
         }
 
-        hpBarObject.SetActive(false);
+        if (hpBarObject != null) hpBarObject.SetActive(false);
     }
 
     private void LateUpdate()

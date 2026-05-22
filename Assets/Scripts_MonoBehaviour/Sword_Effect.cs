@@ -88,7 +88,7 @@ public class Sword_Effect : MonoBehaviour
             if (hits[i] == null) continue;
 
             Enemy enemy = hits[i].GetComponent<Enemy>();
-            if (enemy != null)
+            if (enemy != null && enemy.gameObject != null)
             {
                 StartCoroutine(ProcessMultiHit(enemy));
             }
@@ -97,6 +97,7 @@ public class Sword_Effect : MonoBehaviour
 
     private IEnumerator ProcessMultiHit(Enemy enemy)
     {
+        if (GameManager.instance == null || GameManager.instance.stats == null) yield break;
         PlayerStats stats = GameManager.instance.stats;
 
         float baseDamage =
@@ -107,7 +108,8 @@ public class Sword_Effect : MonoBehaviour
 
         for (int i = 0; i < hitCount; i++)
         {
-            if (enemy == null || !enemy.gameObject.activeSelf)
+            // ★ 수정: 다단 히트 도중에 적이 죽었거나 파괴되었는지 이중 체크
+            if (enemy == null || enemy.gameObject == null || !enemy.gameObject.activeInHierarchy || enemy.IsDead)
                 yield break;
 
             float randomMultiplier = Random.Range(1.1f - cachedMeleeVariance, 1.1f);
@@ -130,7 +132,8 @@ public class Sword_Effect : MonoBehaviour
                 GameManager.instance.totalDamageDealt += damageInt;
             }
 
-            if (enemy == null || !enemy.gameObject.activeSelf)
+            // 대미지를 주고 나서 적이 파괴되었는지 한 번 더 체크 (오류 방지)
+            if (enemy == null || enemy.gameObject == null || !enemy.gameObject.activeInHierarchy)
                 yield break;
 
             SpawnHitEffect(enemy, isCritical);
@@ -157,10 +160,12 @@ public class Sword_Effect : MonoBehaviour
 
         if (prefab == null) return;
 
-        // ★ 수정: Find를 쓰지 않고, 그냥 최상단에 전용 폴더를 하나 만듭니다.
+        // ★ 수정: 풀 초기화 시 이전 씬의 쓰레기 참조 제거 로직 추가
         if (_effectPoolContainer == null)
         {
             _effectPoolContainer = new GameObject("SwordHitEffect_Pool").transform;
+            _hitEffectPool.Clear();
+            _critHitEffectPool.Clear();
         }
 
         Transform playerTransform = GameManager.instance.player.transform;
@@ -181,10 +186,17 @@ public class Sword_Effect : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
         
-        GameObject vfx;
-        if (targetPool.Count > 0)
+        GameObject vfx = null;
+        
+        // 파괴된 객체 건너뛰기
+        while (targetPool.Count > 0)
         {
             vfx = targetPool.Dequeue();
+            if (vfx != null) break;
+        }
+
+        if (vfx != null)
+        {
             vfx.transform.position = hitPosition;
             vfx.transform.rotation = rotation;
             vfx.SetActive(true);
@@ -199,8 +211,11 @@ public class Sword_Effect : MonoBehaviour
 
         returner.StartDelayReturn(hitEffectLifetime, () =>
         {
-            vfx.SetActive(false);
-            targetPool.Enqueue(vfx);
+            if (vfx != null)
+            {
+                vfx.SetActive(false);
+                targetPool.Enqueue(vfx);
+            }
         });
     }
 

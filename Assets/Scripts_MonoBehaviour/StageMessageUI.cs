@@ -87,6 +87,12 @@ public class StageMessageUI : MonoBehaviour
         UpdatePendingCountText(); 
     }
 
+    // ★ 추가: 씬 파괴 시 에러 방지
+    private void OnDestroy()
+    {
+        StopAllCoroutines();
+    }
+
     private void ResetAllUI()
     {
         if (entryGroup != null) entryGroup.alpha = 0f;
@@ -103,14 +109,13 @@ public class StageMessageUI : MonoBehaviour
         if (pendingCountText != null) pendingCountText.alpha = 0f;
     }
 
-    // 맵 이동 시 사용되는 기본 메시지 (앞에 '모듈 : '이 붙음)
     public void ShowEntryMessage(string title, string desc, Color color)
     {
         if (entryTitle != null) entryTitle.text = "모듈 : " + title;
         if (entryDesc != null) entryDesc.text = desc;
         if (color != null && entryTitle != null)
         {
-            color.a = 1f; // 알파값 강제 보정
+            color.a = 1f; 
             entryTitle.color = color;
         }
 
@@ -119,14 +124,13 @@ public class StageMessageUI : MonoBehaviour
         currentCoroutine = StartCoroutine(EntryFadeSequence());
     }
 
-    // ★ 시작 방 인트로용 커스텀 메시지 (입력한 텍스트 그대로 출력)
     public void ShowCustomEntryMessage(string title, string desc, Color color)
     {
         if (entryTitle != null) entryTitle.text = title;
         if (entryDesc != null) entryDesc.text = desc;
         if (color != null && entryTitle != null)
         {
-            color.a = 1f; // 알파값이 0인 상태로 넘어오는 것을 방지
+            color.a = 1f; 
             entryTitle.color = color;
         }
 
@@ -139,9 +143,8 @@ public class StageMessageUI : MonoBehaviour
     {
         if (entryGroup == null) yield break;
         
-        entryGroup.alpha = 0f; // 시작 전 알파값 초기화 보장
+        entryGroup.alpha = 0f; 
         
-        // ★ TimeScale이 0이어도 대기할 수 있도록 Realtime 사용
         yield return new WaitForSecondsRealtime(startDelay);
         yield return FadeIn(entryGroup);
         yield return new WaitForSecondsRealtime(waitTime);
@@ -293,6 +296,8 @@ public class StageMessageUI : MonoBehaviour
     private void SelectReward(int index)
     {
         if (index >= rewardItems.Length) return;
+        
+        // ★ 중요: 0.4초 딜레이 동안 중복 입력(연타 버그) 차단
         canSelectReward = false;
 
         pendingModuleRewards--;

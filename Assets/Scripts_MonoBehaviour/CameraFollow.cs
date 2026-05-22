@@ -88,9 +88,6 @@ public class CameraFollow : MonoBehaviour
 
     public void HitShake(float duration, float magnitude, float customDecay = -1f)
     {
-        if (DataManager.instance && DataManager.instance.data.cameraShake == 0)
-            return;
-
         if (magnitude <= _currentShakeMagnitude && Time.time - _lastHitShakeTime < hitShakeCooldown)
             return;
 
