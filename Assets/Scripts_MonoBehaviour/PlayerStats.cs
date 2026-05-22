@@ -13,7 +13,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Dice Charge Stats")]
     public float maxDiceCharge = 300f;
-    public float currentDiceCharge = 0f;
+    public float currentDiceCharge;
     public float dicePassiveChargeRate = 5f;
     public float diceHitChargeAmount = 2f;
     public float finalDicePower = 1f;
@@ -61,7 +61,7 @@ public class PlayerStats : MonoBehaviour
     [Header("Visual Feedback")]
     public GameObject damageTextPrefab;
 
-    private float ammoRechargeTimer = 0f;
+    private float _ammoRechargeTimer = 0f;
     private BuffManager _buffManager;
 
     private void Start()
@@ -69,7 +69,6 @@ public class PlayerStats : MonoBehaviour
         _buffManager = GetComponent<BuffManager>();
         currentHealth = maxHealth;
         currentAmmo = maxAmmo;
-        currentDiceCharge = 0f;
         currentDashStacks = maxDashStacks;
     }
 
@@ -121,6 +120,17 @@ public class PlayerStats : MonoBehaviour
                 {
                     meleeAttackPower += flatAmount;
                     rangeAttackPower += flatAmount;
+                }
+                break;
+
+            case ArtifactEffectType.FinalDamage:
+                if (isPercent)
+                {
+                    finalAttackPower *= multiplier;
+                }
+                else
+                {
+                    finalAttackPower += flatAmount;
                 }
                 break;
 
@@ -194,6 +204,9 @@ public class PlayerStats : MonoBehaviour
     {
         if (currentDiceCharge >= maxDiceCharge) return;
 
+        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentPhase != GamePhase.InCombat)
+            return;
+
         currentDiceCharge += dicePassiveChargeRate * diceChargeSpeedMultiplier * Time.deltaTime;
         currentDiceCharge = Mathf.Clamp(currentDiceCharge, 0f, maxDiceCharge);
     }
@@ -202,12 +215,12 @@ public class PlayerStats : MonoBehaviour
     {
         if (currentAmmo >= maxAmmo) return;
 
-        ammoRechargeTimer += ammoRechargeRate * Time.deltaTime;
+        _ammoRechargeTimer += ammoRechargeRate * Time.deltaTime;
 
-        if (ammoRechargeTimer >= 1f)
+        if (_ammoRechargeTimer >= 1f)
         {
-            int amountToRecover = Mathf.FloorToInt(ammoRechargeTimer);
-            ammoRechargeTimer -= amountToRecover;
+            int amountToRecover = Mathf.FloorToInt(_ammoRechargeTimer);
+            _ammoRechargeTimer -= amountToRecover;
             currentAmmo = Mathf.Min(currentAmmo + amountToRecover, maxAmmo);
         }
     }
@@ -223,7 +236,14 @@ public class PlayerStats : MonoBehaviour
     }
 
     public float GetFinalMoveSpeed() => moveSpeed * diceMoveSpeedMultiplier;
-    public float GetFinalAttackSpeed() => attackSpeed * diceAttackSpeedMultiplier;
+    
+    // ★ 수정 2: 최종 공격 속도 200%(2.0f) 제한 로직
+    public float GetFinalAttackSpeed() 
+    {
+        float speed = attackSpeed * diceAttackSpeedMultiplier;
+        return Mathf.Clamp(speed, 0.1f, 2.0f);
+    }
+    
     public float GetFinalChargeSpeed() => ammoRechargeRate * diceChargeSpeedMultiplier;
     public float GetFinalDiceChargeRate() => dicePassiveChargeRate * diceChargeSpeedMultiplier;
 
@@ -305,11 +325,11 @@ public class PlayerStats : MonoBehaviour
     
     public void SpawnDamageText(string message, Color color, float size)
     {
-        if (damageTextPrefab == null) return;
+        if (!damageTextPrefab) return;
         
         DamageText dmgText = DamageText.Spawn(damageTextPrefab, transform.position + (Vector3.up * 0.5f));
 
-        if (dmgText != null)
+        if (dmgText)
         {
             dmgText.Setup(message, color, size);
         }
@@ -317,7 +337,7 @@ public class PlayerStats : MonoBehaviour
 
     private void Die()
     {
-        if (GameManager.instance != null && GameManager.instance.player != null)
+        if (GameManager.instance && GameManager.instance.player != null)
         {
             GameManager.instance.player.OnDie();
         }

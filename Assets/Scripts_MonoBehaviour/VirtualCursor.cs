@@ -10,28 +10,30 @@ public enum CursorType
 
 public class VirtualCursor : MonoBehaviour
 {
-    private RectTransform _rectTransform; // 커서의 UI 위치 및 피벗 제어용
-    private Image _cursorImage; // 커서 이미지를 표시할 컴포넌트
+    private RectTransform _rectTransform; 
+    private Image _cursorImage; 
 
     [Header("Cursor Settings")]
     [Tooltip(" 0: Default, 1: Aim")]
-    [SerializeField] private Sprite[] cursorSprites; // 커서 상태별 이미지 배열
+    [SerializeField] private Sprite[] cursorSprites; 
 
-    public CursorType CurrentCursorType { get; private set; } // 현재 활성화된 커서 상태
+    public CursorType CurrentCursorType { get; private set; } 
 
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
         _cursorImage = GetComponent<Image>();
 
+        // 기본 커서 숨기기 및 화면 밖으로 나가지 않도록 가두기
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
         
         ChangeCursor(CursorType.Default);
     }
 
     private void Update()
     {
-        Vector2 mouseScreenPos = Vector2.zero; // 현재 마우스 스크린 좌표
+        Vector2 mouseScreenPos = Vector2.zero; 
 
         if (InputStateManager.Instance != null)
         {
@@ -66,7 +68,7 @@ public class VirtualCursor : MonoBehaviour
     public void ChangeCursor(CursorType type)
     {
         if (!_cursorImage || cursorSprites.Length == 0) return;
-        CurrentCursorType = type; // 외부에서 참조할 수 있도록 상태 저장
+        CurrentCursorType = type; 
 
         switch (type)
         {

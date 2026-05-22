@@ -253,7 +253,7 @@ public class TutorialManager : MonoBehaviour
         StartCoroutine(Co_AnimateBubble(0, "", false));
         yield return new WaitForSeconds(0.2f);
 
-        ChangeBubbleText(1, "<size=140%><color=#FF5C5C>당장 쓰레기통에 버려.</color></size>");
+        ChangeBubbleText(1, "<size=160%><color=#FF5C5C>당장 쓰레기통에 버려.</color></size>");
         yield return new WaitForSeconds(2f);
 
         yield return StartCoroutine(Co_AnimateBubble(1, "", false));

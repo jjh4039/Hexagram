@@ -85,6 +85,11 @@ public class PauseUIController : MonoBehaviour
 
     private void OnPauseToggleInput(InputAction.CallbackContext ctx)
     {
+        if (!gameObject.activeInHierarchy) return; 
+
+        // ★ 핵심 수정: 튜토리얼 컷신 진행 중일 때는 ESC(일시정지) 입력을 완벽하게 무시합니다.
+        if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
+
         if (_isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
@@ -95,6 +100,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
+        if (!gameObject.activeInHierarchy) return; 
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
@@ -107,6 +113,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
+        if (!gameObject.activeInHierarchy) return; 
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
@@ -116,6 +123,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnCloseUI(InputAction.CallbackContext ctx)
     {
+        if (!gameObject.activeInHierarchy) return; 
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
@@ -183,6 +191,13 @@ public class PauseUIController : MonoBehaviour
 
     private void UpdateInfoTexts()
     {
+        if (isTutorialMode)
+        {
+            if (progressText != null) progressText.text = "진행도 : 튜토리얼";
+            if (playTimeText != null) playTimeText.text = "PlayTime : -- m -- s";
+            return; 
+        }
+
         if (GameManager.instance == null) return;
 
         string seasonStr = GameManager.instance.currentSeason switch
@@ -221,14 +236,13 @@ public class PauseUIController : MonoBehaviour
             case 1: 
                 if (settingUI != null) settingUI.OpenSettings(); 
                 break;
-            case 2: // 게임 포기
+            case 2: 
                 if (ConfirmUIController.Instance != null)
                 {
-                    // ★ UI가 닫히지 않고 바로 씬이 넘어가도 시간이 멈추지 않게 방어
                     ConfirmUIController.Instance.ShowPopupByIndex(0, () => { Time.timeScale = 1f; });
                 }
                 break;
-            case 3: // 게임 종료
+            case 3: 
                 if (ConfirmUIController.Instance != null)
                 {
                     ConfirmUIController.Instance.ShowPopupByIndex(1, () => { Time.timeScale = 1f; });

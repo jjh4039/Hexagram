@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Dice_05_Blue
   m_EditorClassIdentifier: Assembly-CSharp::DiceData
   diceName: "\uD30C\uB780\uC0C9"
-  description: "\uC774\uB3D9\uC18D\uB3C4 \uBC0F \uACF5\uACA9\uC18D\uB3C4\uAC00\n40%
+  description: "\uC774\uB3D9\uC18D\uB3C4 \uBC0F \uACF5\uACA9\uC18D\uB3C4\uAC00\n25%
     \uC0C1\uC2B9\uD569\uB2C8\uB2E4"
-  shortDescription: "\uC774\uB3D9\uC18D\uB3C4 \uBC0F \uACF5\uACA9\uC18D\uB3C4\uAC00\n40%
+  shortDescription: "\uC774\uB3D9\uC18D\uB3C4 \uBC0F \uACF5\uACA9\uC18D\uB3C4\uAC00\n25%
     \uC0C1\uC2B9\uD569\uB2C8\uB2E4"
   icon: {fileID: -154008074, guid: 65b962f3566eda74f8050782f0268e80, type: 3}
   particleColor:
@@ -25,7 +25,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4280163850
   effectType: 4
-  effectValue: 40
+  effectValue: 25
   duration: 10
   secondaryValue: 0
   muzzleFlashMaterial: {fileID: 2100000, guid: d7df0c747ec680c44a2b09d7c859cf12, type: 2}

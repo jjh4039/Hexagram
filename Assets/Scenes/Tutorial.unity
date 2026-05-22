@@ -9748,7 +9748,7 @@ MonoBehaviour:
   currentAmmo: 0
   ammoRechargeRate: 10
   maxDiceCharge: 300
-  currentDiceCharge: 1
+  currentDiceCharge: 100
   dicePassiveChargeRate: 5
   diceHitChargeAmount: 2
   finalDicePower: 1
@@ -18581,7 +18581,7 @@ MonoBehaviour:
   - {fileID: 102276348}
   - {fileID: 367716232}
   - {fileID: 1374254078}
-  - {fileID: 1618965724}
+  - {fileID: 1475257767}
   volumeSliders:
   - {fileID: 12077300}
   - {fileID: 597010663}

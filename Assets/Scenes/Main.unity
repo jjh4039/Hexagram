@@ -31762,10 +31762,8 @@ MonoBehaviour:
   - {fileID: 968860345}
   titleText: {fileID: 388206903}
   titleDesText: {fileID: 1401088105}
-  titleTextGlow: {fileID: 0}
-  titleDesTextGlow: {fileID: 0}
   hangingPhysics: {fileID: 1403389555}
-  sfxSwap: {fileID: 0}
+  sfxSwap: {fileID: 8300000, guid: e9c2b0fa1c314cb4a829236c43d9d956, type: 3}
   xOffset: 300
   sideScale: 0.7
   sideAlpha: 0.1
@@ -44723,7 +44721,7 @@ MonoBehaviour:
   - {fileID: 1450127501}
   - {fileID: 481810590}
   - {fileID: 1801875782}
-  - {fileID: 1209775684}
+  - {fileID: 365402616}
   volumeSliders:
   - {fileID: 1393980545}
   - {fileID: 1437277023}

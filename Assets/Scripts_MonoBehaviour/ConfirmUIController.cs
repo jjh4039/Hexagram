@@ -40,7 +40,7 @@ public class ConfirmUIController : MonoBehaviour
     private Action _onCancelAction;                        
 
     private Coroutine _animCoroutine;                      
-    private bool _isSubscribed; // ★ 수정: 이벤트 중복 해제 방지용 플래그
+    private bool _isSubscribed; 
 
     private void Awake()
     {
@@ -55,7 +55,6 @@ public class ConfirmUIController : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 씬 전환 시 에러 방지
         UnsubscribeInputs();
     }
 
@@ -73,7 +72,22 @@ public class ConfirmUIController : MonoBehaviour
                 finalConfirmAction = () => 
                 {
                     additionalAction?.Invoke();             
-                    Time.timeScale = 1f;                    
+                    Time.timeScale = 1f;
+                    
+                    // ★ 수정 3: 게임 포기 시 잔존하는 UI 창들을 끄고, 입력을 아예 차단함
+                    if (InputStateManager.Instance != null)
+                        InputStateManager.Instance.SetInputActive(false);
+
+                    // 떠 있는 세팅 창 강제 종료
+                    SettingUIController settingUI = FindFirstObjectByType<SettingUIController>();
+                    if (settingUI != null && settingUI.IsOpen)
+                        settingUI.CloseSettings();
+
+                    // 떠 있는 일시정지 창 끄기
+                    PauseUIController pauseUI = FindFirstObjectByType<PauseUIController>();
+                    if (pauseUI != null)
+                        pauseUI.gameObject.SetActive(false);
+                    
                     if (GameManager.instance != null && GameManager.instance.player != null)
                     {
                         GameManager.instance.player.OnDie(); 

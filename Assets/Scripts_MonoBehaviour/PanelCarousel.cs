@@ -13,9 +13,6 @@ public class PanelCarousel : MonoBehaviour
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI titleDesText;
 
-    public GlowFilter titleTextGlow;
-    public GlowFilter titleDesTextGlow;
-
     public HangingUI hangingPhysics;
 
     [Header("Sound Effects")]
@@ -115,25 +112,16 @@ public class PanelCarousel : MonoBehaviour
             case 0: 
                 titleText.text = "Status";
                 if (titleDesText) titleDesText.text = "캐릭터의 스탯을 확인할 수 있습니다.";
-
-                if (titleTextGlow) titleTextGlow.Color = statusColor;
-                if (titleDesTextGlow) titleDesTextGlow.Color = statusColor;
                 break;
 
             case 1: 
                 titleText.text = "Artifact";
                 if (titleDesText) titleDesText.text = "보유한 아티팩트들의 효과를 확인할 수 있습니다.";
-
-                if (titleTextGlow) titleTextGlow.Color = artifactColor;
-                if (titleDesTextGlow) titleDesTextGlow.Color = artifactColor;
                 break;
 
             case 2: 
                 titleText.text = "Balance";
                 if (titleDesText) titleDesText.text = "주사위 모듈에 관련된 정보들을 확인할 수 있습니다.";
-
-                if (titleTextGlow) titleTextGlow.Color = balanceColor;
-                if (titleDesTextGlow) titleDesTextGlow.Color = balanceColor;
                 break;
         }
     }

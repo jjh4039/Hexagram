@@ -41,7 +41,7 @@ public class SettingUIController : MonoBehaviour
     private int[] _currentValues = new int[6];               
 
     private readonly string[] _screenModes = { "창 모드", "테두리 없음", "전체 화면" };
-    private readonly string[] _resolutions = { "1280 x 720", "1920 x 1080", "2560 x 1440" };
+    private readonly string[] _resolutions = { "1280 x 720", "1920 x 1080", "2560 x 1440", "3840 x 2160" };
     private readonly string[] _vSyncModes = { "OFF", "ON" };
 
     private void Start()
@@ -151,20 +151,21 @@ public class SettingUIController : MonoBehaviour
         int width = 1920;
         int height = 1080;
 
+        // ★ 수정: 4K 해상도 적용 로직 추가
         if (_currentValues[4] == 0) { width = 1280; height = 720; }
         else if (_currentValues[4] == 1) { width = 1920; height = 1080; }
         else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
+        else if (_currentValues[4] == 3) { width = 3840; height = 2160; } 
 
         Screen.SetResolution(width, height, mode); 
         
         QualitySettings.vSyncCount = _currentValues[5]; 
         
         if (QualitySettings.vSyncCount == 0)
-            Application.targetFrameRate = 144; // VSync가 꺼져있을 때만 144 프레임 제한 적용
+            Application.targetFrameRate = 144; 
         else
-            Application.targetFrameRate = -1;  // VSync가 켜져있으면 엔진이 모니터 주사율에 자동 동기화
+            Application.targetFrameRate = -1;  
     }
-
 
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
@@ -271,7 +272,7 @@ public class SettingUIController : MonoBehaviour
             
             menuTexts[i].color = isSelected ? selectColor : normalColor;
             
-            if (i < valueTexts.Length && valueTexts[i] != null) // 배열 범위 초과 에러 방지
+            if (i < valueTexts.Length && valueTexts[i] != null) 
             {
                 valueTexts[i].color = isSelected ? selectColor : normalColor;
                 UpdateValueText(i);
