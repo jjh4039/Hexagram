@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Play Time")]
     public float currentPlayTime = 0f;                       
-    public int totalDamageDealt = 2133;                      
+    public int totalDamageDealt;                      
 
     [Header("Event System")]
     public float eventBossHealthMultiplier = 1.0f;

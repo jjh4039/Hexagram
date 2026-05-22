@@ -445,3 +445,5 @@ MonoBehaviour:
   bookmarks: []
   bookmarkedScenePaths:
   - Assets/Scenes/Main.unity
+  - Assets/Scenes/Title.unity
+  - Assets/Scenes/Tutorial.unity

@@ -4,7 +4,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [Header("Stats")]
-    [SerializeField] protected float maxHealth = 100f;
+    [SerializeField] protected float maxHealth = 4000f;
     [SerializeField] protected float currentHealth;
     [SerializeField] protected float contactDamage = 10f; 
 

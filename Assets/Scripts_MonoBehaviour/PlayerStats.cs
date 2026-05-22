@@ -3,13 +3,13 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     [Header("Survival Stats")]
-    public int maxHealth = 100;
+    public int maxHealth = 30;
     public int currentHealth;
 
     [Header("Resource Stats")]
     public int maxAmmo = 500;
-    public int currentAmmo;
-    public float ammoRechargeRate = 100f;
+    public int currentAmmo = 0;
+    public float ammoRechargeRate = 10f;
 
     [Header("Dice Charge Stats")]
     public float maxDiceCharge = 300f;

@@ -7785,13 +7785,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 9
-  m_fontSizeBase: 9
+  m_fontSize: 10
+  m_fontSizeBase: 10
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -9742,14 +9742,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f36e11ba804356429399130c996ce25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  maxHealth: 20
-  currentHealth: 20
+  maxHealth: 30
+  currentHealth: 0
   maxAmmo: 500
-  currentAmmo: 300
-  ammoRechargeRate: 100
+  currentAmmo: 0
+  ammoRechargeRate: 10
   maxDiceCharge: 300
-  currentDiceCharge: 0
-  dicePassiveChargeRate: 100
+  currentDiceCharge: 1
+  dicePassiveChargeRate: 5
   diceHitChargeAmount: 2
   finalDicePower: 1
   meleeAttackPower: 10
@@ -11359,10 +11359,10 @@ MonoBehaviour:
   currentScrap: 0
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 50
+  currentProgress: 0
   maxProgress: 100
-  currentPlayTime: 1213
-  totalDamageDealt: 2133
+  currentPlayTime: 0
+  totalDamageDealt: 0
   eventBossHealthMultiplier: 1
 --- !u!4 &454282934
 Transform:

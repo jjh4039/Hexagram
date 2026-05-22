@@ -6,7 +6,7 @@ public class EnemyBoss : Enemy
 {
     [Header("Debug / Testing")]
     [Tooltip("0: 랜덤(1~4), 1~4: 해당 패턴만 무한 반복")]
-    [SerializeField][Range(0, 4)] private int forcePatternIndex = 1;
+    [SerializeField][Range(0, 4)] private int forcePatternIndex = 0;
     [Tooltip("체력과 상관없이 강제로 폭주(Phase 2) 패턴을 켭니다.")]
     [SerializeField] private bool forceEnrage = false;
 
@@ -16,7 +16,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private float spriteScale = 1f;
 
     [Header("Intro Settings")]
-    [SerializeField] private float introTriggerRadius = 12f;
+    [SerializeField] private float introTriggerRadius = 10f;
     private bool isAwake = false;
 
     [Header("Boss AI Logic")]
@@ -32,7 +32,7 @@ public class EnemyBoss : Enemy
 
     [Header("Phase Settings")]
     [SerializeField] private float enragePauseTime = 2.0f;
-    [SerializeField] private float enrageKnockbackForce = 30f;
+    [SerializeField] private float enrageKnockbackForce = 15f;
     private bool isEnraged = false;
     private SpriteRenderer spriteRenderer;
 
@@ -40,11 +40,11 @@ public class EnemyBoss : Enemy
     [SerializeField] private ParticleSystem auraParticle;
     [SerializeField] private Color normalAuraColor = new Color(1f, 1f, 1f, 0.4f);
     [SerializeField] private Color enrageAuraColor = new Color(1f, 0.2f, 0.2f, 0.6f);
-    [SerializeField] private float normalAuraRate = 10f;
-    [SerializeField] private float enrageAuraRate = 30f;
+    [SerializeField] private float normalAuraRate = 25f;
+    [SerializeField] private float enrageAuraRate = 40f;
 
     [Header("Global Attack Settings")]
-    [SerializeField] private float dealTime = 1.0f;
+    [SerializeField] private float dealTime = 0.7f;
 
     [Header("Pattern 1: Dash")]
     [SerializeField] private float dashChargeTime = 1.0f;

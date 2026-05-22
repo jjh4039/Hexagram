@@ -23,17 +23,17 @@ public class PlayerFeedbackUI : MonoBehaviour
     };
 
     [Header("Animation Settings")]
-    [SerializeField] private float fadeInTime = 0.1f;  
-    [SerializeField] private float displayTime = 1.5f; 
-    [SerializeField] private float fadeOutTime = 0.5f; 
-    [SerializeField] private float floatSpeed = 0.5f;  
+    [SerializeField] private float fadeInTime = 0.105f;  
+    [SerializeField] private float displayTime = 2f; 
+    [SerializeField] private float fadeOutTime = 0.2f; 
+    [SerializeField] private float floatSpeed = 0f;  
 
     [Header("Sound Settings")]
     [SerializeField] private AudioClip warningSound;   
 
-    private Coroutine currentRoutine; 
-    private float remainTime;         
-    private Vector3 startLocalPos;    
+    private Coroutine _currentRoutine; 
+    private float _remainTime;         
+    private Vector3 _startLocalPos;    
 
     private void Awake()
     {
@@ -42,7 +42,7 @@ public class PlayerFeedbackUI : MonoBehaviour
 
         if (feedbackText != null)
         {
-            startLocalPos = feedbackText.transform.localPosition;
+            _startLocalPos = feedbackText.transform.localPosition;
 
             Color color = feedbackText.color;
             color.a = 0f;
@@ -68,19 +68,19 @@ public class PlayerFeedbackUI : MonoBehaviour
             SoundManager.instance.PlaySFX(warningSound);
         }
 
-        remainTime = displayTime;
+        _remainTime = displayTime;
 
         // ★ 수정: 경고가 연달아 들어왔을 때 깜빡이거나 투명해지는 버그 방지
-        if (currentRoutine != null)
+        if (_currentRoutine != null)
         {
-            StopCoroutine(currentRoutine);
-            feedbackText.transform.localPosition = startLocalPos;
+            StopCoroutine(_currentRoutine);
+            feedbackText.transform.localPosition = _startLocalPos;
             Color c = feedbackText.color;
             c.a = 1f; 
             feedbackText.color = c;
         }
         
-        currentRoutine = StartCoroutine(FadeAndFloatRoutine());
+        _currentRoutine = StartCoroutine(FadeAndFloatRoutine());
     }
 
     private IEnumerator FadeAndFloatRoutine()
@@ -101,9 +101,9 @@ public class PlayerFeedbackUI : MonoBehaviour
         }
 
         // 표시 유지 (새 경고가 오면 remainTime이 리셋됨)
-        while (remainTime > 0f)
+        while (_remainTime > 0f)
         {
-            remainTime -= Time.deltaTime;
+            _remainTime -= Time.deltaTime;
             feedbackText.transform.localPosition += Vector3.up * (floatSpeed * Time.deltaTime);
             yield return null;
         }
@@ -119,6 +119,6 @@ public class PlayerFeedbackUI : MonoBehaviour
 
         color.a = 0f;
         feedbackText.color = color;
-        currentRoutine = null;
+        _currentRoutine = null;
     }
 }

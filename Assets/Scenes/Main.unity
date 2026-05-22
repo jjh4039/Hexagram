@@ -11251,7 +11251,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e3b623b36c8712f45bd28a893e3b9695, type: 2}
   - {fileID: 11400000, guid: 85098ad3aee55cd41b1223c2d52cdb24, type: 2}
   - {fileID: 11400000, guid: 620b94fe39f7b4e4c9514e0b649232e8, type: 2}
-  - {fileID: 11400000, guid: 6edaf51abbc5c7145a9c2abd767e15f9, type: 2}
   - {fileID: 11400000, guid: 7565d765a1a76a34e850b2f7d7ef7d2b, type: 2}
   - {fileID: 11400000, guid: ce5213b453eeaf84fa5173dcbbecfa30, type: 2}
   - {fileID: 11400000, guid: 45036bde989dd2349ab295bd2f75b87e, type: 2}
@@ -18559,14 +18558,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f36e11ba804356429399130c996ce25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  maxHealth: 999
+  maxHealth: 30
   currentHealth: 0
   maxAmmo: 500
-  currentAmmo: 300
-  ammoRechargeRate: 100
+  currentAmmo: 0
+  ammoRechargeRate: 10
   maxDiceCharge: 300
   currentDiceCharge: 0
-  dicePassiveChargeRate: 100
+  dicePassiveChargeRate: 5
   diceHitChargeAmount: 2
   finalDicePower: 1
   meleeAttackPower: 10
@@ -40604,13 +40603,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 9
-  m_fontSizeBase: 9
+  m_fontSize: 10
+  m_fontSizeBase: 10
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -47944,10 +47943,10 @@ MonoBehaviour:
   currentScrap: 500
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 80
+  currentProgress: 0
   maxProgress: 100
-  currentPlayTime: 1213
-  totalDamageDealt: 2133
+  currentPlayTime: 0
+  totalDamageDealt: 0
   eventBossHealthMultiplier: 1
 --- !u!1 &2048810080
 GameObject:

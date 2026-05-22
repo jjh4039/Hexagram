@@ -322,7 +322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01de2e9febf8eab469096837a017fa4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBoss
-  maxHealth: 20
+  maxHealth: 4000
   currentHealth: 0
   contactDamage: 10
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
@@ -350,7 +350,7 @@ MonoBehaviour:
   enrageAuraColor: {r: 1, g: 0.2, b: 0.2, a: 0.6}
   normalAuraRate: 25
   enrageAuraRate: 40
-  dealTime: 0.8
+  dealTime: 0.7
   dashChargeTime: 1
   dashSpeed: 80
   dashDuration: 0.5
