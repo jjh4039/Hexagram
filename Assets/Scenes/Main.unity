@@ -47938,10 +47938,10 @@ MonoBehaviour:
   currentStageObj: {fileID: 465676080}
   stageParent: {fileID: 1006607905}
   commonScrapPrefab: {fileID: 559546406427485157, guid: 2f2e349e5ef2b284c9841dd1bbb9b95f, type: 3}
-  currentScrap: 500
+  currentScrap: 100
   scrapPercentage: 1
   currentSeason: 0
-  currentProgress: 100
+  currentProgress: 0
   maxProgress: 100
   currentPlayTime: 0
   totalDamageDealt: 0
