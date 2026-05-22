@@ -16,7 +16,7 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private CanvasGroup titleLogo;
     [SerializeField] private RectTransform titleRect;
     [SerializeField] private CanvasGroup textGroup;
-    [SerializeField] private Transform background;
+    [SerializeField] private RectTransform background; // ★ 수정: RectTransform으로 직접 받거나 캐싱
     [SerializeField] private TextMeshProUGUI[] menuTexts;
     [SerializeField] private GameObject[] cursorIcons;
     [SerializeField] private SettingUIController settingUI;
@@ -47,7 +47,7 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private AudioClip selectSound;
 
     private int _currentIndex = 0;
-    private Vector3 _bgOriginPos;
+    private Vector2 _bgOriginPos; // ★ 수정: Vector2로 변경
     private float _baseY;
     private bool _isInputActive = false;
     private bool _isFloatingActive = false;
@@ -55,7 +55,8 @@ public class TitleManager : MonoBehaviour
 
     private void Awake()
     {
-        if (background != null) _bgOriginPos = background.position;
+        // ★ 수정: UI 전용 좌표인 anchoredPosition 저장
+        if (background != null) _bgOriginPos = background.anchoredPosition;
 
         normalColor.a = 1f;
         highlightColor.a = 1f;
@@ -151,9 +152,10 @@ public class TitleManager : MonoBehaviour
         float autoX = Mathf.Sin(Time.time * autoPanSpeed) * autoPanAmount;
         float autoY = Mathf.Cos(Time.time * autoPanSpeed * 0.8f) * autoPanAmount;
 
-        Vector3 targetPos = _bgOriginPos + new Vector3(mouseOffset.x + autoX, mouseOffset.y + autoY, 0f);
+        // ★ 수정: Vector2를 활용한 anchoredPosition 연산
+        Vector2 targetPos = _bgOriginPos + new Vector2(mouseOffset.x + autoX, mouseOffset.y + autoY);
 
-        background.position = Vector3.Lerp(background.position, targetPos, Time.deltaTime * parallaxSmooth);
+        background.anchoredPosition = Vector2.Lerp(background.anchoredPosition, targetPos, Time.deltaTime * parallaxSmooth);
     }
 
     private void HandleIdleFloating()

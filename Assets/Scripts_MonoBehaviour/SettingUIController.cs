@@ -142,23 +142,48 @@ public class SettingUIController : MonoBehaviour
         }
     }
 
-    private void ApplyResolutionAndScreenMode()
+private void ApplyResolutionAndScreenMode()
     {
+        // 1. 선택된 화면 모드 가져오기
         FullScreenMode mode = FullScreenMode.Windowed;                  
-        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     
-        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; 
+        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     // 테두리 없음
+        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; // 전체 화면
 
+        // 2. 선택된 해상도 가져오기
         int width = 1920;
         int height = 1080;
 
-        // ★ 수정: 4K 해상도 적용 로직 추가
         if (_currentValues[4] == 0) { width = 1280; height = 720; }
         else if (_currentValues[4] == 1) { width = 1920; height = 1080; }
         else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
         else if (_currentValues[4] == 3) { width = 3840; height = 2160; } 
 
+        // ★ 핵심 수정: '테두리 없음' 모드일 때의 해상도 충돌 방지 로직
+        // 테두리 없는 창 모드(Borderless)는 모니터의 기본 해상도와 다를 때 URP 색상 깨짐이 발생하기 쉽습니다.
+        if (mode == FullScreenMode.FullScreenWindow)
+        {
+            // 테두리 없는 창 모드는 '현재 모니터의 최대 해상도'로 맞추는 것이 가장 안전합니다.
+            // 픽셀이 타버리는 현상을 막기 위해 윈도우 OS의 기본 스케일링을 따르도록 해상도를 강제 조정합니다.
+            Resolution currentMonitorRes = Screen.currentResolution;
+            
+            // 만약 유저가 선택한 해상도가 모니터 최대 해상도와 다르다면
+            if (width != currentMonitorRes.width || height != currentMonitorRes.height)
+            {
+                Debug.Log($"테두리 없음 모드 색상 깨짐 방지: 해상도를 모니터 기본값({currentMonitorRes.width}x{currentMonitorRes.height})으로 오버라이드 합니다.");
+                width = currentMonitorRes.width;
+                height = currentMonitorRes.height;
+
+                // UI에도 변경된 해상도가 표시되도록 강제 업데이트 (옵션)
+                // 만약 UI에 "1920x1080"이라고 띄워놓고 실제론 4K로 돌리는 게 싫다면
+                // 여기서 _currentValues[4] 값을 모니터 해상도에 맞게 역추적해서 바꿔줄 수도 있습니다.
+                // 일단은 시스템 해상도만 강제로 맞춰서 화면이 타는 현상을 막습니다.
+            }
+        }
+
+        // 3. 해상도 및 화면 모드 적용
         Screen.SetResolution(width, height, mode); 
         
+        // 4. 수직동기화(VSync) 및 프레임 제한 설정
         QualitySettings.vSyncCount = _currentValues[5]; 
         
         if (QualitySettings.vSyncCount == 0)
