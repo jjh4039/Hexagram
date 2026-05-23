@@ -620,6 +620,17 @@
                     "isPartOfComposite": false
                 },
                 {
+                    "name": "",
+                    "id": "b3258358-1d0b-4033-b262-8a3f3d3a67d0",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "2D Vector",
                     "id": "2ca3b332-c3b3-4396-83b1-3e2e9af7043f",
                     "path": "2DVector",

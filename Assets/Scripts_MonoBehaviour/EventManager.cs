@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using TMPro;
 
 [Serializable]
@@ -63,9 +62,6 @@ public class EventManager : MonoBehaviour
     [SerializeField] private float textFadeDuration = 0.2f;
     [SerializeField] private float textDisplayDuration = 1f;
 
-    [Header("Debug Settings")]
-    [SerializeField] private bool enableDebugInput = true;
-
     public EventSelectionData CurrentEventSelection => currentEventSelection;
     public Vector3 eventOriginPos;
 
@@ -87,41 +83,6 @@ public class EventManager : MonoBehaviour
             activationText.color = c;
             activationText.gameObject.SetActive(false);
         }
-    }
-
-    private void Start()
-    {
-        if (enableDebugInput && InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
-        {
-            InputStateManager.Instance.Actions.Normal.DebugEvent.performed += OnDebugEventTrigger;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        // ★ 수정: 오직 자신의 인스턴스일 때만 확실하게 이벤트를 해제하여 메모리 누수 및 중복 실행 방지
-        if (Instance == this && enableDebugInput && InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
-        {
-            InputStateManager.Instance.Actions.Normal.DebugEvent.performed -= OnDebugEventTrigger;
-        }
-    }
-
-    private void OnDebugEventTrigger(InputAction.CallbackContext context)
-    {
-        ToggleRandomEventUI();
-    }
-
-    private void ToggleRandomEventUI()
-    {
-        if (eventUIController == null) return;
-        if (eventUIController.IsOpen) return;
-
-        if (GameManager.instance != null && GameManager.instance.player != null)
-        {
-            eventOriginPos = GameManager.instance.player.transform.position;
-        }
-
-        GenerateRandomEvent();
     }
 
     public void GenerateRandomEvent()

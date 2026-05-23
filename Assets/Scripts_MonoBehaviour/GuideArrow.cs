@@ -5,17 +5,17 @@ public class GuideArrow : MonoBehaviour
     public static GuideArrow Instance { get; private set; } 
 
     [Header("Settings")]
-    public float radius = 0.55f;           
-    public float angleOffset = -135f;      
-    public float rewardHideDistance = 1.4f; 
-    public float statueHideDistance = 2.0f; 
+    public float radius = 0.55f;           // 화살표 회전 반경
+    public float angleOffset = -135f;      // 화살표 이미지 기본 각도 보정
+    public float rewardHideDistance = 1.4f; // 보상 숨김 거리
+    public float statueHideDistance = 2.0f; // 동상 숨김 거리
 
     [Header("Sprites")]
-    public Sprite rewardSprite;            
-    public Sprite statueSprite;            
+    public Sprite rewardSprite;            // 보상 방향 이미지
+    public Sprite statueSprite;            // 동상 방향 이미지
 
     [Header("Runtime")]
-    public bool isVisible = false;         
+    public bool isVisible = false;         // 화살표 활성화 상태
 
     private SpriteRenderer _spriteRenderer;
     
@@ -54,7 +54,6 @@ public class GuideArrow : MonoBehaviour
 
     private void Update()
     {
-        // ★ 수정: 플레이어가 파괴(사망/씬전환)되었을 때 에러 방어 추가
         if (!isVisible || _playerTransform == null)
         {
             if (_spriteRenderer != null && _spriteRenderer.enabled) _spriteRenderer.enabled = false;
@@ -89,27 +88,33 @@ public class GuideArrow : MonoBehaviour
         bool hasUncollectedFloorReward = _rewardItem != null && !_rewardItem.IsCollected;
         bool hasPendingModuleReward = StageMessageUI.instance && !StageMessageUI.instance.IsRewardQueueEmpty;
 
-        if (hasUncollectedFloorReward || hasPendingModuleReward)
+        // 1. 맵에 안 먹은 보상 오브젝트가 있다면 주황색 화살표 표시
+        if (hasUncollectedFloorReward)
         {
             if (_spriteRenderer)
             {
                 _spriteRenderer.sprite = rewardSprite;
                 _spriteRenderer.color = Color.white; 
             }
-            // ★ 수정: 보상 오브젝트가 파괴되었을 수 있으므로 널 체크
+            
             if (!_rewardTransform) return _statueTransform;
             
             return _rewardTransform;
         }
-        else
+        
+        // 2. 오브젝트는 사용했지만 아직 UI 강화를 완료하지 않은 경우 화살표 숨김
+        if (hasPendingModuleReward)
         {
-            if (_spriteRenderer)
-            {
-                _spriteRenderer.sprite = statueSprite;
-                _spriteRenderer.color = Color.white; 
-            }
-            return _statueTransform; 
+            return null; 
         }
+
+        // 3. 강화를 포함해 모든 보상을 다 획득/선택한 경우 파란색 화살표 표시
+        if (_spriteRenderer)
+        {
+            _spriteRenderer.sprite = statueSprite;
+            _spriteRenderer.color = Color.white; 
+        }
+        return _statueTransform; 
     }
 
     private void UpdateArrowTransform(Transform target)

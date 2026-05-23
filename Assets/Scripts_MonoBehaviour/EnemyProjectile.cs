@@ -156,7 +156,22 @@ public class EnemyProjectile : MonoBehaviour
         {
             Player player = collision.GetComponent<Player>();
             if (player != null)
+            {
+                // ★ 추가: 플레이어가 대시 중(무적)일 때 투사체를 맞으면 회피 판정
+                if (player.isInvincible)
+                {
+                    PlayerStats stats = player.GetComponent<PlayerStats>();
+                    if (stats != null)
+                    {
+                        // 텍스트 출력 후 바로 return하여 투사체가 뚫고 지나가게 함
+                        stats.SpawnDamageText("DODGE", Color.cyan, 3f);
+                    }
+                    return; 
+                }
+
+                // 무적이 아니라면 정상 데미지
                 player.OnDamage(damage);
+            }
 
             SpawnHitEffect(transform.position);
             ReturnToPool();
