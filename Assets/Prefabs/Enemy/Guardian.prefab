@@ -322,7 +322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01de2e9febf8eab469096837a017fa4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBoss
-  maxHealth: 4000
+  maxHealth: 3400
   currentHealth: 0
   contactDamage: 10
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}

@@ -143,8 +143,8 @@ public class EnemyBoss : Enemy
 
     private Transform telegraphContainer;
 
-    private List<GameObject> poolMaxRects = new List<GameObject>();
-    private List<GameObject> poolCurRects = new List<GameObject>();
+    // ★ 수정 1: 이름표(String)를 Key로 사용하여 패턴별로 완전히 다른 방에서 장판을 관리합니다.
+    private Dictionary<string, List<GameObject>> telegraphPools = new Dictionary<string, List<GameObject>>();
 
     private SpriteRenderer shadowSr;
     private Color shadowOriginalColor;
@@ -172,7 +172,7 @@ public class EnemyBoss : Enemy
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) target = playerObj.transform;
 
-        ClearRectangles();
+        ClearAllTelegraphs();
 
         if (auraParticle != null)
         {
@@ -188,36 +188,88 @@ public class EnemyBoss : Enemy
         }
     }
 
-    private GameObject GetMaxRect(Vector3 pos)
+    // ★ 수정 2: 'poolKey'를 통해 같은 프리팹이라도 패턴별로 독립적인 풀링을 보장합니다.
+    private GameObject GetTelegraph(string poolKey, GameObject prefabTemplate, Vector3 pos)
     {
-        foreach (var r in poolMaxRects)
+        if (prefabTemplate == null) return null;
+
+        if (!telegraphPools.ContainsKey(poolKey))
         {
-            if (!r.activeSelf)
+            telegraphPools[poolKey] = new List<GameObject>();
+        }
+
+        foreach (var obj in telegraphPools[poolKey])
+        {
+            if (!obj.activeSelf)
             {
-                r.transform.position = pos;
-                r.SetActive(true);
-                return r;
+                obj.transform.position = pos;
+                obj.transform.rotation = Quaternion.identity;
+                obj.transform.localScale = Vector3.one;
+                
+                SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
+                if (sr != null) 
+                {
+                    // 이전 패턴에서 바뀐 색상, 투명도, 크기 찌꺼기를 완벽히 날려버립니다.
+                    sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 1f);
+                }
+                
+                obj.SetActive(true);
+                return obj;
             }
         }
-        var obj = Instantiate(dashMaxRangeOrigin, pos, Quaternion.identity, telegraphContainer);
-        poolMaxRects.Add(obj);
-        return obj;
+
+        GameObject newObj = Instantiate(prefabTemplate, pos, Quaternion.identity, telegraphContainer);
+        telegraphPools[poolKey].Add(newObj);
+        return newObj;
     }
 
-    private GameObject GetCurRect(Vector3 pos)
+    // ★ 활성화된 모든 장판 끄기
+    void ClearAllTelegraphs()
     {
-        foreach (var r in poolCurRects)
+        if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
+        if (attackRangeObj != null) attackRangeObj.SetActive(false);
+
+        foreach (var pool in telegraphPools.Values)
         {
-            if (!r.activeSelf)
+            foreach (var obj in pool)
             {
-                r.transform.position = pos;
-                r.SetActive(true);
-                return r;
+                if (obj != null) obj.SetActive(false);
             }
         }
-        var obj = Instantiate(dashCurrentRangeOrigin, pos, Quaternion.identity, telegraphContainer);
-        poolCurRects.Add(obj);
-        return obj;
+    }
+
+    // ★ 핵심 수정 3: 물리 레이캐스트 원점과 시각적 장판 위치를 분리하여 벽 관통을 완벽 차단하는 통일 함수
+    private void DrawTelegraph(GameObject rect, Vector3 rayOrigin, Vector3 drawPos, Vector2 dir, float maxLength, float progress, float width)
+    {
+        if (rect == null) return;
+
+        rect.transform.position = drawPos;
+        rect.transform.right = dir.normalized;
+
+        float finalLength = maxLength;
+        
+        // 물리 레이캐스트는 무조건 장애물 검사 원점(rayOrigin)에서 발사합니다.
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, dir.normalized, maxLength, wallLayer);
+        if (hit.collider != null)
+        {
+            // 벽에 부딪혔다면: 그림 그리기 시작점(drawPos)에서부터 벽(hit.point)까지의 거리를 수학적으로 도출
+            float distFromDraw = Vector2.Dot(hit.point - (Vector2)drawPos, dir.normalized);
+            finalLength = Mathf.Max(0, distFromDraw - 0.5f); // 약간의 패딩
+        }
+        else
+        {
+            // 허공이라면: 레이캐스트 최대 도달점까지의 거리를 계산
+            Vector2 maxPoint = (Vector2)rayOrigin + dir.normalized * maxLength;
+            float distFromDraw = Vector2.Dot(maxPoint - (Vector2)drawPos, dir.normalized);
+            finalLength = Mathf.Max(0, distFromDraw);
+        }
+
+        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            // MaxRect(진행률 1f)이든 CurRect(차오르는 바)이든 벽을 절대 넘어갈 수 없게 됩니다.
+            sr.size = new Vector2(finalLength * progress, width);
+        }
     }
 
     private void StartIntroSequence()
@@ -523,72 +575,6 @@ public class EnemyBoss : Enemy
             transform.localScale = new Vector3(-spriteScale, spriteScale, 1);
     }
 
-    // ★ 수정된 함수: MaxRect(배경)와 CurRect(진행바)의 처리를 구분하는 isMaxRect 파라미터 추가
-    void UpdateRectangle(GameObject rect, Vector2 dir, float requestedLength, float width, bool isMaxRect)
-    {
-        if (rect == null) return;
-        float facingDirection = Mathf.Sign(transform.localScale.x);
-        Vector2 visualOffset = new Vector2(dashIndicatorOffset.x * facingDirection, dashIndicatorOffset.y);
-        Vector2 startPos = (Vector2)transform.position + visualOffset;
-
-        rect.transform.position = startPos;
-        rect.transform.right = dir.normalized;
-
-        float finalLength = requestedLength;
-
-        if (isMaxRect)
-        {
-            RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, requestedLength, wallLayer);
-            if (hit.collider != null)
-            {
-                finalLength = Mathf.Max(0, hit.distance - 0.5f);
-            }
-        }
-
-        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            float adjustedLength = finalLength + Mathf.Abs(dashIndicatorOffset.x);
-            sr.size = new Vector2(adjustedLength, width);
-        }
-    }
-
-    // ★ 수정된 함수: MaxRect(배경)와 CurRect(진행바)의 처리를 구분하는 isMaxRect 파라미터 추가
-    void UpdateRectangleFromPoint(GameObject rect, Vector2 startPos, Vector2 dir, float maxLimitLength, float progress, float width, bool isMaxRect)
-    {
-        if (rect == null) return;
-
-        rect.transform.position = startPos;
-        rect.transform.right = dir.normalized;
-
-        float finalLength = maxLimitLength;
-
-        if (isMaxRect)
-        {
-            RaycastHit2D hit = Physics2D.Raycast(startPos, dir.normalized, maxLimitLength, wallLayer);
-            if (hit.collider != null)
-            {
-                finalLength = Mathf.Max(0, hit.distance - 0.5f);
-            }
-        }
-
-        SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            float currentLength = finalLength * progress;
-            sr.size = new Vector2(currentLength, width);
-        }
-    }
-
-    void ClearRectangles()
-    {
-        if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
-        if (attackRangeObj != null) attackRangeObj.SetActive(false);
-
-        foreach (var r in poolMaxRects) if (r != null) r.SetActive(false);
-        foreach (var r in poolCurRects) if (r != null) r.SetActive(false);
-    }
-
     IEnumerator Co_Pattern1_Dash()
     {
         int dashCount = (isEnraged || forceEnrage) ? 2 : 1;
@@ -603,14 +589,12 @@ public class EnemyBoss : Enemy
 
             Vector2 currentDir = (target.position - transform.position).normalized;
 
-            GameObject maxRectInstance = null;
-            GameObject currentRectInstance = null;
+            // ★ 고유 Key 할당: "DashMax", "DashCur"
+            GameObject maxRectInstance = GetTelegraph("DashMax", dashMaxRangeOrigin, transform.position);
+            GameObject currentRectInstance = GetTelegraph("DashCur", dashCurrentRangeOrigin, transform.position);
 
-            if (dashMaxRangeOrigin != null)
-                maxRectInstance = GetMaxRect(transform.position);
-
-            if (dashCurrentRangeOrigin != null)
-                currentRectInstance = GetCurRect(transform.position);
+            float facingDirection = Mathf.Sign(transform.localScale.x);
+            Vector2 visualOffset = new Vector2(dashIndicatorOffset.x * facingDirection, dashIndicatorOffset.y);
 
             float timer = 0f;
             while (timer < currentChargeTime && !isDead)
@@ -619,19 +603,18 @@ public class EnemyBoss : Enemy
                 Vector2 targetDir = (target.position - transform.position).normalized;
                 currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * dashHomingStrength);
 
-                // ★ 수정: MaxRect는 true 전달
-                UpdateRectangle(maxRectInstance, currentDir, currentLimitLength, dashRectWidth, true);
-                
-                // ★ 수정: CurRect는 progress를 계산한 길이를 넘겨주고 false 전달
-                float currentProgressLength = currentLimitLength * (timer / currentChargeTime);
-                UpdateRectangle(currentRectInstance, currentDir, currentProgressLength, dashRectWidth, false);
+                Vector3 drawPos = transform.position + (Vector3)visualOffset;
+                float progress = timer / currentChargeTime;
+
+                // ★ 통합된 DrawTelegraph 사용
+                DrawTelegraph(maxRectInstance, transform.position, drawPos, currentDir, currentLimitLength, 1f, dashRectWidth);
+                DrawTelegraph(currentRectInstance, transform.position, drawPos, currentDir, currentLimitLength, progress, dashRectWidth);
                 
                 LookAtDirection(currentDir.x);
-
                 yield return null;
             }
 
-            ClearRectangles();
+            ClearAllTelegraphs();
 
             if (Anim != null) Anim.SetTrigger("Dash");
             if (sfxDashFire != null) SoundManager.instance.PlaySFX(sfxDashFire, 1f, 0.1f);
@@ -709,7 +692,7 @@ public class EnemyBoss : Enemy
             yield return null;
         }
 
-        ClearRectangles();
+        ClearAllTelegraphs();
 
         if (isDead) yield break;
 
@@ -772,38 +755,30 @@ public class EnemyBoss : Enemy
             float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
             wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
 
+            // ★ 고유 Key 할당: "SpikeMax", "SpikeCur"
             if (dashMaxRangeOrigin != null)
-            {
-                GameObject maxObj = GetMaxRect(transform.position);
-                maxRects.Add(maxObj);
-            }
+                maxRects.Add(GetTelegraph("SpikeMax", dashMaxRangeOrigin, transform.position));
             if (dashCurrentRangeOrigin != null)
-            {
-                GameObject curObj = GetCurRect(transform.position);
-                currentRects.Add(curObj);
-            }
+                currentRects.Add(GetTelegraph("SpikeCur", dashCurrentRangeOrigin, transform.position));
         }
 
         float timer = 0f;
         while (timer < linesChargeTime && !isDead)
         {
             timer += Time.deltaTime;
+            float progress = timer / linesChargeTime;
+
             for (int i = 0; i < lineDirections.Count; i++)
             {
-                // ★ 수정: MaxRect는 true 전달, CurRect는 길이를 계산해서 넘겨주고 false 전달
                 if (i < maxRects.Count) 
-                    UpdateRectangle(maxRects[i], lineDirections[i], spikeMaxLimitLength, spikeRectWidth, true);
-                
+                    DrawTelegraph(maxRects[i], transform.position, transform.position, lineDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
                 if (i < currentRects.Count) 
-                {
-                    float currentProgressLength = spikeMaxLimitLength * (timer / linesChargeTime);
-                    UpdateRectangle(currentRects[i], lineDirections[i], currentProgressLength, spikeRectWidth, false);
-                }
+                    DrawTelegraph(currentRects[i], transform.position, transform.position, lineDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
             }
             yield return null;
         }
 
-        ClearRectangles();
+        ClearAllTelegraphs();
 
         if (isDead) yield break;
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.2f, 0.15f);
@@ -833,16 +808,11 @@ public class EnemyBoss : Enemy
                     Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
                     reverseDirections.Add(toPlayerDir);
 
+                    // ★ 고유 Key 할당: 돌아오는 가시 장판 전용 풀
                     if (dashMaxRangeOrigin != null)
-                    {
-                        GameObject maxObj = GetMaxRect(startPos);
-                        maxRects.Add(maxObj);
-                    }
+                        maxRects.Add(GetTelegraph("SpikeReturnMax", dashMaxRangeOrigin, startPos));
                     if (dashCurrentRangeOrigin != null)
-                    {
-                        GameObject curObj = GetCurRect(startPos);
-                        currentRects.Add(curObj);
-                    }
+                        currentRects.Add(GetTelegraph("SpikeReturnCur", dashCurrentRangeOrigin, startPos));
                 }
 
                 float returnChargeTime = linesChargeTime * 0.6f;
@@ -855,16 +825,15 @@ public class EnemyBoss : Enemy
                     for (int i = 0; i < reverseDirections.Count; i++)
                     {
                         Vector2 startPos = wallHitPoints[i];
-                        // ★ 수정: MaxRect는 true 전달, CurRect는 false 전달
                         if (i < maxRects.Count) 
-                            UpdateRectangleFromPoint(maxRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth, true);
+                            DrawTelegraph(maxRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
                         if (i < currentRects.Count) 
-                            UpdateRectangleFromPoint(currentRects[i], startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth, false);
+                            DrawTelegraph(currentRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
                     }
                     yield return null;
                 }
 
-                ClearRectangles();
+                ClearAllTelegraphs();
 
                 if (isDead) yield break;
                 if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.25f, 0.2f);
@@ -902,11 +871,12 @@ public class EnemyBoss : Enemy
 
         if (isEnraged || forceEnrage)
         {
+            // ★ 고유 Key 할당: 폭주 저격 전용 풀
             if (dashMaxRangeOrigin != null)
-                sniperMaxInstance = GetMaxRect(transform.position);
+                sniperMaxInstance = GetTelegraph("SniperMax", dashMaxRangeOrigin, transform.position);
             
             if (dashCurrentRangeOrigin != null)
-                sniperCurrentInstance = GetCurRect(transform.position);
+                sniperCurrentInstance = GetTelegraph("SniperCur", dashCurrentRangeOrigin, transform.position);
             
             isSniperTracking = true;
 
@@ -1004,8 +974,8 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(true, index);
 
-                GameObject telegraph = GetCurRect(data.startPos);
-                telegraph.transform.localScale = Vector3.one;
+                // ★ 고유 Key 할당: 가로세로 십자 장판 전용 풀
+                GameObject telegraph = GetTelegraph("GridFlash", dashCurrentRangeOrigin, data.startPos);
 
                 SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
                 if (sr != null)
@@ -1026,8 +996,7 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(false, index);
 
-                GameObject telegraph = GetCurRect(data.startPos);
-                telegraph.transform.localScale = Vector3.one;
+                GameObject telegraph = GetTelegraph("GridFlash", dashCurrentRangeOrigin, data.startPos);
 
                 SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
                 if (sr != null)
@@ -1274,7 +1243,7 @@ public class EnemyBoss : Enemy
         }
 
         StopAllCoroutines();
-        ClearRectangles();
+        ClearAllTelegraphs();
 
         if (auraParticle != null) auraParticle.Stop();
 
