@@ -75,6 +75,9 @@ public class Sword : MonoBehaviour
         if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Sword)
             return;
 
+        if (GameManager.instance != null && GameManager.instance.player != null && GameManager.instance.player.IsDashing)
+            return;
+
         if (comboStep >= 3)
             return;
 

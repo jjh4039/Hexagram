@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
     public bool isKnockedBack = false;
     public bool isRecoiling = false;
     public bool isTutorial = false;
+    public bool IsDashing => _isDashing; // 외부 참조용 대시 상태 반환
 
     [Header("Hit And Invincibility")]
     [SerializeField] public bool isInvincible = false;
