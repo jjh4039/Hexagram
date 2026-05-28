@@ -96,7 +96,7 @@ public class Sword_Effect : MonoBehaviour
 
     private IEnumerator ProcessMultiHit(Enemy enemy)
     {
-        if (GameManager.instance == null || GameManager.instance.stats == null) yield break;
+        if (!GameManager.instance || !GameManager.instance.stats) yield break;
         PlayerStats stats = GameManager.instance.stats;
 
         float baseDamage =
@@ -130,17 +130,17 @@ public class Sword_Effect : MonoBehaviour
                 GameManager.instance.totalDamageDealt += damageInt;
             }
 
-            // ★ 추가: 검 타격 적중 시 주사위 게이지 충전
             stats.AddDiceChargeFromHit();
 
             if (enemy == null || enemy.gameObject == null || !enemy.gameObject.activeInHierarchy)
                 yield break;
 
             SpawnHitEffect(enemy, isCritical);
-
+            
             if (stats.currentAmmo < stats.maxAmmo)
             {
-                stats.currentAmmo = Mathf.Min(stats.currentAmmo + ammoGain, stats.maxAmmo);
+                int finalAmmoGain = stats.GetFinalMeleeAmmoGain(ammoGain);
+                stats.currentAmmo = Mathf.Min(stats.currentAmmo + finalAmmoGain, stats.maxAmmo);
             }
 
             if (i < hitCount - 1)

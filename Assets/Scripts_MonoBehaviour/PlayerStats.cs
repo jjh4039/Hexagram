@@ -20,7 +20,7 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Attack Power Stats")]
     public float meleeAttackPower = 10f;
-    public float rangeAttackPower = 12f;
+    public float rangeAttackPower = 14f;
     public float finalAttackPower = 1f;
 
     [Header("Critical Stats")]
@@ -61,6 +61,18 @@ public class PlayerStats : MonoBehaviour
     [Header("Visual Feedback")]
     public GameObject damageTextPrefab;
 
+    [Header("Meta Progression Settings")]
+    public int metaHealthPerLevel = 1;            
+    public float metaAttackPerLevel = 0.2f;         
+    public float metaChargeSpeedPercent = 0.03f;   
+    public int metaPierceStep = 3;                 
+    public float metaDifficultyPercent = 0.1f;     
+
+    [HideInInspector] public int bonusPenetration = 0;       
+    [HideInInspector] public float enemyStatMultiplier = 1f; 
+    
+    [HideInInspector] public float metaAmmoGainMultiplier = 1f; 
+
     private float _ammoRechargeTimer = 0f;
     private BuffManager _buffManager;
 
@@ -68,15 +80,43 @@ public class PlayerStats : MonoBehaviour
     {
         _buffManager = GetComponent<BuffManager>();
 
-        // ★ 추가: 영구 성장 요소 - 보유한 누적 보석 수만큼 최대 체력 1씩 증가
-        if (DataManager.instance != null && DataManager.instance.data != null)
-        {
-            maxHealth += DataManager.instance.data.totalGems;
-        }
+        ApplyMetaProgression();
 
         currentHealth = maxHealth;
         currentAmmo = maxAmmo;
         currentDashStacks = maxDashStacks;
+    }
+
+    private void ApplyMetaProgression()
+    {
+        if (DataManager.instance == null || DataManager.instance.data == null) return;
+        GameData data = DataManager.instance.data;
+
+        maxHealth += data.upgradeHealthLevel * metaHealthPerLevel;
+
+        meleeAttackPower += data.upgradeAttackLevel * metaAttackPerLevel;
+        rangeAttackPower += data.upgradeAttackLevel * metaAttackPerLevel;
+
+        float chargeSpeedBonus = 1f + (data.upgradeBulletLevel * metaChargeSpeedPercent);
+        ammoRechargeRate *= chargeSpeedBonus;
+        metaAmmoGainMultiplier = chargeSpeedBonus; // 총알 수급량 배율 저장
+        
+        bonusPenetration = data.upgradeBulletLevel / metaPierceStep;
+
+        float difficultyBonus = data.difficultyLevel * metaDifficultyPercent;
+        enemyStatMultiplier = 1f + difficultyBonus;
+        
+        // ★ 이미 구현된 부분: 난이도가 오른 만큼 GameManager의 스크랩 획득 퍼센트가 알아서 오릅니다!
+        if (GameManager.instance != null)
+        {
+            GameManager.instance.scrapPercentage += difficultyBonus;
+        }
+    }
+
+    // ★ 추가: 기본 수급량 10을 넣으면 메타 배율, 주사위 배율을 계산해서 뱉어냅니다.
+    public int GetFinalMeleeAmmoGain(int baseGain)
+    {
+        return Mathf.RoundToInt(baseGain * metaAmmoGainMultiplier * diceChargeSpeedMultiplier);
     }
 
     public void ApplyArtifactStat(ArtifactData data)
@@ -105,10 +145,7 @@ public class PlayerStats : MonoBehaviour
         switch (type)
         {
             case ArtifactEffectType.MaxHp:
-                if (isPercent)
-                {
-                    ApplyPercentMaxHealth(value);
-                }
+                if (isPercent) ApplyPercentMaxHealth(value);
                 else
                 {
                     int hpBonus = Mathf.RoundToInt(flatAmount);
@@ -116,60 +153,34 @@ public class PlayerStats : MonoBehaviour
                     if (!cannotHeal) currentHealth += hpBonus;
                 }
                 break;
-
             case ArtifactEffectType.AttackPower:
-                if (isPercent)
-                {
-                    meleeAttackPower *= multiplier;
-                    rangeAttackPower *= multiplier;
-                }
-                else
-                {
-                    meleeAttackPower += flatAmount;
-                    rangeAttackPower += flatAmount;
-                }
+                if (isPercent) { meleeAttackPower *= multiplier; rangeAttackPower *= multiplier; }
+                else { meleeAttackPower += flatAmount; rangeAttackPower += flatAmount; }
                 break;
-
             case ArtifactEffectType.FinalDamage:
-                if (isPercent)
-                {
-                    finalAttackPower *= multiplier;
-                }
-                else
-                {
-                    finalAttackPower += flatAmount;
-                }
+                if (isPercent) finalAttackPower *= multiplier;
+                else finalAttackPower += flatAmount;
                 break;
-
             case ArtifactEffectType.MoveSpeed:
                 moveSpeed = isPercent ? moveSpeed * multiplier : moveSpeed + flatAmount;
                 break;
-
             case ArtifactEffectType.AttackSpeed:
                 attackSpeed += value;
                 break;
-
             case ArtifactEffectType.ChargeSpeed:
                 ammoRechargeRate = isPercent ? ammoRechargeRate * multiplier : ammoRechargeRate + flatAmount;
                 break;
-
             case ArtifactEffectType.DiceSpeed:
                 dicePassiveChargeRate = isPercent ? dicePassiveChargeRate * multiplier : dicePassiveChargeRate + flatAmount;
                 break;
-
             case ArtifactEffectType.CritChance:
                 criticalChance += flatAmount;
                 break;
-
             case ArtifactEffectType.CritDamage:
                 criticalDamageMultiplier += flatAmount;
                 break;
-
             case ArtifactEffectType.ScrapGain:
-                if (GameManager.instance)
-                {
-                    GameManager.instance.scrapPercentage += flatAmount;
-                }
+                if (GameManager.instance) GameManager.instance.scrapPercentage += flatAmount;
                 break;
         }
     }
@@ -197,7 +208,6 @@ public class PlayerStats : MonoBehaviour
                 criticalDamageMultiplier += decimalValue; 
                 break;
         }
-
         SpawnDamageText("STAT UP!", Color.yellow, 4f); 
     }
 
@@ -240,16 +250,8 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public float GetFinalMeleeDamage()
-    {
-        return meleeAttackPower * diceDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
-    }
-
-    public float GetFinalRangedDamage()
-    {
-        return rangeAttackPower * diceDamageMultiplier * diceRangedDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
-    }
-
+    public float GetFinalMeleeDamage() => meleeAttackPower * diceDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
+    public float GetFinalRangedDamage() => rangeAttackPower * diceDamageMultiplier * diceRangedDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
     public float GetFinalMoveSpeed() => moveSpeed * diceMoveSpeedMultiplier;
     
     public float GetFinalAttackSpeed() 
@@ -278,10 +280,7 @@ public class PlayerStats : MonoBehaviour
         isDiceEffectHalved = false;
     }
 
-    public float GetFinalCriticalDamageMultiplier()
-    {
-        return criticalDamageMultiplier + diceCritDamageBonus;
-    }
+    public float GetFinalCriticalDamageMultiplier() => criticalDamageMultiplier + diceCritDamageBonus;
 
     public void AddDiceCharge(float amount)
     {
@@ -297,10 +296,7 @@ public class PlayerStats : MonoBehaviour
         if (!cannotHeal) currentHealth += hpBonus;
     }
 
-    public void AddDiceChargeFromHit()
-    {
-        AddDiceCharge(diceHitChargeAmount * diceChargeSpeedMultiplier);
-    }
+    public void AddDiceChargeFromHit() => AddDiceCharge(diceHitChargeAmount * diceChargeSpeedMultiplier);
 
     public void TakeDamage(int amount)
     {
@@ -310,10 +306,9 @@ public class PlayerStats : MonoBehaviour
         {
             if (_buffManager.HasAndConsumeFirstHitImmunity())
             {
-                SpawnDamageText("GUARD!", Color.cyan, 3f);
+                SpawnDamageText("GUARD!", Color.mediumSeaGreen, 3f);
                 return;
             }
-
             _buffManager.RemoveGlassCannonBuff();
         }
 
@@ -332,7 +327,6 @@ public class PlayerStats : MonoBehaviour
     public void Heal(int amount)
     {
         if (cannotHeal) return;
-
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
         SpawnDamageText($"+{amount}", Color.green, 3f); 
     }
@@ -340,20 +334,13 @@ public class PlayerStats : MonoBehaviour
     public void SpawnDamageText(string message, Color color, float size)
     {
         if (!damageTextPrefab) return;
-        
         DamageText dmgText = DamageText.Spawn(damageTextPrefab, transform.position + (Vector3.up * 0.5f));
-
-        if (dmgText)
-        {
-            dmgText.Setup(message, color, size);
-        }
+        if (dmgText) dmgText.Setup(message, color, size);
     }
 
     private void Die()
     {
         if (GameManager.instance && GameManager.instance.player != null)
-        {
             GameManager.instance.player.OnDie();
-        }
     }
 }

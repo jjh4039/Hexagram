@@ -171,6 +171,16 @@ public class EnemyBoss : Enemy
 
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null) target = playerObj.transform;
+        
+        if (GameManager.instance != null && GameManager.instance.stats != null)
+        {
+            float diffMult = GameManager.instance.stats.enemyStatMultiplier;
+            aoeDamage *= diffMult;
+            spikeDamage *= diffMult;
+            vineDamage *= diffMult;
+            aoeProjectileDamage *= diffMult;
+            dashDamageMultiplier *= diffMult; 
+        }
 
         ClearAllTelegraphs();
 

@@ -25,6 +25,9 @@ public class Bullet : MonoBehaviour
     private float cachedDiceDamageMultiplier = 1f;
     private float cachedDiceRangedDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
+    
+    // ★ 추가: 남은 관통 횟수 저장
+    private int currentPenetration = 0; 
 
     private Coroutine lifeTimerCoroutine;
 
@@ -51,6 +54,7 @@ public class Bullet : MonoBehaviour
         myMaterial = material;
     }
 
+    // ★ 수정: penetration 파라미터 추가
     public void SetupCombatData(
         float rangeAttackPower,
         float rangedVariance,
@@ -58,7 +62,8 @@ public class Bullet : MonoBehaviour
         float criticalDamageMultiplier,
         float diceDamageMultiplier,
         float diceRangedDamageMultiplier,
-        float strongAttackMultiplier
+        float strongAttackMultiplier,
+        int penetration
     )
     {
         cachedRangeAttackPower = rangeAttackPower;
@@ -68,6 +73,9 @@ public class Bullet : MonoBehaviour
         cachedDiceDamageMultiplier = diceDamageMultiplier;
         cachedDiceRangedDamageMultiplier = diceRangedDamageMultiplier;
         cachedStrongAttackMultiplier = strongAttackMultiplier;
+        
+        // 장전 시 받은 보너스 관통 횟수를 세팅
+        currentPenetration = penetration; 
     }
 
     private void OnEnable()
@@ -111,9 +119,6 @@ public class Bullet : MonoBehaviour
 
         if (collision.CompareTag("Enemy"))
         {
-            hasHit = true;
-            if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
-
             Enemy enemy = collision.GetComponent<Enemy>();
             if (enemy != null)
             {
@@ -121,10 +126,22 @@ public class Bullet : MonoBehaviour
                 SpawnHitEffect(transform.position);
             }
 
-            HideAndDelayReturn();
+            // ★ 수정: 관통 횟수가 남아있다면 총알이 사라지지 않고 관통 횟수만 1 차감
+            if (currentPenetration > 0)
+            {
+                currentPenetration--;
+            }
+            else
+            {
+                // 관통 횟수를 다 썼다면 기존처럼 파괴 (비활성화)
+                hasHit = true;
+                if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
+                HideAndDelayReturn();
+            }
         }
         else if (collision.CompareTag("Wall"))
         {
+            // 벽은 관통 횟수와 무관하게 무조건 막힘
             hasHit = true;
             if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
 
@@ -206,7 +223,6 @@ public class Bullet : MonoBehaviour
         if (GameManager.instance != null)
         {
             GameManager.instance.totalDamageDealt += damageInt;
-            // ★ 추가: 총알 적중 시 주사위 게이지 충전
             if (GameManager.instance.stats != null)
             {
                 GameManager.instance.stats.AddDiceChargeFromHit();

@@ -74,6 +74,11 @@ public class EnemyBee : Enemy
         GameObject playerObj = GameObject.FindWithTag("Player");
         if (playerObj != null)
             target = playerObj.transform;
+        
+        if (GameManager.instance != null && GameManager.instance.stats != null)
+        {
+            projectileDamage *= GameManager.instance.stats.enemyStatMultiplier;
+        }
 
         telegraphContainer = new GameObject($"{gameObject.name}_Telegraphs").transform; // 스케일 분리용 독립 부모 생성
 

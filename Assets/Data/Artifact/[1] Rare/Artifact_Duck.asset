@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: Artifact_Duck
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uACE0\uBB34\uC624\uB9AC"
-  description: "\uC2A4\uD14C\uC774\uC9C0 \uC785\uC7A5 \uC2DC 10\uCD08\uAC04\n\uACF5\uACA9\uC18D\uB3C4
+  description: "\uC2A4\uD14C\uC774\uC9C0 \uC785\uC7A5 \uC2DC 15\uCD08\uAC04\n\uACF5\uACA9\uC18D\uB3C4
     \uBC0F \uC774\uB3D9\uC18D\uB3C4\uAC00 \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: -5934446449810056419, guid: a28cbcc2598bc0e4fb9029a635117a99, type: 3}
   grade: 1
   basePrice: 152
   type: 1
   condition: 7
-  buffDuration: 10
+  buffDuration: 15
   isInfiniteBuff: 0
   effectType: 2
   value: 10

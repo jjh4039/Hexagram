@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Artifact_Candy
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uB9C9\uB300\uC0AC\uD0D5"
-  description: "\uCD5C\uC885 \uD53C\uD574\uB7C9\uC774 5% \uC0C1\uC2B9\uD55C\uB2E4."
+  description: "\uCD5C\uC885 \uD53C\uD574\uB7C9\uC774 7% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: 2712642044972581350, guid: a685290f0e31e0949a83939b7c1552af, type: 3}
   grade: 2
   basePrice: 225
@@ -22,7 +22,7 @@ MonoBehaviour:
   buffDuration: 10
   isInfiniteBuff: 0
   effectType: 10
-  value: 0.05
+  value: 0.07
   isPercent: 1
   effectType2: 0
   value2: 0

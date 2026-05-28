@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Artifact_Wallet
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uB0A1\uC740 \uC9C0\uAC11"
-  description: "\uACE0\uCCA0\uC758 \uD68D\uB4DD\uB7C9\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
+  description: "\uACE0\uCCA0\uC758 \uD68D\uB4DD\uB7C9\uC774 20% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: -1252986560473452192, guid: 7446d5030a5141b4e98bbb4dc63c50cf, type: 3}
   grade: 0
   basePrice: 110
@@ -22,7 +22,7 @@ MonoBehaviour:
   buffDuration: 10
   isInfiniteBuff: 0
   effectType: 5
-  value: 0.1
+  value: 0.2
   isPercent: 1
   effectType2: 0
   value2: 0

@@ -75,6 +75,11 @@ public class EnemyBird : Enemy
 
         telegraphContainer = new GameObject($"{gameObject.name}_Telegraphs").transform; // 스케일 반전(Flip) 버그 방지용
 
+        if (GameManager.instance != null && GameManager.instance.stats != null)
+        {
+            projectileDamage *= GameManager.instance.stats.enemyStatMultiplier;
+        }
+        
         StartCoroutine(Co_BirdAI());
     }
 

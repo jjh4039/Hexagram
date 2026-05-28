@@ -64,8 +64,8 @@ public class Gun : MonoBehaviour
             _poolContainer = new GameObject("Gun_ObjectPool").transform;
             if (poolParent != null) _poolContainer.SetParent(poolParent);
 
-            _bulletPool.Clear(); // 이전 씬의 파괴된 오브젝트 찌꺼기 제거
-            _hitEffectPool.Clear(); // 이전 씬의 파괴된 오브젝트 찌꺼기 제거
+            _bulletPool.Clear(); 
+            _hitEffectPool.Clear(); 
         }
 
         if (_bulletPool.Count == 0 && bulletPrefab != null)
@@ -121,6 +121,72 @@ public class Gun : MonoBehaviour
         else if (lineRenderer != null) lineRenderer.enabled = false;
 
         HandleAimCursor();
+        
+        TryAutoFire();
+    }
+
+    private bool IsHoldingAttack()
+    {
+        if (InputStateManager.Instance == null) return false;
+        
+        var state = InputStateManager.Instance.CurrentInputState;
+        var actions = InputStateManager.Instance.Actions;
+
+        if (state == InputState.Normal)
+            return actions.Normal.Attack.ReadValue<float>() > 0.5f;
+        if (state == InputState.Combat)
+            return actions.Combat.Attack.ReadValue<float>() > 0.5f;
+
+        return false;
+    }
+
+    private void TryAutoFire()
+    {
+        if (weaponManager.IsSwapping || weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun) 
+        {
+            return;
+        }
+
+        bool isHolding = IsHoldingAttack();
+
+        if (isHolding)
+        {
+            if (Time.time >= nextFireTime)
+            {
+                ExecuteTriggerAttack(true); 
+            }
+        }
+    }
+
+    public void TriggerAttack()
+    {
+        if (weaponManager.IsSwapping) return;
+        
+        ExecuteTriggerAttack(false); 
+    }
+
+    private void ExecuteTriggerAttack(bool isAutoFiring)
+    {
+        float finalAtkSpeed = GetFinalAttackSpeed();
+        float interval = Mathf.Max(fireRate / finalAtkSpeed, Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
+
+        if (Time.time < nextFireTime) return;
+
+        if (GameManager.instance.stats.currentAmmo < 100)
+        {
+            if (!isAutoFiring)
+            {
+                if (sfxEmpty != null) SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
+                SpawnAmmoEmptyText();
+            }
+            
+            nextFireTime = Time.time + interval; 
+            return;
+        }
+
+        GameManager.instance.stats.currentAmmo -= 100;
+        Shoot(Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
+        nextFireTime = Time.time + interval;
     }
 
     private void UpdateMousePosition()
@@ -167,27 +233,6 @@ public class Gun : MonoBehaviour
         lineRenderer.SetPosition(1, hit.collider != null ? hit.point : safeMuzzlePos + (Vector2)transform.right * laserLength);
     }
 
-    public void TriggerAttack()
-    {
-        if (weaponManager.IsSwapping) return;
-
-        float finalAtkSpeed = GetFinalAttackSpeed();
-        float interval = Mathf.Max(fireRate / finalAtkSpeed, Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
-
-        if (Time.time < nextFireTime) return;
-
-        if (GameManager.instance.stats.currentAmmo < 100)
-        {
-            if (sfxEmpty != null) SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
-            SpawnAmmoEmptyText();
-            return;
-        }
-
-        GameManager.instance.stats.currentAmmo -= 100;
-        Shoot(Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
-        nextFireTime = Time.time + interval;
-    }
-
     private float GetFinalAttackSpeed()
     {
         if (GameManager.instance?.stats == null) return 1f;
@@ -208,7 +253,7 @@ public class Gun : MonoBehaviour
 
         GameObject bulletObj = null;
         
-        while (_bulletPool.Count > 0) // 파괴된 오브젝트 건너뛰기
+        while (_bulletPool.Count > 0) 
         {
             bulletObj = _bulletPool.Dequeue();
             if (bulletObj != null) break;
@@ -225,8 +270,9 @@ public class Gun : MonoBehaviour
         Bullet bullet = bulletObj.GetComponent<Bullet>();
         if (bullet != null)
         {
+            // ★ 수정: stats.bonusPenetration 변수를 추가로 넘겨줍니다.
             bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance,
-                stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult);
+                stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult, stats.bonusPenetration);
         }
 
         bulletObj.SetActive(true); 
@@ -238,7 +284,7 @@ public class Gun : MonoBehaviour
 
     public static void ReturnBullet(GameObject obj)
     {
-        if (obj == null) return; // 파괴된 오브젝트 반환 방지
+        if (obj == null) return; 
         obj.SetActive(false);
         _bulletPool.Enqueue(obj);
     }
@@ -249,13 +295,13 @@ public class Gun : MonoBehaviour
 
         GameObject vfxObj = null;
 
-        while (_hitEffectPool.Count > 0) // 파괴된 오브젝트 건너뛰기
+        while (_hitEffectPool.Count > 0) 
         {
             vfxObj = _hitEffectPool.Dequeue();
             if (vfxObj != null) break;
         }
 
-        if (vfxObj == null) return; // 사용 가능한 이펙트가 없을 경우 취소
+        if (vfxObj == null) return; 
         
         vfxObj.transform.position = position;
         vfxObj.transform.rotation = rotation * Quaternion.Euler(0f, 0f, 180f);
@@ -277,7 +323,7 @@ public class Gun : MonoBehaviour
         if (returner == null) returner = vfxObj.AddComponent<DelayReturner>();
         
         returner.StartDelayReturn(1.0f, () => {
-            if (vfxObj != null) // 파괴 검사
+            if (vfxObj != null) 
             {
                 vfxObj.SetActive(false);
                 _hitEffectPool.Enqueue(vfxObj);

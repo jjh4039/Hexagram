@@ -16,10 +16,15 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private CanvasGroup titleLogo;
     [SerializeField] private RectTransform titleRect;
     [SerializeField] private CanvasGroup textGroup;
-    [SerializeField] private RectTransform background; // ★ 수정: RectTransform으로 직접 받거나 캐싱
+    [SerializeField] private RectTransform background; 
     [SerializeField] private TextMeshProUGUI[] menuTexts;
     [SerializeField] private GameObject[] cursorIcons;
     [SerializeField] private SettingUIController settingUI;
+    [SerializeField] private TotalGems totalGemsUI; 
+    
+    // ★ 좌측 상단 보석 갯수 UI & 하단 탭 가이드 텍스트
+    [SerializeField] private CanvasGroup topUIGroup; 
+    [SerializeField] private CanvasGroup guideTextGroup; 
 
     [Header("Animation Settings")]
     [SerializeField] private float logoFadeDuration = 1.5f;   
@@ -47,7 +52,7 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private AudioClip selectSound;
 
     private int _currentIndex = 0;
-    private Vector2 _bgOriginPos; // ★ 수정: Vector2로 변경
+    private Vector2 _bgOriginPos; 
     private float _baseY;
     private bool _isInputActive = false;
     private bool _isFloatingActive = false;
@@ -55,7 +60,6 @@ public class TitleManager : MonoBehaviour
 
     private void Awake()
     {
-        // ★ 수정: UI 전용 좌표인 anchoredPosition 저장
         if (background != null) _bgOriginPos = background.anchoredPosition;
 
         normalColor.a = 1f;
@@ -63,6 +67,9 @@ public class TitleManager : MonoBehaviour
 
         if (titleLogo != null) titleLogo.alpha = 0f;
         if (textGroup != null) textGroup.alpha = 0f;
+        if (topUIGroup != null) topUIGroup.alpha = 0f; 
+        if (guideTextGroup != null) guideTextGroup.alpha = 0f; 
+        
         if (titleRect != null) _baseY = titleRect.anchoredPosition.y;
 
         if (TransitionManager.Instance != null)
@@ -80,6 +87,7 @@ public class TitleManager : MonoBehaviour
             var actions = InputStateManager.Instance.Actions.UI;
             actions.MoveUI.performed += OnMoveInput;
             actions.Select.performed += OnSelectInput;
+            actions.Toggle.performed += OnToggleInput; 
         }
 
         if (SoundManager.instance != null && titleBGM != null)
@@ -99,6 +107,7 @@ public class TitleManager : MonoBehaviour
             var actions = InputStateManager.Instance.Actions.UI;
             actions.MoveUI.performed -= OnMoveInput;
             actions.Select.performed -= OnSelectInput;
+            actions.Toggle.performed -= OnToggleInput;
         }
     }
 
@@ -106,6 +115,35 @@ public class TitleManager : MonoBehaviour
     {
         HandleParallaxBackground();
         HandleIdleFloating();
+        UpdateGuideTextVisibility(); 
+    }
+
+    // ★ 수정: 활성화 상태일 때 0.5 ~ 1.0 사이의 투명도로 부드럽게 깜빡거림 (Sin 파동 활용)
+    private void UpdateGuideTextVisibility()
+    {
+        bool shouldShow = _isInputActive && 
+                          (settingUI == null || !settingUI.IsOpen) && 
+                          (totalGemsUI == null || !totalGemsUI.IsOpen);
+
+        if (guideTextGroup != null)
+        {
+            if (shouldShow)
+            {
+                // 시간 흐름에 따라 0.5 ~ 1.0 사이를 오가는 값 생성 (깜빡임 속도 조절: Time.time * 3f)
+                float pulseAlpha = Mathf.Lerp(0.5f, 1f, (Mathf.Sin(Time.time * 3f) + 1f) * 0.5f);
+                guideTextGroup.alpha = pulseAlpha;
+            }
+            else
+            {
+                guideTextGroup.alpha = 0f; // 즉각 사라짐
+            }
+        }
+
+        if (topUIGroup != null)
+        {
+            bool topShouldShow = _isInputActive && (settingUI == null || !settingUI.IsOpen);
+            topUIGroup.alpha = topShouldShow ? 1f : 0f; // 즉각 사라짐/나타남
+        }
     }
 
     private IEnumerator IntroSequence()
@@ -152,7 +190,6 @@ public class TitleManager : MonoBehaviour
         float autoX = Mathf.Sin(Time.time * autoPanSpeed) * autoPanAmount;
         float autoY = Mathf.Cos(Time.time * autoPanSpeed * 0.8f) * autoPanAmount;
 
-        // ★ 수정: Vector2를 활용한 anchoredPosition 연산
         Vector2 targetPos = _bgOriginPos + new Vector2(mouseOffset.x + autoX, mouseOffset.y + autoY);
 
         background.anchoredPosition = Vector2.Lerp(background.anchoredPosition, targetPos, Time.deltaTime * parallaxSmooth);
@@ -168,10 +205,23 @@ public class TitleManager : MonoBehaviour
         }
     }
 
+    private void OnToggleInput(InputAction.CallbackContext context)
+    {
+        if (!_isInputActive) return; 
+        if (settingUI != null && settingUI.IsOpen) return;
+
+        if (totalGemsUI != null)
+        {
+            if (totalGemsUI.IsOpen) totalGemsUI.CloseUI();
+            else totalGemsUI.OpenUI();
+        }
+    }
+
     private void OnMoveInput(InputAction.CallbackContext context)
     {
         if (!_isInputActive) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (totalGemsUI != null && totalGemsUI.IsOpen) return; 
 
         Vector2 moveDir = context.ReadValue<Vector2>();
 
@@ -183,6 +233,7 @@ public class TitleManager : MonoBehaviour
     {
         if (!_isInputActive) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (totalGemsUI != null && totalGemsUI.IsOpen) return; 
 
         ExecuteMenu();
     }
@@ -191,6 +242,7 @@ public class TitleManager : MonoBehaviour
     {
         if (!_isInputActive || _currentIndex == index) return;
         if (settingUI != null && settingUI.IsOpen) return;
+        if (totalGemsUI != null && totalGemsUI.IsOpen) return;
 
         _currentIndex = index;
         PlayMoveSound();

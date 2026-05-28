@@ -9753,7 +9753,7 @@ MonoBehaviour:
   diceHitChargeAmount: 2
   finalDicePower: 1
   meleeAttackPower: 10
-  rangeAttackPower: 12
+  rangeAttackPower: 14
   finalAttackPower: 1
   criticalChance: 0.2
   criticalDamageMultiplier: 1.5

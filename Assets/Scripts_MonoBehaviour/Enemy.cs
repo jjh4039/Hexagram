@@ -50,6 +50,14 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Start()
     {
+        // ★ 추가: 메타 프로그레션 (난이도) 스탯 뻥튀기 적용
+        if (GameManager.instance != null && GameManager.instance.stats != null)
+        {
+            float statMult = GameManager.instance.stats.enemyStatMultiplier;
+            maxHealth *= statMult;
+            contactDamage *= statMult; // 몸통 박치기 데미지 증가
+        }
+
         currentHealth = maxHealth;
 
         if (scrapPrefab == null && GameManager.instance != null)
@@ -73,9 +81,7 @@ public class Enemy : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damage;
-
-        // ★ 수정: 타격감이 너무 과해지는(화면이 덜덜 떨리는) 현상 방지
-        // 치명타가 터졌을 때만 히트스톱과 화면 흔들림을 주어 타격감을 극대화합니다.
+        
         if (isCritical)
         {
             if (GameManager.instance != null)

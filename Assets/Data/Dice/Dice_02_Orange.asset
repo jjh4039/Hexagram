@@ -25,7 +25,7 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4278193950
   effectType: 1
-  effectValue: 5
+  effectValue: 4
   duration: 10
   secondaryValue: 2
   muzzleFlashMaterial: {fileID: 2100000, guid: d7df0c747ec680c44a2b09d7c859cf12, type: 2}
