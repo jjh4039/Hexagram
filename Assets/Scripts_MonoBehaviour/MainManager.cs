@@ -42,7 +42,9 @@ public class MainManager : MonoBehaviour
 
     private void Start()
     {
-        // ★ 메인 씬 진입 시 플레이어가 자유롭게 움직일 수 있도록 입력 상태를 초기화합니다.
+        // 5.28 버그 수정 : 전 판의 플레이와 수리키트 가격이 연동되지 않도록 수정
+        ShopBottomSlotHoverSystem.ResetHealKitState();
+
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);

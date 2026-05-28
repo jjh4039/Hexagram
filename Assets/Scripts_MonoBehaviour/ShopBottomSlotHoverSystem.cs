@@ -265,6 +265,12 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
         ApplyImmediate(false);
     }
 
+    public static void ResetHealKitState()
+    {
+        staticHealGradeIndex = 2; 
+        staticHealBoughtLastTime = false; 
+    }
+
     private void OnDisable()
     {
         _isHovering = false;
