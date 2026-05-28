@@ -5632,7 +5632,7 @@ MonoBehaviour:
     \uC5C6\uC2B5\uB2C8\uB2E4."
   - "\uBCF4\uC0C1\uC744 \uBA3C\uC800 \uD68D\uB4DD\uD574\uC57C \uD569\uB2C8\uB2E4."
   - "\uC815\uD654 \uC791\uC5C5 \uC644\uB8CC\uAE4C\uC9C0 \uACBD\uB85C\uAC00 \uCC28\uB2E8\uB429\uB2C8\uB2E4."
-  - "\uC2A4\uD06C\uB7A9\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4."
+  - "\uACE0\uCCA0\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4."
   fadeInTime: 0.05
   displayTime: 2
   fadeOutTime: 0.2
@@ -12881,8 +12881,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.019166669, y: 0.2001075}
-  m_Size: {x: 1.0767367, y: 1.223527}
+  m_Offset: {x: 0.019166669, y: 0.25468808}
+  m_Size: {x: 1.0767367, y: 1.3326912}
   m_Direction: 0
 --- !u!1 &594621083
 GameObject:
@@ -14323,7 +14323,6 @@ MonoBehaviour:
   activationText: {fileID: 277477131}
   textFadeDuration: 0.2
   textDisplayDuration: 1
-  enableDebugInput: 1
   eventOriginPos: {x: 0, y: 0, z: 0}
 --- !u!1 &653220028
 GameObject:
@@ -41598,8 +41597,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.01916679, y: 0.2052955}
-  m_Size: {x: 1.0974885, y: 1.2339032}
+  m_Offset: {x: 0.01916679, y: 0.25491512}
+  m_Size: {x: 1.0974885, y: 1.3331426}
   m_Direction: 0
 --- !u!1 &1826566756
 GameObject:
@@ -50005,8 +50004,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.019167623, y: 0.37269777}
-  m_Size: {x: 1.076734, y: 1.6104658}
+  m_Offset: {x: 0.019167623, y: 0.3776594}
+  m_Size: {x: 1.076734, y: 1.6203891}
   m_Direction: 0
 --- !u!1 &2128327788
 GameObject:

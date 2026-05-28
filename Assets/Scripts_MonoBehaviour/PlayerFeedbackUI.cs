@@ -19,7 +19,7 @@ public class PlayerFeedbackUI : MonoBehaviour
         "수정구가 힘을 잃어 사용할 수 없습니다.",
         "보상을 먼저 획득해야 합니다.",
         "정화 작업 완료까지 경로가 차단됩니다.",
-        "스크랩이 부족합니다." 
+        "고철이 부족합니다." 
     };
 
     [Header("Animation Settings")]
