@@ -152,7 +152,7 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
         if (_isSoldOut || _hasRerolled) return;
 
         if (sfxReroll != null && SoundManager.instance != null)
-            SoundManager.instance.PlaySFX(sfxReroll, 0.9f, 0.1f);
+            SoundManager.instance.PlaySFX(sfxReroll, 1.3f, 0.1f);
 
         _hasRerolled = true;
         _isRerollHovering = false;

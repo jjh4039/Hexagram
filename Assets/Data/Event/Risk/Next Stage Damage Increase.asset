@@ -16,13 +16,13 @@ MonoBehaviour:
   description:
   - "\uB2E4\uC74C \uC804\uD22C \uBC1B\uB294 \uD53C\uD574 <color=#E57373>0%</color>
     \uC99D\uAC00"
-  - "\uB2E4\uC74C \uC804\uD22C \uBC1B\uB294 \uD53C\uD574 <color=#E53935>100%</color>
+  - "\uB2E4\uC74C \uC804\uD22C \uBC1B\uB294 \uD53C\uD574 <color=#E53935>50%</color>
     \uC99D\uAC00"
-  - "\uB2E4\uC74C \uC804\uD22C \uBC1B\uB294 \uD53C\uD574 <color=#D32F2F>200%</color>
+  - "\uB2E4\uC74C \uC804\uD22C \uBC1B\uB294 \uD53C\uD574 <color=#D32F2F>150%</color>
     \uC99D\uAC00"
   symbolSprite: {fileID: -1475494500, guid: 9223af77e8cb69b4e835b5e791dcf993, type: 3}
   riskType: 2
   stageValues:
     stage1: 0
-    stage2: 100
-    stage3: 200
+    stage2: 50
+    stage3: 150

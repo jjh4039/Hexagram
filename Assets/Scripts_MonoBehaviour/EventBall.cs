@@ -39,6 +39,9 @@ public class EventBall : MonoBehaviour, IRewardItem
         if (EventManager.Instance == null) return;
 
         EventManager.Instance.eventOriginPos = transform.position; // Save ball pos
+        // ★ 추가: 생성되는 아이템을 이 오브젝트의 자식으로 삼기 위해 Transform 전달
+        EventManager.Instance.eventOriginTransform = transform; 
+        
         EventManager.Instance.GenerateRandomEvent();
 
         _isUsed = true;

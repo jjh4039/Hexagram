@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Artifact_Chip_Apple
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uAC15\uD654 \uCF54\uC5B4 : \uC0AC\uACFC"
-  description: "\uC8FC\uC0AC\uC704 [ 1 ] \uD6A8\uACFC\uAC00 \uBC1C\uB3D9 \uC911\uC77C
-    \uB54C\n\uACF5\uACA9\uB825\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
+  description: "\uC8FC\uC0AC\uC704 [ 1 ] \uD6A8\uACFC \uBC1C\uB3D9 \uC2DC\n\uACF5\uACA9\uB825\uC774
+    10% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: -1831143942374642421, guid: 44286d8558633f9448afbd33849b62a6, type: 3}
   grade: 0
   basePrice: 125

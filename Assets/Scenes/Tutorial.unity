@@ -9776,6 +9776,14 @@ MonoBehaviour:
   takeMoreDamageMultiplier: 1
   isDiceEffectHalved: 0
   damageTextPrefab: {fileID: 642625774705958115, guid: 3c6e4f814d729974e9d19af228355aec, type: 3}
+  metaHealthPerLevel: 1
+  metaAttackPerLevel: 0.2
+  metaChargeSpeedPercent: 0.03
+  metaPierceStep: 3
+  metaDifficultyPercent: 0.1
+  bonusPenetration: 0
+  enemyStatMultiplier: 1
+  metaAmmoGainMultiplier: 1
 --- !u!114 &373567114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24112,7 +24120,7 @@ MonoBehaviour:
   gunRenderer: {fileID: 192064796}
   swordSpriteTransform: {fileID: 1998503873}
   gunSpriteTransform: {fileID: 1729858074}
-  swapDuration: 0.15
+  swapDuration: 0.05
 --- !u!4 &1771753057
 Transform:
   m_ObjectHideFlags: 0
@@ -27495,6 +27503,7 @@ MonoBehaviour:
   aimingScale: 3
   animDuration: 0.2
   uiRoot: {fileID: 2115708955}
+  sfxAmmoFull: {fileID: 0}
 --- !u!1 &2123225328
 GameObject:
   m_ObjectHideFlags: 0

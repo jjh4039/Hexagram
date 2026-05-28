@@ -15,7 +15,7 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private Transform gunSpriteTransform;     // 총 이미지 트랜스폼
 
     [Space]
-    [SerializeField] private float swapDuration = 0.15f;       // 교체 애니메이션 시간
+    [SerializeField] private float swapDuration = 0.05f;       
 
     public bool IsAiming => CurrentWeapon == WeaponType.Gun && !IsSwapping;
 

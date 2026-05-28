@@ -63,7 +63,10 @@ public class EventManager : MonoBehaviour
     [SerializeField] private float textDisplayDuration = 1f;
 
     public EventSelectionData CurrentEventSelection => currentEventSelection;
+    
     public Vector3 eventOriginPos;
+    // ★ 추가: 생성 시 부모로 삼을 로봇의 Transform을 저장할 변수
+    [HideInInspector] public Transform eventOriginTransform; 
 
     private Coroutine _activationTextRoutine;
 
@@ -208,6 +211,11 @@ public class EventManager : MonoBehaviour
                 if (ArtifactManager.Instance != null)
                 {
                     ArtifactManager.Instance.GiveRandomArtifactByGrade(targetGrade);
+                    
+                    if (stats != null)
+                    {
+                        stats.SpawnDamageText("ARTIFACT!", new Color(0.6f, 0.87f, 1f), 4f); 
+                    }
                 }
                 break;
 
@@ -215,7 +223,9 @@ public class EventManager : MonoBehaviour
                 if (balancePrefab != null)
                 {
                     Vector3 spawnPos = eventOriginPos + new Vector3(0, -2.5f, 0); 
-                    GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity);
+                    
+                    // ★ 수정: Instantiate 시 eventOriginTransform을 부모로 지정하여 로봇의 자녀로 들어갑니다.
+                    GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity, eventOriginTransform);
 
                     Balance balanceScript = balanceObj.GetComponent<Balance>();
                     if (balanceScript != null)

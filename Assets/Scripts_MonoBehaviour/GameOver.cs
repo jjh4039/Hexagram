@@ -102,8 +102,8 @@ public class GameOver : MonoBehaviour
 
             Season currentSeason = GameManager.instance.currentSeason;
             int progress = GameManager.instance.currentProgress;
-
-            rewardFromTime = Mathf.FloorToInt(playTime / 600f);
+            
+            rewardFromTime = Mathf.Min(Mathf.FloorToInt(playTime / 300f), 6);
             rewardFromDamage = damage / 1000;
 
             if (DataManager.instance != null)
@@ -255,7 +255,6 @@ public class GameOver : MonoBehaviour
 
             while (elapsed < fadeOutDuration)
             {
-                // ★ 핵심 수정: 타임스케일이 0이더라도 화면 암전 애니메이션이 정상 작동하도록 변경
                 elapsed += Time.unscaledDeltaTime;
                 startColor.a = Mathf.Clamp01(elapsed / fadeOutDuration);
                 fadeOutImage.color = startColor;
@@ -269,7 +268,6 @@ public class GameOver : MonoBehaviour
             DataManager.instance.SaveGame();
         }
 
-        // 씬 넘어가기 전에 무조건 타임스케일 1로 강제 복구 (프리징 버그 방지)
         Time.timeScale = 1f;
         
         if (TransitionManager.Instance != null)

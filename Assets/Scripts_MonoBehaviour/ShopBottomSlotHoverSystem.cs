@@ -127,7 +127,6 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
         string gradeStr = _currentGrade == ItemGrade.Low ? "하급" : (_currentGrade == ItemGrade.Medium ? "중급" : "상급");
         string cleanDesc = itemDescription.Replace("[하급]", "").Replace("[중급]", "").Replace("[상급]", "").Trim();
         
-        // ★ 수정: 아이템 타입에 맞춰 동적 텍스트를 다르게 조립합니다.
         if (itemType == BottomItemType.WeightKit)
         {
             _dynamicDescription = $"[{gradeStr} - {weightValue}%]\n\n{cleanDesc}";
@@ -205,6 +204,15 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_isSoldOut || GameManager.instance == null || eventData.button != PointerEventData.InputButton.Left) return;
+
+        // ★ 추가: 회복 불가 상태일 때 체력 키트 구매 방지
+        PlayerStats stats = GameManager.instance.stats;
+        if (itemType == BottomItemType.HealKit && stats != null && stats.cannotHeal)
+        {
+            if (PlayerFeedbackUI.Instance != null)
+                PlayerFeedbackUI.Instance.ShowWarning(7); // 새로 추가한 7번 문구 ("회복 불가...")
+            return;
+        }
 
         int currentScrap = GameManager.instance.currentScrap;
 

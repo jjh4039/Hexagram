@@ -17,6 +17,12 @@ public class MainManager : MonoBehaviour
     public AudioClip introTypingSound;           
     public AudioClip dialogueTypingSound;        
 
+    [Header("Intro Guide Settings")]
+    [SerializeField] private CanvasGroup introGuideGroup; 
+    [SerializeField] private float introGuideDelay = 1.0f; 
+    [SerializeField] private float introGuideFadeDuration = 1.0f; 
+    [SerializeField] private float introGuideDisplayDuration = 3.0f; 
+
     [Header("Speech Bubbles (First Boss Cutscene)")]
     public CanvasGroup[] speechBubbles;
     public TextMeshProUGUI[] speechTexts;
@@ -42,7 +48,6 @@ public class MainManager : MonoBehaviour
 
     private void Start()
     {
-        // 5.28 버그 수정 : 전 판의 플레이와 수리키트 가격이 연동되지 않도록 수정
         ShopBottomSlotHoverSystem.ResetHealKitState();
 
         if (InputStateManager.Instance != null)
@@ -82,6 +87,41 @@ public class MainManager : MonoBehaviour
             c.a = 0f;
             endingText2.color = c;
         }
+
+        if (introGuideGroup != null)
+        {
+            introGuideGroup.alpha = 0f;
+            introGuideGroup.gameObject.SetActive(false);
+            StartCoroutine(Co_ShowIntroGuide());
+        }
+    }
+
+    private IEnumerator Co_ShowIntroGuide()
+    {
+        yield return new WaitForSeconds(introGuideDelay);
+
+        introGuideGroup.gameObject.SetActive(true);
+
+        float elapsed = 0f;
+        while (elapsed < introGuideFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            introGuideGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / introGuideFadeDuration);
+            yield return null;
+        }
+        introGuideGroup.alpha = 1f;
+
+        yield return new WaitForSeconds(introGuideDisplayDuration);
+
+        elapsed = 0f;
+        while (elapsed < introGuideFadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            introGuideGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / introGuideFadeDuration);
+            yield return null;
+        }
+        introGuideGroup.alpha = 0f;
+        introGuideGroup.gameObject.SetActive(false);
     }
 
     public void StartFirstBossCutscene(Transform targetStatue)
@@ -154,6 +194,16 @@ public class MainManager : MonoBehaviour
         else
         {
             yield return new WaitForSeconds(3.0f); 
+        }
+        
+        if (DataManager.instance != null && GameManager.instance != null)
+        {
+            int timeReward = Mathf.Min(Mathf.FloorToInt(GameManager.instance.currentPlayTime / 300f), 6);
+            int dmgReward = GameManager.instance.totalDamageDealt / 1000;
+            int clearBonus = 5;
+
+            DataManager.instance.data.totalGems += (timeReward + dmgReward + clearBonus);
+            DataManager.instance.SaveGame();
         }
 
         if (TransitionManager.Instance != null)

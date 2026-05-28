@@ -13,13 +13,14 @@ public class PlayerFeedbackUI : MonoBehaviour
     [SerializeField]
     private string[] warningMessages = new string[]
     {
-        "전투 중에는 열 수 없습니다.",
-        "전투 중에는 획득할 수 없습니다.",
-        "아티팩트를 더 이상 획득할 수 없습니다. (최대 10)",
-        "수정구가 힘을 잃어 사용할 수 없습니다.",
-        "보상을 먼저 획득해야 합니다.",
-        "정화 작업 완료까지 경로가 차단됩니다.",
-        "고철이 부족합니다." 
+        "전투 중에는 열 수 없습니다.",            // 0
+        "전투 중에는 획득할 수 없습니다.",          // 1
+        "아티팩트를 더 이상 획득할 수 없습니다. (최대 10)", // 2
+        "수정구가 힘을 잃어 사용할 수 없습니다.",       // 3
+        "보상을 먼저 획득해야 합니다.",            // 4
+        "정화 작업 완료까지 경로가 차단됩니다.",        // 5
+        "고철이 부족합니다.",                  // 6
+        "회복 불가 상태이므로 구매할 수 없습니다."      // ★ 7: 새로 추가됨
     };
 
     [Header("Animation Settings")]
@@ -70,7 +71,6 @@ public class PlayerFeedbackUI : MonoBehaviour
 
         _remainTime = displayTime;
 
-        // ★ 수정: 경고가 연달아 들어왔을 때 깜빡이거나 투명해지는 버그 방지
         if (_currentRoutine != null)
         {
             StopCoroutine(_currentRoutine);
@@ -87,7 +87,6 @@ public class PlayerFeedbackUI : MonoBehaviour
     {
         Color color = feedbackText.color;
 
-        // 투명할 경우 페이드 인
         if (color.a < 1f)
         {
             while (color.a < 1f)
@@ -100,7 +99,6 @@ public class PlayerFeedbackUI : MonoBehaviour
             feedbackText.color = color;
         }
 
-        // 표시 유지 (새 경고가 오면 remainTime이 리셋됨)
         while (_remainTime > 0f)
         {
             _remainTime -= Time.deltaTime;
@@ -108,7 +106,6 @@ public class PlayerFeedbackUI : MonoBehaviour
             yield return null;
         }
 
-        // 페이드 아웃
         while (color.a > 0f)
         {
             color.a -= Time.deltaTime / fadeOutTime;

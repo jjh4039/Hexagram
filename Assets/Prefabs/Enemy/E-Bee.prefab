@@ -217,7 +217,7 @@ MonoBehaviour:
   moveSpeed: 2.5
   spriteScale: 1.5
   attackRange: 6
-  attackCooldown: 1.5
+  attackCooldown: 1.25
   chargeTime: 1
   attackDelay: 0.1
   maxRangeRectPrefab: {fileID: 6371412280783997320}
