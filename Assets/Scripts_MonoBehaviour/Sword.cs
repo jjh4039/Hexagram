@@ -64,9 +64,30 @@ public class Sword : MonoBehaviour
         TryAttack();
     }
 
+    // 추가: 마우스 좌클릭(공격 키)을 꾹 누르고 있는지 확인하는 함수
+    private bool IsHoldingAttack()
+    {
+        if (InputStateManager.Instance == null) return false;
+
+        var state = InputStateManager.Instance.CurrentInputState;
+        var actions = InputStateManager.Instance.Actions;
+
+        // WeaponManager의 CheckAimInput 방식과 동일하게 입력값을 체크합니다.
+        if (state == InputState.Normal)
+            return actions.Normal.Attack.ReadValue<float>() > 0.5f;
+        if (state == InputState.Combat)
+            return actions.Combat.Attack.ReadValue<float>() > 0.5f;
+
+        return false;
+    }
+
     private void TryAttack()
     {
-        if (Time.time - lastInputTime > inputBufferTime)
+        // 수정: 꾹 누르고 있는 상태를 판단합니다.
+        bool isHolding = IsHoldingAttack();
+
+        // 누르고 있지 않은 단일 클릭 상태인데, 버퍼 시간이 지났다면 리턴 (꾹 누르고 있으면 버퍼 무시하고 통과)
+        if (!isHolding && (Time.time - lastInputTime > inputBufferTime))
             return;
 
         if (weaponManager.IsSwapping)
@@ -91,6 +112,7 @@ public class Sword : MonoBehaviour
     {
         float finalAttackSpeed = GetFinalAttackSpeed();
 
+        // 콤보 초기화 방지를 위해 버퍼 리셋
         lastInputTime = -10f;
 
         float resetThreshold = 0.33f / finalAttackSpeed;
