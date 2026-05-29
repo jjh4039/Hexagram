@@ -57,7 +57,6 @@ public class CinematicManager : MonoBehaviour
         }
     }
 
-    // ★ 추가: StageController가 맵을 생성하면서 타일맵들을 밀어넣어 줄 함수입니다.
     public void SetEnvironmentTilemaps(Tilemap[] tilemaps)
     {
         _cachedTilemaps = tilemaps;
@@ -192,7 +191,8 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
     {
-        if (InputStateManager.Instance) InputStateManager.Instance.SetInputActive(false);
+        // ★ 개발자님의 완벽한 아이디어: 보스가 죽을 때는 조작 제어를 아예 삭제해서 
+        // 유저가 슬로우 모션 속을 자유롭게 거닐며 뽕맛(승리감)을 느끼게 만듭니다!
 
         if (CameraFollow.Instance) CameraFollow.Instance.useBounds = false;
 
@@ -237,8 +237,6 @@ public class CinematicManager : MonoBehaviour
             }
             whiteScreenGroup.gameObject.SetActive(false);
         }
-
-        if (InputStateManager.Instance) InputStateManager.Instance.SetInputActive(true);
     }
 
     public void PlayGameOverCinematic(Transform playerTransform)

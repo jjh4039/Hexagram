@@ -66,11 +66,10 @@ public class PlayerStats : MonoBehaviour
     public float metaAttackPerLevel = 0.2f;         
     public float metaChargeSpeedPercent = 0.03f;   
     public int metaPierceStep = 3;                 
-    public float metaDifficultyPercent = 0.1f;     
+    public float metaDifficultyPercent = 0.05f;     
 
     [HideInInspector] public int bonusPenetration = 0;       
     [HideInInspector] public float enemyStatMultiplier = 1f; 
-    
     [HideInInspector] public float metaAmmoGainMultiplier = 1f; 
 
     private float _ammoRechargeTimer = 0f;

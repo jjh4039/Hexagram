@@ -1713,7 +1713,7 @@ GameObject:
   - component: {fileID: 191828229}
   - component: {fileID: 191828228}
   m_Layer: 5
-  m_Name: VSyncText
+  m_Name: myGemText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6034,7 +6034,7 @@ MonoBehaviour:
     levelText: {fileID: 671689262}
     costPerLevel: 10
     maxLevel: 20
-    value1PerLevel: 10
+    value1PerLevel: 5
     levelStep1: 1
     value2PerLevel: 0
     levelStep2: 1
@@ -6183,7 +6183,7 @@ GameObject:
   - component: {fileID: 959350063}
   - component: {fileID: 959350062}
   m_Layer: 5
-  m_Name: VSync
+  m_Name: myGems
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10180,7 +10180,7 @@ GameObject:
   - component: {fileID: 1925073949}
   - component: {fileID: 1925073948}
   m_Layer: 5
-  m_Name: VSyncImage
+  m_Name: myGemImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -6,7 +6,7 @@ using UnityEngine;
 public enum StageDebuffType
 {
     None,
-    DiceEffectHalf,
+        DiceEffectHalf,
     TakeMoreDamage,
     CannotHeal
 }

@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
     public bool isKnockedBack = false;
     public bool isRecoiling = false;
     public bool isTutorial = false;
-    public bool IsDashing => _isDashing; // 외부 참조용 대시 상태 반환
+    public bool IsDashing => _isDashing;
 
     [Header("Hit And Invincibility")]
     [SerializeField] public bool isInvincible = false;
@@ -61,14 +61,14 @@ public class Player : MonoBehaviour
     [SerializeField] private Color ghostColor = new Color(0.6f, 0.6f, 1f, 0.4f);
 
     [Header("Object Pool Settings")]
-    [SerializeField] private Transform poolParent; // 잔상 및 이펙트 최상위 부모
-    [SerializeField] private int ghostPoolSize = 20; 
-    [SerializeField] private int dustPoolSize = 5; 
-    
-    private Queue<GameObject> _ghostPool = new Queue<GameObject>(); 
-    private Transform _ghostPoolContainer; 
-    private Queue<GameObject> _dustPool = new Queue<GameObject>(); 
-    private Transform _dustPoolContainer; 
+    [SerializeField] private Transform poolParent;
+    [SerializeField] private int ghostPoolSize = 20;
+    [SerializeField] private int dustPoolSize = 5;
+
+    private Queue<GameObject> _ghostPool = new Queue<GameObject>();
+    private Transform _ghostPoolContainer;
+    private Queue<GameObject> _dustPool = new Queue<GameObject>();
+    private Transform _dustPoolContainer;
 
     [Header("Effects")]
     [SerializeField] private GameObject dashDustPrefab;
@@ -234,6 +234,19 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // ★ 핵심 수정: 컷신 등 조작 불가 상태가 되면 대시 중이든 아니든 즉시 속도를 0으로 강제 브레이크!
+        if (!canControl)
+        {
+            if (_isDashing)
+            {
+                _isDashing = false;
+                isInvincible = false;
+            }
+            isKnockedBack = false;
+            rigid.linearVelocity = Vector2.zero;
+            return;
+        }
+
         if (_isDashing) return;
 
         if (!isKnockedBack && !isRecoiling) Move();
@@ -257,7 +270,11 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-        if (!canControl) return;
+        if (!canControl)
+        {
+            rigid.linearVelocity = Vector2.zero;
+            return;
+        }
 
         float finalSpeed = stats.moveSpeed * stats.diceMoveSpeedMultiplier;
 
@@ -280,7 +297,7 @@ public class Player : MonoBehaviour
         {
             float finalDamage = bodyContactDamage;
             Collider2D hitCollider = _contactResults[0];
-            
+
             EnemyBoss boss = hitCollider.GetComponent<EnemyBoss>();
             Enemy enemy = hitCollider.GetComponent<Enemy>();
 
@@ -435,7 +452,7 @@ public class Player : MonoBehaviour
     {
         _ghostPoolContainer = new GameObject("Player_GhostPool").transform;
         if (poolParent != null) _ghostPoolContainer.SetParent(poolParent);
-        
+
         for (int i = 0; i < ghostPoolSize; i++)
         {
             GameObject ghostObj = CreateNewGhostObject();
@@ -468,7 +485,7 @@ public class Player : MonoBehaviour
     private void CreateGhost()
     {
         GameObject ghostObj = null;
-        
+
         while (_ghostPool.Count > 0)
         {
             ghostObj = _ghostPool.Dequeue();
@@ -504,8 +521,8 @@ public class Player : MonoBehaviour
             yield return null;
         }
 
-        obj.SetActive(false); 
-        _ghostPool.Enqueue(obj); 
+        obj.SetActive(false);
+        _ghostPool.Enqueue(obj);
     }
 
     private void CreateDust()
@@ -522,7 +539,7 @@ public class Player : MonoBehaviour
 
         dustObj.transform.position = transform.position;
         dustObj.transform.rotation = Quaternion.identity;
-        
+
         dustObj.SetActive(true);
         StartCoroutine(DeactivateAndReturnDust(dustObj, 1.0f));
     }
@@ -554,7 +571,7 @@ public class Player : MonoBehaviour
         {
             foreach (Transform child in _ghostPoolContainer)
             {
-                if (child.gameObject.activeSelf) 
+                if (child.gameObject.activeSelf)
                 {
                     child.gameObject.SetActive(false);
                     _ghostPool.Enqueue(child.gameObject);
@@ -565,7 +582,7 @@ public class Player : MonoBehaviour
         {
             foreach (Transform child in _dustPoolContainer)
             {
-                if (child.gameObject.activeSelf) 
+                if (child.gameObject.activeSelf)
                 {
                     child.gameObject.SetActive(false);
                     _dustPool.Enqueue(child.gameObject);
@@ -621,4 +638,4 @@ public class Player : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, contactCheckRadius);
     }
-}
+}   

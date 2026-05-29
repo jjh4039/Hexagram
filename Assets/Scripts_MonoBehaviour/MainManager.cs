@@ -11,17 +11,17 @@ public class MainManager : MonoBehaviour
     [Header("BGM Settings")]
     public AudioClip mainBgmIntro;
     public AudioClip mainBgmLoop;
-    [SerializeField] private float bgmFadeInDuration = 1.5f; 
+    [SerializeField] private float bgmFadeInDuration = 1.5f;
 
     [Header("Audio Settings")]
-    public AudioClip introTypingSound;           
-    public AudioClip dialogueTypingSound;        
+    public AudioClip introTypingSound;
+    public AudioClip dialogueTypingSound;
 
     [Header("Intro Guide Settings")]
-    [SerializeField] private CanvasGroup introGuideGroup; 
-    [SerializeField] private float introGuideDelay = 1.0f; 
-    [SerializeField] private float introGuideFadeDuration = 1.0f; 
-    [SerializeField] private float introGuideDisplayDuration = 3.0f; 
+    [SerializeField] private CanvasGroup introGuideGroup;
+    [SerializeField] private float introGuideDelay = 1.0f;
+    [SerializeField] private float introGuideFadeDuration = 1.0f;
+    [SerializeField] private float introGuideDisplayDuration = 3.0f;
 
     [Header("Speech Bubbles (First Boss Cutscene)")]
     public CanvasGroup[] speechBubbles;
@@ -32,9 +32,11 @@ public class MainManager : MonoBehaviour
     public float bubbleMoveOffset = 5f;
 
     [Header("Ending Settings")]
-    public TextMeshProUGUI endingText1;          
-    public TextMeshProUGUI endingText2;          
-    public string titleSceneName = "Title";      
+    public TextMeshProUGUI endingDifficultyText; // ★ 추가: 난이도 출력 텍스트
+    public TextMeshProUGUI endingText1;
+    public TextMeshProUGUI endingText2;
+    public TextMeshProUGUI testerText;           // ★ 추가: 테스터 이름 출력 텍스트
+    public string titleSceneName = "Title";
 
     private bool isCutsceneActive = false;
     public bool IsCutsceneActive => isCutsceneActive;
@@ -75,24 +77,27 @@ public class MainManager : MonoBehaviour
             SoundManager.instance.PlayBGM(mainBgmLoop, mainBgmIntro, bgmFadeInDuration);
         }
 
-        if (endingText1 != null)
-        {
-            Color c = endingText1.color;
-            c.a = 0f;
-            endingText1.color = c;
-        }
-        if (endingText2 != null)
-        {
-            Color c = endingText2.color;
-            c.a = 0f;
-            endingText2.color = c;
-        }
+        // ★ 모든 엔딩 텍스트들을 시작할 때 투명하게(Alpha 0) 세팅
+        SetTextAlphaZero(endingDifficultyText);
+        SetTextAlphaZero(endingText1);
+        SetTextAlphaZero(endingText2);
+        SetTextAlphaZero(testerText);
 
         if (introGuideGroup != null)
         {
             introGuideGroup.alpha = 0f;
             introGuideGroup.gameObject.SetActive(false);
             StartCoroutine(Co_ShowIntroGuide());
+        }
+    }
+
+    private void SetTextAlphaZero(TextMeshProUGUI text)
+    {
+        if (text != null)
+        {
+            Color c = text.color;
+            c.a = 0f;
+            text.color = c;
         }
     }
 
@@ -175,27 +180,56 @@ public class MainManager : MonoBehaviour
             yield return StartCoroutine(TransitionManager.Instance.Co_FadeToBlack(2.0f));
         }
 
-        yield return new WaitForSeconds(1.0f); 
+        yield return new WaitForSeconds(1.0f);
 
+        // ★ 엔딩 크레딧 시퀀스 시작
         if (endingText1 != null && endingText2 != null)
         {
+            // 1. 난이도 출력 (난이도가 0보다 클 때만)
+            if (endingDifficultyText != null && DataManager.instance != null && DataManager.instance.data.difficultyLevel > 0)
+            {
+                endingDifficultyText.text = $"난이도 {DataManager.instance.data.difficultyLevel}";
+                yield return StartCoroutine(Co_FadeText(endingDifficultyText, 0f, 1f, 1.5f));
+                yield return new WaitForSeconds(1f);
+            }
+
+            // 2. 기본 멘트 1
             endingText1.text = "프로토타입 버전 데모가 종료되었습니다.";
             yield return StartCoroutine(Co_FadeText(endingText1, 0f, 1f, 1.5f));
-            yield return new WaitForSeconds(1f); 
+            yield return new WaitForSeconds(1f);
 
+            // 3. 기본 멘트 2
             endingText2.text = "플레이해주셔서 감사합니다.";
             yield return StartCoroutine(Co_FadeText(endingText2, 0f, 1f, 1.5f));
-            yield return new WaitForSeconds(2.0f); 
 
+            // 4. 테스터 이름 (지정된 텍스트와 서식을 코드에서 직접 주입)
+            if (testerText != null)
+            {
+                testerText.text = "<size=120%><color=#FFDF75>Special Thanks (Beta Tester)</color></size>\n\n" +
+                                  "<color=#FFF6D9>AFEE, ! Sami, R2trunTrue, 여울, 엥, jm, 도오오마뱀\n" +
+                                  "태윤, taeyul, 그저 사람, Mulpas1022, JaeJitv2522\n" +
+                                  "공룡파티, 공허, Space_IX, 살쾡이, 0y0, ㄱㄹㄸ, 춘수\n" +
+                                  "명이, 죠죠의 전설, 왕눈이, 뷁뒑쉙, zero\n" +
+                                  "화니화니, Hoshino, lua, Naul</color>";
+
+                yield return StartCoroutine(Co_FadeText(testerText, 0f, 1f, 2.0f));
+                yield return new WaitForSeconds(4.0f);
+            }
+
+            // 5. 떠있는 모든 텍스트들을 동시에 스르륵 페이드 아웃
+            if (endingDifficultyText != null) StartCoroutine(Co_FadeText(endingDifficultyText, 1f, 0f, 1.5f));
+            if (testerText != null) StartCoroutine(Co_FadeText(testerText, 1f, 0f, 1.5f));
             Coroutine fade1 = StartCoroutine(Co_FadeText(endingText1, 1f, 0f, 1.5f));
             Coroutine fade2 = StartCoroutine(Co_FadeText(endingText2, 1f, 0f, 1.5f));
-            yield return fade1;
+
+            yield return fade1; // 페이드 아웃이 끝날 때까지 대기
         }
         else
         {
-            yield return new WaitForSeconds(3.0f); 
+            yield return new WaitForSeconds(3.0f);
         }
-        
+
+        // 보상 정산 및 저장
         if (DataManager.instance != null && GameManager.instance != null)
         {
             int timeReward = Mathf.Min(Mathf.FloorToInt(GameManager.instance.currentPlayTime / 300f), 6);
@@ -206,6 +240,7 @@ public class MainManager : MonoBehaviour
             DataManager.instance.SaveGame();
         }
 
+        // 타이틀로 이동
         if (TransitionManager.Instance != null)
         {
             TransitionManager.Instance.LoadScene(titleSceneName, 0f, 1.5f);

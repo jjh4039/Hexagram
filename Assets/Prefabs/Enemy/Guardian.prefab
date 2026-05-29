@@ -357,8 +357,8 @@ MonoBehaviour:
   dashRecoveryTime: 0.5
   dashMaxRangeOrigin: {fileID: 38207992511010439}
   dashCurrentRangeOrigin: {fileID: 4352294941868689763}
-  dashRectWidth: 2
-  dashMaxLimitLength: 24
+  dashRectWidth: 2.3
+  dashMaxLimitLength: 23
   dashHomingStrength: 2
   dashIndicatorOffset: {x: 0, y: 0}
   dashSpeedCurve:
@@ -429,6 +429,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   gridLineWidth: 3
+  gridTelegraphColor: {r: 0.3, g: 0.8, b: 1, a: 0.7}
+  sniperMaxColor: {r: 1, g: 0.2, b: 0.2, a: 0.2}
+  sniperCurColor: {r: 1, g: 0.2, b: 0.2, a: 0.6}
   gridOffsetY:
   - -15
   - -12
