@@ -21,21 +21,21 @@ public class GameManager : MonoBehaviour
 
     [Header("Stage Settings")]
     public GameObject currentStageObj;
-    public Transform stageParent;                          
+    public Transform stageParent;
 
     [Header("Global Resources")]
     public GameObject commonScrapPrefab;
 
     [Header("Scrap Data & UI")]
     public int currentScrap = 0;
-    public float scrapPercentage = 1f;                     
+    public float scrapPercentage = 1f;
 
     private float _hitStopTimer = 0f;
     private bool _isHitStopping = false;
 
     private Coroutine _scrapPunchRoutine;
     private Vector3 _scrapTextOriginScale;
-    private int _lastStageIndex = -1;                      
+    private int _lastStageIndex = -1;
 
     [Header("Season System")]
     public Season currentSeason = Season.Spring;
@@ -43,8 +43,8 @@ public class GameManager : MonoBehaviour
     public int maxProgress = 100;
 
     [Header("Play Time")]
-    public float currentPlayTime = 0f;                       
-    public int totalDamageDealt;                      
+    public float currentPlayTime = 0f;
+    public int totalDamageDealt;
 
     [Header("Event System")]
     public float eventBossHealthMultiplier = 1.0f;
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        currentPlayTime += Time.deltaTime;                   
+        currentPlayTime += Time.deltaTime;
     }
 
     private void FindSceneComponents()
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
             if (stats == null) stats = player.GetComponent<PlayerStats>();
             if (weaponManager == null) weaponManager = player.GetComponentInChildren<WeaponManager>();
         }
-        
+
         if (mapManager == null) mapManager = FindFirstObjectByType<MapManager>();
         if (bitManager == null) bitManager = FindFirstObjectByType<BitManager>();
         if (balanceManager == null) balanceManager = FindFirstObjectByType<BalanceManager>();
@@ -103,10 +103,10 @@ public class GameManager : MonoBehaviour
 
     public void AddScrap(int amount)
     {
-        float multiplier = scrapPercentage;            
-        int finalAmount = Mathf.CeilToInt(amount * multiplier); 
+        float multiplier = scrapPercentage;
+        int finalAmount = Mathf.CeilToInt(amount * multiplier);
 
-        currentScrap += finalAmount;                            
+        currentScrap += finalAmount;
     }
 
     public void LoadStage(StageData stageData)
@@ -177,17 +177,17 @@ public class GameManager : MonoBehaviour
             {
                 if (InputStateManager.Instance && InputStateManager.Instance.CurrentInputState == InputState.UI)
                 {
-                    yield return null;                       
+                    yield return null;
                     continue;
                 }
 
-                _hitStopTimer -= Time.unscaledDeltaTime;     
+                _hitStopTimer -= Time.unscaledDeltaTime;
                 yield return null;
             }
 
             if (!InputStateManager.Instance || InputStateManager.Instance.CurrentInputState != InputState.UI)
             {
-                Time.timeScale = 1f;                         
+                Time.timeScale = 1f;
                 Time.fixedDeltaTime = _originalFixedDeltaTime;
             }
 

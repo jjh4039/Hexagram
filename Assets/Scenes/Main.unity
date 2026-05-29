@@ -4997,7 +4997,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1273d837df712ca47aa7657c2b462641, type: 2}
   - {fileID: 11400000, guid: 1273d837df712ca47aa7657c2b462641, type: 2}
   chunkSize: 20
-  tileColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  tileColor: {r: 0.3820755, g: 0.3820755, b: 0.3820755, a: 1}
   sortingLayerName: Background
   orderInLayer: -30
 --- !u!1 &252988604
@@ -14477,6 +14477,7 @@ MonoBehaviour:
   textFadeDuration: 0.2
   textDisplayDuration: 1
   eventOriginPos: {x: 0, y: 0, z: 0}
+  eventOriginTransform: {fileID: 0}
 --- !u!1 &653220028
 GameObject:
   m_ObjectHideFlags: 0
@@ -18544,9 +18545,9 @@ MonoBehaviour:
   bodyContactDamage: 5
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
   flashDuration: 0.1
-  hitShakeDuration: 0.1
-  hitShakeMagnitude: 0.05
-  playerHitStopDuration: 0.12
+  hitShakeDuration: 0.2
+  hitShakeMagnitude: 0.15
+  playerHitStopDuration: 0.16
   contactCheckRadius: 0.3
   enemyLayer:
     serializedVersion: 2

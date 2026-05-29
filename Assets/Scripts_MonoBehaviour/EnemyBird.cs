@@ -69,9 +69,10 @@ public class EnemyBird : Enemy
     {
         base.Start();
 
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-            target = playerObj.transform;
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            target = GameManager.instance.player.transform;
+        }
 
         telegraphContainer = new GameObject($"{gameObject.name}_Telegraphs").transform; // 스케일 반전(Flip) 버그 방지용
 

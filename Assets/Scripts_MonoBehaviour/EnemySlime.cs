@@ -43,8 +43,10 @@ public class EnemySlime : Enemy
     {
         base.Start();
 
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null) target = playerObj.transform;
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            target = GameManager.instance.player.transform;
+        }
 
         if (rangeBackground != null) rangeBackground.SetActive(false);
         if (attackIndicator != null) attackIndicator.SetActive(false);

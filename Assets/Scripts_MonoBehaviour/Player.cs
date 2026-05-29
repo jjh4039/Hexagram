@@ -39,9 +39,9 @@ public class Player : MonoBehaviour
     [Header("Hit Feedback")]
     [SerializeField] private Material flashMaterial;
     [SerializeField] private float flashDuration = 0.1f;
-    [SerializeField] private float hitShakeDuration = 0.1f;
-    [SerializeField] private float hitShakeMagnitude = 0.05f;
-    [SerializeField] private float playerHitStopDuration = 0.12f;
+    [SerializeField] private float hitShakeDuration = 0.2f;
+    [SerializeField] private float hitShakeMagnitude = 0.15f;
+    [SerializeField] private float playerHitStopDuration = 0.16f;
 
     private Material _originalMaterial;
 

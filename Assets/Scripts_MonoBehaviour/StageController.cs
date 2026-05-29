@@ -1,43 +1,48 @@
 using UnityEngine;
+using UnityEngine.Tilemaps; // ★ 추가됨
 using System.Collections;
 using System.Collections.Generic;
 
 public class StageController : MonoBehaviour
 {
     [Header("Stage Type")]
-    public bool isSafeStage = false;                      
-    public bool isBossStage = false;                      
+    public bool isSafeStage = false;
+    public bool isBossStage = false;
+
+    // ★ 추가: 보스 맵 프리팹에서 타일맵들을 직접 끌어다 놓을 배열
+    [Header("Boss Stage Settings")]
+    public Tilemap[] bossStageTilemaps;
 
     [Header("Start Room Settings (Intro)")]
-    public bool isStartingRoom = false;                   
-    public float startFadeDelay = 0.5f;                   
-    public string startTitleText = "시스템 가동";          
-    public string startDescText = "모듈 테스트를 시작합니다."; 
-    public Color startTitleColor = Color.cyan;            
+    public bool isStartingRoom = false;
+    public float startFadeDelay = 0.5f;
+    public string startTitleText = "시스템 가동";
+    public string startDescText = "모듈 테스트를 시작합니다.";
+    public Color startTitleColor = Color.cyan;
 
     [Header("Settings")]
-    public Transform spawnPoint;                          
-    public GameObject barrierEla;                         
-    public Statue statue;                                 
-    public Collider2D stageBounds;                        
+    public Transform spawnPoint;
+    public GameObject barrierEla;
+    public Statue statue;
+    public Collider2D stageBounds;
 
     [Header("Reward Settings")]
-    public GameObject rewardPrefab;                       
-    public Transform rewardSpawnPoint;                    
-    public int moduleRewardCount = 1;                     
+    public GameObject rewardPrefab;
+    public Transform rewardSpawnPoint;
+    public int moduleRewardCount = 1;
 
-    public Transform CurrentRewardTransform { get; private set; } 
-    public IRewardItem CurrentRewardItem { get; private set; }    
+    public Transform CurrentRewardTransform { get; private set; }
+    public IRewardItem CurrentRewardItem { get; private set; }
 
-    private List<Enemy> activeEnemies = new List<Enemy>(); 
-    private bool isCleared = false;                        
-    private bool isInitialized = false;                    
-    private bool isBattleStarted = false;                  
+    private List<Enemy> activeEnemies = new List<Enemy>();
+    private bool isCleared = false;
+    private bool isInitialized = false;
+    private bool isBattleStarted = false;
 
     private Dictionary<int, List<EnemySpawner>> waveSpawners = new Dictionary<int, List<EnemySpawner>>();
-    private int currentWave = 1;                           
-    private int pendingSpawns = 0;                         
-    private int totalRemainingEnemies = 0;                 
+    private int currentWave = 1;
+    private int pendingSpawns = 0;
+    private int totalRemainingEnemies = 0;
 
     private void Start()
     {
@@ -57,10 +62,18 @@ public class StageController : MonoBehaviour
             CameraFollow.Instance.SetCameraBounds(stageBounds.bounds);
         }
 
-        // ★ 보스 스테이지 진입 시 기존 맵 브금을 페이드 아웃 시킵니다 (보스 조우 시 새 브금이 켜짐)
-        if (isBossStage && SoundManager.instance != null)
+        if (isBossStage)
         {
-            SoundManager.instance.StopBGM(1.5f);
+            if (SoundManager.instance != null)
+            {
+                SoundManager.instance.StopBGM(1.5f);
+            }
+
+            // ★ 추가: 보스 스테이지라면, 시작할 때 시네마틱 매니저에게 타일맵 정보를 넘겨줍니다.
+            if (CinematicManager.Instance != null && bossStageTilemaps != null && bossStageTilemaps.Length > 0)
+            {
+                CinematicManager.Instance.SetEnvironmentTilemaps(bossStageTilemaps);
+            }
         }
 
         InitializeWaves();
@@ -244,4 +257,4 @@ public class StageController : MonoBehaviour
         if (statue == null) return null;
         return statue.arrowTargetPos != null ? statue.arrowTargetPos : statue.transform;
     }
-}
+}   

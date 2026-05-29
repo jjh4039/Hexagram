@@ -71,10 +71,11 @@ public class EnemyBee : Enemy
     {
         base.Start();
 
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null)
-            target = playerObj.transform;
-        
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            target = GameManager.instance.player.transform;
+        }
+
         if (GameManager.instance != null && GameManager.instance.stats != null)
         {
             projectileDamage *= GameManager.instance.stats.enemyStatMultiplier;

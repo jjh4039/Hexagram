@@ -65,7 +65,7 @@ public class CameraFollow : MonoBehaviour
     private bool _wasAiming;
     private float _dynamicBaseOrthoSize = 5f;
 
-    private Vector3 _smoothedMouseOffset; 
+    private Vector3 _smoothedMouseOffset;
 
     private void Awake()
     {
@@ -127,8 +127,8 @@ public class CameraFollow : MonoBehaviour
         if (!player) return;
 
         bool isUIState = (InputStateManager.Instance && InputStateManager.Instance.CurrentInputState == InputState.UI);
-        
-        if (isUIState && !isCinematicFocus) 
+
+        if (isUIState && !isCinematicFocus)
         {
             // ★ 수정: UI 창이 열렸을 때 마우스 추적을 끊고 원래 위치로 부드럽게 복귀시킵니다.
             _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, Vector3.zero, aimTransitionSpeed * Time.unscaledDeltaTime);
@@ -138,9 +138,9 @@ public class CameraFollow : MonoBehaviour
 
         bool isRightClickDown = Mouse.current != null && Mouse.current.rightButton.isPressed;
         bool isGunEquipped = (weaponManager && weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun);
-        
+
         // UI 상태가 아닐 때만 조준 활성화
-        bool isAiming = isRightClickDown && isGunEquipped && !isUIState; 
+        bool isAiming = isRightClickDown && isGunEquipped && !isUIState;
 
         if ((isAiming && !_wasAiming) || (isCinematicZoom && !_wasAiming))
         {
@@ -200,7 +200,7 @@ public class CameraFollow : MonoBehaviour
         if (isTrackingRealPlayer && !isCinematicFocus && !isUIState && Mouse.current != null && _uiOffset == Vector3.zero)
         {
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
-            Vector3 mouseWorldPos = _cam.ScreenToWorldPoint(mouseScreenPos); 
+            Vector3 mouseWorldPos = _cam.ScreenToWorldPoint(mouseScreenPos);
             Vector3 directionToMouse = mouseWorldPos - player.position;
             directionToMouse.z = 0;
 
@@ -230,7 +230,7 @@ public class CameraFollow : MonoBehaviour
             targetPosition.y = Mathf.Clamp(targetPosition.y, minY, maxY);
         }
 
-        targetPosition += _smoothedMouseOffset; 
+        targetPosition += _smoothedMouseOffset;
 
         Vector3 currentUnshakenPos = transform.position - _shakeOffset;
         float moveDt = isCinematicFocus ? Time.unscaledDeltaTime : Time.deltaTime;
@@ -260,7 +260,7 @@ public class CameraFollow : MonoBehaviour
     {
         if (!player) return;
         _currentUiOffset = _uiOffset;
-        _smoothedMouseOffset = Vector3.zero; 
+        _smoothedMouseOffset = Vector3.zero;
         Vector3 targetPos = player.position + _offset + _currentUiOffset;
         transform.position = targetPos;
         _shakeOffset = Vector3.zero;

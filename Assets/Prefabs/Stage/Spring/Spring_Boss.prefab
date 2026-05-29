@@ -11555,6 +11555,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 0
   isBossStage: 1
+  bossStageTilemaps:
+  - {fileID: 6516097230613208263}
+  - {fileID: 4510633076493478438}
   isStartingRoom: 0
   startFadeDelay: 0.5
   startTitleText: "\uC2DC\uC2A4\uD15C \uAC00\uB3D9"

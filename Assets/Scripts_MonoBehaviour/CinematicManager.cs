@@ -8,37 +8,36 @@ public class CinematicManager : MonoBehaviour
     public static CinematicManager Instance;
 
     [Header("Cinematic Bars UI")]
-    [SerializeField] private RectTransform topBar;                 // 상단 검은 줄
-    [SerializeField] private RectTransform bottomBar;              // 하단 검은 줄
-    [SerializeField] private float barHeight = 40f;                // 최종 검은 줄의 두께
-    [SerializeField] private float barAnimTime = 1.5f;             // 스르륵 나오는 시간
+    [SerializeField] private RectTransform topBar;
+    [SerializeField] private RectTransform bottomBar;
+    [SerializeField] private float barHeight = 40f;
+    [SerializeField] private float barAnimTime = 1.5f;
 
     [Header("Environment Sunset")]
-    [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f); // 저녁 색상
-    [SerializeField] private float sunsetDuration = 2f;            // 해가 지는 시간
-    [SerializeField] private float holdDuration = 2f;              // 해가 지고 난 뒤 머무는 시간
-    [SerializeField] private float cinematicCameraSpeed = 1.5f;    // 컷신 중 카메라 이동 속도
+    [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+    [SerializeField] private float sunsetDuration = 2f;
+    [SerializeField] private float holdDuration = 2f;
+    [SerializeField] private float cinematicCameraSpeed = 1.5f;
 
     [Header("Death Cinematic")]
-    [Tooltip("화면을 하얗게 덮을 패널 (CanvasGroup 포함)")]
     [SerializeField] private CanvasGroup whiteScreenGroup;
-    [SerializeField] private float slowMotionScale = 0.2f;         // 얼마나 느려질 것인가
-    [SerializeField] private float whiteOutDuration = 2.0f;        // 화면이 하얗게 덮이는 데 걸리는 시간
+    [SerializeField] private float slowMotionScale = 0.2f;
+    [SerializeField] private float whiteOutDuration = 2.0f;
 
     [Header("GameOver Cinematic")]
-    [SerializeField] private SpriteRenderer worldBlackoutSprite;   // 카메라 자식으로 들어갈 거대한 검은 화면
-    [SerializeField] private GameObject gameOverUI;                // 최종적으로 켜질 게임오버 캔버스
-    [SerializeField] private float timeSlowDuration = 1.5f;        // 시간이 완전히 멈추기까지 걸리는 시간
-    [SerializeField] private float blackoutDuration = 2.0f;        // 화면이 까맣게 덮이는 데 걸리는 시간
+    [SerializeField] private SpriteRenderer worldBlackoutSprite;
+    [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private float timeSlowDuration = 1.5f;
+    [SerializeField] private float blackoutDuration = 2.0f;
 
     public float SunsetDuration => sunsetDuration;
 
     [Header("UI to Hide During Cinematic")]
-    [Tooltip("컷신 중 숨길 UI 오브젝트들을 넣으세요 (Dice, Player_Info, Weapon 등)")]
     [SerializeField] private GameObject[] uiElementsToHide;
-    [SerializeField] private float uiFadeTime = 0.3f;              // UI가 사라지고 나타나는 속도
+    [SerializeField] private float uiFadeTime = 0.3f;
 
     private readonly List<CanvasGroup> _hiddenUIGroups = new List<CanvasGroup>();
+    private Tilemap[] _cachedTilemaps;
 
     private void Awake()
     {
@@ -56,6 +55,12 @@ public class CinematicManager : MonoBehaviour
                 _hiddenUIGroups.Add(cg);
             }
         }
+    }
+
+    // ★ 추가: StageController가 맵을 생성하면서 타일맵들을 밀어넣어 줄 함수입니다.
+    public void SetEnvironmentTilemaps(Tilemap[] tilemaps)
+    {
+        _cachedTilemaps = tilemaps;
     }
 
     public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
@@ -155,13 +160,10 @@ public class CinematicManager : MonoBehaviour
             bottomBar.gameObject.SetActive(false);
         }
     }
-    
+
     private IEnumerator Co_SunsetEffect()
     {
-        GameObject gridObj = GameObject.Find("Grid");
-        if (!gridObj) yield break;
-
-        Tilemap[] tilemaps = gridObj.GetComponentsInChildren<Tilemap>();
+        if (_cachedTilemaps == null || _cachedTilemaps.Length == 0) yield break;
 
         float elapsed = 0f;
         while (elapsed < sunsetDuration)
@@ -170,16 +172,16 @@ public class CinematicManager : MonoBehaviour
             float t = elapsed / sunsetDuration;
             Color lerpedColor = Color.Lerp(Color.white, nightColor, t);
 
-            foreach (Tilemap tm in tilemaps)
+            foreach (Tilemap tm in _cachedTilemaps)
             {
-                tm.color = lerpedColor;
+                if (tm != null) tm.color = lerpedColor;
             }
             yield return null;
         }
 
-        foreach (Tilemap tm in tilemaps)
+        foreach (Tilemap tm in _cachedTilemaps)
         {
-            tm.color = nightColor;
+            if (tm != null) tm.color = nightColor;
         }
     }
 
@@ -238,7 +240,7 @@ public class CinematicManager : MonoBehaviour
 
         if (InputStateManager.Instance) InputStateManager.Instance.SetInputActive(true);
     }
-    
+
     public void PlayGameOverCinematic(Transform playerTransform)
     {
         StartCoroutine(Co_GameOverCinematic(playerTransform));

@@ -9813,9 +9813,9 @@ MonoBehaviour:
   bodyContactDamage: 5
   flashMaterial: {fileID: 2100000, guid: 8b05bfb12de6dc84bac876c3b2ca739f, type: 2}
   flashDuration: 0.1
-  hitShakeDuration: 0.1
-  hitShakeMagnitude: 0.05
-  playerHitStopDuration: 0.12
+  hitShakeDuration: 0.2
+  hitShakeMagnitude: 0.15
+  playerHitStopDuration: 0.16
   contactCheckRadius: 0.3
   enemyLayer:
     serializedVersion: 2

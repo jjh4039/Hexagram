@@ -113,6 +113,12 @@ public class EnemyBoss : Enemy
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float gridLineWidth = 3f;
 
+    // ★ 패턴 4 색상 세팅 (진한 빨강 변환 변수는 완전히 삭제됨)
+    [Header("Pattern 4: Colors (Telegraph & Sniper)")]
+    [SerializeField] private Color gridTelegraphColor = new Color(0.3f, 0.8f, 1f, 0.7f); // 하늘색 예고 장판
+    [SerializeField] private Color sniperMaxColor = new Color(1f, 0.2f, 0.2f, 0.2f);     // 저격 배경 (연한 빨강)
+    [SerializeField] private Color sniperCurColor = new Color(1f, 0.2f, 0.2f, 0.6f);     // 저격 차오름 (중간 빨강)
+
     private Vector2 initialSpawnPos;
     [SerializeField] private float[] gridOffsetY = new float[] { 4.5f, 3f, 1.5f, 0f, -1.5f, -3f, -4.5f };
     [SerializeField] private float[] gridOffsetX = new float[] { -6f, -4.5f, -3f, -1.5f, 0f, 1.5f, 3f, 4.5f, 6f, 7.5f };
@@ -142,8 +148,6 @@ public class EnemyBoss : Enemy
     private GameObject trailContainer;
 
     private Transform telegraphContainer;
-
-    // ★ 수정 1: 이름표(String)를 Key로 사용하여 패턴별로 완전히 다른 방에서 장판을 관리합니다.
     private Dictionary<string, List<GameObject>> telegraphPools = new Dictionary<string, List<GameObject>>();
 
     private SpriteRenderer shadowSr;
@@ -169,9 +173,11 @@ public class EnemyBoss : Enemy
         base.Start();
         initialSpawnPos = transform.position;
 
-        GameObject playerObj = GameObject.FindWithTag("Player");
-        if (playerObj != null) target = playerObj.transform;
-        
+        if (GameManager.instance != null && GameManager.instance.player != null)
+        {
+            target = GameManager.instance.player.transform;
+        }
+
         if (GameManager.instance != null && GameManager.instance.stats != null)
         {
             float diffMult = GameManager.instance.stats.enemyStatMultiplier;
@@ -179,7 +185,7 @@ public class EnemyBoss : Enemy
             spikeDamage *= diffMult;
             vineDamage *= diffMult;
             aoeProjectileDamage *= diffMult;
-            dashDamageMultiplier *= diffMult; 
+            dashDamageMultiplier *= diffMult;
         }
 
         ClearAllTelegraphs();
@@ -190,7 +196,7 @@ public class EnemyBoss : Enemy
         }
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
 
-        Transform shadowT = transform.Find("Shadow"); 
+        Transform shadowT = transform.Find("Shadow");
         if (shadowT != null)
         {
             shadowSr = shadowT.GetComponent<SpriteRenderer>();
@@ -198,7 +204,6 @@ public class EnemyBoss : Enemy
         }
     }
 
-    // ★ 수정 2: 'poolKey'를 통해 같은 프리팹이라도 패턴별로 독립적인 풀링을 보장합니다.
     private GameObject GetTelegraph(string poolKey, GameObject prefabTemplate, Vector3 pos)
     {
         if (prefabTemplate == null) return null;
@@ -215,14 +220,13 @@ public class EnemyBoss : Enemy
                 obj.transform.position = pos;
                 obj.transform.rotation = Quaternion.identity;
                 obj.transform.localScale = Vector3.one;
-                
+
                 SpriteRenderer sr = obj.GetComponent<SpriteRenderer>();
-                if (sr != null) 
+                if (sr != null)
                 {
-                    // 이전 패턴에서 바뀐 색상, 투명도, 크기 찌꺼기를 완벽히 날려버립니다.
                     sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 1f);
                 }
-                
+
                 obj.SetActive(true);
                 return obj;
             }
@@ -233,7 +237,6 @@ public class EnemyBoss : Enemy
         return newObj;
     }
 
-    // ★ 활성화된 모든 장판 끄기
     void ClearAllTelegraphs()
     {
         if (attackMaxRangeObj != null) attackMaxRangeObj.SetActive(false);
@@ -248,7 +251,6 @@ public class EnemyBoss : Enemy
         }
     }
 
-    // ★ 핵심 수정 3: 물리 레이캐스트 원점과 시각적 장판 위치를 분리하여 벽 관통을 완벽 차단하는 통일 함수
     private void DrawTelegraph(GameObject rect, Vector3 rayOrigin, Vector3 drawPos, Vector2 dir, float maxLength, float progress, float width)
     {
         if (rect == null) return;
@@ -257,18 +259,15 @@ public class EnemyBoss : Enemy
         rect.transform.right = dir.normalized;
 
         float finalLength = maxLength;
-        
-        // 물리 레이캐스트는 무조건 장애물 검사 원점(rayOrigin)에서 발사합니다.
+
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, dir.normalized, maxLength, wallLayer);
         if (hit.collider != null)
         {
-            // 벽에 부딪혔다면: 그림 그리기 시작점(drawPos)에서부터 벽(hit.point)까지의 거리를 수학적으로 도출
             float distFromDraw = Vector2.Dot(hit.point - (Vector2)drawPos, dir.normalized);
-            finalLength = Mathf.Max(0, distFromDraw - 0.5f); // 약간의 패딩
+            finalLength = Mathf.Max(0, distFromDraw - 0.5f);
         }
         else
         {
-            // 허공이라면: 레이캐스트 최대 도달점까지의 거리를 계산
             Vector2 maxPoint = (Vector2)rayOrigin + dir.normalized * maxLength;
             float distFromDraw = Vector2.Dot(maxPoint - (Vector2)drawPos, dir.normalized);
             finalLength = Mathf.Max(0, distFromDraw);
@@ -277,7 +276,6 @@ public class EnemyBoss : Enemy
         SpriteRenderer sr = rect.GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            // MaxRect(진행률 1f)이든 CurRect(차오르는 바)이든 벽을 절대 넘어갈 수 없게 됩니다.
             sr.size = new Vector2(finalLength * progress, width);
         }
     }
@@ -490,12 +488,12 @@ public class EnemyBoss : Enemy
 
                 if (isFirstPattern)
                 {
-                    patternIndex = 1; 
+                    patternIndex = 1;
                     isFirstPattern = false;
                 }
                 else if (patternCounter % crossGridFrequency == 0)
                 {
-                    patternIndex = 4; 
+                    patternIndex = 4;
                 }
                 else
                 {
@@ -599,7 +597,6 @@ public class EnemyBoss : Enemy
 
             Vector2 currentDir = (target.position - transform.position).normalized;
 
-            // ★ 고유 Key 할당: "DashMax", "DashCur"
             GameObject maxRectInstance = GetTelegraph("DashMax", dashMaxRangeOrigin, transform.position);
             GameObject currentRectInstance = GetTelegraph("DashCur", dashCurrentRangeOrigin, transform.position);
 
@@ -616,10 +613,9 @@ public class EnemyBoss : Enemy
                 Vector3 drawPos = transform.position + (Vector3)visualOffset;
                 float progress = timer / currentChargeTime;
 
-                // ★ 통합된 DrawTelegraph 사용
                 DrawTelegraph(maxRectInstance, transform.position, drawPos, currentDir, currentLimitLength, 1f, dashRectWidth);
                 DrawTelegraph(currentRectInstance, transform.position, drawPos, currentDir, currentLimitLength, progress, dashRectWidth);
-                
+
                 LookAtDirection(currentDir.x);
                 yield return null;
             }
@@ -765,7 +761,6 @@ public class EnemyBoss : Enemy
             float finalLength = hit.collider != null ? Mathf.Max(0, hit.distance - 1f) : spikeMaxLimitLength;
             wallHitPoints.Add((Vector2)transform.position + (dir * finalLength));
 
-            // ★ 고유 Key 할당: "SpikeMax", "SpikeCur"
             if (dashMaxRangeOrigin != null)
                 maxRects.Add(GetTelegraph("SpikeMax", dashMaxRangeOrigin, transform.position));
             if (dashCurrentRangeOrigin != null)
@@ -780,9 +775,9 @@ public class EnemyBoss : Enemy
 
             for (int i = 0; i < lineDirections.Count; i++)
             {
-                if (i < maxRects.Count) 
+                if (i < maxRects.Count)
                     DrawTelegraph(maxRects[i], transform.position, transform.position, lineDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
-                if (i < currentRects.Count) 
+                if (i < currentRects.Count)
                     DrawTelegraph(currentRects[i], transform.position, transform.position, lineDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
             }
             yield return null;
@@ -818,7 +813,6 @@ public class EnemyBoss : Enemy
                     Vector2 toPlayerDir = ((Vector2)targetPlayer.position - startPos).normalized;
                     reverseDirections.Add(toPlayerDir);
 
-                    // ★ 고유 Key 할당: 돌아오는 가시 장판 전용 풀
                     if (dashMaxRangeOrigin != null)
                         maxRects.Add(GetTelegraph("SpikeReturnMax", dashMaxRangeOrigin, startPos));
                     if (dashCurrentRangeOrigin != null)
@@ -835,9 +829,9 @@ public class EnemyBoss : Enemy
                     for (int i = 0; i < reverseDirections.Count; i++)
                     {
                         Vector2 startPos = wallHitPoints[i];
-                        if (i < maxRects.Count) 
+                        if (i < maxRects.Count)
                             DrawTelegraph(maxRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
-                        if (i < currentRects.Count) 
+                        if (i < currentRects.Count)
                             DrawTelegraph(currentRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
                     }
                     yield return null;
@@ -877,25 +871,29 @@ public class EnemyBoss : Enemy
         Vector2 lockedSniperDir = Vector2.zero;
         Vector2 lockedSniperStartPos = Vector2.zero;
         float lockedSniperLength = 0f;
-        bool isSniperTracking = false;
 
         if (isEnraged || forceEnrage)
         {
-            // ★ 고유 Key 할당: 폭주 저격 전용 풀
             if (dashMaxRangeOrigin != null)
+            {
                 sniperMaxInstance = GetTelegraph("SniperMax", dashMaxRangeOrigin, transform.position);
-            
-            if (dashCurrentRangeOrigin != null)
-                sniperCurrentInstance = GetTelegraph("SniperCur", dashCurrentRangeOrigin, transform.position);
-            
-            isSniperTracking = true;
+                sniperMaxInstance.GetComponent<SpriteRenderer>().color = sniperMaxColor;
+            }
 
-            float totalSniperChargeTime = gridChargeTime + (gridFireDelay * 2f);
+            if (dashCurrentRangeOrigin != null)
+            {
+                sniperCurrentInstance = GetTelegraph("SniperCur", dashCurrentRangeOrigin, transform.position);
+                sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(sniperCurColor.r, sniperCurColor.g, sniperCurColor.b, 0f);
+            }
+
+            // ★ 조준 지속 시간(트래킹 시간)과 완전히 차오르는 시간(시각적 100% 도달 시간)을 분리
+            float trackingTime = gridChargeTime + (gridFireDelay * 2f);
+            float totalVisualChargeTime = trackingTime + 1f; // 발사 직전의 대기 시간(1초)까지 게이지가 차오름
 
             StartCoroutine(Co_SniperTrackingRoutine(
                 (startPos, dir, len) => { lockedSniperStartPos = startPos; lockedSniperDir = dir; lockedSniperLength = len; },
-                () => isSniperTracking,
-                totalSniperChargeTime
+                trackingTime,
+                totalVisualChargeTime
             ));
         }
 
@@ -911,19 +909,14 @@ public class EnemyBoss : Enemy
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.2f, 0.2f);
         yield return new WaitForSeconds(gridFireDelay);
 
-        if (isEnraged || forceEnrage)
-        {
-            isSniperTracking = false;
-            if (sniperMaxInstance != null) sniperMaxInstance.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 0.5f);
-            if (sniperCurrentInstance != null) sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, 0.9f);
-        }
-
         if (sfxVineExplode != null) SoundManager.instance.PlaySFX(sfxVineExplode, 1.2f, 0.1f);
         FireVineSet(hSet2, vSet2);
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.35f, 0.35f);
 
         if (isEnraged || forceEnrage)
         {
+            // 이제 장판 색을 진한 빨강으로 덮는 코드는 지워졌습니다.
+            // 대신 코루틴이 알아서 1초간 게이지를 부드럽게 끝까지 채웁니다.
             yield return new WaitForSeconds(1f);
 
             if (giantVinePrefab != null && lockedSniperDir != Vector2.zero)
@@ -984,7 +977,6 @@ public class EnemyBoss : Enemy
                 if (dashCurrentRangeOrigin == null) continue;
                 var data = GetLineData(true, index);
 
-                // ★ 고유 Key 할당: 가로세로 십자 장판 전용 풀
                 GameObject telegraph = GetTelegraph("GridFlash", dashCurrentRangeOrigin, data.startPos);
 
                 SpriteRenderer sr = telegraph.GetComponent<SpriteRenderer>();
@@ -992,7 +984,7 @@ public class EnemyBoss : Enemy
                 {
                     telegraph.transform.rotation = Quaternion.Euler(0, 0, 0);
                     sr.size = new Vector2(data.length, gridLineWidth);
-                    sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
+                    sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, 0f);
                     srs.Add(sr);
                 }
                 markers.Add(telegraph);
@@ -1013,7 +1005,7 @@ public class EnemyBoss : Enemy
                 {
                     telegraph.transform.rotation = Quaternion.Euler(0, 0, 90);
                     sr.size = new Vector2(data.length, gridLineWidth);
-                    sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
+                    sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, 0f);
                     srs.Add(sr);
                 }
                 markers.Add(telegraph);
@@ -1021,19 +1013,19 @@ public class EnemyBoss : Enemy
         }
 
         float halfTime = gridTelegraphDuration / 2f;
-        float maxAlpha = 0.7f;
+        float maxAlpha = gridTelegraphColor.a;
 
         for (float t = 0; t < halfTime; t += Time.deltaTime)
         {
             float alpha = Mathf.Lerp(0f, maxAlpha, t / halfTime);
-            foreach (var sr in srs) if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
+            foreach (var sr in srs) if (sr != null) sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, alpha);
             yield return null;
         }
 
         for (float t = 0; t < halfTime; t += Time.deltaTime)
         {
             float alpha = Mathf.Lerp(maxAlpha, 0f, t / halfTime);
-            foreach (var sr in srs) if (sr != null) sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, alpha);
+            foreach (var sr in srs) if (sr != null) sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, alpha);
             yield return null;
         }
 
@@ -1156,12 +1148,12 @@ public class EnemyBoss : Enemy
         {
             float angle = i * angleStep;
             Vector2 dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-            
+
             EnemyProjectile projectileScript = EnemyProjectile.Spawn(aoeProjectilePrefab, transform.position, Quaternion.identity);
 
             if (projectileScript != null)
             {
-                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage); 
+                projectileScript.Initialize(dir, aoeProjectileSpeed, aoeProjectileDamage);
             }
         }
     }
@@ -1189,7 +1181,8 @@ public class EnemyBoss : Enemy
         }
     }
 
-    IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, System.Func<bool> isTracking, float chargeDuration)
+    // ★ 두 페이즈(추적 -> 고정 후 게이지 충전)로 완벽하게 나뉜 스나이퍼 코루틴
+    IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, float trackingDuration, float totalChargeDuration)
     {
         float timer = 0f;
 
@@ -1199,12 +1192,16 @@ public class EnemyBoss : Enemy
             currentDir = (GameManager.instance.player.transform.position - transform.position).normalized;
         }
 
-        while (isTracking() && !isDead)
+        Vector2 lockedStartPos = transform.position;
+        float lockedTotalLength = 0f;
+
+        // [페이즈 1] 플레이어를 추적하는 구간
+        while (timer < trackingDuration && !isDead)
         {
             if (GameManager.instance?.player != null)
             {
                 timer += Time.deltaTime;
-                float progress = Mathf.Clamp01(timer / chargeDuration);
+                float progress = Mathf.Clamp01(timer / totalChargeDuration);
 
                 Vector2 bossPos = transform.position;
                 Vector2 targetPos = GameManager.instance.player.transform.position;
@@ -1218,26 +1215,41 @@ public class EnemyBoss : Enemy
                 float backDist = backHit.collider != null ? backHit.distance : 50f;
                 float frontDist = frontHit.collider != null ? frontHit.distance : 50f;
 
-                Vector2 startPos = bossPos - (currentDir * (backDist - 0.1f));
-                float totalLength = (backDist - 0.1f) + (frontDist - 0.5f);
+                lockedStartPos = bossPos - (currentDir * (backDist - 0.1f));
+                lockedTotalLength = (backDist - 0.1f) + (frontDist - 0.5f);
 
-                onUpdateData(startPos, currentDir, totalLength);
-
-                if (sniperMaxInstance != null)
-                {
-                    sniperMaxInstance.transform.position = startPos;
-                    sniperMaxInstance.transform.right = currentDir;
-                    sniperMaxInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength, gridLineWidth);
-                }
-
-                if (sniperCurrentInstance != null)
-                {
-                    sniperCurrentInstance.transform.position = startPos;
-                    sniperCurrentInstance.transform.right = currentDir;
-                    sniperCurrentInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength * progress, gridLineWidth);
-                }
+                onUpdateData(lockedStartPos, currentDir, lockedTotalLength);
+                UpdateSniperVisuals(lockedStartPos, currentDir, lockedTotalLength, progress);
             }
             yield return null;
+        }
+
+        // [페이즈 2] 추적은 멈췄지만(Lock-on) 게이지는 발사 찰나까지 계속 차오르는 구간
+        while (timer < totalChargeDuration && !isDead)
+        {
+            timer += Time.deltaTime;
+            float progress = Mathf.Clamp01(timer / totalChargeDuration);
+            UpdateSniperVisuals(lockedStartPos, currentDir, lockedTotalLength, progress);
+            yield return null;
+        }
+    }
+
+    private void UpdateSniperVisuals(Vector2 startPos, Vector2 dir, float totalLength, float progress)
+    {
+        if (sniperMaxInstance != null)
+        {
+            sniperMaxInstance.transform.position = startPos;
+            sniperMaxInstance.transform.right = dir;
+            sniperMaxInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength, gridLineWidth);
+        }
+
+        if (sniperCurrentInstance != null)
+        {
+            sniperCurrentInstance.transform.position = startPos;
+            sniperCurrentInstance.transform.right = dir;
+
+            sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(sniperCurColor.r, sniperCurColor.g, sniperCurColor.b, sniperCurColor.a * progress);
+            sniperCurrentInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength * progress, gridLineWidth);
         }
     }
 
