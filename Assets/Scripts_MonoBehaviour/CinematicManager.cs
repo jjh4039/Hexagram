@@ -191,9 +191,6 @@ public class CinematicManager : MonoBehaviour
 
     private IEnumerator Co_BossDeathCinematic(EnemyBoss boss)
     {
-        // ★ 개발자님의 완벽한 아이디어: 보스가 죽을 때는 조작 제어를 아예 삭제해서 
-        // 유저가 슬로우 모션 속을 자유롭게 거닐며 뽕맛(승리감)을 느끼게 만듭니다!
-
         if (CameraFollow.Instance) CameraFollow.Instance.useBounds = false;
 
         Time.timeScale = slowMotionScale;

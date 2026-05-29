@@ -18618,7 +18618,7 @@ MonoBehaviour:
   metaAttackPerLevel: 0.2
   metaChargeSpeedPercent: 0.03
   metaPierceStep: 3
-  metaDifficultyPercent: 0.1
+  metaDifficultyPercent: 0.05
   bonusPenetration: 0
   enemyStatMultiplier: 1
   metaAmmoGainMultiplier: 1

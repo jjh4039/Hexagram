@@ -9780,7 +9780,7 @@ MonoBehaviour:
   metaAttackPerLevel: 0.2
   metaChargeSpeedPercent: 0.03
   metaPierceStep: 3
-  metaDifficultyPercent: 0.1
+  metaDifficultyPercent: 0.05
   bonusPenetration: 0
   enemyStatMultiplier: 1
   metaAmmoGainMultiplier: 1
@@ -28049,6 +28049,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 1
   isBossStage: 0
+  bossStageTilemaps: []
   isStartingRoom: 0
   startFadeDelay: 1.5
   startTitleText: "\uC2DC\uC2A4\uD15C \uAC00\uB3D9"
