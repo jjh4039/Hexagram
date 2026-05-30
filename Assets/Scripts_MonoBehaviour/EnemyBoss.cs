@@ -338,7 +338,7 @@ public class EnemyBoss : Enemy
 
     private IEnumerator Co_PostCutsceneSetup()
     {
-        if (GameManager.instance != null)
+        if (GameManager.instance)
         {
             float healthMultiplier = GameManager.instance.eventBossHealthMultiplier;
             if (healthMultiplier != 1.0f)
@@ -348,7 +348,7 @@ public class EnemyBoss : Enemy
             }
         }
 
-        if (BossHealthUI.Instance != null)
+        if (BossHealthUI.Instance)
         {
             BossHealthUI.Instance.SetupBoss(bossName, maxHealth);
         }
@@ -631,7 +631,7 @@ public class EnemyBoss : Enemy
 
             Vector2 startDashPos = transform.position;
             RaycastHit2D hit = Physics2D.Raycast(startDashPos, currentDir, currentLimitLength, wallLayer);
-            float safeDistance = hit.collider != null ? Mathf.Max(0, hit.distance - 1.5f) : currentLimitLength;
+            float safeDistance = hit.collider ? Mathf.Max(0, hit.distance - 0.7f) : currentLimitLength;
 
             timer = 0f;
             while (timer < currentDashDuration && !isDead)

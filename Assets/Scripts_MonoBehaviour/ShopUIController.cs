@@ -21,10 +21,10 @@ public class ShopUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentScrapText;
     [SerializeField] private float scrapPunchScale = 1.3f;     
     [SerializeField] private float scrapPunchDuration = 0.15f; 
-    [SerializeField] private Color scrapDeductColor = Color.red; // ★ 숫자가 깎일 때 변할 색상
+    [SerializeField] private Color scrapDeductColor = Color.red; 
 
     private Vector3 _scrapTextOriginScale;
-    private Color _scrapOriginalColor; // 원래 색상 저장용
+    private Color _scrapOriginalColor; 
     private Coroutine _scrapPunchRoutine;
     private int _displayedScrap; 
 
@@ -219,11 +219,13 @@ public class ShopUIController : MonoBehaviour
 
         if (bottomSlots != null)
         {
-            Vector3 spawnPos = _currentRobot != null ? _currentRobot.transform.position : Vector3.zero;
+            // ★ 수정: 로봇의 위치(Vector3)가 아니라, 트랜스폼(Transform) 자체를 넘겨주도록 변경!
+            Transform robotTransform = _currentRobot != null ? _currentRobot.transform : null;
+            
             for (int i = 0; i < bottomSlots.Length; i++)
             {
                 bottomSlots[i].gameObject.SetActive(true);
-                bottomSlots[i].SetupBottomSlot(RefreshAllPrices, spawnPos, isNewShop, isReroll);
+                bottomSlots[i].SetupBottomSlot(RefreshAllPrices, robotTransform, isNewShop, isReroll);
             }
         }
 
@@ -262,7 +264,6 @@ public class ShopUIController : MonoBehaviour
 
     public void OnClickReroll()
     {
-        // ★ 리롤은 이제 비용 소모나 연출이 전혀 없습니다.
         GenerateShopItems(false, true); 
     }
 
@@ -284,7 +285,6 @@ public class ShopUIController : MonoBehaviour
         
         int targetScrap = GameManager.instance.currentScrap;
         
-        // 차이가 발생했을 때(스크랩을 소모했을 때)만 펀치 연출 실행
         if (_displayedScrap != targetScrap) 
         {
             if (_scrapPunchRoutine != null) StopCoroutine(_scrapPunchRoutine);
@@ -300,13 +300,11 @@ public class ShopUIController : MonoBehaviour
     {
         if (currentScrapText == null) yield break;
 
-        // ★ 깎이는 동안 텍스트 색상 변경
         currentScrapText.color = scrapDeductColor;
 
         float t = 0f;
         float halfDuration = scrapPunchDuration * 0.5f;
 
-        // 1. 가볍게 한 번 커지기
         while (t < halfDuration)
         {
             t += Time.unscaledDeltaTime;
@@ -315,7 +313,6 @@ public class ShopUIController : MonoBehaviour
         }
         currentScrapText.rectTransform.localScale = _scrapTextOriginScale * scrapPunchScale;
 
-        // 2. 숫자가 10번 주루루룩 깎임 (흔들림 제거)
         int steps = 10;
         float stepDelay = 0.03f; 
         float diff = startVal - targetVal;
@@ -330,7 +327,6 @@ public class ShopUIController : MonoBehaviour
         _displayedScrap = targetVal;
         currentScrapText.text = _displayedScrap.ToString();
 
-        // 3. 다시 작아지며 색상 원상복구
         t = 0f;
         while (t < halfDuration)
         {

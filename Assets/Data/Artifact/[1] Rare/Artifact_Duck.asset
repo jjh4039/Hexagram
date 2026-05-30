@@ -20,11 +20,11 @@ MonoBehaviour:
   basePrice: 152
   type: 1
   condition: 7
-  buffDuration: 15
+  buffDuration: 10
   isInfiniteBuff: 0
-  effectType: 2
-  value: 10
-  isPercent: 0
+  effectType: 3
+  value: 0.1
+  isPercent: 1
   effectType2: 4
-  value2: 10
-  isPercent2: 0
+  value2: 0.1
+  isPercent2: 1

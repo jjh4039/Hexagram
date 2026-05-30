@@ -33,6 +33,13 @@ public class Sword : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
     }
 
+    // ★ 버그 킬러: 검이 꺼질 때 (무기 교체 시) 증발할 뻔한 Invoke를 대신 실행해 강제 청소합니다.
+    private void OnDisable()
+    {
+        CancelInvoke("ResetAttackStatus");
+        ResetAttackStatus();
+    }
+
     public void TriggerAttack()
     {
         lastInputTime = Time.time;
@@ -64,7 +71,6 @@ public class Sword : MonoBehaviour
         TryAttack();
     }
 
-    // 추가: 마우스 좌클릭(공격 키)을 꾹 누르고 있는지 확인하는 함수
     private bool IsHoldingAttack()
     {
         if (InputStateManager.Instance == null) return false;
@@ -72,7 +78,6 @@ public class Sword : MonoBehaviour
         var state = InputStateManager.Instance.CurrentInputState;
         var actions = InputStateManager.Instance.Actions;
 
-        // WeaponManager의 CheckAimInput 방식과 동일하게 입력값을 체크합니다.
         if (state == InputState.Normal)
             return actions.Normal.Attack.ReadValue<float>() > 0.5f;
         if (state == InputState.Combat)
@@ -83,10 +88,8 @@ public class Sword : MonoBehaviour
 
     private void TryAttack()
     {
-        // 수정: 꾹 누르고 있는 상태를 판단합니다.
         bool isHolding = IsHoldingAttack();
 
-        // 누르고 있지 않은 단일 클릭 상태인데, 버퍼 시간이 지났다면 리턴 (꾹 누르고 있으면 버퍼 무시하고 통과)
         if (!isHolding && (Time.time - lastInputTime > inputBufferTime))
             return;
 
@@ -111,8 +114,6 @@ public class Sword : MonoBehaviour
     private void ExecuteAttack()
     {
         float finalAttackSpeed = GetFinalAttackSpeed();
-
-        // 콤보 초기화 방지를 위해 버퍼 리셋
         lastInputTime = -10f;
 
         float resetThreshold = 0.33f / finalAttackSpeed;
@@ -231,6 +232,7 @@ public class Sword : MonoBehaviour
 
     private void ResetAttackStatus()
     {
-        GameManager.instance.player.isAttacking = false;
+        if (GameManager.instance != null && GameManager.instance.player != null)
+            GameManager.instance.player.isAttacking = false;
     }
 }

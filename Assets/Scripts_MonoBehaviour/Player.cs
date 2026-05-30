@@ -156,29 +156,46 @@ public class Player : MonoBehaviour
         if (newState == InputState.UI)
         {
             _moveInput = Vector2.zero;
-            rigid.linearVelocity = Vector2.zero;
-            isInvincible = true;
+            // ★ 수정: 대시나 넉백 중일 때는 코루틴이 물리력을 관리하게 두고 여기서 건드리지 않습니다.
+            if (!_isDashing && !isKnockedBack) 
+            {
+                rigid.linearVelocity = Vector2.zero;
+            }
         }
-        else
-        {
-            isInvincible = false;
-        }
+        // ★ 수정: UI를 껐다고 해서 강제로 isInvincible = false로 만들면 대시 무적이 풀리는 치명적 버그가 발생하므로 삭제!
     }
 
     private void OnAttack(InputAction.CallbackContext context)
     {
+        if (InputStateManager.Instance.CurrentInputState == InputState.UI) return; 
+        
+        bool isNormalMap = context.action.actionMap.name == "Normal";
+        bool isCombatMap = context.action.actionMap.name == "Combat";
+        
+        if (isNormalMap && InputStateManager.Instance.CurrentInputState != InputState.Normal) return;
+        if (isCombatMap && InputStateManager.Instance.CurrentInputState != InputState.Combat) return;
+
         if (!canControl || _isDashing || isKnockedBack) return;
         if (weaponManager != null) weaponManager.OnAttackInput();
     }
 
     private void OnSwap(InputAction.CallbackContext context)
     {
+        if (InputStateManager.Instance.CurrentInputState == InputState.UI) return;
+
+        bool isNormalMap = context.action.actionMap.name == "Normal";
+        bool isCombatMap = context.action.actionMap.name == "Combat";
+        
+        if (isNormalMap && InputStateManager.Instance.CurrentInputState != InputState.Normal) return;
+        if (isCombatMap && InputStateManager.Instance.CurrentInputState != InputState.Combat) return;
+
         if (!canControl || _isDashing || isKnockedBack) return;
         if (weaponManager != null) weaponManager.OnSwapInput();
     }
 
     private void OnDash(InputAction.CallbackContext context)
     {
+        if (InputStateManager.Instance.CurrentInputState == InputState.UI) return;
         if (!canControl || _isDashing) return;
 
         bool isSafeZone = (InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone) && !isTutorial;
@@ -234,7 +251,6 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // ★ 핵심 수정: 컷신 등 조작 불가 상태가 되면 대시 중이든 아니든 즉시 속도를 0으로 강제 브레이크!
         if (!canControl)
         {
             if (_isDashing)
@@ -429,10 +445,31 @@ public class Player : MonoBehaviour
         if (sfxDash != null && SoundManager.instance != null) SoundManager.instance.PlaySFX(sfxDash, 0.4f);
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(shakeDuration, shakeMagnitude);
 
-        rigid.linearVelocity = dashDir * dashSpeed;
         StartCoroutine(DashGhostRoutine());
+        
+        float scaledTimer = 0f;
+        float realTimer = 0f;
 
-        yield return new WaitForSeconds(dashDuration);
+        // ★ 제한시간을 1.0초로 넉넉하게 변경하여 정상적인 슬로우 모션을 방해하지 않게 함
+        while (scaledTimer < dashDuration && realTimer < 1.0f)
+        {
+            // ★ 핵심 버그 수정: UI 진입(일시정지) 시 폭주하는 시간(스파이크)을 0.1초로 제한하여 대시가 증발하는 것을 방지
+            float safeUnscaledDelta = Mathf.Min(Time.unscaledDeltaTime, 0.1f);
+
+            // UI 모드가 아닐 때만 물리력 및 시간 증가 적용 (UI 모드 중 대시 헛돎 방지)
+            if (InputStateManager.Instance.CurrentInputState != InputState.UI)
+            {
+                rigid.linearVelocity = dashDir * dashSpeed;
+                scaledTimer += Time.deltaTime;
+                realTimer += safeUnscaledDelta;
+            }
+            else
+            {
+                rigid.linearVelocity = Vector2.zero; // UI 열림 시 정지
+            }
+
+            yield return new WaitForFixedUpdate();
+        }
 
         rigid.linearVelocity = Vector2.zero;
         _isDashing = false;
@@ -443,7 +480,11 @@ public class Player : MonoBehaviour
     {
         while (_isDashing)
         {
-            CreateGhost();
+            // UI 정지 중에는 잔상 생성 방지
+            if (InputStateManager.Instance.CurrentInputState != InputState.UI)
+            {
+                CreateGhost();
+            }
             yield return new WaitForSeconds(ghostInterval);
         }
     }
@@ -638,4 +679,4 @@ public class Player : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, contactCheckRadius);
     }
-}   
+}

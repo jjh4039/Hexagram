@@ -46,6 +46,9 @@ public class Gun : MonoBehaviour
     private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
     private static Transform _poolContainer; 
 
+    // ★ 추가: 오토파이어 판독기 변수
+    private bool _wasHoldingAttack = false;
+
     private void Awake()
     {
         weaponManager = GetComponentInParent<WeaponManager>();
@@ -97,6 +100,10 @@ public class Gun : MonoBehaviour
             GameManager.instance.cursor.ChangeCursor(CursorType.Default);
 
         isAiming = false;
+        _wasHoldingAttack = false; // ★ 리셋
+
+        CancelInvoke("ResetKnockbackState");
+        ResetKnockbackState();
     }
 
     private void Update()
@@ -111,6 +118,7 @@ public class Gun : MonoBehaviour
                 isAiming = false;
                 GameManager.instance.cursor.ChangeCursor(CursorType.Default);
             }
+            _wasHoldingAttack = false;
             return;
         }
 
@@ -144,6 +152,7 @@ public class Gun : MonoBehaviour
     {
         if (weaponManager.IsSwapping || weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun) 
         {
+            _wasHoldingAttack = false;
             return;
         }
 
@@ -153,15 +162,19 @@ public class Gun : MonoBehaviour
         {
             if (Time.time >= nextFireTime)
             {
-                ExecuteTriggerAttack(true); 
+                // ★ 핵심 로직: 이전 프레임부터 계속 누르고 있었던 경우에만 "연사(오토파이어)"로 취급합니다.
+                // 첫 클릭인 경우에는 isAutoFiring이 false가 되어 정상적으로 텍스트가 뜹니다!
+                bool isAutoFiring = _wasHoldingAttack; 
+                ExecuteTriggerAttack(isAutoFiring); 
             }
         }
+        
+        _wasHoldingAttack = isHolding;
     }
 
     public void TriggerAttack()
     {
         if (weaponManager.IsSwapping) return;
-        
         ExecuteTriggerAttack(false); 
     }
 
@@ -270,7 +283,6 @@ public class Gun : MonoBehaviour
         Bullet bullet = bulletObj.GetComponent<Bullet>();
         if (bullet != null)
         {
-            // ★ 수정: stats.bonusPenetration 변수를 추가로 넘겨줍니다.
             bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance,
                 stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult, stats.bonusPenetration);
         }
@@ -335,12 +347,7 @@ public class Gun : MonoBehaviour
     {
         StopCoroutine("VisualRecoilRoutine");
         StartCoroutine(VisualRecoilRoutine(dur));
-        StopCoroutine("KnockbackRoutine");
-        StartCoroutine("KnockbackRoutine");
-    }
 
-    private System.Collections.IEnumerator KnockbackRoutine()
-    {
         Player player = GameManager.instance.player;
         if (player != null)
         {
@@ -348,13 +355,21 @@ public class Gun : MonoBehaviour
             player.isRecoiling = true;
 
             player.rigid.AddForce(-transform.right * playerKnockbackForce, ForceMode2D.Impulse);
-            yield return new WaitForSeconds(0.1f);
 
+            CancelInvoke("ResetKnockbackState");
+            Invoke("ResetKnockbackState", 0.1f);
+        }
+    }
+
+    private void ResetKnockbackState()
+    {
+        Player player = GameManager.instance?.player;
+        if (player != null)
+        {
             if (!player.isKnockedBack)
             {
                 player.rigid.linearVelocity = Vector2.zero;
             }
-
             player.isAttacking = false;
             player.isRecoiling = false;
         }

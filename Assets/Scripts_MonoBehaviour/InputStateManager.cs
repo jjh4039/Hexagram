@@ -23,12 +23,11 @@ public class InputStateManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // ★ 글로벌 매니저로서 씬 전환 시 생존 보장
+            DontDestroyOnLoad(gameObject); 
             
             inputActions = new PlayerInput();
             inputActions.Enable();
 
-            // ★ 인포서 해제: 최초 생성 시에만 켜고, 씬 전환 시에는 기존 상태를 유지하여 강제 조작 활성화를 방지
             if (inputActions != null)
             {
                 inputActions.Normal.Disable();
@@ -48,7 +47,6 @@ public class InputStateManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 글로벌 인스턴스가 파괴될 때(게임 종료 등)만 디스에이블 처리
         if (Instance == this && inputActions != null) 
             inputActions.Disable();
     }
@@ -56,16 +54,20 @@ public class InputStateManager : MonoBehaviour
     public void ChangeInputState(InputState newState)
     {
         if (currentInputState == newState) return;
-
-        inputActions.Normal.Disable();
-        inputActions.Combat.Disable();
-        inputActions.UI.Disable();
-
         currentInputState = newState;
-
-        if (newState == InputState.Normal) inputActions.Normal.Enable();
-        else if (newState == InputState.Combat) inputActions.Combat.Enable();
-        else if (newState == InputState.UI) inputActions.UI.Enable();
+        
+        if (newState == InputState.UI)
+        {
+            inputActions.Normal.Disable();
+            inputActions.Combat.Disable();
+            inputActions.UI.Enable();
+        }
+        else
+        {
+            inputActions.UI.Disable();
+            inputActions.Normal.Enable();
+            inputActions.Combat.Enable();
+        }
 
         OnInputStateChanged?.Invoke(newState);
     }
@@ -99,9 +101,15 @@ public class InputStateManager : MonoBehaviour
     {
         if (isActive)
         {
-            if (currentInputState == InputState.Normal) inputActions.Normal.Enable();
-            else if (currentInputState == InputState.Combat) inputActions.Combat.Enable();
-            else if (currentInputState == InputState.UI) inputActions.UI.Enable();
+            if (currentInputState == InputState.UI) 
+            {
+                inputActions.UI.Enable();
+            }
+            else
+            {
+                inputActions.Normal.Enable();
+                inputActions.Combat.Enable();
+            }
         }
         else
         {
