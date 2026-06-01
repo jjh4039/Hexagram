@@ -33,7 +33,7 @@ public class ArtifactSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         // ★ 수정: DashboardUI가 존재하는지 안전 검사 추가
         if (_data != null && DashboardUI.instance != null)
         {
-            DashboardUI.instance.ShowTooltip(_data);
+               DashboardUI.instance.ShowTooltip(_data);
         }
     }
 
