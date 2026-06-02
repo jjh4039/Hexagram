@@ -48345,7 +48345,10 @@ MonoBehaviour:
   tooltipObj: {fileID: 2070805316}
   tooltipRect: {fileID: 2070805317}
   descText: {fileID: 506839744}
+  backgroundImage: {fileID: 2070805319}
   offset: {x: 15, y: -15}
+  buffColor: {r: 1, g: 1, b: 1, a: 0.95}
+  debuffColor: {r: 0.4, g: 0.1, b: 0.1, a: 0.95}
 --- !u!1 &2024503854
 GameObject:
   m_ObjectHideFlags: 0

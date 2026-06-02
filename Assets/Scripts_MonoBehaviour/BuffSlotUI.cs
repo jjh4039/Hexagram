@@ -179,17 +179,14 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         string desc = "";
 
-        // 주사위 버프 설명
         if (currentBuff.buffData != null)
         {
             desc = currentBuff.buffData.description;
         }
-        // 아티팩트 버프 설명
         else if (currentBuff.artifactData != null)
         {
             desc = currentBuff.artifactData.description;
         }
-        // 스테이지 디버프
         else if (currentBuff.isStageDuration && currentBuff.isDebuff)
         {
             switch (currentBuff.debuffType)
@@ -208,7 +205,7 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         if (!string.IsNullOrEmpty(desc))
         {
-            BuffTooltipManager.Instance.ShowTooltip(desc);
+            BuffTooltipManager.Instance.ShowTooltip(desc, currentBuff.isDebuff);
         }
         else
         {
