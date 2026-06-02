@@ -38,7 +38,6 @@ public class BuffTooltipManager : MonoBehaviour
         }
     }
 
-    // ★ Title 매개변수 삭제
     public void ShowTooltip(string desc)
     {
         if (tooltipObj == null) return;

@@ -72,7 +72,7 @@ public class ArtifactManager : MonoBehaviour
             ArtifactData selected = candidates[Random.Range(0, candidates.Count)];
             AddArtifact(selected);  
         }
-    }
+    }   
 
     public void OnStageEnterTrigger()
     {

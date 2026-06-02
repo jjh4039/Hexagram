@@ -15,7 +15,6 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     private ActiveBuff currentBuff;
 
-    // ★ 상시 감지를 위한 상태 플래그
     private bool isHovering = false;
 
     public void Setup(ActiveBuff buff)
@@ -130,12 +129,10 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
-    // ★ 1. 매 프레임 버프 상태를 상시 감지
     private void Update()
     {
         if (isHovering)
         {
-            // 버프 데이터가 사라졌거나 UI가 비활성화되었다면 즉시 툴팁 끄기
             if (currentBuff == null || !gameObject.activeSelf)
             {
                 isHovering = false;
@@ -143,12 +140,10 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 return;
             }
 
-            // 스택이 바뀌는 등 실시간 데이터 변화를 툴팁에 계속 반영
             UpdateTooltipContent();
         }
     }
 
-    // ★ 2. 버프 시간이 다 되어 UI가 꺼질 때를 대비한 안전 장치
     private void OnDisable()
     {
         if (isHovering)
@@ -163,7 +158,7 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (currentBuff == null || currentBuff.artifactData != null) return;
+        if (currentBuff == null) return;
 
         isHovering = true;
         UpdateTooltipContent();
@@ -178,17 +173,23 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
-    // ★ 3. 툴팁 내용을 생성하고 띄우는 역할 분리
     private void UpdateTooltipContent()
     {
         if (BuffTooltipManager.Instance == null) return;
 
         string desc = "";
 
+        // 1. 주사위 버프 설명
         if (currentBuff.buffData != null)
         {
             desc = currentBuff.buffData.description;
         }
+        // ★ 2. 아티팩트 버프 설명 추가
+        else if (currentBuff.artifactData != null)
+        {
+            desc = currentBuff.artifactData.description;
+        }
+        // 3. 스테이지 디버프 설명
         else if (currentBuff.isStageDuration && currentBuff.isDebuff)
         {
             switch (currentBuff.debuffType)
