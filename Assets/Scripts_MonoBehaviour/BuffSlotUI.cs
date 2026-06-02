@@ -195,13 +195,13 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             switch (currentBuff.debuffType)
             {
                 case StageDebuffType.DiceEffectHalf:
-                    desc = $"앞으로 {currentBuff.remainingStages}스테이지 동안\n획득하는 주사위 효과가 절반이 됩니다.";
+                    desc = $"앞으로 {currentBuff.remainingStages}(전투)스테이지 동안\n획득하는 주사위 효과가 절반이 됩니다.";
                     break;
                 case StageDebuffType.TakeMoreDamage:
-                    desc = $"앞으로 {currentBuff.remainingStages}스테이지 동안\n받는 피해가 {currentBuff.debuffValue}% 증가합니다.";
+                    desc = $"앞으로 {currentBuff.remainingStages}(전투)스테이지 동안\n받는 피해가 {currentBuff.debuffValue}% 증가합니다.";
                     break;
                 case StageDebuffType.CannotHeal:
-                    desc = $"앞으로 {currentBuff.remainingStages}스테이지 동안\n체력을 회복할 수 없습니다.";
+                    desc = $"앞으로 {currentBuff.remainingStages}(전투)스테이지 동안\n체력을 회복할 수 없습니다.";
                     break;
             }
         }
