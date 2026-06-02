@@ -179,29 +179,29 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
         string desc = "";
 
-        // 1. 주사위 버프 설명
+        // 주사위 버프 설명
         if (currentBuff.buffData != null)
         {
             desc = currentBuff.buffData.description;
         }
-        // ★ 2. 아티팩트 버프 설명 추가
+        // 아티팩트 버프 설명
         else if (currentBuff.artifactData != null)
         {
             desc = currentBuff.artifactData.description;
         }
-        // 3. 스테이지 디버프 설명
+        // 스테이지 디버프
         else if (currentBuff.isStageDuration && currentBuff.isDebuff)
         {
             switch (currentBuff.debuffType)
             {
                 case StageDebuffType.DiceEffectHalf:
-                    desc = $"앞으로 {currentBuff.remainingStages}(전투)스테이지 동안\n획득하는 주사위 효과가 절반이 됩니다.";
+                    desc = $"앞으로 {currentBuff.remainingStages}스테이지(전투) 동안\n획득하는 주사위 효과가 절반이 됩니다.";
                     break;
                 case StageDebuffType.TakeMoreDamage:
-                    desc = $"앞으로 {currentBuff.remainingStages}(전투)스테이지 동안\n받는 피해가 {currentBuff.debuffValue}% 증가합니다.";
+                    desc = $"앞으로 {currentBuff.remainingStages}스테이지(전투) 동안\n받는 피해가 {currentBuff.debuffValue}% 증가합니다.";
                     break;
                 case StageDebuffType.CannotHeal:
-                    desc = $"앞으로 {currentBuff.remainingStages}(전투)스테이지 동안\n체력을 회복할 수 없습니다.";
+                    desc = $"앞으로 {currentBuff.remainingStages}스테이지(전투) 동안\n체력을 회복할 수 없습니다.";
                     break;
             }
         }

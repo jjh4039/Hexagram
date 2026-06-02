@@ -2,16 +2,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // 아티팩트 획득 창을 여는 필드 아이템
-public class Bit : MonoBehaviour, IRewardItem 
+public class Bit : MonoBehaviour, IRewardItem
 {
-    [SerializeField] private Material[] outLineMaterial; 
-    private SpriteRenderer _spriteRenderer;               
-    public GameObject keyGuide;                          
+    [SerializeField] private Material[] outLineMaterial;
+    private SpriteRenderer _spriteRenderer;
+    public GameObject keyGuide;
 
-    private bool _isPlayerInRange = false;                
-    private bool _isCollected = false;                   
+    private bool _isPlayerInRange = false;
+    private bool _isCollected = false;
 
-    public bool IsCollected => _isCollected;             
+    public bool IsCollected => _isCollected;
 
     private void Start()
     {
@@ -22,7 +22,7 @@ public class Bit : MonoBehaviour, IRewardItem
     private void OnInteract(InputAction.CallbackContext context)
     {
         if (!_isPlayerInRange) return;
-        
+
         if (ArtifactManager.Instance != null && ArtifactManager.Instance.myArtifacts.Count >= 10)
         {
             if (PlayerFeedbackUI.Instance != null)
@@ -53,8 +53,8 @@ public class Bit : MonoBehaviour, IRewardItem
                 GameManager.instance.bitManager.gameObject.SetActive(true);
                 GameManager.instance.bitManager.OpenBitUI();
 
-                _isCollected = true; 
-                Destroy(gameObject); 
+                _isCollected = true;
+                Destroy(gameObject);
             }
         }
     }

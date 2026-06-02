@@ -43,54 +43,9 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Dash",
+                    "name": "Pause",
                     "type": "Button",
-                    "id": "65fc999c-12c4-4bc5-9a41-e1f136d4f321",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Inventory",
-                    "type": "Button",
-                    "id": "4a63093d-d38f-496f-a974-836f942f5c28",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "TestInput",
-                    "type": "Button",
-                    "id": "4cdb5f1f-3df5-4f57-892f-c4d20b4e6367",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Interaction",
-                    "type": "Button",
-                    "id": "2f46c1d7-008d-4458-b1be-16bac62a7a55",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Dice",
-                    "type": "Button",
-                    "id": "dc724963-1183-4d93-a74a-4d4eb171ca1c",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "DebugEvent",
-                    "type": "Button",
-                    "id": "6cb67284-2216-4534-9490-ad09d79b2163",
+                    "id": "04434ba2-8a26-4a4a-a1fb-fb76f5666c02",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -106,9 +61,36 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Pause",
+                    "name": "Interaction",
                     "type": "Button",
-                    "id": "04434ba2-8a26-4a4a-a1fb-fb76f5666c02",
+                    "id": "2f46c1d7-008d-4458-b1be-16bac62a7a55",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Inventory",
+                    "type": "Button",
+                    "id": "4a63093d-d38f-496f-a974-836f942f5c28",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Dash",
+                    "type": "Button",
+                    "id": "65fc999c-12c4-4bc5-9a41-e1f136d4f321",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Dice",
+                    "type": "Button",
+                    "id": "dc724963-1183-4d93-a74a-4d4eb171ca1c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -228,17 +210,6 @@
                 },
                 {
                     "name": "",
-                    "id": "6f01f3ef-817f-4070-b1aa-73ba33837b27",
-                    "path": "<Keyboard>/g",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "TestInput",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "892c96ad-3860-4fcb-98e4-37caaa0285a2",
                     "path": "<Keyboard>/f",
                     "interactions": "",
@@ -256,17 +227,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dice",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "62d38c9a-31d1-4f44-a5ec-04948e990d1c",
-                    "path": "<Keyboard>/v",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "DebugEvent",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -308,51 +268,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Pause",
-                    "type": "Button",
-                    "id": "bba2e7a2-c4cd-4b34-b95c-8f09faeac54d",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Aim",
-                    "type": "Value",
-                    "id": "92cc3be4-c4c4-4d9b-a38d-541122951ef5",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Dice",
-                    "type": "Button",
-                    "id": "f6e87af2-1b9f-4534-932c-bb21022ca41c",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Interaction",
-                    "type": "Button",
-                    "id": "bece6718-a815-4dd6-a5e0-3f3ca9bbac70",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Inventory",
-                    "type": "Button",
-                    "id": "08ef8d2e-6621-47cc-a194-66dbe08f792d",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Look",
                     "type": "Value",
                     "id": "9d3a9d6d-8a4d-4e72-b49f-23a9bddfa82f",
@@ -380,6 +295,42 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "bba2e7a2-c4cd-4b34-b95c-8f09faeac54d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Aim",
+                    "type": "Value",
+                    "id": "92cc3be4-c4c4-4d9b-a38d-541122951ef5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Interaction",
+                    "type": "Button",
+                    "id": "bece6718-a815-4dd6-a5e0-3f3ca9bbac70",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Inventory",
+                    "type": "Button",
+                    "id": "08ef8d2e-6621-47cc-a194-66dbe08f792d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Dash",
                     "type": "Button",
                     "id": "fd14afd8-3ce4-4f83-9836-3ae1ef2f628f",
@@ -389,9 +340,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "TestInput",
+                    "name": "Dice",
                     "type": "Button",
-                    "id": "c67ffe0a-9b40-4a85-aa56-20602aa0071b",
+                    "id": "f6e87af2-1b9f-4534-932c-bb21022ca41c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -550,17 +501,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "21fd9250-3933-4079-bf1d-7148bf7c9aa2",
-                    "path": "<Keyboard>/g",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "TestInput",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

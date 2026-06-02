@@ -4,7 +4,6 @@ using System.Collections;
 using ChocDino.UIFX;
 using UnityEngine.InputSystem;
 
-// 스테이지 진입, 클리어, 보상 선택 및 적 남은 수를 표시하는 UI 컨트롤러
 public class StageMessageUI : MonoBehaviour
 {
     public static StageMessageUI instance;
@@ -62,9 +61,9 @@ public class StageMessageUI : MonoBehaviour
     private Vector3 enemyCountOriginScale;
 
     private ModuleData[] _currentDisplayedRewards;
-
     private int pendingModuleRewards = 0;
     private bool isRewardUIPresenting = false;
+    private bool isUIStateRequestedByMe = false;
 
     public bool IsRewardQueueEmpty => pendingModuleRewards <= 0 && !isRewardUIPresenting;
 
@@ -84,10 +83,9 @@ public class StageMessageUI : MonoBehaviour
         if (enemyCountGroup != null) enemyCountGroup.alpha = 0f;
         isEnemyCountVisible = false;
 
-        UpdatePendingCountText(); 
+        UpdatePendingCountText();
     }
 
-    // ★ 추가: 씬 파괴 시 에러 방지
     private void OnDestroy()
     {
         StopAllCoroutines();
@@ -115,7 +113,7 @@ public class StageMessageUI : MonoBehaviour
         if (entryDesc != null) entryDesc.text = desc;
         if (color != null && entryTitle != null)
         {
-            color.a = 1f; 
+            color.a = 1f;
             entryTitle.color = color;
         }
 
@@ -130,7 +128,7 @@ public class StageMessageUI : MonoBehaviour
         if (entryDesc != null) entryDesc.text = desc;
         if (color != null && entryTitle != null)
         {
-            color.a = 1f; 
+            color.a = 1f;
             entryTitle.color = color;
         }
 
@@ -142,9 +140,9 @@ public class StageMessageUI : MonoBehaviour
     private IEnumerator EntryFadeSequence()
     {
         if (entryGroup == null) yield break;
-        
-        entryGroup.alpha = 0f; 
-        
+
+        entryGroup.alpha = 0f;
+
         yield return new WaitForSecondsRealtime(startDelay);
         yield return FadeIn(entryGroup);
         yield return new WaitForSecondsRealtime(waitTime);
@@ -168,7 +166,7 @@ public class StageMessageUI : MonoBehaviour
     public void QueueModuleReward(int count = 1)
     {
         pendingModuleRewards += count;
-        UpdatePendingCountText(); 
+        UpdatePendingCountText();
 
         if (!isRewardUIPresenting && pendingModuleRewards > 0)
         {
@@ -180,7 +178,9 @@ public class StageMessageUI : MonoBehaviour
     {
         if (InputStateManager.Instance != null && !InputStateManager.Instance.TryOpenUI()) return;
 
-        ResetAllUI(); 
+        isUIStateRequestedByMe = true;
+
+        ResetAllUI();
 
         if (clearGroup != null)
         {
@@ -194,14 +194,8 @@ public class StageMessageUI : MonoBehaviour
     {
         if (pendingCountText != null)
         {
-            if (pendingModuleRewards > 1)
-            {
-                pendingCountText.text = $"x{pendingModuleRewards}";
-            }
-            else
-            {
-                pendingCountText.text = "";
-            }
+            if (pendingModuleRewards > 1) pendingCountText.text = $"x{pendingModuleRewards}";
+            else pendingCountText.text = "";
         }
     }
 
@@ -219,13 +213,13 @@ public class StageMessageUI : MonoBehaviour
         if (rewardGroup != null)
         {
             rewardGroup.alpha = 1f;
-            if (pendingCountText != null) pendingCountText.alpha = 1f; 
+            if (pendingCountText != null) pendingCountText.alpha = 1f;
 
             SetRandomRewardTexts();
             for (int i = 0; i < rewardItems.Length; i++)
             {
                 StartCoroutine(AnimateRewardItem(rewardItems[i], i));
-                yield return new WaitForSecondsRealtime(rewardInterval); 
+                yield return new WaitForSecondsRealtime(rewardInterval);
             }
             canSelectReward = true;
         }
@@ -266,7 +260,7 @@ public class StageMessageUI : MonoBehaviour
 
         while (timer < fadeInTime)
         {
-            timer += Time.unscaledDeltaTime; 
+            timer += Time.unscaledDeltaTime;
             float t = timer / fadeInTime;
             float curveT = appearanceCurve.Evaluate(t);
             item.group.alpha = t;
@@ -282,11 +276,17 @@ public class StageMessageUI : MonoBehaviour
     private void Update()
     {
         if (Keyboard.current == null) return;
-
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState != InputState.Normal && InputStateManager.Instance.CurrentInputState != InputState.UI)
-            return;
-
         if (!canSelectReward) return;
+
+        if (InputStateManager.Instance != null)
+        {
+            var state = InputStateManager.Instance.CurrentInputState;
+
+            if (state == InputState.Combat) return;
+            if (state == InputState.UI && !isUIStateRequestedByMe) return;
+        }
+
+        if (Time.timeScale <= 0f) return;
 
         if (Keyboard.current.digit1Key.wasPressedThisFrame) SelectReward(0);
         else if (Keyboard.current.digit2Key.wasPressedThisFrame) SelectReward(1);
@@ -296,12 +296,10 @@ public class StageMessageUI : MonoBehaviour
     private void SelectReward(int index)
     {
         if (index >= rewardItems.Length) return;
-        
-        // ★ 중요: 0.4초 딜레이 동안 중복 입력(연타 버그) 차단
-        canSelectReward = false;
 
+        canSelectReward = false;
         pendingModuleRewards--;
-        UpdatePendingCountText(); 
+        UpdatePendingCountText();
 
         if (sfxDecision != null) SoundManager.instance.PlaySFX(sfxDecision, 0.5f, 0.1f);
         if (rewardItems[index].glowEffect != null) rewardItems[index].glowEffect.enabled = true;
@@ -338,9 +336,15 @@ public class StageMessageUI : MonoBehaviour
         yield return new WaitForSecondsRealtime(delay);
         HideAllClearUI();
 
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI)
+        if (isUIStateRequestedByMe)
         {
-            InputStateManager.Instance.CloseUI();
+            isUIStateRequestedByMe = false;
+
+            // 혹시라도 0.4초 사이에 인벤토리가 켜져서 시간이 멈춘 상태라면 CloseUI를 호출하지 않는 2차 안전장치
+            if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI && Time.timeScale > 0f)
+            {
+                InputStateManager.Instance.CloseUI();
+            }
         }
     }
 
@@ -371,6 +375,8 @@ public class StageMessageUI : MonoBehaviour
 
     public void HideAllClearUI()
     {
+        isUIStateRequestedByMe = false;
+
         StopCurrentCoroutine();
         StartCoroutine(FullFadeOut());
     }

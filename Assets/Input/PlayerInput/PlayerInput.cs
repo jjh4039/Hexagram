@@ -129,54 +129,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Dash"",
+                    ""name"": ""Pause"",
                     ""type"": ""Button"",
-                    ""id"": ""65fc999c-12c4-4bc5-9a41-e1f136d4f321"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Inventory"",
-                    ""type"": ""Button"",
-                    ""id"": ""4a63093d-d38f-496f-a974-836f942f5c28"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""TestInput"",
-                    ""type"": ""Button"",
-                    ""id"": ""4cdb5f1f-3df5-4f57-892f-c4d20b4e6367"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Interaction"",
-                    ""type"": ""Button"",
-                    ""id"": ""2f46c1d7-008d-4458-b1be-16bac62a7a55"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Dice"",
-                    ""type"": ""Button"",
-                    ""id"": ""dc724963-1183-4d93-a74a-4d4eb171ca1c"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""DebugEvent"",
-                    ""type"": ""Button"",
-                    ""id"": ""6cb67284-2216-4534-9490-ad09d79b2163"",
+                    ""id"": ""04434ba2-8a26-4a4a-a1fb-fb76f5666c02"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -192,9 +147,36 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Pause"",
+                    ""name"": ""Interaction"",
                     ""type"": ""Button"",
-                    ""id"": ""04434ba2-8a26-4a4a-a1fb-fb76f5666c02"",
+                    ""id"": ""2f46c1d7-008d-4458-b1be-16bac62a7a55"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Inventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""4a63093d-d38f-496f-a974-836f942f5c28"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Dash"",
+                    ""type"": ""Button"",
+                    ""id"": ""65fc999c-12c4-4bc5-9a41-e1f136d4f321"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Dice"",
+                    ""type"": ""Button"",
+                    ""id"": ""dc724963-1183-4d93-a74a-4d4eb171ca1c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -314,17 +296,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""6f01f3ef-817f-4070-b1aa-73ba33837b27"",
-                    ""path"": ""<Keyboard>/g"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""TestInput"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""892c96ad-3860-4fcb-98e4-37caaa0285a2"",
                     ""path"": ""<Keyboard>/f"",
                     ""interactions"": """",
@@ -342,17 +313,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dice"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""62d38c9a-31d1-4f44-a5ec-04948e990d1c"",
-                    ""path"": ""<Keyboard>/v"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""DebugEvent"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -394,51 +354,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Pause"",
-                    ""type"": ""Button"",
-                    ""id"": ""bba2e7a2-c4cd-4b34-b95c-8f09faeac54d"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Aim"",
-                    ""type"": ""Value"",
-                    ""id"": ""92cc3be4-c4c4-4d9b-a38d-541122951ef5"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""Dice"",
-                    ""type"": ""Button"",
-                    ""id"": ""f6e87af2-1b9f-4534-932c-bb21022ca41c"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Interaction"",
-                    ""type"": ""Button"",
-                    ""id"": ""bece6718-a815-4dd6-a5e0-3f3ca9bbac70"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Inventory"",
-                    ""type"": ""Button"",
-                    ""id"": ""08ef8d2e-6621-47cc-a194-66dbe08f792d"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Look"",
                     ""type"": ""Value"",
                     ""id"": ""9d3a9d6d-8a4d-4e72-b49f-23a9bddfa82f"",
@@ -466,6 +381,42 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""bba2e7a2-c4cd-4b34-b95c-8f09faeac54d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Aim"",
+                    ""type"": ""Value"",
+                    ""id"": ""92cc3be4-c4c4-4d9b-a38d-541122951ef5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Interaction"",
+                    ""type"": ""Button"",
+                    ""id"": ""bece6718-a815-4dd6-a5e0-3f3ca9bbac70"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Inventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""08ef8d2e-6621-47cc-a194-66dbe08f792d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Dash"",
                     ""type"": ""Button"",
                     ""id"": ""fd14afd8-3ce4-4f83-9836-3ae1ef2f628f"",
@@ -475,9 +426,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""TestInput"",
+                    ""name"": ""Dice"",
                     ""type"": ""Button"",
-                    ""id"": ""c67ffe0a-9b40-4a85-aa56-20602aa0071b"",
+                    ""id"": ""f6e87af2-1b9f-4534-932c-bb21022ca41c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -636,17 +587,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""21fd9250-3933-4079-bf1d-7148bf7c9aa2"",
-                    ""path"": ""<Keyboard>/g"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""TestInput"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -901,27 +841,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Normal_Look = m_Normal.FindAction("Look", throwIfNotFound: true);
         m_Normal_Attack = m_Normal.FindAction("Attack", throwIfNotFound: true);
         m_Normal_Swap = m_Normal.FindAction("Swap", throwIfNotFound: true);
-        m_Normal_Dash = m_Normal.FindAction("Dash", throwIfNotFound: true);
-        m_Normal_Inventory = m_Normal.FindAction("Inventory", throwIfNotFound: true);
-        m_Normal_TestInput = m_Normal.FindAction("TestInput", throwIfNotFound: true);
-        m_Normal_Interaction = m_Normal.FindAction("Interaction", throwIfNotFound: true);
-        m_Normal_Dice = m_Normal.FindAction("Dice", throwIfNotFound: true);
-        m_Normal_DebugEvent = m_Normal.FindAction("DebugEvent", throwIfNotFound: true);
-        m_Normal_Aim = m_Normal.FindAction("Aim", throwIfNotFound: true);
         m_Normal_Pause = m_Normal.FindAction("Pause", throwIfNotFound: true);
+        m_Normal_Aim = m_Normal.FindAction("Aim", throwIfNotFound: true);
+        m_Normal_Interaction = m_Normal.FindAction("Interaction", throwIfNotFound: true);
+        m_Normal_Inventory = m_Normal.FindAction("Inventory", throwIfNotFound: true);
+        m_Normal_Dash = m_Normal.FindAction("Dash", throwIfNotFound: true);
+        m_Normal_Dice = m_Normal.FindAction("Dice", throwIfNotFound: true);
         // Combat
         m_Combat = asset.FindActionMap("Combat", throwIfNotFound: true);
         m_Combat_Move = m_Combat.FindAction("Move", throwIfNotFound: true);
-        m_Combat_Pause = m_Combat.FindAction("Pause", throwIfNotFound: true);
-        m_Combat_Aim = m_Combat.FindAction("Aim", throwIfNotFound: true);
-        m_Combat_Dice = m_Combat.FindAction("Dice", throwIfNotFound: true);
-        m_Combat_Interaction = m_Combat.FindAction("Interaction", throwIfNotFound: true);
-        m_Combat_Inventory = m_Combat.FindAction("Inventory", throwIfNotFound: true);
         m_Combat_Look = m_Combat.FindAction("Look", throwIfNotFound: true);
         m_Combat_Attack = m_Combat.FindAction("Attack", throwIfNotFound: true);
         m_Combat_Swap = m_Combat.FindAction("Swap", throwIfNotFound: true);
+        m_Combat_Pause = m_Combat.FindAction("Pause", throwIfNotFound: true);
+        m_Combat_Aim = m_Combat.FindAction("Aim", throwIfNotFound: true);
+        m_Combat_Interaction = m_Combat.FindAction("Interaction", throwIfNotFound: true);
+        m_Combat_Inventory = m_Combat.FindAction("Inventory", throwIfNotFound: true);
         m_Combat_Dash = m_Combat.FindAction("Dash", throwIfNotFound: true);
-        m_Combat_TestInput = m_Combat.FindAction("TestInput", throwIfNotFound: true);
+        m_Combat_Dice = m_Combat.FindAction("Dice", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Select = m_UI.FindAction("Select", throwIfNotFound: true);
@@ -1015,14 +952,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Normal_Look;
     private readonly InputAction m_Normal_Attack;
     private readonly InputAction m_Normal_Swap;
-    private readonly InputAction m_Normal_Dash;
-    private readonly InputAction m_Normal_Inventory;
-    private readonly InputAction m_Normal_TestInput;
-    private readonly InputAction m_Normal_Interaction;
-    private readonly InputAction m_Normal_Dice;
-    private readonly InputAction m_Normal_DebugEvent;
-    private readonly InputAction m_Normal_Aim;
     private readonly InputAction m_Normal_Pause;
+    private readonly InputAction m_Normal_Aim;
+    private readonly InputAction m_Normal_Interaction;
+    private readonly InputAction m_Normal_Inventory;
+    private readonly InputAction m_Normal_Dash;
+    private readonly InputAction m_Normal_Dice;
     /// <summary>
     /// Provides access to input actions defined in input action map "Normal".
     /// </summary>
@@ -1051,37 +986,29 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Swap => m_Wrapper.m_Normal_Swap;
         /// <summary>
-        /// Provides access to the underlying input action "Normal/Dash".
+        /// Provides access to the underlying input action "Normal/Pause".
         /// </summary>
-        public InputAction @Dash => m_Wrapper.m_Normal_Dash;
-        /// <summary>
-        /// Provides access to the underlying input action "Normal/Inventory".
-        /// </summary>
-        public InputAction @Inventory => m_Wrapper.m_Normal_Inventory;
-        /// <summary>
-        /// Provides access to the underlying input action "Normal/TestInput".
-        /// </summary>
-        public InputAction @TestInput => m_Wrapper.m_Normal_TestInput;
-        /// <summary>
-        /// Provides access to the underlying input action "Normal/Interaction".
-        /// </summary>
-        public InputAction @Interaction => m_Wrapper.m_Normal_Interaction;
-        /// <summary>
-        /// Provides access to the underlying input action "Normal/Dice".
-        /// </summary>
-        public InputAction @Dice => m_Wrapper.m_Normal_Dice;
-        /// <summary>
-        /// Provides access to the underlying input action "Normal/DebugEvent".
-        /// </summary>
-        public InputAction @DebugEvent => m_Wrapper.m_Normal_DebugEvent;
+        public InputAction @Pause => m_Wrapper.m_Normal_Pause;
         /// <summary>
         /// Provides access to the underlying input action "Normal/Aim".
         /// </summary>
         public InputAction @Aim => m_Wrapper.m_Normal_Aim;
         /// <summary>
-        /// Provides access to the underlying input action "Normal/Pause".
+        /// Provides access to the underlying input action "Normal/Interaction".
         /// </summary>
-        public InputAction @Pause => m_Wrapper.m_Normal_Pause;
+        public InputAction @Interaction => m_Wrapper.m_Normal_Interaction;
+        /// <summary>
+        /// Provides access to the underlying input action "Normal/Inventory".
+        /// </summary>
+        public InputAction @Inventory => m_Wrapper.m_Normal_Inventory;
+        /// <summary>
+        /// Provides access to the underlying input action "Normal/Dash".
+        /// </summary>
+        public InputAction @Dash => m_Wrapper.m_Normal_Dash;
+        /// <summary>
+        /// Provides access to the underlying input action "Normal/Dice".
+        /// </summary>
+        public InputAction @Dice => m_Wrapper.m_Normal_Dice;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1120,30 +1047,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Swap.started += instance.OnSwap;
             @Swap.performed += instance.OnSwap;
             @Swap.canceled += instance.OnSwap;
-            @Dash.started += instance.OnDash;
-            @Dash.performed += instance.OnDash;
-            @Dash.canceled += instance.OnDash;
-            @Inventory.started += instance.OnInventory;
-            @Inventory.performed += instance.OnInventory;
-            @Inventory.canceled += instance.OnInventory;
-            @TestInput.started += instance.OnTestInput;
-            @TestInput.performed += instance.OnTestInput;
-            @TestInput.canceled += instance.OnTestInput;
-            @Interaction.started += instance.OnInteraction;
-            @Interaction.performed += instance.OnInteraction;
-            @Interaction.canceled += instance.OnInteraction;
-            @Dice.started += instance.OnDice;
-            @Dice.performed += instance.OnDice;
-            @Dice.canceled += instance.OnDice;
-            @DebugEvent.started += instance.OnDebugEvent;
-            @DebugEvent.performed += instance.OnDebugEvent;
-            @DebugEvent.canceled += instance.OnDebugEvent;
-            @Aim.started += instance.OnAim;
-            @Aim.performed += instance.OnAim;
-            @Aim.canceled += instance.OnAim;
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
+            @Aim.started += instance.OnAim;
+            @Aim.performed += instance.OnAim;
+            @Aim.canceled += instance.OnAim;
+            @Interaction.started += instance.OnInteraction;
+            @Interaction.performed += instance.OnInteraction;
+            @Interaction.canceled += instance.OnInteraction;
+            @Inventory.started += instance.OnInventory;
+            @Inventory.performed += instance.OnInventory;
+            @Inventory.canceled += instance.OnInventory;
+            @Dash.started += instance.OnDash;
+            @Dash.performed += instance.OnDash;
+            @Dash.canceled += instance.OnDash;
+            @Dice.started += instance.OnDice;
+            @Dice.performed += instance.OnDice;
+            @Dice.canceled += instance.OnDice;
         }
 
         /// <summary>
@@ -1167,30 +1088,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Swap.started -= instance.OnSwap;
             @Swap.performed -= instance.OnSwap;
             @Swap.canceled -= instance.OnSwap;
-            @Dash.started -= instance.OnDash;
-            @Dash.performed -= instance.OnDash;
-            @Dash.canceled -= instance.OnDash;
-            @Inventory.started -= instance.OnInventory;
-            @Inventory.performed -= instance.OnInventory;
-            @Inventory.canceled -= instance.OnInventory;
-            @TestInput.started -= instance.OnTestInput;
-            @TestInput.performed -= instance.OnTestInput;
-            @TestInput.canceled -= instance.OnTestInput;
-            @Interaction.started -= instance.OnInteraction;
-            @Interaction.performed -= instance.OnInteraction;
-            @Interaction.canceled -= instance.OnInteraction;
-            @Dice.started -= instance.OnDice;
-            @Dice.performed -= instance.OnDice;
-            @Dice.canceled -= instance.OnDice;
-            @DebugEvent.started -= instance.OnDebugEvent;
-            @DebugEvent.performed -= instance.OnDebugEvent;
-            @DebugEvent.canceled -= instance.OnDebugEvent;
-            @Aim.started -= instance.OnAim;
-            @Aim.performed -= instance.OnAim;
-            @Aim.canceled -= instance.OnAim;
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
+            @Aim.started -= instance.OnAim;
+            @Aim.performed -= instance.OnAim;
+            @Aim.canceled -= instance.OnAim;
+            @Interaction.started -= instance.OnInteraction;
+            @Interaction.performed -= instance.OnInteraction;
+            @Interaction.canceled -= instance.OnInteraction;
+            @Inventory.started -= instance.OnInventory;
+            @Inventory.performed -= instance.OnInventory;
+            @Inventory.canceled -= instance.OnInventory;
+            @Dash.started -= instance.OnDash;
+            @Dash.performed -= instance.OnDash;
+            @Dash.canceled -= instance.OnDash;
+            @Dice.started -= instance.OnDice;
+            @Dice.performed -= instance.OnDice;
+            @Dice.canceled -= instance.OnDice;
         }
 
         /// <summary>
@@ -1229,16 +1144,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Combat;
     private List<ICombatActions> m_CombatActionsCallbackInterfaces = new List<ICombatActions>();
     private readonly InputAction m_Combat_Move;
-    private readonly InputAction m_Combat_Pause;
-    private readonly InputAction m_Combat_Aim;
-    private readonly InputAction m_Combat_Dice;
-    private readonly InputAction m_Combat_Interaction;
-    private readonly InputAction m_Combat_Inventory;
     private readonly InputAction m_Combat_Look;
     private readonly InputAction m_Combat_Attack;
     private readonly InputAction m_Combat_Swap;
+    private readonly InputAction m_Combat_Pause;
+    private readonly InputAction m_Combat_Aim;
+    private readonly InputAction m_Combat_Interaction;
+    private readonly InputAction m_Combat_Inventory;
     private readonly InputAction m_Combat_Dash;
-    private readonly InputAction m_Combat_TestInput;
+    private readonly InputAction m_Combat_Dice;
     /// <summary>
     /// Provides access to input actions defined in input action map "Combat".
     /// </summary>
@@ -1255,26 +1169,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Move => m_Wrapper.m_Combat_Move;
         /// <summary>
-        /// Provides access to the underlying input action "Combat/Pause".
-        /// </summary>
-        public InputAction @Pause => m_Wrapper.m_Combat_Pause;
-        /// <summary>
-        /// Provides access to the underlying input action "Combat/Aim".
-        /// </summary>
-        public InputAction @Aim => m_Wrapper.m_Combat_Aim;
-        /// <summary>
-        /// Provides access to the underlying input action "Combat/Dice".
-        /// </summary>
-        public InputAction @Dice => m_Wrapper.m_Combat_Dice;
-        /// <summary>
-        /// Provides access to the underlying input action "Combat/Interaction".
-        /// </summary>
-        public InputAction @Interaction => m_Wrapper.m_Combat_Interaction;
-        /// <summary>
-        /// Provides access to the underlying input action "Combat/Inventory".
-        /// </summary>
-        public InputAction @Inventory => m_Wrapper.m_Combat_Inventory;
-        /// <summary>
         /// Provides access to the underlying input action "Combat/Look".
         /// </summary>
         public InputAction @Look => m_Wrapper.m_Combat_Look;
@@ -1287,13 +1181,29 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Swap => m_Wrapper.m_Combat_Swap;
         /// <summary>
+        /// Provides access to the underlying input action "Combat/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_Combat_Pause;
+        /// <summary>
+        /// Provides access to the underlying input action "Combat/Aim".
+        /// </summary>
+        public InputAction @Aim => m_Wrapper.m_Combat_Aim;
+        /// <summary>
+        /// Provides access to the underlying input action "Combat/Interaction".
+        /// </summary>
+        public InputAction @Interaction => m_Wrapper.m_Combat_Interaction;
+        /// <summary>
+        /// Provides access to the underlying input action "Combat/Inventory".
+        /// </summary>
+        public InputAction @Inventory => m_Wrapper.m_Combat_Inventory;
+        /// <summary>
         /// Provides access to the underlying input action "Combat/Dash".
         /// </summary>
         public InputAction @Dash => m_Wrapper.m_Combat_Dash;
         /// <summary>
-        /// Provides access to the underlying input action "Combat/TestInput".
+        /// Provides access to the underlying input action "Combat/Dice".
         /// </summary>
-        public InputAction @TestInput => m_Wrapper.m_Combat_TestInput;
+        public InputAction @Dice => m_Wrapper.m_Combat_Dice;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1323,21 +1233,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Pause.started += instance.OnPause;
-            @Pause.performed += instance.OnPause;
-            @Pause.canceled += instance.OnPause;
-            @Aim.started += instance.OnAim;
-            @Aim.performed += instance.OnAim;
-            @Aim.canceled += instance.OnAim;
-            @Dice.started += instance.OnDice;
-            @Dice.performed += instance.OnDice;
-            @Dice.canceled += instance.OnDice;
-            @Interaction.started += instance.OnInteraction;
-            @Interaction.performed += instance.OnInteraction;
-            @Interaction.canceled += instance.OnInteraction;
-            @Inventory.started += instance.OnInventory;
-            @Inventory.performed += instance.OnInventory;
-            @Inventory.canceled += instance.OnInventory;
             @Look.started += instance.OnLook;
             @Look.performed += instance.OnLook;
             @Look.canceled += instance.OnLook;
@@ -1347,12 +1242,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Swap.started += instance.OnSwap;
             @Swap.performed += instance.OnSwap;
             @Swap.canceled += instance.OnSwap;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
+            @Aim.started += instance.OnAim;
+            @Aim.performed += instance.OnAim;
+            @Aim.canceled += instance.OnAim;
+            @Interaction.started += instance.OnInteraction;
+            @Interaction.performed += instance.OnInteraction;
+            @Interaction.canceled += instance.OnInteraction;
+            @Inventory.started += instance.OnInventory;
+            @Inventory.performed += instance.OnInventory;
+            @Inventory.canceled += instance.OnInventory;
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
-            @TestInput.started += instance.OnTestInput;
-            @TestInput.performed += instance.OnTestInput;
-            @TestInput.canceled += instance.OnTestInput;
+            @Dice.started += instance.OnDice;
+            @Dice.performed += instance.OnDice;
+            @Dice.canceled += instance.OnDice;
         }
 
         /// <summary>
@@ -1367,21 +1274,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @Pause.started -= instance.OnPause;
-            @Pause.performed -= instance.OnPause;
-            @Pause.canceled -= instance.OnPause;
-            @Aim.started -= instance.OnAim;
-            @Aim.performed -= instance.OnAim;
-            @Aim.canceled -= instance.OnAim;
-            @Dice.started -= instance.OnDice;
-            @Dice.performed -= instance.OnDice;
-            @Dice.canceled -= instance.OnDice;
-            @Interaction.started -= instance.OnInteraction;
-            @Interaction.performed -= instance.OnInteraction;
-            @Interaction.canceled -= instance.OnInteraction;
-            @Inventory.started -= instance.OnInventory;
-            @Inventory.performed -= instance.OnInventory;
-            @Inventory.canceled -= instance.OnInventory;
             @Look.started -= instance.OnLook;
             @Look.performed -= instance.OnLook;
             @Look.canceled -= instance.OnLook;
@@ -1391,12 +1283,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Swap.started -= instance.OnSwap;
             @Swap.performed -= instance.OnSwap;
             @Swap.canceled -= instance.OnSwap;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
+            @Aim.started -= instance.OnAim;
+            @Aim.performed -= instance.OnAim;
+            @Aim.canceled -= instance.OnAim;
+            @Interaction.started -= instance.OnInteraction;
+            @Interaction.performed -= instance.OnInteraction;
+            @Interaction.canceled -= instance.OnInteraction;
+            @Inventory.started -= instance.OnInventory;
+            @Inventory.performed -= instance.OnInventory;
+            @Inventory.canceled -= instance.OnInventory;
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
-            @TestInput.started -= instance.OnTestInput;
-            @TestInput.performed -= instance.OnTestInput;
-            @TestInput.canceled -= instance.OnTestInput;
+            @Dice.started -= instance.OnDice;
+            @Dice.performed -= instance.OnDice;
+            @Dice.canceled -= instance.OnDice;
         }
 
         /// <summary>
@@ -1606,47 +1510,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSwap(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDash(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Inventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnInventory(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "TestInput" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTestInput(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Interaction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnInteraction(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Dice" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDice(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "DebugEvent" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDebugEvent(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Aim" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1655,12 +1524,33 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnAim(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Interaction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPause(InputAction.CallbackContext context);
+        void OnInteraction(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Inventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInventory(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDash(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Dice" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDice(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Combat" which allows adding and removing callbacks.
@@ -1676,41 +1566,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPause(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Aim" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnAim(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Dice" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnDice(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Interaction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnInteraction(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Inventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnInventory(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Look" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
@@ -1733,6 +1588,34 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSwap(InputAction.CallbackContext context);
         /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Aim" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAim(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Interaction" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInteraction(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Inventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInventory(InputAction.CallbackContext context);
+        /// <summary>
         /// Method invoked when associated input action "Dash" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1740,12 +1623,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDash(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "TestInput" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Dice" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTestInput(InputAction.CallbackContext context);
+        void OnDice(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
