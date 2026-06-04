@@ -44,39 +44,41 @@ public class EventManager : MonoBehaviour
 {
     public static EventManager Instance;
 
-    [Header("Event Data Pool")]
+    [Header("Event Data Pool")] 
     [SerializeField] private List<RiskData> riskDataList = new List<RiskData>();
     [SerializeField] private List<RewardData> rewardDataList = new List<RewardData>();
 
-    [Header("Current Selection")]
+    [Header("Current Selection")] 
     [SerializeField] private EventSelectionData currentEventSelection = new EventSelectionData();
 
-    [Header("References")]
+    [Header("References")] 
     [SerializeField] private EventUIController eventUIController;
 
-    [Header("Reward Prefabs")]
+    [Header("Reward Prefabs")] 
     [SerializeField] private GameObject balancePrefab;
 
-    [Header("Activation Feedback")]
+    [Header("Activation Feedback")] 
     [SerializeField] private TextMeshProUGUI activationText;
     [SerializeField] private float textFadeDuration = 0.2f;
     [SerializeField] private float textDisplayDuration = 1f;
 
     public EventSelectionData CurrentEventSelection => currentEventSelection;
-    
+
     public Vector3 eventOriginPos;
+
     // ★ 추가: 생성 시 부모로 삼을 로봇의 Transform을 저장할 변수
-    [HideInInspector] public Transform eventOriginTransform; 
+    [HideInInspector] public Transform eventOriginTransform;
 
     private Coroutine _activationTextRoutine;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) 
-        { 
-            Destroy(gameObject); 
-            return; 
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
         }
+
         Instance = this;
 
         if (activationText != null)
@@ -123,7 +125,7 @@ public class EventManager : MonoBehaviour
         activationText.text = "운명의 저울이 기울었습니다...";
         activationText.gameObject.SetActive(true);
         Color c = activationText.color;
-        
+
         float t = 0f;
         while (t < textFadeDuration)
         {
@@ -132,9 +134,9 @@ public class EventManager : MonoBehaviour
             activationText.color = c;
             yield return null;
         }
-        
+
         yield return new WaitForSeconds(textDisplayDuration);
-        
+
         t = 0f;
         while (t < textFadeDuration)
         {
@@ -143,7 +145,7 @@ public class EventManager : MonoBehaviour
             activationText.color = c;
             yield return null;
         }
-        
+
         activationText.gameObject.SetActive(false);
         _activationTextRoutine = null;
     }
@@ -162,11 +164,13 @@ public class EventManager : MonoBehaviour
                     Debug.Log("[디버프 무시] 체력 소모가 0%이므로 피해를 입지 않습니다.");
                     break;
                 }
+
                 int hpCost = Mathf.RoundToInt(stats.currentHealth * (value / 100f));
                 if (hpCost > 0)
                 {
                     stats.TakeDamage(hpCost);
                 }
+
                 break;
 
             case RiskType.DiceChargeReduction:
@@ -211,21 +215,27 @@ public class EventManager : MonoBehaviour
                 if (ArtifactManager.Instance != null)
                 {
                     ArtifactManager.Instance.GiveRandomArtifactByGrade(targetGrade);
-                    
+
                     if (stats != null)
                     {
-                        stats.SpawnDamageText("ARTIFACT!", new Color(0.6f, 0.87f, 1f), 4f); 
+                        stats.SpawnDamageText("ARTIFACT!", new Color(0.6f, 0.87f, 1f), 4f);
                     }
                 }
+
                 break;
 
             case RewardType.DiceFaceChanceUp:
                 if (balancePrefab != null)
                 {
-                    Vector3 spawnPos = eventOriginPos + new Vector3(0, -2.5f, 0); 
+                    Vector3 spawnPos = eventOriginPos + new Vector3(0, -2.5f, 0);
+
+                    // ★ 수정: 수동 역산 대신 월드 생성 후 SetParent(..., true) 방식으로 통일
+                    GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity);
                     
-                    // ★ 수정: Instantiate 시 eventOriginTransform을 부모로 지정하여 로봇의 자녀로 들어갑니다.
-                    GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity, eventOriginTransform);
+                    if (eventOriginTransform != null)
+                    {
+                        balanceObj.transform.SetParent(eventOriginTransform, true);
+                    }
 
                     Balance balanceScript = balanceObj.GetComponent<Balance>();
                     if (balanceScript != null)
@@ -239,6 +249,7 @@ public class EventManager : MonoBehaviour
                 {
                     Debug.LogWarning("Balance prefab is missing");
                 }
+
                 break;
 
             case RewardType.ModuleEnhanceChoice:
@@ -251,6 +262,7 @@ public class EventManager : MonoBehaviour
                 {
                     Debug.LogWarning("StageMessageUI instance is missing");
                 }
+
                 break;
         }
     }

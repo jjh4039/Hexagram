@@ -71,7 +71,7 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
     private Action _onScrapSpent;
     
     private Vector3 _spawnPosition; 
-    private Transform _robotTransform; // ★ 추가: 로봇의 Transform을 저장할 변수
+    private Transform _robotTransform; 
 
     private static int staticHealGradeIndex = 2; 
     private static bool staticHealBoughtLastTime = false;
@@ -89,13 +89,11 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
         ApplyImmediate(false);
     }
 
-    // ★ 수정: 두 번째 매개변수를 Vector3에서 Transform으로 변경했습니다.
     public void SetupBottomSlot(Action onScrapSpentCallback, Transform robotTransform, bool isNewShop, bool isReroll)
     {
         _onScrapSpent = onScrapSpentCallback;
-        _robotTransform = robotTransform; // ★ 부모 지정을 위해 저장
+        _robotTransform = robotTransform; 
         
-        // Transform에서 position을 추출해 사용합니다.
         _spawnPosition = (robotTransform != null ? robotTransform.position : Vector3.zero) + new Vector3(0f, -3f, 0f);
 
         _isSoldOut = false;
@@ -254,8 +252,15 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
         {
             if (balancePrefab != null)
             {
-                // ★ 수정: Instantiate 할 때 _robotTransform을 부모로 넘겨주어 함께 관리되도록 처리합니다.
-                GameObject balanceObj = Instantiate(balancePrefab, _spawnPosition, Quaternion.identity, _robotTransform);
+                // ★ 수정: 일단 월드 기준으로 먼저 생성하여 프리팹 고유 스케일을 유지합니다.
+                GameObject balanceObj = Instantiate(balancePrefab, _spawnPosition, Quaternion.identity);
+                
+                // ★ 수정: 부모를 설정하되, worldPositionStays 인자를 true로 주어 부모 스케일에 맞춰 자동 역산되도록 합니다.
+                if (_robotTransform != null)
+                {
+                    balanceObj.transform.SetParent(_robotTransform, true);
+                }
+
                 Balance balanceScript = balanceObj.GetComponent<Balance>();
                 
                 if (balanceScript != null)

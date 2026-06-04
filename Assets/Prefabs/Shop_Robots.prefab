@@ -252,6 +252,7 @@ MonoBehaviour:
   robotRenderer: {fileID: 2892365893812113457}
   screenRenderer: {fileID: 2892365893812113457}
   animator: {fileID: 6005698959891686624}
+  myInteractCollider: {fileID: 2399616233470536520}
 --- !u!50 &3884549065369928405
 Rigidbody2D:
   serializedVersion: 5
