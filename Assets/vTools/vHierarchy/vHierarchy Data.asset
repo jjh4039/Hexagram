@@ -303,10 +303,10 @@ MonoBehaviour:
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
           isIconRecursive: 0
           isColorRecursive: 1
-        - colorIndex: 0
+        - colorIndex: 1
           iconNameOrGuid: WheelCollider Icon
           isIconRecursive: 1
-          isColorRecursive: 0
+          isColorRecursive: 1
         - colorIndex: 0
           iconNameOrGuid: sv_icon_dot10_pix16_gizmo
           isIconRecursive: 0
@@ -409,6 +409,7 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-1798819673-0
         - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-1530519511-0
         - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-1358540970-0
+        - globalObjectIdString: GlobalObjectId_V1-2-d1d15c270ed6bfa429ac999e9e081d13-3057730649544274686-1418558689
         values:
         - colorIndex: 2
           iconNameOrGuid: Settings Icon
@@ -458,6 +459,10 @@ MonoBehaviour:
           iconNameOrGuid: Favorite
           isIconRecursive: 0
           isColorRecursive: 0
+        - colorIndex: 3
+          iconNameOrGuid: Settings Icon
+          isIconRecursive: 1
+          isColorRecursive: 1
     - goDatas_byGlobalId:
         keys:
         - globalObjectIdString: GlobalObjectId_V1-1-644c272e5aa870f45a4c0d9968a41a1e-3057730649544274686-0

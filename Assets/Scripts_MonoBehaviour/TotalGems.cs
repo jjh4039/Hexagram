@@ -243,6 +243,8 @@ public class TotalGems : MonoBehaviour
 
     private void OnMinusClicked(UpgradeRow row)
     {
+        if (!_isOpen || _isAnimating) return;                // 창이 닫히거나 애니메이션 중일 때 클릭 완벽 차단
+
         int currentLevel = GetLevelFromData(row.type);
         if (currentLevel <= 0) return;
 
@@ -260,6 +262,8 @@ public class TotalGems : MonoBehaviour
 
     private void OnPlusClicked(UpgradeRow row)
     {
+        if (!_isOpen || _isAnimating) return;                // 창이 닫히거나 애니메이션 중일 때 클릭 완벽 차단
+
         int currentLevel = GetLevelFromData(row.type);
         if (_remainingGems < row.costPerLevel || currentLevel >= row.maxLevel) return;
 

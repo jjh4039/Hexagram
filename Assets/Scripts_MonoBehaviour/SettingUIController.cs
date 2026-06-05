@@ -269,6 +269,8 @@ public class SettingUIController : MonoBehaviour
 
     public void AdjustValue(int dir)                         
     {
+        if (!_isOpen || _isAnimating) return;
+        
         bool valueChanged = false;
 
         switch (_currentIndex)

@@ -87,7 +87,6 @@ public class PauseUIController : MonoBehaviour
     {
         if (!gameObject.activeInHierarchy) return; 
 
-        // 튜토리얼 컷신 진행 중일 때는 ESC 입력을 무시합니다
         if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
 
         if (_isAnimating) return;
@@ -113,11 +112,6 @@ public class PauseUIController : MonoBehaviour
 
     private void OnSubmit(InputAction.CallbackContext ctx)
     {
-        if (!gameObject.activeInHierarchy) return; 
-        if (!_isPaused || _isAnimating) return;
-        if (settingUI != null && settingUI.IsOpen) return;
-        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
-
         ExecuteSelection();
     }
 
@@ -170,9 +164,10 @@ public class PauseUIController : MonoBehaviour
         UpdateSelectionVisuals();
     }
 
-    public void SetIndexByMouse(int index)                   // 외부 마우스 호버 인식용 함수
+    public void SetIndexByMouse(int index)
     {
-        if (!_isPaused || _isAnimating || _currentIndex == index) return;
+        // ★ _isAnimating 검사를 제거하여, UI가 켜지는 순간부터 즉각적으로 마우스 좌표를 허용합니다.
+        if (!_isPaused || _currentIndex == index) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
         if (isTutorialMode && index == 2) return;
@@ -236,8 +231,12 @@ public class PauseUIController : MonoBehaviour
         }
     }
 
-    public void ExecuteSelection()                           // 마우스 클릭 시 외부에서 접근 가능하도록 public 변경
+    public void ExecuteSelection()
     {
+        if (!gameObject.activeInHierarchy) return; 
+        if (!_isPaused || _isAnimating) return; // ★ 애니메이션 중 클릭 오작동 방지
+        if (settingUI != null && settingUI.IsOpen) return;
+        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
         if (isTutorialMode && _currentIndex == 2) return;
 
         if (sfxSubmit) SoundManager.instance.PlaySFX(sfxSubmit, 0.2f);

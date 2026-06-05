@@ -297,6 +297,8 @@ public class TitleManager : MonoBehaviour
     public void ExecuteMenu()
     {
         if (!_isInputActive) return;
+        if (settingUI != null && settingUI.IsOpen) return; // 설정 창 클릭 방어
+        if (totalGemsUI != null && totalGemsUI.IsOpen) return; // 보석 창 클릭 방어
 
         if (SoundManager.instance != null && selectSound != null)
         {

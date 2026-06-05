@@ -74,7 +74,6 @@ public class ConfirmUIController : MonoBehaviour
                     additionalAction?.Invoke();             
                     Time.timeScale = 1f;
                     
-                    // 게임 포기 시 잔존하는 UI 창들을 끄고 입력을 차단함
                     if (InputStateManager.Instance != null)
                         InputStateManager.Instance.SetInputActive(false);
 
@@ -182,9 +181,10 @@ public class ConfirmUIController : MonoBehaviour
         }
     }
 
-    public void SetIndexByMouse(int index)                   // 외부 마우스 호버 인식용 함수
+    public void SetIndexByMouse(int index)
     {
-        if (!_isOpen || _isAnimating || _currentIndex == index) return;
+        // ★ _isAnimating 검사를 제거했습니다.
+        if (!_isOpen || _currentIndex == index) return;
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
 
         _currentIndex = index;
@@ -197,9 +197,9 @@ public class ConfirmUIController : MonoBehaviour
         ExecuteSelection();
     }
 
-    public void ExecuteSelection()                           // 마우스 클릭 시 외부에서 접근 가능하도록 public 분리
+    public void ExecuteSelection()
     {
-        if (!_isOpen || _isAnimating) return;
+        if (!_isOpen || _isAnimating) return; // 클릭 방어벽은 유지합니다.
 
         if (_currentIndex == 0)
         {
