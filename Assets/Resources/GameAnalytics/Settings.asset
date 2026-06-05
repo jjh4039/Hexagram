@@ -53,7 +53,7 @@ MonoBehaviour:
   InfoLogEditor: 1
   InfoLogBuild: 1
   VerboseLogBuild: 0
-  UseManualSessionHandling: 0
+  UseManualSessionHandling: 1
   SendExampleGameDataToMyGame: 0
   InternetConnectivity: 0
   CustomDimensions01: []

@@ -243,6 +243,18 @@ public class StageController : MonoBehaviour
             }
         }
 
+        if (isBossStage && GameManager.instance != null && AnalyticsManager.Instance != null)
+        {
+            string seasonName = GameManager.instance.currentSeason.ToString(); // 현재 클리어한 계절
+            int clearTime = Mathf.RoundToInt(GameManager.instance.currentPlayTime); // 걸린 시간 초 단위 변환
+            
+            int currentHp = GameManager.instance.stats.currentHealth; // 현재 체력
+            int maxHp = GameManager.instance.stats.maxHealth; // 최대 체력
+            int remainHpPercent = Mathf.RoundToInt(((float)currentHp / maxHp) * 100f); // 남은 체력 퍼센트 계산
+
+            AnalyticsManager.Instance.LogBossClear(seasonName, clearTime, remainHpPercent); // 보스 통계 전송
+        }
+
         Transform statueTarget = GetStatueArrowTarget();
         GameObject player = GameManager.instance.player.gameObject;
 

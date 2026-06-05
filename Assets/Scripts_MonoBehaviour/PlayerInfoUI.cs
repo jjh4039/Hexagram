@@ -9,7 +9,7 @@ public class PlayerInfoUI : MonoBehaviour
     public TextMeshProUGUI healthText; 
     
     [Header("SafeZone UI Settings")]
-    public TextMeshProUGUI safeZoneText; // GameObject에서 TextMeshProUGUI로 변경
+    public TextMeshProUGUI safeZoneText; 
     [SerializeField] private float fadeDuration = 0.6f; // 페이드 속도
     public bool isTutorial = false;
     

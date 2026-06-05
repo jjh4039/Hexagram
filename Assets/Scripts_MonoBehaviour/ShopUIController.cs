@@ -254,6 +254,11 @@ public class ShopUIController : MonoBehaviour
             if (GameManager.instance.stats != null)
                 GameManager.instance.stats.SpawnDamageText("ARTIFACT!", new Color(0.6f, 0.87f, 1f), 4f); 
 
+            if (AnalyticsManager.Instance != null)
+            {
+                AnalyticsManager.Instance.LogShopPurchase("Artifact", data.artifactName, data.basePrice); // 아티팩트 구매 로그 전송
+            }
+
             RefreshAllPrices(); 
         }
         else
@@ -261,7 +266,6 @@ public class ShopUIController : MonoBehaviour
             if (PlayerFeedbackUI.Instance != null) PlayerFeedbackUI.Instance.ShowWarning(6); 
         }
     }
-
     public void OnClickReroll()
     {
         GenerateShopItems(false, true); 

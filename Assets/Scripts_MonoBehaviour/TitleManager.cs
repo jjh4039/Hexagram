@@ -336,6 +336,18 @@ public class TitleManager : MonoBehaviour
             SoundManager.instance.StopBGM(sceneFadeDuration);
         }
         
+        // GameAnalytics 2번 정보 전송 (주사위 보석)
+        if (DataManager.instance != null && DataManager.instance.data != null && AnalyticsManager.Instance != null)
+        {
+            GameData d = DataManager.instance.data;
+            AnalyticsManager.Instance.LogUpgradeLoadout(
+                d.upgradeHealthLevel, 
+                d.upgradeAttackLevel, 
+                d.upgradeBulletLevel, 
+                d.difficultyLevel
+            );
+        }
+        
         string targetScene = tutorialSceneName;
         
         if (DataManager.instance && DataManager.instance.data != null)

@@ -228,6 +228,12 @@ public class ShopBottomSlotHoverSystem : MonoBehaviour, IPointerEnterHandler, IP
             if (sfxPurchase != null && SoundManager.instance != null)
                 SoundManager.instance.PlaySFX(sfxPurchase, 0.65f, 0.1f);
 
+            if (AnalyticsManager.Instance != null)
+            {
+                string itemName = itemType.ToString() + "_" + _currentGrade.ToString();
+                AnalyticsManager.Instance.LogShopPurchase("Consumable", itemName, _currentPrice); // 소모품 구매 로그 전송
+            }
+
             SetSoldOut();
             _onScrapSpent?.Invoke(); 
         }

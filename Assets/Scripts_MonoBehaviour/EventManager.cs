@@ -110,6 +110,14 @@ public class EventManager : MonoBehaviour
 
         ApplyRisk(currentEventSelection.selectedRisk, intensityLevel);
         ApplyReward(currentEventSelection.selectedReward, intensityLevel);
+        
+        // GameAnalytics 6번 정보 전송 (이벤트)
+        if (AnalyticsManager.Instance != null)
+        {
+            string rType = currentEventSelection.selectedRisk.riskType.ToString();
+            string rewType = currentEventSelection.selectedReward.rewardType.ToString();
+            AnalyticsManager.Instance.LogEventSelection(rType, rewType, intensityLevel);
+        }
 
         if (activationText != null)
         {

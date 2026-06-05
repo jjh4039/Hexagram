@@ -308,6 +308,12 @@ public class StageMessageUI : MonoBehaviour
         {
             GameManager.instance.stats.ApplyModuleReward(_currentDisplayedRewards[index]);
         }
+        
+        if (AnalyticsManager.Instance != null)
+        {
+            string chosenEffect = _currentDisplayedRewards[index].effectType.ToString();
+            AnalyticsManager.Instance.LogModuleRewardSelection(chosenEffect);
+        }
 
         StartCoroutine(PunchScale(rewardItems[index].rect, index));
         for (int i = 0; i < rewardItems.Length; i++)

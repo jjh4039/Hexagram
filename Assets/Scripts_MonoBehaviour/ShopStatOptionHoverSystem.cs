@@ -179,6 +179,11 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
             if (sfxPurchase != null && SoundManager.instance != null)
                 SoundManager.instance.PlaySFX(sfxPurchase, 0.7f, 0.1f);
 
+            if (AnalyticsManager.Instance != null)
+            {
+                AnalyticsManager.Instance.LogShopPurchase("Stat", _currentStatType.ToString(), _currentPrice); // 스탯 구매 로그 전송
+            }
+
             SetSoldOut();
             _onScrapSpent?.Invoke(); 
         }

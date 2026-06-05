@@ -576,6 +576,11 @@ public class MapManager : MonoBehaviour
         int startTotalPer = GameManager.instance.currentProgress;
         int targetTotalPer = Mathf.Clamp(startTotalPer + gainPer, 0, 100);
 
+        if (AnalyticsManager.Instance)
+        {
+            AnalyticsManager.Instance.LogMapSelection(selectedData.moduleType.ToString(), gainPer); // 맵 선택 통계 전송
+        }
+
         string seasonName = GameManager.instance.currentSeason switch
         {
             Season.Spring => "봄",
@@ -627,11 +632,9 @@ public class MapManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        // ★ 수정: TransitionManager를 사용하여 화면을 완전히 까맣게 덮음 (0.5초)
         if (TransitionManager.Instance != null)
             yield return StartCoroutine(TransitionManager.Instance.Co_FadeToBlack(0.5f));
 
-        // 화면이 까매진 상태에서 맵 UI 숨기고, 조작 권한 반환 및 스테이지 셋업 진행
         mapVisualRoot.SetActive(false);
         _isScanning = false;
         _needsNewNodes = true;
@@ -645,7 +648,6 @@ public class MapManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(0.1f);
 
-        // ★ 수정: TransitionManager를 사용하여 화면을 다시 밝게 함 (0.5초)
         if (TransitionManager.Instance != null)
             yield return StartCoroutine(TransitionManager.Instance.Co_FadeToClear(0.5f));
     }

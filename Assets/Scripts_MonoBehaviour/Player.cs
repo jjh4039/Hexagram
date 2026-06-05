@@ -654,6 +654,17 @@ public class Player : MonoBehaviour
             CinematicManager.Instance.PlayGameOverCinematic(this.transform);
         }
 
+        // GameAnalytics 1,4번 정보 전송 (사망 정보, 주사위 빌드)
+        if (GameManager.instance != null && AnalyticsManager.Instance != null)
+        {
+            string season = GameManager.instance.currentSeason.ToString();
+            string progress = "Progress_" + GameManager.instance.currentProgress.ToString();
+            int damageScore = GameManager.instance.totalDamageDealt;
+            
+            AnalyticsManager.Instance.LogPlayerDeath(season, progress, damageScore);
+            AnalyticsManager.Instance.LogDiceBuildState(GameManager.instance.dice.displayPercentages);
+        }
+        
         Debug.Log("Player: Dead");
     }
 

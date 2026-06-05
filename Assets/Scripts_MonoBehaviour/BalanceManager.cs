@@ -336,6 +336,12 @@ public class BalanceManager : MonoBehaviour
         if (GameManager.instance && GameManager.instance.dice)
         {
             GameManager.instance.dice.AddPercentToFace(_selectedIndex, _currentWeightPercent);
+            
+            if (AnalyticsManager.Instance)
+            {
+                AnalyticsManager.Instance.LogBalanceSelection(_selectedIndex, _currentWeightPercent);
+                AnalyticsManager.Instance.LogDiceBuildState(GameManager.instance.dice.displayPercentages);
+            }
         }
 
         CloseBalanceUI();
