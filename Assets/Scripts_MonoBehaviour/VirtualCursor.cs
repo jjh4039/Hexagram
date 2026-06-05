@@ -14,7 +14,7 @@ public class VirtualCursor : MonoBehaviour
     private Image _cursorImage; 
 
     [Header("Cursor Settings")]
-    [Tooltip(" 0: Default, 1: Aim")]
+    [Tooltip("0: Default, 1: Aim")]
     [SerializeField] private Sprite[] cursorSprites; 
 
     public CursorType CurrentCursorType { get; private set; } 
@@ -24,11 +24,35 @@ public class VirtualCursor : MonoBehaviour
         _rectTransform = GetComponent<RectTransform>();
         _cursorImage = GetComponent<Image>();
 
-        // 기본 커서 숨기기 및 화면 밖으로 나가지 않도록 가두기
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
         
         ChangeCursor(CursorType.Default);
+    }
+
+    private void Start()
+    {
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.OnInputDeviceChanged += HandleDeviceChanged; 
+            HandleDeviceChanged(InputStateManager.Instance.CurrentDevice); 
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.OnInputDeviceChanged -= HandleDeviceChanged; 
+        }
+    }
+
+    private void HandleDeviceChanged(InputDeviceType device)
+    {
+        if (_cursorImage != null)
+        {
+            _cursorImage.enabled = (device == InputDeviceType.Mouse); 
+        }
     }
 
     private void Update()

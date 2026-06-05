@@ -133,8 +133,13 @@ public class TotalGems : MonoBehaviour
     {
         if (_isOpen || _isAnimating) return;
         _isOpen = true;
-        
+    
         RefreshDataAndUI(); 
+
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.SetForceMouseMode(true); // 마우스 강제 모드 켜기
+        }
 
         if (sfxOpen && SoundManager.instance) SoundManager.instance.PlaySFX(sfxOpen, 0.5f);
 
@@ -146,6 +151,11 @@ public class TotalGems : MonoBehaviour
     {
         if (!_isOpen || _isAnimating) return;
         _isOpen = false;
+
+        if (InputStateManager.Instance != null)
+        {
+            InputStateManager.Instance.SetForceMouseMode(false); // 마우스 강제 모드 끄기
+        }
 
         if (sfxClose && SoundManager.instance) SoundManager.instance.PlaySFX(sfxClose, 0.5f);
 

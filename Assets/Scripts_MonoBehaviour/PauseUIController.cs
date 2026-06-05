@@ -6,7 +6,7 @@ using TMPro;
 public class PauseUIController : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("체크 시 튜토리얼 모드로 간주하고 '게임 포기' 버튼을 비활성화합니다.")]
+    [Tooltip("체크 시 튜토리얼 모드로 간주하고 게임 포기 버튼을 비활성화합니다")]
     [SerializeField] private bool isTutorialMode = false; 
 
     [Header("UI References")]
@@ -87,7 +87,7 @@ public class PauseUIController : MonoBehaviour
     {
         if (!gameObject.activeInHierarchy) return; 
 
-        // ★ 핵심 수정: 튜토리얼 컷신 진행 중일 때는 ESC(일시정지) 입력을 완벽하게 무시합니다.
+        // 튜토리얼 컷신 진행 중일 때는 ESC 입력을 무시합니다
         if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
 
         if (_isAnimating) return;
@@ -170,6 +170,20 @@ public class PauseUIController : MonoBehaviour
         UpdateSelectionVisuals();
     }
 
+    public void SetIndexByMouse(int index)                   // 외부 마우스 호버 인식용 함수
+    {
+        if (!_isPaused || _isAnimating || _currentIndex == index) return;
+        if (settingUI != null && settingUI.IsOpen) return;
+        if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
+        if (isTutorialMode && index == 2) return;
+        
+        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
+
+        _currentIndex = index;
+        if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
+        UpdateSelectionVisuals();
+    }
+
     private void UpdateSelectionVisuals()
     {
         for (int i = 0; i < menuTexts.Length; i++)
@@ -222,7 +236,7 @@ public class PauseUIController : MonoBehaviour
         }
     }
 
-    private void ExecuteSelection()
+    public void ExecuteSelection()                           // 마우스 클릭 시 외부에서 접근 가능하도록 public 변경
     {
         if (isTutorialMode && _currentIndex == 2) return;
 

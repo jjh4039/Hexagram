@@ -16,6 +16,10 @@ public class SettingUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] valueTexts;   
     [SerializeField] private Slider[] volumeSliders;         
 
+    [Header("Arrow Buttons")]
+    [SerializeField] private GameObject[] leftArrows;        // 인덱스에 맞춘 좌측 화살표 오브젝트 배열
+    [SerializeField] private GameObject[] rightArrows;       // 인덱스에 맞춘 우측 화살표 오브젝트 배열
+
     [Header("Animation Settings")]
     [SerializeField] private float targetBgHeight = 600f;    
     [SerializeField] private float bgExpandDuration = 0.25f; 
@@ -34,6 +38,7 @@ public class SettingUIController : MonoBehaviour
     private bool _isOpen;                            
     private bool _isAnimating;                       
     private int _currentIndex;                           
+    private bool _isRefreshingUI;                    // 코드에 의한 UI 갱신 시 슬라이더 이벤트 무시
 
     private Coroutine _animCoroutine;                        
     private Vector2 _bgOriginAnchoredPos;                    
@@ -50,6 +55,7 @@ public class SettingUIController : MonoBehaviour
         if (bgRect != null) _bgOriginAnchoredPos = bgRect.anchoredPosition;
 
         LoadSettingsData();                                  
+        InitializeSliders();                                 
 
         if (InputStateManager.Instance != null)
         {
@@ -75,6 +81,35 @@ public class SettingUIController : MonoBehaviour
         {
             float newY = _bgOriginAnchoredPos.y + Mathf.Sin(Time.unscaledTime * floatSpeed) * floatAmplitude;
             bgRect.anchoredPosition = new Vector2(_bgOriginAnchoredPos.x, newY);
+        }
+    }
+
+    private void InitializeSliders()
+    {
+        for (int i = 0; i < volumeSliders.Length; i++)
+        {
+            if (volumeSliders[i] == null) continue;
+            
+            int index = i; 
+            volumeSliders[i].onValueChanged.AddListener((val) => OnSliderDragged(index, val));
+        }
+    }
+
+    private void OnSliderDragged(int index, float val)
+    {
+        if (!_isOpen || _isAnimating || _isRefreshingUI) return;
+
+        SetIndexByMouse(index);                              
+
+        int intVal = Mathf.RoundToInt(val);
+        if (_currentValues[index] != intVal)
+        {
+            _currentValues[index] = intVal;
+            if (sfxAdjust) SoundManager.instance.PlaySFX(sfxAdjust, 0.5f);
+            
+            UpdateValueText(index);
+            ApplySettingToSystem(index, _currentValues[index]); 
+            SaveSettingsData();
         }
     }
 
@@ -142,14 +177,12 @@ public class SettingUIController : MonoBehaviour
         }
     }
 
-private void ApplyResolutionAndScreenMode()
+    private void ApplyResolutionAndScreenMode()
     {
-        // 1. 선택된 화면 모드 가져오기
         FullScreenMode mode = FullScreenMode.Windowed;                  
-        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     // 테두리 없음
-        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; // 전체 화면
+        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     
+        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; 
 
-        // 2. 선택된 해상도 가져오기
         int width = 1920;
         int height = 1080;
 
@@ -158,32 +191,20 @@ private void ApplyResolutionAndScreenMode()
         else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
         else if (_currentValues[4] == 3) { width = 3840; height = 2160; } 
 
-        // ★ 핵심 수정: '테두리 없음' 모드일 때의 해상도 충돌 방지 로직
-        // 테두리 없는 창 모드(Borderless)는 모니터의 기본 해상도와 다를 때 URP 색상 깨짐이 발생하기 쉽습니다.
         if (mode == FullScreenMode.FullScreenWindow)
         {
-            // 테두리 없는 창 모드는 '현재 모니터의 최대 해상도'로 맞추는 것이 가장 안전합니다.
-            // 픽셀이 타버리는 현상을 막기 위해 윈도우 OS의 기본 스케일링을 따르도록 해상도를 강제 조정합니다.
             Resolution currentMonitorRes = Screen.currentResolution;
             
-            // 만약 유저가 선택한 해상도가 모니터 최대 해상도와 다르다면
             if (width != currentMonitorRes.width || height != currentMonitorRes.height)
             {
                 Debug.Log($"테두리 없음 모드 색상 깨짐 방지: 해상도를 모니터 기본값({currentMonitorRes.width}x{currentMonitorRes.height})으로 오버라이드 합니다.");
                 width = currentMonitorRes.width;
                 height = currentMonitorRes.height;
-
-                // UI에도 변경된 해상도가 표시되도록 강제 업데이트 (옵션)
-                // 만약 UI에 "1920x1080"이라고 띄워놓고 실제론 4K로 돌리는 게 싫다면
-                // 여기서 _currentValues[4] 값을 모니터 해상도에 맞게 역추적해서 바꿔줄 수도 있습니다.
-                // 일단은 시스템 해상도만 강제로 맞춰서 화면이 타는 현상을 막습니다.
             }
         }
 
-        // 3. 해상도 및 화면 모드 적용
         Screen.SetResolution(width, height, mode); 
         
-        // 4. 수직동기화(VSync) 및 프레임 제한 설정
         QualitySettings.vSyncCount = _currentValues[5]; 
         
         if (QualitySettings.vSyncCount == 0)
@@ -228,14 +249,25 @@ private void ApplyResolutionAndScreenMode()
         _animCoroutine = StartCoroutine(AnimateClose());
     }
 
-    private void ChangeSelection(int dir)
+    private void ChangeSelection(int dir)                    
     {
         _currentIndex = (_currentIndex + dir + menuTexts.Length) % menuTexts.Length;
         if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
         UpdateSelectionVisuals();
     }
 
-    private void AdjustValue(int dir)
+    public void SetIndexByMouse(int index)                   
+    {
+        if (!_isOpen || _isAnimating || _currentIndex == index) return;
+        
+        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
+
+        _currentIndex = index;
+        if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
+        UpdateSelectionVisuals();
+    }
+
+    public void AdjustValue(int dir)                         
     {
         bool valueChanged = false;
 
@@ -311,6 +343,16 @@ private void ApplyResolutionAndScreenMode()
                     img.color = isSelected ? selectColor : normalColor;
                 }
             }
+
+            if (leftArrows != null && i < leftArrows.Length && leftArrows[i] != null)
+            {
+                leftArrows[i].SetActive(isSelected);
+            }
+
+            if (rightArrows != null && i < rightArrows.Length && rightArrows[i] != null)
+            {
+                rightArrows[i].SetActive(isSelected);
+            }
         }
     }
 
@@ -337,14 +379,16 @@ private void ApplyResolutionAndScreenMode()
                 break;
         }
 
-        bool isSelected = (index == _currentIndex);
-        valueTexts[index].text = isSelected ? $"<< {displayStr} >>" : displayStr;
+        valueTexts[index].text = displayStr;
     }
 
     private void UpdateSlider(int index)
     {
         if (index > 2 || volumeSliders.Length <= index || volumeSliders[index] == null) return;
+        
+        _isRefreshingUI = true;                              
         volumeSliders[index].value = _currentValues[index];
+        _isRefreshingUI = false;                             
     }
 
     private IEnumerator AnimateOpen()

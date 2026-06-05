@@ -22,7 +22,6 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private SettingUIController settingUI;
     [SerializeField] private TotalGems totalGemsUI; 
     
-    // ★ 좌측 상단 보석 갯수 UI & 하단 탭 가이드 텍스트
     [SerializeField] private CanvasGroup topUIGroup; 
     [SerializeField] private CanvasGroup guideTextGroup; 
 
@@ -88,6 +87,8 @@ public class TitleManager : MonoBehaviour
             actions.MoveUI.performed += OnMoveInput;
             actions.Select.performed += OnSelectInput;
             actions.Toggle.performed += OnToggleInput; 
+
+            InputStateManager.Instance.OnInputDeviceChanged += HandleDeviceChanged; 
         }
 
         if (SoundManager.instance != null && titleBGM != null)
@@ -102,12 +103,16 @@ public class TitleManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (InputStateManager.Instance != null && InputStateManager.Instance.Actions != null)
+        if (InputStateManager.Instance != null)
         {
-            var actions = InputStateManager.Instance.Actions.UI;
-            actions.MoveUI.performed -= OnMoveInput;
-            actions.Select.performed -= OnSelectInput;
-            actions.Toggle.performed -= OnToggleInput;
+            if (InputStateManager.Instance.Actions != null)
+            {
+                var actions = InputStateManager.Instance.Actions.UI;
+                actions.MoveUI.performed -= OnMoveInput;
+                actions.Select.performed -= OnSelectInput;
+                actions.Toggle.performed -= OnToggleInput;
+            }
+            InputStateManager.Instance.OnInputDeviceChanged -= HandleDeviceChanged; 
         }
     }
 
@@ -118,7 +123,11 @@ public class TitleManager : MonoBehaviour
         UpdateGuideTextVisibility(); 
     }
 
-    // ★ 수정: 활성화 상태일 때 0.5 ~ 1.0 사이의 투명도로 부드럽게 깜빡거림 (Sin 파동 활용)
+    private void HandleDeviceChanged(InputDeviceType device)
+    {
+        if (device == InputDeviceType.Keyboard) UpdateMenuVisuals(); 
+    }
+
     private void UpdateGuideTextVisibility()
     {
         bool shouldShow = _isInputActive && 
@@ -129,20 +138,19 @@ public class TitleManager : MonoBehaviour
         {
             if (shouldShow)
             {
-                // 시간 흐름에 따라 0.5 ~ 1.0 사이를 오가는 값 생성 (깜빡임 속도 조절: Time.time * 3f)
                 float pulseAlpha = Mathf.Lerp(0.5f, 1f, (Mathf.Sin(Time.time * 3f) + 1f) * 0.5f);
                 guideTextGroup.alpha = pulseAlpha;
             }
             else
             {
-                guideTextGroup.alpha = 0f; // 즉각 사라짐
+                guideTextGroup.alpha = 0f; 
             }
         }
 
         if (topUIGroup != null)
         {
             bool topShouldShow = _isInputActive && (settingUI == null || !settingUI.IsOpen);
-            topUIGroup.alpha = topShouldShow ? 1f : 0f; // 즉각 사라짐/나타남
+            topUIGroup.alpha = topShouldShow ? 1f : 0f; 
         }
     }
 
@@ -180,7 +188,7 @@ public class TitleManager : MonoBehaviour
         if (!background) return;
 
         Vector2 mouseOffset = Vector2.zero;
-        if (Mouse.current != null)
+        if (Mouse.current != null && InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Mouse) 
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
             mouseOffset.x = (mousePos.x - (Screen.width / 2f)) / (Screen.width / 2f) * parallaxLimit;
@@ -243,6 +251,7 @@ public class TitleManager : MonoBehaviour
         if (!_isInputActive || _currentIndex == index) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (totalGemsUI != null && totalGemsUI.IsOpen) return;
+        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return; 
 
         _currentIndex = index;
         PlayMoveSound();

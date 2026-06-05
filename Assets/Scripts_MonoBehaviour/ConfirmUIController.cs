@@ -74,16 +74,14 @@ public class ConfirmUIController : MonoBehaviour
                     additionalAction?.Invoke();             
                     Time.timeScale = 1f;
                     
-                    // ★ 수정 3: 게임 포기 시 잔존하는 UI 창들을 끄고, 입력을 아예 차단함
+                    // 게임 포기 시 잔존하는 UI 창들을 끄고 입력을 차단함
                     if (InputStateManager.Instance != null)
                         InputStateManager.Instance.SetInputActive(false);
 
-                    // 떠 있는 세팅 창 강제 종료
                     SettingUIController settingUI = FindFirstObjectByType<SettingUIController>();
                     if (settingUI != null && settingUI.IsOpen)
                         settingUI.CloseSettings();
 
-                    // 떠 있는 일시정지 창 끄기
                     PauseUIController pauseUI = FindFirstObjectByType<PauseUIController>();
                     if (pauseUI != null)
                         pauseUI.gameObject.SetActive(false);
@@ -184,7 +182,22 @@ public class ConfirmUIController : MonoBehaviour
         }
     }
 
+    public void SetIndexByMouse(int index)                   // 외부 마우스 호버 인식용 함수
+    {
+        if (!_isOpen || _isAnimating || _currentIndex == index) return;
+        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
+
+        _currentIndex = index;
+        if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
+        UpdateSelectionVisuals();
+    }
+
     private void OnSubmit(InputAction.CallbackContext ctx)
+    {
+        ExecuteSelection();
+    }
+
+    public void ExecuteSelection()                           // 마우스 클릭 시 외부에서 접근 가능하도록 public 분리
     {
         if (!_isOpen || _isAnimating) return;
 
