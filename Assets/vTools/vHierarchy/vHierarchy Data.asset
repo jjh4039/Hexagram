@@ -358,6 +358,8 @@ MonoBehaviour:
         - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-2119226659-0
         - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-1083105179-0
         - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-704957800-0
+        - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-165288-1305362439
+        - globalObjectIdString: GlobalObjectId_V1-2-3307100f2bb44c34297316e44d240e18-289482856-0
         values:
         - colorIndex: 3
           iconNameOrGuid: Settings Icon
@@ -394,6 +396,14 @@ MonoBehaviour:
         - colorIndex: 0
           iconNameOrGuid: sv_icon_dot9_pix16_gizmo
           isIconRecursive: 0
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: LightProbes Icon
+          isIconRecursive: 1
+          isColorRecursive: 0
+        - colorIndex: 0
+          iconNameOrGuid: LightProbes Icon
+          isIconRecursive: 1
           isColorRecursive: 0
     - goDatas_byGlobalId:
         keys:

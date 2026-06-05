@@ -17444,7 +17444,6 @@ GameObject:
   - component: {fileID: 1360326715}
   - component: {fileID: 1360326714}
   - component: {fileID: 1360326713}
-  - component: {fileID: 1360326717}
   m_Layer: 0
   m_Name: Mouse
   m_TagString: Untagged
@@ -17540,20 +17539,6 @@ MonoBehaviour:
   cursorSprites:
   - {fileID: -4925920994356968675, guid: 49e3ef60338329246b9295455042ac53, type: 3}
   - {fileID: 3005786938261815766, guid: e08d90a519740b2408cd55825ab1d0ae, type: 3}
---- !u!114 &1360326717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1360326710}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bafd463bb33a57744ad0b2af7df27eec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIRaycastDebugger
-  raycaster: {fileID: 1434908175}
-  eventSystem: {fileID: 702265171}
 --- !u!1 &1367925155
 GameObject:
   m_ObjectHideFlags: 0
