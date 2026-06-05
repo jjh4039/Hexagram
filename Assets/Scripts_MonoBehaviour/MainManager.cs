@@ -8,34 +8,33 @@ public class MainManager : MonoBehaviour
 {
     public static MainManager Instance;
 
-    [Header("BGM Settings")]
-    public AudioClip mainBgmIntro;
+    [Header("BGM Settings")] public AudioClip mainBgmIntro;
     public AudioClip mainBgmLoop;
     [SerializeField] private float bgmFadeInDuration = 1.5f;
 
-    [Header("Audio Settings")]
-    public AudioClip introTypingSound;
+    [Header("Audio Settings")] public AudioClip introTypingSound;
     public AudioClip dialogueTypingSound;
 
-    [Header("Intro Guide Settings")]
-    [SerializeField] private CanvasGroup introGuideGroup;
+    [Header("Intro Guide Settings")] [SerializeField]
+    private CanvasGroup introGuideGroup;
+
     [SerializeField] private float introGuideDelay = 1.0f;
     [SerializeField] private float introGuideFadeDuration = 1.0f;
     [SerializeField] private float introGuideDisplayDuration = 3.0f;
 
     [Header("Speech Bubbles (First Boss Cutscene)")]
     public CanvasGroup[] speechBubbles;
+
     public TextMeshProUGUI[] speechTexts;
     public float bubbleAnimDuration = 0.18f;
     public float bubbleStartScale = 0.98f;
     public float bubbleEndScale = 0.98f;
     public float bubbleMoveOffset = 5f;
 
-    [Header("Ending Settings")]
-    public TextMeshProUGUI endingDifficultyText; // ★ 추가: 난이도 출력 텍스트
+    [Header("Ending Settings")] public TextMeshProUGUI endingDifficultyText; // ★ 추가: 난이도 출력 텍스트
     public TextMeshProUGUI endingText1;
     public TextMeshProUGUI endingText2;
-    public TextMeshProUGUI testerText;           // ★ 추가: 테스터 이름 출력 텍스트
+    public TextMeshProUGUI testerText; // ★ 추가: 테스터 이름 출력 텍스트
     public string titleSceneName = "Title";
 
     private bool isCutsceneActive = false;
@@ -68,6 +67,7 @@ public class MainManager : MonoBehaviour
                 {
                     bubbleOriginalPos[i] = rectTransform.anchoredPosition;
                 }
+
                 speechBubbles[i].gameObject.SetActive(false);
             }
         }
@@ -114,6 +114,7 @@ public class MainManager : MonoBehaviour
             introGuideGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / introGuideFadeDuration);
             yield return null;
         }
+
         introGuideGroup.alpha = 1f;
 
         yield return new WaitForSeconds(introGuideDisplayDuration);
@@ -125,6 +126,7 @@ public class MainManager : MonoBehaviour
             introGuideGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / introGuideFadeDuration);
             yield return null;
         }
+
         introGuideGroup.alpha = 0f;
         introGuideGroup.gameObject.SetActive(false);
     }
@@ -186,7 +188,8 @@ public class MainManager : MonoBehaviour
         if (endingText1 != null && endingText2 != null)
         {
             // 1. 난이도 출력 (난이도가 0보다 클 때만)
-            if (endingDifficultyText != null && DataManager.instance != null && DataManager.instance.data.difficultyLevel > 0)
+            if (endingDifficultyText != null && DataManager.instance != null &&
+                DataManager.instance.data.difficultyLevel > 0)
             {
                 endingDifficultyText.text = $"난이도 {DataManager.instance.data.difficultyLevel}";
                 yield return StartCoroutine(Co_FadeText(endingDifficultyText, 0f, 1f, 1.5f));
@@ -206,11 +209,12 @@ public class MainManager : MonoBehaviour
             if (testerText != null)
             {
                 testerText.text = "<size=120%><color=#FFDF75>Special Thanks (Beta Tester)</color></size>\n\n" +
-                                  "<color=#FFF6D9>AFEE, ! Sami, R2trunTrue, 여울, 엥, jm, 도오오마뱀\n" +
-                                  "태윤, taeyul, 그저 사람, Mulpas1022, JaeJitv2522\n" +
-                                  "공룡파티, 공허, Space_IX, 살쾡이, 0y0, ㄱㄹㄸ, 춘수\n" +
-                                  "명이, 죠죠의 전설, 왕눈이, 뷁뒑쉙, zero\n" +
-                                  "화니화니, Hoshino, lua, Naul</color>";
+                                  "<color=#FFF6D9>NOAH, AFEE, ! Sami, R2turnTrue, 여울, 엥, jm\n" +
+                                  "도오오오마뱀, 태윤, taeyul, 그저 사람, !싸이버, Mulpas1022, 대수르\n" +
+                                  "JaeJitv2522, 공룡파티, 공허, Space_IX, 살쾡이, 0y0, ㄱㄹㄸ\n" +
+                                  "춘수, 명이, 죠죠의 전설, trivial, FROG, 왕눈이, 이리아\n" +
+                                  "뷁뒑쉙, zero, 화니화니, Hoshino, lua, Naul, 조정후, hermit\n" +
+                                  "최회장원조, IdH, ㅇㅇ, 아라키(콜스), 642ye, Liato, 강지수123</color>";
 
                 yield return StartCoroutine(Co_FadeText(testerText, 0f, 1f, 2.0f));
                 yield return new WaitForSeconds(4.0f);
@@ -235,7 +239,6 @@ public class MainManager : MonoBehaviour
             int timeReward = Mathf.Min(Mathf.FloorToInt(GameManager.instance.currentPlayTime / 300f), 6);
             int dmgReward = GameManager.instance.totalDamageDealt / 1000;
             int clearBonus = 5;
-
             DataManager.instance.data.totalGems += (timeReward + dmgReward + clearBonus);
             DataManager.instance.SaveGame();
         }
