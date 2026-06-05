@@ -23,4 +23,10 @@ public class AnalyticsManager : MonoBehaviour
     {
         GameAnalytics.Initialize();
     }
+    
+    // 분석 1 : 플레이어가 어디에서 가장 많이 죽는가?
+    public void LogPlayerDeath(string stageName, string progressInfo)
+    {
+        GameAnalytics.NewProgressionEvent(GAProgressionStatus.Fail, stageName, progressInfo);
+    }
 }
