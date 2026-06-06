@@ -179,13 +179,16 @@ public class SettingUIController : MonoBehaviour
 
     private void ApplyResolutionAndScreenMode()
     {
+        if (_animCoroutine != null) StopCoroutine(_animCoroutine);
         StartCoroutine(ApplyResolutionRoutine());
     }
+
     private IEnumerator ApplyResolutionRoutine()
     {
-        FullScreenMode mode = FullScreenMode.Windowed;
-        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;
-        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen;
+        FullScreenMode targetMode = FullScreenMode.Windowed;
+        if (_currentValues[3] == 1) targetMode = FullScreenMode.FullScreenWindow;
+        else if (_currentValues[3] == 2) targetMode = FullScreenMode.ExclusiveFullScreen;
+        
         int width = 1920;
         int height = 1080;
         switch (_currentValues[4])
@@ -195,23 +198,22 @@ public class SettingUIController : MonoBehaviour
             case 2: width = 2560; height = 1440; break;
             case 3: width = 3840; height = 2160; break;
         }
-        // 테두리 없음은 항상 모니터 네이티브 해상도 사용
-        if (mode == FullScreenMode.FullScreenWindow)
+        
+        if (targetMode == FullScreenMode.FullScreenWindow)
         {
-            Resolution native = Screen.currentResolution;
+            Resolution native = Screen.resolutions[Screen.resolutions.Length - 1];
             width = native.width;
             height = native.height;
         }
-        // 전체 화면 → 테두리 없음 전환 시 한 프레임 대기 후 재적용
-        bool needsDelayedReapply =
-            Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen &&
-            mode == FullScreenMode.FullScreenWindow;
-        Screen.SetResolution(width, height, mode);
-        if (needsDelayedReapply)
+        
+        if (Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen && targetMode != FullScreenMode.ExclusiveFullScreen)
         {
-            yield return null; // 1프레임 대기
-            Screen.SetResolution(width, height, mode); // 재적용
+            Screen.SetResolution(1280, 720, FullScreenMode.Windowed);
+            yield return new WaitForSecondsRealtime(0.2f);
         }
+        
+        Screen.SetResolution(width, height, targetMode);
+
         QualitySettings.vSyncCount = _currentValues[5];
         Application.targetFrameRate = (QualitySettings.vSyncCount == 0) ? 144 : -1;
     }

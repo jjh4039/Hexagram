@@ -66,6 +66,13 @@ public class DataManager : MonoBehaviour
         else if (data.resolution == 2) { width = 2560; height = 1440; }
         else if (data.resolution == 3) { width = 3840; height = 2160; } 
 
+        if (mode == FullScreenMode.FullScreenWindow)
+        {
+            Resolution nativeRes = Screen.resolutions[Screen.resolutions.Length - 1]; 
+            width = nativeRes.width;
+            height = nativeRes.height;
+        }
+
         Screen.SetResolution(width, height, mode);
     }
 }
