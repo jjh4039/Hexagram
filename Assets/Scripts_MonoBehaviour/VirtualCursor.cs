@@ -24,10 +24,10 @@ public class VirtualCursor : MonoBehaviour
         _rectTransform = GetComponent<RectTransform>();
         _cursorImage = GetComponent<Image>();
 
-        Cursor.visible = false;                                // 시스템 기본 커서 숨기기
-        Cursor.lockState = CursorLockMode.Confined;            // 화면 밖으로 나가지 않도록 가두기
+        Cursor.visible = false;                       
+        Cursor.lockState = CursorLockMode.Confined;          
         
-        if (_cursorImage != null) _cursorImage.enabled = true; // 커서 이미지는 무슨 일이 있어도 항시 켜두기
+        if (_cursorImage != null) _cursorImage.enabled = true;
 
         ChangeCursor(CursorType.Default);
     }
@@ -36,7 +36,7 @@ public class VirtualCursor : MonoBehaviour
     {
         Vector2 mouseScreenPos = Vector2.zero; 
 
-        if (InputStateManager.Instance != null)
+        if (InputStateManager.Instance)
         {
             var state = InputStateManager.Instance.CurrentInputState;
             var actions = InputStateManager.Instance.Actions;

@@ -9,7 +9,7 @@ public class GameData
     public int masterVolume = 8;         
     public int bgmVolume = 8;            
     public int sfxVolume = 8;            
-    public int screenMode = 1;           
+    public int screenMode = 0;           
     public int resolution = 1;           
     public int vSync = 1;                
     
