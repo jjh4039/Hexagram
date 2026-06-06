@@ -10,7 +10,7 @@ public class GameData
     public int bgmVolume = 8;            
     public int sfxVolume = 8;            
     public int screenMode = 0;           
-    public int resolution = 1;           
+    public int resolution = 0;           
     public int vSync = 1;                
     
     public int upgradeHealthLevel = 0;   // 최대 체력 증가 레벨

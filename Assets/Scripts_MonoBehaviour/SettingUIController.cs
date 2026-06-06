@@ -179,38 +179,41 @@ public class SettingUIController : MonoBehaviour
 
     private void ApplyResolutionAndScreenMode()
     {
-        FullScreenMode mode = FullScreenMode.Windowed;                  
-        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;     
-        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen; 
-
+        StartCoroutine(ApplyResolutionRoutine());
+    }
+    private IEnumerator ApplyResolutionRoutine()
+    {
+        FullScreenMode mode = FullScreenMode.Windowed;
+        if (_currentValues[3] == 1) mode = FullScreenMode.FullScreenWindow;
+        else if (_currentValues[3] == 2) mode = FullScreenMode.ExclusiveFullScreen;
         int width = 1920;
         int height = 1080;
-
-        if (_currentValues[4] == 0) { width = 1280; height = 720; }
-        else if (_currentValues[4] == 1) { width = 1920; height = 1080; }
-        else if (_currentValues[4] == 2) { width = 2560; height = 1440; }
-        else if (_currentValues[4] == 3) { width = 3840; height = 2160; } 
-
+        switch (_currentValues[4])
+        {
+            case 0: width = 1280; height = 720; break;
+            case 1: width = 1920; height = 1080; break;
+            case 2: width = 2560; height = 1440; break;
+            case 3: width = 3840; height = 2160; break;
+        }
+        // 테두리 없음은 항상 모니터 네이티브 해상도 사용
         if (mode == FullScreenMode.FullScreenWindow)
         {
-            Resolution currentMonitorRes = Screen.currentResolution;
-            
-            if (width != currentMonitorRes.width || height != currentMonitorRes.height)
-            {
-                Debug.Log($"테두리 없음 모드 색상 깨짐 방지: 해상도를 모니터 기본값({currentMonitorRes.width}x{currentMonitorRes.height})으로 오버라이드 합니다.");
-                width = currentMonitorRes.width;
-                height = currentMonitorRes.height;
-            }
+            Resolution native = Screen.currentResolution;
+            width = native.width;
+            height = native.height;
         }
-
-        Screen.SetResolution(width, height, mode); 
-        
-        QualitySettings.vSyncCount = _currentValues[5]; 
-        
-        if (QualitySettings.vSyncCount == 0)
-            Application.targetFrameRate = 144; 
-        else
-            Application.targetFrameRate = -1;  
+        // 전체 화면 → 테두리 없음 전환 시 한 프레임 대기 후 재적용
+        bool needsDelayedReapply =
+            Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen &&
+            mode == FullScreenMode.FullScreenWindow;
+        Screen.SetResolution(width, height, mode);
+        if (needsDelayedReapply)
+        {
+            yield return null; // 1프레임 대기
+            Screen.SetResolution(width, height, mode); // 재적용
+        }
+        QualitySettings.vSyncCount = _currentValues[5];
+        Application.targetFrameRate = (QualitySettings.vSyncCount == 0) ? 144 : -1;
     }
 
     private void OnNavigate(InputAction.CallbackContext ctx)
