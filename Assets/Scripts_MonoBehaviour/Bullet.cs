@@ -25,9 +25,9 @@ public class Bullet : MonoBehaviour
     private float cachedDiceDamageMultiplier = 1f;
     private float cachedDiceRangedDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
+    private float cachedFinalDamageMultiplier = 1f; // 최종 데미지 배율 캐싱 변수
     
-    // ★ 추가: 남은 관통 횟수 저장
-    private int currentPenetration = 0; 
+    private int currentPenetration = 0; // 남은 관통 횟수 저장
 
     private Coroutine lifeTimerCoroutine;
 
@@ -53,8 +53,7 @@ public class Bullet : MonoBehaviour
         myColor = color;
         myMaterial = material;
     }
-
-    // ★ 수정: penetration 파라미터 추가
+    
     public void SetupCombatData(
         float rangeAttackPower,
         float rangedVariance,
@@ -63,7 +62,8 @@ public class Bullet : MonoBehaviour
         float diceDamageMultiplier,
         float diceRangedDamageMultiplier,
         float strongAttackMultiplier,
-        int penetration
+        int penetration,
+        float finalDamageMultiplier // 최종 데미지 배율 파라미터 추가
     )
     {
         cachedRangeAttackPower = rangeAttackPower;
@@ -74,8 +74,8 @@ public class Bullet : MonoBehaviour
         cachedDiceRangedDamageMultiplier = diceRangedDamageMultiplier;
         cachedStrongAttackMultiplier = strongAttackMultiplier;
         
-        // 장전 시 받은 보너스 관통 횟수를 세팅
         currentPenetration = penetration; 
+        cachedFinalDamageMultiplier = finalDamageMultiplier; 
     }
 
     private void OnEnable()
@@ -125,15 +125,13 @@ public class Bullet : MonoBehaviour
                 CalculateAndDealDamage(enemy);
                 SpawnHitEffect(transform.position);
             }
-
-            // ★ 수정: 관통 횟수가 남아있다면 총알이 사라지지 않고 관통 횟수만 1 차감
+            
             if (currentPenetration > 0)
             {
                 currentPenetration--;
             }
             else
             {
-                // 관통 횟수를 다 썼다면 기존처럼 파괴 (비활성화)
                 hasHit = true;
                 if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
                 HideAndDelayReturn();
@@ -141,7 +139,6 @@ public class Bullet : MonoBehaviour
         }
         else if (collision.CompareTag("Wall"))
         {
-            // 벽은 관통 횟수와 무관하게 무조건 막힘
             hasHit = true;
             if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
 
@@ -203,7 +200,8 @@ public class Bullet : MonoBehaviour
             damageMultiplier *
             cachedDiceDamageMultiplier *
             cachedDiceRangedDamageMultiplier *
-            cachedStrongAttackMultiplier;
+            cachedStrongAttackMultiplier *
+            cachedFinalDamageMultiplier; // 누락되었던 최종 데미지 배율 적용
 
         float randomMultiplier = Random.Range(1.1f - cachedRangedVariance, 1.1f);
         float finalDamage = baseDamage * randomMultiplier;

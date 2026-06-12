@@ -22,11 +22,10 @@ public class Sword_Effect : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private CapsuleCollider2D capsule;
 
-    private float cachedMeleeAttackPower = 0f;
+    private float cachedFinalBaseDamage = 0f; // 계산이 완료된 최종 기본 데미지
     private float cachedMeleeVariance = 0f;
     private float cachedCriticalChance = 0f;
     private float cachedCriticalDamageMultiplier = 1.5f;
-    private float cachedDiceDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
 
     private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
@@ -46,11 +45,10 @@ public class Sword_Effect : MonoBehaviour
 
         PlayerStats stats = GameManager.instance.stats;
 
-        cachedMeleeAttackPower = stats.meleeAttackPower;
+        cachedFinalBaseDamage = stats.GetFinalMeleeDamage(); // PlayerStats의 최종 근접 데미지 산출 로직을 직접 활용
         cachedMeleeVariance = stats.meleeDamageVariance;
         cachedCriticalChance = stats.criticalChance;
         cachedCriticalDamageMultiplier = stats.GetFinalCriticalDamageMultiplier();
-        cachedDiceDamageMultiplier = stats.diceDamageMultiplier;
         cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
 
@@ -100,10 +98,9 @@ public class Sword_Effect : MonoBehaviour
         PlayerStats stats = GameManager.instance.stats;
 
         float baseDamage =
-            cachedMeleeAttackPower *
+            cachedFinalBaseDamage *
             damageMultiplier *
-            cachedDiceDamageMultiplier *
-            cachedStrongAttackMultiplier;
+            cachedStrongAttackMultiplier; // 복잡한 곱셈을 제거하고 최종 데미지 적용
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -160,7 +157,6 @@ public class Sword_Effect : MonoBehaviour
 
         if (prefab == null) return;
 
-        // ★ 수정: 풀 초기화 시 이전 씬의 쓰레기 참조 제거 로직 추가
         if (_effectPoolContainer == null)
         {
             _effectPoolContainer = new GameObject("SwordHitEffect_Pool").transform;
@@ -188,7 +184,6 @@ public class Sword_Effect : MonoBehaviour
 
         GameObject vfx = null;
 
-        // 파괴된 객체 건너뛰기
         while (targetPool.Count > 0)
         {
             vfx = targetPool.Dequeue();

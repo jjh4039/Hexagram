@@ -46,8 +46,7 @@ public class Gun : MonoBehaviour
     private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
     private static Transform _poolContainer; 
 
-    // ★ 추가: 오토파이어 판독기 변수
-    private bool _wasHoldingAttack = false;
+    private bool _wasHoldingAttack = false; // 오토파이어 판독기 변수
 
     private void Awake()
     {
@@ -100,7 +99,7 @@ public class Gun : MonoBehaviour
             GameManager.instance.cursor.ChangeCursor(CursorType.Default);
 
         isAiming = false;
-        _wasHoldingAttack = false; // ★ 리셋
+        _wasHoldingAttack = false; 
 
         CancelInvoke("ResetKnockbackState");
         ResetKnockbackState();
@@ -162,8 +161,6 @@ public class Gun : MonoBehaviour
         {
             if (Time.time >= nextFireTime)
             {
-                // ★ 핵심 로직: 이전 프레임부터 계속 누르고 있었던 경우에만 "연사(오토파이어)"로 취급합니다.
-                // 첫 클릭인 경우에는 isAutoFiring이 false가 되어 정상적으로 텍스트가 뜹니다!
                 bool isAutoFiring = _wasHoldingAttack; 
                 ExecuteTriggerAttack(isAutoFiring); 
             }
@@ -283,8 +280,9 @@ public class Gun : MonoBehaviour
         Bullet bullet = bulletObj.GetComponent<Bullet>();
         if (bullet != null)
         {
+            float finalDamageMult = stats.finalAttackPower * stats.buffFinalDamageMultiplier; // 최종 데미지 배율 계산
             bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance,
-                stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult, stats.bonusPenetration);
+                stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult, stats.bonusPenetration, finalDamageMult);
         }
 
         bulletObj.SetActive(true); 
