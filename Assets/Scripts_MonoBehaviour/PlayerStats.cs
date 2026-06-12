@@ -50,6 +50,7 @@ public class PlayerStats : MonoBehaviour
     public float diceCritDamageBonus = 0f;
     public float diceRangedDamageMultiplier = 1.0f;
     public int diceStrongAttackStacks = 0;
+    public float diceCritChanceBonus = 0f; 
 
     public float buffFinalDamageMultiplier = 1.0f;
 
@@ -98,21 +99,19 @@ public class PlayerStats : MonoBehaviour
 
         float chargeSpeedBonus = 1f + (data.upgradeBulletLevel * metaChargeSpeedPercent);
         ammoRechargeRate *= chargeSpeedBonus;
-        metaAmmoGainMultiplier = chargeSpeedBonus; // 총알 수급량 배율 저장
+        metaAmmoGainMultiplier = chargeSpeedBonus; 
         
         bonusPenetration = data.upgradeBulletLevel / metaPierceStep;
 
         float difficultyBonus = data.difficultyLevel * metaDifficultyPercent;
         enemyStatMultiplier = 1f + difficultyBonus;
         
-        // ★ 이미 구현된 부분: 난이도가 오른 만큼 GameManager의 스크랩 획득 퍼센트가 알아서 오릅니다!
         if (GameManager.instance != null)
         {
             GameManager.instance.scrapPercentage += difficultyBonus;
         }
     }
 
-    // ★ 추가: 기본 수급량 10을 넣으면 메타 배율, 주사위 배율을 계산해서 뱉어냅니다.
     public int GetFinalMeleeAmmoGain(int baseGain)
     {
         return Mathf.RoundToInt(baseGain * metaAmmoGainMultiplier * diceChargeSpeedMultiplier);
@@ -271,6 +270,7 @@ public class PlayerStats : MonoBehaviour
         diceCritDamageBonus = 0f;
         diceRangedDamageMultiplier = 1.0f;
         diceStrongAttackStacks = 0;
+        diceCritChanceBonus = 0f; // ★ 임시 치명타 확률 초기화
 
         buffFinalDamageMultiplier = 1.0f;
 
@@ -280,6 +280,9 @@ public class PlayerStats : MonoBehaviour
     }
 
     public float GetFinalCriticalDamageMultiplier() => criticalDamageMultiplier + diceCritDamageBonus;
+    
+    // ★ 추가: 최종 치명타 확률 산출 (기본스탯 + 주사위스탯)
+    public float GetFinalCriticalChance() => criticalChance + diceCritChanceBonus;
 
     public void AddDiceCharge(float amount)
     {

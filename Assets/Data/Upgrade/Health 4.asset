@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3319df5183f6d1c4daebcc24443e53be, type: 3}
-  m_Name: Health 2
+  m_Name: Health 4
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   titleText: "\uCD5C\uB300 \uCCB4\uB825"
-  valueText: +2
+  valueText: +4
   valueTextColor: {r: 1, g: 0, b: 0.6045284, a: 1}
   effectType: 1
-  valueAmount: 2
+  valueAmount: 4
   isPercent: 0

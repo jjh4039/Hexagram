@@ -25,5 +25,5 @@ MonoBehaviour:
   effectType: 2
   effectValue: 50
   duration: 10
-  secondaryValue: 0
+  secondaryValue: 20
   muzzleFlashMaterial: {fileID: 2100000, guid: d7df0c747ec680c44a2b09d7c859cf12, type: 2}

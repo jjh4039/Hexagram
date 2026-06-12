@@ -46,7 +46,7 @@ public class Gun : MonoBehaviour
     private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
     private static Transform _poolContainer; 
 
-    private bool _wasHoldingAttack = false; // 오토파이어 판독기 변수
+    private bool _wasHoldingAttack = false; 
 
     private void Awake()
     {
@@ -280,9 +280,19 @@ public class Gun : MonoBehaviour
         Bullet bullet = bulletObj.GetComponent<Bullet>();
         if (bullet != null)
         {
-            float finalDamageMult = stats.finalAttackPower * stats.buffFinalDamageMultiplier; // 최종 데미지 배율 계산
-            bullet.SetupCombatData(stats.rangeAttackPower, stats.rangedDamageVariance, stats.criticalChance,
-                stats.GetFinalCriticalDamageMultiplier(), stats.diceDamageMultiplier, stats.diceRangedDamageMultiplier, strongMult, stats.bonusPenetration, finalDamageMult);
+            float finalDamageMult = stats.finalAttackPower * stats.buffFinalDamageMultiplier; 
+            
+            bullet.SetupCombatData(
+                stats.rangeAttackPower, 
+                stats.rangedDamageVariance, 
+                stats.GetFinalCriticalChance(), // ★ 수정: 최종 치명타 확률 함수 전달
+                stats.GetFinalCriticalDamageMultiplier(), 
+                stats.diceDamageMultiplier, 
+                stats.diceRangedDamageMultiplier, 
+                strongMult, 
+                stats.bonusPenetration, 
+                finalDamageMult
+            );
         }
 
         bulletObj.SetActive(true); 

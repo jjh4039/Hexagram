@@ -346,7 +346,14 @@ public class BuffManager : MonoBehaviour
                 switch (buff.buffData.effectType)
                 {
                     case DiceEffectType.AttackBuff: stats.diceDamageMultiplier += finalEffectValue / 100f; break;
-                    case DiceEffectType.CritDamageBuff: stats.diceCritDamageBonus += finalEffectValue / 100f; break;
+                    case DiceEffectType.CritDamageBuff: 
+                        stats.diceCritDamageBonus += finalEffectValue / 100f; 
+                        
+                        // 치명타 확률 추가
+                        float finalSecondaryValue = buff.buffData.secondaryValue * buff.stackCount;
+                        if (stats.isDiceEffectHalved) finalSecondaryValue *= 0.5f;
+                        stats.diceCritChanceBonus += finalSecondaryValue / 100f;
+                        break;
                     case DiceEffectType.SpeedBuff:
                         stats.diceMoveSpeedMultiplier += finalEffectValue / 100f;
                         stats.diceAttackSpeedMultiplier += finalEffectValue / 100f;
@@ -354,15 +361,12 @@ public class BuffManager : MonoBehaviour
                     case DiceEffectType.RangedMegaBuff: rangedDiceTotal += finalEffectValue; break;
                     case DiceEffectType.StrongAttackBuff: stats.diceStrongAttackStacks += buff.remainingCount; break;
                     
-                    // ★ 수정: 체력 10% 비례 회복 및 시각 효과(초록 텍스트) 연동
                     case DiceEffectType.Heal:
                         if (!buff.instantApplied)
                         {
-                            // finalEffectValue를 퍼센트(%) 수치로 취급하여 계산 (예: 10 입력 시 10%)
                             float healAmount = stats.maxHealth * (finalEffectValue / 100f);
-                            int finalHealInt = Mathf.Max(1, Mathf.RoundToInt(healAmount)); // 최소 1은 회복 보장
+                            int finalHealInt = Mathf.Max(1, Mathf.RoundToInt(healAmount)); 
 
-                            // PlayerStats의 Heal() 함수를 호출하여 cannotHeal 체크 및 초록색 UI 텍스트 팝업 처리를 위임함
                             stats.Heal(finalHealInt);
 
                             buff.instantApplied = true;

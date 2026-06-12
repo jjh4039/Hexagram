@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3319df5183f6d1c4daebcc24443e53be, type: 3}
-  m_Name: DiceSpeed 3%
+  m_Name: DiceSpeed 6%
   m_EditorClassIdentifier: Assembly-CSharp::RewardData
   titleText: "\uC8FC\uC0AC\uC704 \uCDA9\uC804 \uC18D\uB3C4"
-  valueText: +3%
+  valueText: +6%
   valueTextColor: {r: 1, g: 1, b: 1, a: 1}
   effectType: 6
-  valueAmount: 0.03
+  valueAmount: 0.06
   isPercent: 1

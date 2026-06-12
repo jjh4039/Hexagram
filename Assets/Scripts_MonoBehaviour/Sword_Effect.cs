@@ -22,7 +22,7 @@ public class Sword_Effect : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private CapsuleCollider2D capsule;
 
-    private float cachedFinalBaseDamage = 0f; // 계산이 완료된 최종 기본 데미지
+    private float cachedFinalBaseDamage = 0f; 
     private float cachedMeleeVariance = 0f;
     private float cachedCriticalChance = 0f;
     private float cachedCriticalDamageMultiplier = 1.5f;
@@ -45,9 +45,9 @@ public class Sword_Effect : MonoBehaviour
 
         PlayerStats stats = GameManager.instance.stats;
 
-        cachedFinalBaseDamage = stats.GetFinalMeleeDamage(); // PlayerStats의 최종 근접 데미지 산출 로직을 직접 활용
+        cachedFinalBaseDamage = stats.GetFinalMeleeDamage(); 
         cachedMeleeVariance = stats.meleeDamageVariance;
-        cachedCriticalChance = stats.criticalChance;
+        cachedCriticalChance = stats.GetFinalCriticalChance(); // ★ 수정: 최종 치명타 확률 함수 호출
         cachedCriticalDamageMultiplier = stats.GetFinalCriticalDamageMultiplier();
         cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
@@ -100,7 +100,7 @@ public class Sword_Effect : MonoBehaviour
         float baseDamage =
             cachedFinalBaseDamage *
             damageMultiplier *
-            cachedStrongAttackMultiplier; // 복잡한 곱셈을 제거하고 최종 데미지 적용
+            cachedStrongAttackMultiplier; 
 
         for (int i = 0; i < hitCount; i++)
         {

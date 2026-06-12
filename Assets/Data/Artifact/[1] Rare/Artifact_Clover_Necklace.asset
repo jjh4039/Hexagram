@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Artifact_Clover_Necklace
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uD074\uB85C\uBC84 \uBAA9\uAC78\uC774"
-  description: "\uCE58\uBA85\uD0C0 \uD655\uB960\uC774 15%,\n\uCE58\uBA85\uD0C0 \uD53C\uD574\uAC00
-    10% \uC99D\uAC00\uD55C\uB2E4."
+  description: "\uCE58\uBA85\uD0C0 \uD655\uB960\uC774 20%\n\uCE58\uBA85\uD0C0 \uD53C\uD574\uAC00
+    15% \uC99D\uAC00\uD55C\uB2E4."
   icon: {fileID: -5568329019542257425, guid: 8e632a23a9a4baf449a5cb292a43334c, type: 3}
   grade: 1
   basePrice: 187
@@ -23,8 +23,8 @@ MonoBehaviour:
   buffDuration: 10
   isInfiniteBuff: 0
   effectType: 8
-  value: 0.15
+  value: 0.2
   isPercent: 1
   effectType2: 9
-  value2: 0.1
+  value2: 0.15
   isPercent2: 1

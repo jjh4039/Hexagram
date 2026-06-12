@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArtifactData
   artifactName: "\uAC15\uD654 \uCF54\uC5B4 : \uBC14\uB098\uB098"
   description: "\uC8FC\uC0AC\uC704 [ 3 ] \uD6A8\uACFC \uBC1C\uB3D9 \uC2DC\n\uCE58\uBA85\uD0C0
-    \uD655\uB960\uC774 5% \uC0C1\uC2B9\uD55C\uB2E4."
+    \uD655\uB960\uC774 10% \uC0C1\uC2B9\uD55C\uB2E4."
   icon: {fileID: -2674492303345362091, guid: 44286d8558633f9448afbd33849b62a6, type: 3}
   grade: 0
   basePrice: 123
@@ -23,7 +23,7 @@ MonoBehaviour:
   buffDuration: 10
   isInfiniteBuff: 0
   effectType: 8
-  value: 0.05
+  value: 0.1
   isPercent: 1
   effectType2: 0
   value2: 0
