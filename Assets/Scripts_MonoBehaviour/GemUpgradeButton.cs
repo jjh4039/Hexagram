@@ -4,13 +4,18 @@ using UnityEngine.UI;
 using System;
 
 [RequireComponent(typeof(Image))]
-public class GemUpgradeButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public Action OnClicked;
 
     [Header("Color Settings")]
-    [Tooltip("기본 색상 (이 색상을 기준으로 비활성화/호버 색상이 자동 결정됩니다)")]
-    public Color baseColor = new Color(142f / 255f, 223f / 255f, 233f / 255f, 1f); // 기본 8EDFE9
+    public Color baseColor = new Color(142f / 255f, 223f / 255f, 233f / 255f, 1f); // 기본 색상
+
+    [Header("Auto Click Settings")]
+    public float autoClickInitialDelay = 0.4f;  // 연사 대기 시간
+    public float autoClickStartRate = 0.15f;    // 연사 초기 간격
+    public float autoClickMinRate = 0.06f;      // 연사 최대 속도
+    public float autoClickAcceleration = 0.85f; // 연사 가속도
 
     private Color _hoverColor = Color.white;
     private Color _disabledColor;
@@ -18,6 +23,11 @@ public class GemUpgradeButton : MonoBehaviour, IPointerClickHandler, IPointerEnt
     private Image _image;
     private bool _isInteractable = true;
     private bool _isHovering = false;
+    
+    private bool _isHolding = false;            // 꾹 누름 상태
+    private float _holdTimer = 0f;              // 연사 타이머
+    private float _currentRate = 0f;            // 적용중인 연사 간격
+    private bool _isFirstDelay = false;         // 최초 대기 상태
 
     private void Awake()
     {
@@ -36,15 +46,25 @@ public class GemUpgradeButton : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public void SetInteractable(bool state)
     {
         _isInteractable = state;
+        if (!_isInteractable) _isHolding = false; 
+        
         UpdateVisual();
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
-        if (_isInteractable && eventData.button == PointerEventData.InputButton.Left)
-        {
-            OnClicked?.Invoke();
-        }
+        if (!_isInteractable || eventData.button != PointerEventData.InputButton.Left) return;
+
+        OnClicked?.Invoke(); 
+
+        _isHolding = true;
+        _isFirstDelay = true;
+        _holdTimer = 0f;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _isHolding = false;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -56,7 +76,40 @@ public class GemUpgradeButton : MonoBehaviour, IPointerClickHandler, IPointerEnt
     public void OnPointerExit(PointerEventData eventData)
     {
         _isHovering = false;
+        _isHolding = false; // 범위 이탈 시 끝
         UpdateVisual();
+    }
+
+    private void Update()
+    {
+        if (!_isHolding || !_isInteractable) return;
+
+        _holdTimer += Time.unscaledDeltaTime; 
+
+        if (_isFirstDelay)
+        {
+            if (_holdTimer >= autoClickInitialDelay)
+            {
+                _isFirstDelay = false;
+                _holdTimer = 0f;
+                _currentRate = autoClickStartRate;
+                OnClicked?.Invoke();
+            }
+        }
+        else
+        {
+            if (_holdTimer >= _currentRate)
+            {
+                _holdTimer = 0f;
+                OnClicked?.Invoke();
+
+                if (_currentRate > autoClickMinRate)
+                {
+                    _currentRate *= autoClickAcceleration;
+                    if (_currentRate < autoClickMinRate) _currentRate = autoClickMinRate;
+                }
+            }
+        }
     }
 
     private void UpdateVisual()

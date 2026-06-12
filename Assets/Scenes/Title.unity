@@ -624,6 +624,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 1, g: 0.48235294, b: 0.44705883, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &60801562
 GameObject:
   m_ObjectHideFlags: 0
@@ -1794,6 +1798,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 1, g: 0.48235294, b: 0.44705883, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &262004464
 GameObject:
   m_ObjectHideFlags: 0
@@ -2543,6 +2551,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 0.5568628, g: 0.8745098, b: 0.9137255, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &440860827
 GameObject:
   m_ObjectHideFlags: 0
@@ -2634,6 +2646,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 0.5568628, g: 0.8745098, b: 0.9137255, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &550095033
 GameObject:
   m_ObjectHideFlags: 0
@@ -3776,6 +3792,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 0.5568628, g: 0.8745098, b: 0.9137255, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &724147313
 GameObject:
   m_ObjectHideFlags: 0
@@ -5928,6 +5948,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 0.5568628, g: 0.8745098, b: 0.9137255, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &1378212455
 GameObject:
   m_ObjectHideFlags: 0
@@ -6467,6 +6491,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 0.5568628, g: 0.8745098, b: 0.9137255, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &1634992126
 GameObject:
   m_ObjectHideFlags: 0
@@ -6558,6 +6586,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GemUpgradeButton
   baseColor: {r: 0.5568628, g: 0.8745098, b: 0.9137255, a: 1}
+  autoClickInitialDelay: 0.4
+  autoClickStartRate: 0.15
+  autoClickMinRate: 0.06
+  autoClickAcceleration: 0.85
 --- !u!1 &1639115672
 GameObject:
   m_ObjectHideFlags: 0
