@@ -404,6 +404,7 @@ public class BuffManager : MonoBehaviour
             case ArtifactEffectType.ChargeSpeed: stats.diceChargeSpeedMultiplier += finalValue; break;
             case ArtifactEffectType.CritDamage: stats.diceCritDamageBonus += finalValue; break;
             case ArtifactEffectType.FinalDamage: stats.buffFinalDamageMultiplier += finalValue; break;
+            case ArtifactEffectType.CritChance: stats.diceCritChanceBonus += finalValue; break;
         }
     }
 
