@@ -55,12 +55,12 @@ public class EnemyBoss : Enemy
     [Header("Pattern 1: Dash Indicator")]
     [SerializeField] private GameObject dashMaxRangeOrigin;
     [SerializeField] private GameObject dashCurrentRangeOrigin;
-    [SerializeField] private float dashRectWidth = 2f;
-    [SerializeField] private float dashMaxLimitLength = 24f;
+    [SerializeField] private float dashRectWidth = 2.3f;
+    [SerializeField] private float dashMaxLimitLength = 23f;
     [SerializeField] private float dashHomingStrength = 2.0f;
     [SerializeField] private Vector2 dashIndicatorOffset = new Vector2(-1f, 0f);
+    [SerializeField] private float dashAimOffsetY = -1f; // 플레이어 중앙 조준을 위한 Y축 오프셋
     [SerializeField] private AnimationCurve dashSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0);
-
     [Header("Pattern 1: Dash Damage & Visuals")]
     [SerializeField] private float dashDamageMultiplier = 1.5f;
     [SerializeField] private int trailPoolSize = 10;
@@ -74,7 +74,7 @@ public class EnemyBoss : Enemy
     [Header("Pattern 2: Point Blank AoE")]
     [SerializeField] private float aoeChargeTime = 2.0f;
     [SerializeField] private float hugeAoeRadius = 9f;
-    [SerializeField] private float aoeDamage = 20f;
+    [SerializeField] private float aoeDamage = 14f;
     [SerializeField] private float aoeRecoveryTime = 1.0f;
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private GameObject aoeEffectPrefab;
@@ -87,19 +87,20 @@ public class EnemyBoss : Enemy
     [Header("Pattern 2: Enrage Projectiles (Optional)")]
     [SerializeField] private GameObject aoeProjectilePrefab;
     [SerializeField] private float aoeProjectileSpeed = 10f;
-    [SerializeField] private float aoeProjectileDamage = 15f;
+    [SerializeField] private float aoeProjectileDamage = 12f;
 
     [Header("Pattern 3: Multi-Lines (Earth Spikes)")]
     [SerializeField] private float linesChargeTime = 1.5f;
     [SerializeField] private int minLines = 7;
     [SerializeField] private int maxLines = 10;
     [SerializeField] private float linesRecoveryTime = 0.5f;
-    [SerializeField] private float spikeRectWidth = 1.5f;
+    [SerializeField] private float spikeRectWidth = 1.6f;
     [SerializeField] private GameObject earthSpikePrefab;
-    [SerializeField] private float spikeDamage = 15f;
+    [SerializeField] private float spikeDamage = 12f;
     [SerializeField] private float spikeDistance = 1.5f;
     [SerializeField] private float spikeSpawnDelay = 0.05f;
     [SerializeField] private float spikeMaxLimitLength = 30f;
+    [SerializeField] private Vector2 spikeSpawnOffset = new Vector2(0f, -0.5f);
 
     [Header("Pattern 4: Cross Grid (Vine)")]
     [SerializeField] private float gridStartupDelay = 1.5f;
@@ -595,7 +596,8 @@ public class EnemyBoss : Enemy
             float currentDashDuration = (i == 0) ? dashDuration : dashDuration * 0.5f;
             float currentLimitLength = (i == 0) ? dashMaxLimitLength : dashMaxLimitLength * 0.5f;
 
-            Vector2 currentDir = (target.position - transform.position).normalized;
+            Vector3 aimTarget = target.position + new Vector3(0f, dashAimOffsetY, 0f);
+            Vector2 currentDir = (aimTarget - transform.position).normalized;
 
             GameObject maxRectInstance = GetTelegraph("DashMax", dashMaxRangeOrigin, transform.position);
             GameObject currentRectInstance = GetTelegraph("DashCur", dashCurrentRangeOrigin, transform.position);
@@ -607,7 +609,10 @@ public class EnemyBoss : Enemy
             while (timer < currentChargeTime && !isDead)
             {
                 timer += Time.deltaTime;
-                Vector2 targetDir = (target.position - transform.position).normalized;
+                
+                Vector3 currentAimTarget = target.position + new Vector3(0f, dashAimOffsetY, 0f);
+                Vector2 targetDir = (currentAimTarget - transform.position).normalized;
+                
                 currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * dashHomingStrength);
 
                 Vector3 drawPos = transform.position + (Vector3)visualOffset;
@@ -1167,8 +1172,9 @@ public class EnemyBoss : Enemy
         for (int i = 1; i <= spikeCount; i++)
         {
             if (isDead) yield break;
-
-            Vector2 spawnPos = origin + dir * (i * spikeDistance);
+            
+            Vector2 basePos = origin + dir * (i * spikeDistance);
+            Vector2 spawnPos = basePos + spikeSpawnOffset;
 
             if (earthSpikePrefab != null)
             {
@@ -1180,8 +1186,7 @@ public class EnemyBoss : Enemy
             yield return new WaitForSeconds(spikeSpawnDelay);
         }
     }
-
-    // ★ 두 페이즈(추적 -> 고정 후 게이지 충전)로 완벽하게 나뉜 스나이퍼 코루틴
+    
     IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, float trackingDuration, float totalChargeDuration)
     {
         float timer = 0f;
