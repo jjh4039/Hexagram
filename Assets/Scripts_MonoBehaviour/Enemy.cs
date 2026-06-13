@@ -25,7 +25,7 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer _sr;
     private Coroutine _flashRoutine;
 
-    [SerializeField] private float hitStopDuration = 0.035f;
+    [SerializeField] private float hitStopDuration = 0.02f;
 
     [Header("Sound")]
     [SerializeField] private AudioClip sfxHit;
