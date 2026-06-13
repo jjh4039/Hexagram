@@ -209,12 +209,12 @@ public class MainManager : MonoBehaviour
             if (testerText != null)
             {
                 testerText.text = "<size=120%><color=#FFDF75>Special Thanks (Beta Tester)</color></size>\n\n" +
-                                  "<color=#FFF6D9>NOAH, AFEE, ! Sami, R2turnTrue, 여울, 엥, jm\n" +
-                                  "도오오오마뱀, 태윤, taeyul, 그저 사람, !싸이버, Mulpas1022, 대수르\n" +
-                                  "JaeJitv2522, 공룡파티, 공허, Space_IX, 살쾡이, 0y0, ㄱㄹㄸ\n" +
-                                  "춘수, 명이, 죠죠의 전설, trivial, FROG, 왕눈이, 이리아\n" +
-                                  "뷁뒑쉙, zero, 화니화니, Hoshino, lua, Naul, 조정후, hermit\n" +
-                                  "최회장원조, IdH, ㅇㅇ, 아라키(콜스), 642ye, Liato, 강지수123</color>";
+                                  "<color=#FFF6D9>NOAH, AFEE, ! Sami, R2turnTrue, 여울, 엥, BMUTED, jm, 도오오오마뱀\n" +
+                                  "태윤, taeyul, 그저 사람, Mulpas1022, JaeJitv2522, 공룡파티, 공허, Space_IX\n" +
+                                  "살쾡이, 0y0, ㄱㄹㄸ, 춘수, 명이, 죠죠의 전설, 왕눈이, 뷁뒑쉙, zero, 화니화니\n" +
+                                  "Hoshino, lua, Naul, 조정후, !싸이버, 이리아, hermit, 대수르, 아라키(콜스)\n" +
+                                  "IdH, trivial, ㅇㅇ, Liato, 642ye, 최회장원조, FROG, 강지수123, F_iS_ma\n" +
+                                  "우니, rosybell, 좀데, 사2퍼, wmmare, Asta, 최고는건랜스, gawrgura</color>";
 
                 yield return StartCoroutine(Co_FadeText(testerText, 0f, 1f, 2.0f));
                 yield return new WaitForSeconds(4.0f);

@@ -49,8 +49,6 @@ public class Sword_Effect : MonoBehaviour
         cachedMeleeVariance = stats.meleeDamageVariance;
         cachedCriticalChance = stats.GetFinalCriticalChance();
         
-        Debug.Log($"[Sword_Effect] 현재 적용된 최종 치명타 확률: {cachedCriticalChance * 100f}%"); // 확률 확인용 디버그 로그
-        
         cachedCriticalDamageMultiplier = stats.GetFinalCriticalDamageMultiplier();
         cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
