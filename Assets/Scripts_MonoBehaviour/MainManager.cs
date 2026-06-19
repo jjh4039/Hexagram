@@ -31,10 +31,10 @@ public class MainManager : MonoBehaviour
     public float bubbleEndScale = 0.98f;
     public float bubbleMoveOffset = 5f;
 
-    [Header("Ending Settings")] public TextMeshProUGUI endingDifficultyText; // ★ 추가: 난이도 출력 텍스트
+    [Header("Ending Settings")] public TextMeshProUGUI endingDifficultyText;
     public TextMeshProUGUI endingText1;
     public TextMeshProUGUI endingText2;
-    public TextMeshProUGUI testerText; // ★ 추가: 테스터 이름 출력 텍스트
+    public TextMeshProUGUI testerText; 
     public string titleSceneName = "Title";
 
     private bool isCutsceneActive = false;
@@ -236,8 +236,8 @@ public class MainManager : MonoBehaviour
         // 보상 정산 및 저장
         if (DataManager.instance != null && GameManager.instance != null)
         {
-            int timeReward = Mathf.Min(Mathf.FloorToInt(GameManager.instance.currentPlayTime / 300f), 6);
-            int dmgReward = GameManager.instance.totalDamageDealt / 1000;
+            int timeReward = Mathf.Min(Mathf.FloorToInt(GameManager.instance.currentPlayTime / 180f), 10);
+            int dmgReward = GameManager.instance.totalDamageDealt / 800;
             int clearBonus = 5;
             DataManager.instance.data.totalGems += (timeReward + dmgReward + clearBonus);
             DataManager.instance.SaveGame();

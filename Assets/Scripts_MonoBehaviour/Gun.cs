@@ -48,6 +48,9 @@ public class Gun : MonoBehaviour
 
     private bool _wasHoldingAttack = false; 
 
+    private ContactFilter2D obstacleFilter; // 트리거를 무시하기 위한 물리 필터
+    private RaycastHit2D[] hitResults = new RaycastHit2D[1]; // 레이캐스트 결과 캐싱용 배열
+
     private void Awake()
     {
         weaponManager = GetComponentInParent<WeaponManager>();
@@ -55,6 +58,11 @@ public class Gun : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
 
         if (lineRenderer != null) lineRenderer.useWorldSpace = true;
+
+        obstacleFilter = new ContactFilter2D();
+        obstacleFilter.layerMask = obstacleLayer;
+        obstacleFilter.useLayerMask = true;
+        obstacleFilter.useTriggers = false; 
 
         InitPools();
     }
@@ -220,11 +228,11 @@ public class Gun : MonoBehaviour
         Vector2 dir = (target - origin).normalized;
         float dist = Vector2.Distance(origin, target);
 
-        RaycastHit2D hit = Physics2D.Raycast(origin, dir, dist, obstacleLayer);
+        int hitCount = Physics2D.Raycast(origin, dir, obstacleFilter, hitResults, dist);
 
-        if (hit.collider != null)
+        if (hitCount > 0)
         {
-            return hit.point - (dir * 0.05f);
+            return hitResults[0].point - (dir * 0.05f);
         }
 
         return target;
@@ -239,8 +247,9 @@ public class Gun : MonoBehaviour
         lineRenderer.enabled = true;
         lineRenderer.SetPosition(0, safeMuzzlePos);
 
-        RaycastHit2D hit = Physics2D.Raycast(safeMuzzlePos, transform.right, laserLength, obstacleLayer);
-        lineRenderer.SetPosition(1, hit.collider != null ? hit.point : safeMuzzlePos + (Vector2)transform.right * laserLength);
+        int hitCount = Physics2D.Raycast(safeMuzzlePos, transform.right, obstacleFilter, hitResults, laserLength);
+        
+        lineRenderer.SetPosition(1, hitCount > 0 ? hitResults[0].point : safeMuzzlePos + (Vector2)transform.right * laserLength);
     }
 
     private float GetFinalAttackSpeed()
@@ -285,7 +294,7 @@ public class Gun : MonoBehaviour
             bullet.SetupCombatData(
                 stats.rangeAttackPower, 
                 stats.rangedDamageVariance, 
-                stats.GetFinalCriticalChance(), // ★ 수정: 최종 치명타 확률 함수 전달
+                stats.GetFinalCriticalChance(), 
                 stats.GetFinalCriticalDamageMultiplier(), 
                 stats.diceDamageMultiplier, 
                 stats.diceRangedDamageMultiplier, 

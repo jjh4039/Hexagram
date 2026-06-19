@@ -137,7 +137,7 @@ public class Bullet : MonoBehaviour
                 HideAndDelayReturn();
             }
         }
-        else if (collision.CompareTag("Wall"))
+        else if (collision.CompareTag("Wall") && !collision.isTrigger) // 트리거가 아닌 실제 물리 벽인지 확인
         {
             hasHit = true;
             if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);

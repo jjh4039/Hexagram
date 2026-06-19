@@ -103,8 +103,8 @@ public class GameOver : MonoBehaviour
             Season currentSeason = GameManager.instance.currentSeason;
             int progress = GameManager.instance.currentProgress;
             
-            rewardFromTime = Mathf.Min(Mathf.FloorToInt(playTime / 300f), 6);
-            rewardFromDamage = damage / 1000;
+            rewardFromTime = Mathf.Min(Mathf.FloorToInt(playTime / 180f), 10);
+            rewardFromDamage = damage / 800;
 
             if (DataManager.instance != null)
             {

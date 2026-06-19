@@ -11075,6 +11075,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StageController
   isSafeStage: 0
   isBossStage: 0
+  bossStageTilemaps: []
   isStartingRoom: 0
   startFadeDelay: 0.5
   startTitleText: "\uC2DC\uC2A4\uD15C \uAC00\uB3D9"
