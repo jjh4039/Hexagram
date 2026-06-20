@@ -183,11 +183,9 @@ public class MainManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(1.0f);
-
-        // ★ 엔딩 크레딧 시퀀스 시작
+        
         if (endingText1 != null && endingText2 != null)
         {
-            // 1. 난이도 출력 (난이도가 0보다 클 때만)
             if (endingDifficultyText != null && DataManager.instance != null &&
                 DataManager.instance.data.difficultyLevel > 0)
             {
@@ -195,17 +193,14 @@ public class MainManager : MonoBehaviour
                 yield return StartCoroutine(Co_FadeText(endingDifficultyText, 0f, 1f, 1.5f));
                 yield return new WaitForSeconds(1f);
             }
-
-            // 2. 기본 멘트 1
-            endingText1.text = "프로토타입 버전 데모가 종료되었습니다.";
+            
+            endingText1.text = "헥사그램 베타 테스트가 최종 종료되었습니다";
             yield return StartCoroutine(Co_FadeText(endingText1, 0f, 1f, 1.5f));
             yield return new WaitForSeconds(1f);
-
-            // 3. 기본 멘트 2
-            endingText2.text = "플레이해주셔서 감사합니다.";
+            
+            endingText2.text = "지금까지 플레이해주신 모든 분들께 깊이 감사드립니다.";
             yield return StartCoroutine(Co_FadeText(endingText2, 0f, 1f, 1.5f));
-
-            // 4. 테스터 이름 (지정된 텍스트와 서식을 코드에서 직접 주입)
+            
             if (testerText != null)
             {
                 testerText.text = "<size=120%><color=#FFDF75>Special Thanks (Beta Tester)</color></size>\n\n" +
@@ -214,13 +209,13 @@ public class MainManager : MonoBehaviour
                                   "살쾡이, 0y0, ㄱㄹㄸ, 춘수, 명이, 죠죠의 전설, 왕눈이, 뷁뒑쉙, zero, 화니화니\n" +
                                   "Hoshino, lua, Naul, 조정후, !싸이버, 이리아, hermit, 대수르, 아라키(콜스)\n" +
                                   "IdH, trivial, ㅇㅇ, Liato, 642ye, 최회장원조, FROG, 강지수123, F_iS_ma\n" +
-                                  "우니, rosybell, 좀데, 사2퍼, wmmare, Asta, 최고는건랜스, gawrgura</color>";
+                                  "snowflake, 우니, rosybell, 좀데, 사2퍼, wmmare, Asta, 최고는건랜스\n" +
+                                  "평범한사람, gawrgura, 눅눅한 골판지, ewrq, 나ㄴ너느냐커, A9, Saya_Na, Duce, 혜윰</color>";
 
                 yield return StartCoroutine(Co_FadeText(testerText, 0f, 1f, 2.0f));
                 yield return new WaitForSeconds(4.0f);
             }
-
-            // 5. 떠있는 모든 텍스트들을 동시에 스르륵 페이드 아웃
+            
             if (endingDifficultyText != null) StartCoroutine(Co_FadeText(endingDifficultyText, 1f, 0f, 1.5f));
             if (testerText != null) StartCoroutine(Co_FadeText(testerText, 1f, 0f, 1.5f));
             Coroutine fade1 = StartCoroutine(Co_FadeText(endingText1, 1f, 0f, 1.5f));
