@@ -6,8 +6,7 @@ public class ArtifactManager : MonoBehaviour
     public static ArtifactManager Instance; // 전역 접근용 인스턴스
 
     public List<ArtifactData> myArtifacts = new List<ArtifactData>();
-
-    // ★ 신규 추가: 전체 아티팩트 데이터베이스 (인스펙터에서 BitManager와 동일하게 할당)
+    
     public List<ArtifactData> allArtifacts = new List<ArtifactData>();
 
     private void Awake()
@@ -38,8 +37,7 @@ public class ArtifactManager : MonoBehaviour
             DashboardUI.instance.RefreshArtifacts(); // 열려있는 UI 즉시 갱신
         }
     }
-
-    // ★ 신규 추가: 등급에 맞는 무작위 아티팩트를 플레이어에게 즉시 지급
+    
     public void GiveRandomArtifactByGrade(ArtifactGrade grade)
     {
         if (allArtifacts == null || allArtifacts.Count == 0)

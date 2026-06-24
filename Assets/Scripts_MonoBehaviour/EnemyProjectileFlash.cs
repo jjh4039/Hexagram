@@ -62,7 +62,6 @@ public class EnemyProjectileFlash : MonoBehaviour
 
     private void Update()
     {
-        // ★ 수정: 타격 시 시간이 멈춰도 이펙트는 시원하게 터지도록 Unscaled 적용
         timer += Time.unscaledDeltaTime;
         float t = timer / duration;
 

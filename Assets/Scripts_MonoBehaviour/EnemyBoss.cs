@@ -113,8 +113,7 @@ public class EnemyBoss : Enemy
     [SerializeField] private float vineDamage = 25f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float gridLineWidth = 3f;
-
-    // ★ 패턴 4 색상 세팅 (진한 빨강 변환 변수는 완전히 삭제됨)
+    
     [Header("Pattern 4: Colors (Telegraph & Sniper)")]
     [SerializeField] private Color gridTelegraphColor = new Color(0.3f, 0.8f, 1f, 0.7f); // 하늘색 예고 장판
     [SerializeField] private Color sniperMaxColor = new Color(1f, 0.2f, 0.2f, 0.2f);     // 저격 배경 (연한 빨강)
@@ -891,9 +890,9 @@ public class EnemyBoss : Enemy
                 sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(sniperCurColor.r, sniperCurColor.g, sniperCurColor.b, 0f);
             }
 
-            // ★ 조준 지속 시간(트래킹 시간)과 완전히 차오르는 시간(시각적 100% 도달 시간)을 분리
+            // 조준 지속 시간과 완전히 차오르는 시간을 분리
             float trackingTime = gridChargeTime + (gridFireDelay * 2f);
-            float totalVisualChargeTime = trackingTime + 1f; // 발사 직전의 대기 시간(1초)까지 게이지가 차오름
+            float totalVisualChargeTime = trackingTime + 1f;
 
             StartCoroutine(Co_SniperTrackingRoutine(
                 (startPos, dir, len) => { lockedSniperStartPos = startPos; lockedSniperDir = dir; lockedSniperLength = len; },
@@ -920,8 +919,6 @@ public class EnemyBoss : Enemy
 
         if (isEnraged || forceEnrage)
         {
-            // 이제 장판 색을 진한 빨강으로 덮는 코드는 지워졌습니다.
-            // 대신 코루틴이 알아서 1초간 게이지를 부드럽게 끝까지 채웁니다.
             yield return new WaitForSeconds(1f);
 
             if (giantVinePrefab != null && lockedSniperDir != Vector2.zero)
@@ -1199,8 +1196,7 @@ public class EnemyBoss : Enemy
 
         Vector2 lockedStartPos = transform.position;
         float lockedTotalLength = 0f;
-
-        // [페이즈 1] 플레이어를 추적하는 구간
+        
         while (timer < trackingDuration && !isDead)
         {
             if (GameManager.instance?.player != null)
@@ -1228,8 +1224,7 @@ public class EnemyBoss : Enemy
             }
             yield return null;
         }
-
-        // [페이즈 2] 추적은 멈췄지만(Lock-on) 게이지는 발사 찰나까지 계속 차오르는 구간
+        
         while (timer < totalChargeDuration && !isDead)
         {
             timer += Time.deltaTime;

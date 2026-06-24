@@ -30,7 +30,7 @@ public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                 DiceData data = _targetDice.diceList[highlightIndex];
                 float percent = _targetDice.displayPercentages[highlightIndex];
 
-                string hexColor = $"#{data.particleColor.r:X2}{data.particleColor.g:X2}{data.particleColor.b:X2}"; // 파티클 컬러를 16진수 코드로 변환
+                string hexColor = $"#{data.particleColor.r:X2}{data.particleColor.g:X2}{data.particleColor.b:X2}"; 
 
                 string title = $"주사위 : < <color={hexColor}>{highlightIndex + 1} </color>>";
 

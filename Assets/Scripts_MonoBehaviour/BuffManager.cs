@@ -349,7 +349,6 @@ public class BuffManager : MonoBehaviour
                     case DiceEffectType.CritDamageBuff: 
                         stats.diceCritDamageBonus += finalEffectValue / 100f; 
                         
-                        // 치명타 확률 추가
                         float finalSecondaryValue = buff.buffData.secondaryValue * buff.stackCount;
                         if (stats.isDiceEffectHalved) finalSecondaryValue *= 0.5f;
                         stats.diceCritChanceBonus += finalSecondaryValue / 100f;

@@ -24,19 +24,17 @@ public class FloorGenerator : MonoBehaviour
     public void GenerateOverPainted()
     {
         if (targetTilemap == null || baseTiles == null || baseTiles.Count == 0) return;
-
-        // 1. 현재 타일맵에 타일이 있는 영역(Bounds)을 자동으로 계산
+        
         targetTilemap.CompressBounds();
         BoundsInt bounds = targetTilemap.cellBounds;
-
-        // 2. 해당 영역 내의 모든 칸을 검사
+        
         for (int x = bounds.xMin; x < bounds.xMax; x++)
         {
             for (int y = bounds.yMin; y < bounds.yMax; y++)
             {
                 Vector3Int pos = new Vector3Int(x, y, 0);
 
-                // 3. 타일이 존재하는 칸만 랜덤 타일로 교체
+                // 타일이 존재하는 칸만 랜덤 타일로 교체
                 if (targetTilemap.HasTile(pos))
                 {
                     TileBase tileToPlace = baseTiles[Random.Range(0, baseTiles.Count)];

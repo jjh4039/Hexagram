@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-// 아티팩트 선택 및 획득을 관리하는 UI 매니저
 public class BitManager : MonoBehaviour
 {
     public static BitManager Instance; // 전역 접근용 인스턴스
@@ -175,11 +174,9 @@ public class BitManager : MonoBehaviour
 
         RectTransform arrowRect = selectionArrow.rectTransform;
         RectTransform cardRect = bitChoices[_selectedIndex].rect;
-
-        // 1. 카드의 현재 월드 포지션을 화살표의 포지션으로 맞춤 (계층이 달라도 X축 위치 동기화 보장)
+        
         arrowRect.position = cardRect.position;
-
-        // 2. 그 상태에서 Y축만 오프셋과 사인파(바운스)를 더해 위로 띄움
+        
         Vector2 anchored = arrowRect.anchoredPosition;
         float bounce = Mathf.Sin(Time.unscaledTime * arrowBounceSpeed) * arrowBounceHeight;
         anchored.y += arrowYOffset + bounce;
@@ -385,10 +382,10 @@ public class BitManager : MonoBehaviour
 
     private ArtifactData GetRandomArtifactByProbability()
     {
-        ArtifactGrade targetGrade = RollGrade(); // 1. 목표 등급 추첨
-        ArtifactData selected = GetRandomArtifactByGrade(targetGrade); // 2. 해당 등급 아티팩트 탐색
+        ArtifactGrade targetGrade = RollGrade(); // 목표 등급 추첨
+        ArtifactData selected = GetRandomArtifactByGrade(targetGrade); // 해당 등급 아티팩트 탐색
 
-        // 3. 해당 등급이 모두 소진되었다면 다른 등급에서 대체 탐색
+        // 해당 등급이 모두 소진되었다면 다른 등급에서 대체 탐색
         if (selected == null)
         {
             selected = GetFallbackArtifact();

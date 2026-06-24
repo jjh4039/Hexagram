@@ -65,8 +65,7 @@ public class EventManager : MonoBehaviour
     public EventSelectionData CurrentEventSelection => currentEventSelection;
 
     public Vector3 eventOriginPos;
-
-    // ★ 추가: 생성 시 부모로 삼을 로봇의 Transform을 저장할 변수
+    
     [HideInInspector] public Transform eventOriginTransform;
 
     private Coroutine _activationTextRoutine;
@@ -236,8 +235,7 @@ public class EventManager : MonoBehaviour
                 if (balancePrefab != null)
                 {
                     Vector3 spawnPos = eventOriginPos + new Vector3(0, -2.5f, 0);
-
-                    // ★ 수정: 수동 역산 대신 월드 생성 후 SetParent(..., true) 방식으로 통일
+                    
                     GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity);
                     
                     if (eventOriginTransform != null)

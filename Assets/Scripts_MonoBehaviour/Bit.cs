@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// 아티팩트 획득 창을 여는 필드 아이템
 public class Bit : MonoBehaviour, IRewardItem
 {
     [SerializeField] private Material[] outLineMaterial;

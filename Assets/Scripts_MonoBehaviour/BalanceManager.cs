@@ -393,7 +393,6 @@ public class BalanceManager : MonoBehaviour
             backgroundImage.rectTransform.localRotation = Quaternion.Euler(0, 0, rotWave * bgRotationRange);
             yield return null;
         }
-        // ReSharper disable once IteratorNeverReturns
     }
 
     private IEnumerator FloatMainImage()

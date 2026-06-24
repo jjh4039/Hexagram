@@ -86,7 +86,6 @@ public class Dice : MonoBehaviour
     private List<ArtifactData> GetTriggeredArtifacts(int rolledIndex, bool isConsecutive)
     {
         List<ArtifactData> list = new List<ArtifactData>();
-        // ★ 수정: ArtifactManager 싱글톤 오타 수정
         if (ArtifactManager.Instance == null) return list;
 
         ConditionType targetCondition = ConditionType.None;

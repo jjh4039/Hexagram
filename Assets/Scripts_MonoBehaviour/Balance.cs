@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// 월드에 드랍되어 플레이어와 상호작용 시 주사위 확률 UI를 여는 아이템입니다.
 public class Balance : MonoBehaviour, IRewardItem
 {
     [Header("Item Settings")]
@@ -29,7 +28,7 @@ public class Balance : MonoBehaviour, IRewardItem
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        // ★ 추가: 이미 상호작용하여 파괴 대기 중이라면 입력 무시
+        // 이미 상호작용하여 파괴 대기 중이라면 입력 무시
         if (!isPlayerInRange || _isCollected) return;
         OpenBalanceSelection();
     }
@@ -48,10 +47,7 @@ public class Balance : MonoBehaviour, IRewardItem
         {
             if (!GameManager.instance.balanceManager.gameObject.activeInHierarchy)
             {
-                // ★ 추가: 두 번 먹어지지 않도록 플래그를 가장 먼저 잠금
                 _isCollected = true;
-                
-                // 파괴 전에 입력 이벤트를 직접 떼어줍니다. (메모리 누수 및 중복 실행 방어)
                 UnsubscribeInputs();
 
                 GameManager.instance.balanceManager.gameObject.SetActive(true);
@@ -64,7 +60,6 @@ public class Balance : MonoBehaviour, IRewardItem
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // ★ 추가: 이미 수집된 상태면 콜라이더 진입 무시
         if (_isCollected) return;
 
         if (other.CompareTag("Player"))

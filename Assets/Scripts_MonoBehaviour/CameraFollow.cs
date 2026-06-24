@@ -130,7 +130,6 @@ public class CameraFollow : MonoBehaviour
 
         if (isUIState && !isCinematicFocus)
         {
-            // ★ 수정: UI 창이 열렸을 때 마우스 추적을 끊고 원래 위치로 부드럽게 복귀시킵니다.
             _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, Vector3.zero, aimTransitionSpeed * Time.unscaledDeltaTime);
         }
 

@@ -192,8 +192,7 @@ public class DashboardUI : MonoBehaviour
             child.SetParent(null);
             Destroy(child.gameObject);
         }
-
-        // ★ 수정: ArtifactManager.Instance 오타 수정 (instance 로 변경)
+        
         if (ArtifactManager.Instance == null) return;
 
         foreach (ArtifactData data in ArtifactManager.Instance.myArtifacts)

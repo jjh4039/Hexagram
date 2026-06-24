@@ -50,12 +50,11 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Start()
     {
-        // ★ 추가: 메타 프로그레션 (난이도) 스탯 뻥튀기 적용
         if (GameManager.instance != null && GameManager.instance.stats != null)
         {
             float statMult = GameManager.instance.stats.enemyStatMultiplier;
             maxHealth *= statMult;
-            contactDamage *= statMult; // 몸통 박치기 데미지 증가
+            contactDamage *= statMult;
         }
 
         currentHealth = maxHealth;
@@ -124,7 +123,6 @@ public class Enemy : MonoBehaviour
     private IEnumerator FlashRoutine()
     {
         _sr.material = flashMaterial;
-        // 타임스케일에 영향을 받지 않는 플래시 효과
         yield return new WaitForSecondsRealtime(0.08f); 
         
         if (_sr != null) _sr.material = OriginalMaterial;
@@ -179,7 +177,6 @@ public class Enemy : MonoBehaviour
 
             foreach (SpriteRenderer s in _hpBarSprites)
             {
-                // ★ 수정: 파괴 과정 중 NullReference 에러를 막기 위한 이중 방어
                 if (s != null && s.gameObject != null) 
                 {
                     Color c = s.color;

@@ -25,9 +25,9 @@ public class Bullet : MonoBehaviour
     private float cachedDiceDamageMultiplier = 1f;
     private float cachedDiceRangedDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
-    private float cachedFinalDamageMultiplier = 1f; // 최종 데미지 배율 캐싱 변수
+    private float cachedFinalDamageMultiplier = 1f; 
     
-    private int currentPenetration = 0; // 남은 관통 횟수 저장
+    private int currentPenetration = 0; // 남은 관통 횟수
 
     private Coroutine lifeTimerCoroutine;
 
@@ -63,7 +63,7 @@ public class Bullet : MonoBehaviour
         float diceRangedDamageMultiplier,
         float strongAttackMultiplier,
         int penetration,
-        float finalDamageMultiplier // 최종 데미지 배율 파라미터 추가
+        float finalDamageMultiplier
     )
     {
         cachedRangeAttackPower = rangeAttackPower;
@@ -201,7 +201,7 @@ public class Bullet : MonoBehaviour
             cachedDiceDamageMultiplier *
             cachedDiceRangedDamageMultiplier *
             cachedStrongAttackMultiplier *
-            cachedFinalDamageMultiplier; // 누락되었던 최종 데미지 배율 적용
+            cachedFinalDamageMultiplier;
 
         float randomMultiplier = Random.Range(1.1f - cachedRangedVariance, 1.1f);
         float finalDamage = baseDamage * randomMultiplier;

@@ -1086,7 +1086,6 @@ public class EventUIController : MonoBehaviour
 
         if (EventManager.Instance != null)
         {
-            // ★ 수정됨: 유저가 선택한 강도(0, 1, 2)를 매니저에게 전달
             EventManager.Instance.ApplyCurrentEvent(currentDestinyIndex);
         }
 

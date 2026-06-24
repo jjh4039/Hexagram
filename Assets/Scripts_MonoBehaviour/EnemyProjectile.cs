@@ -157,7 +157,7 @@ public class EnemyProjectile : MonoBehaviour
             Player player = collision.GetComponent<Player>();
             if (player != null)
             {
-                // ★ 추가: 플레이어가 대시 중(무적)일 때 투사체를 맞으면 회피 판정
+                // 플레이어가 대시 중(무적)일 때 투사체를 맞으면 회피 판정
                 if (player.isInvincible)
                 {
                     PlayerStats stats = player.GetComponent<PlayerStats>();
@@ -168,8 +168,6 @@ public class EnemyProjectile : MonoBehaviour
                     }
                     return; 
                 }
-
-                // 무적이 아니라면 정상 데미지
                 player.OnDamage(damage);
             }
 

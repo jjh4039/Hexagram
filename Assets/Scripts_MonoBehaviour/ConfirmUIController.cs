@@ -183,7 +183,6 @@ public class ConfirmUIController : MonoBehaviour
 
     public void SetIndexByMouse(int index)
     {
-        // ★ _isAnimating 검사를 제거했습니다.
         if (!_isOpen || _currentIndex == index) return;
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
 
@@ -199,7 +198,7 @@ public class ConfirmUIController : MonoBehaviour
 
     public void ExecuteSelection()
     {
-        if (!_isOpen || _isAnimating) return; // 클릭 방어벽은 유지합니다.
+        if (!_isOpen || _isAnimating) return; // 클릭 방어벽 유지
 
         if (_currentIndex == 0)
         {

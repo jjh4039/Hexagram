@@ -20,7 +20,7 @@ public class BossHealthUI : MonoBehaviour
 
     private float _maxHp;
     private Coroutine _bufferCoroutine;
-    private Coroutine _flashCoroutine; // ★ 추가: 연타 시 플래시 중첩 방지
+    private Coroutine _flashCoroutine; 
 
     private float _currentTargetFill = 1f;
     private bool _isIntroFilling = false;
@@ -92,7 +92,6 @@ public class BossHealthUI : MonoBehaviour
 
         mainSlider.value = targetFill;
 
-        // ★ 수정: 중첩 실행 방어
         if (_flashCoroutine != null) StopCoroutine(_flashCoroutine);
         _flashCoroutine = StartCoroutine(Co_FlashEffect(targetFill));
 
