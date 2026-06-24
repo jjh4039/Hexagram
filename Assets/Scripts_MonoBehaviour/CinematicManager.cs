@@ -7,33 +7,38 @@ public class CinematicManager : MonoBehaviour
 {
     public static CinematicManager Instance;
 
-    [Header("Cinematic Bars UI")]
-    [SerializeField] private RectTransform topBar;
+    [Header("Cinematic Bars UI")] [SerializeField]
+    private RectTransform topBar;
+
     [SerializeField] private RectTransform bottomBar;
     [SerializeField] private float barHeight = 40f;
     [SerializeField] private float barAnimTime = 1.5f;
 
-    [Header("Environment Sunset")]
-    [SerializeField] private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+    [Header("Environment Sunset")] [SerializeField]
+    private Color nightColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+
     [SerializeField] private float sunsetDuration = 2f;
     [SerializeField] private float holdDuration = 2f;
     [SerializeField] private float cinematicCameraSpeed = 1.5f;
 
-    [Header("Death Cinematic")]
-    [SerializeField] private CanvasGroup whiteScreenGroup;
+    [Header("Death Cinematic")] [SerializeField]
+    private CanvasGroup whiteScreenGroup;
+
     [SerializeField] private float slowMotionScale = 0.2f;
     [SerializeField] private float whiteOutDuration = 2.0f;
 
-    [Header("GameOver Cinematic")]
-    [SerializeField] private SpriteRenderer worldBlackoutSprite;
+    [Header("GameOver Cinematic")] [SerializeField]
+    private SpriteRenderer worldBlackoutSprite;
+
     [SerializeField] private GameObject gameOverUI;
     [SerializeField] private float timeSlowDuration = 1.5f;
     [SerializeField] private float blackoutDuration = 2.0f;
 
     public float SunsetDuration => sunsetDuration;
 
-    [Header("UI to Hide During Cinematic")]
-    [SerializeField] private GameObject[] uiElementsToHide;
+    [Header("UI to Hide During Cinematic")] [SerializeField]
+    private GameObject[] uiElementsToHide;
+
     [SerializeField] private float uiFadeTime = 0.3f;
 
     private readonly List<CanvasGroup> _hiddenUIGroups = new List<CanvasGroup>();
@@ -62,7 +67,8 @@ public class CinematicManager : MonoBehaviour
         _cachedTilemaps = tilemaps;
     }
 
-    public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart, System.Action onSunsetDone, System.Action onFinish)
+    public IEnumerator Co_PlayBossIntro(Transform bossTransform, System.Action onSunsetStart,
+        System.Action onSunsetDone, System.Action onFinish)
     {
         if (InputStateManager.Instance != null) InputStateManager.Instance.SetInputActive(false);
 
@@ -117,6 +123,7 @@ public class CinematicManager : MonoBehaviour
             {
                 cg.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
             }
+
             yield return null;
         }
 
@@ -175,6 +182,7 @@ public class CinematicManager : MonoBehaviour
             {
                 if (tm != null) tm.color = lerpedColor;
             }
+
             yield return null;
         }
 
@@ -209,6 +217,7 @@ public class CinematicManager : MonoBehaviour
                 whiteScreenGroup.alpha = Mathf.Clamp01(elapsed / whiteOutDuration);
                 yield return null;
             }
+
             whiteScreenGroup.alpha = 1f;
         }
 
@@ -232,6 +241,7 @@ public class CinematicManager : MonoBehaviour
                 whiteScreenGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeInDuration);
                 yield return null;
             }
+
             whiteScreenGroup.gameObject.SetActive(false);
         }
     }

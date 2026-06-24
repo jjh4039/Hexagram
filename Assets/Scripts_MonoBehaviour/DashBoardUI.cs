@@ -7,33 +7,29 @@ public class DashboardUI : MonoBehaviour
 {
     public static DashboardUI instance;
 
-    [Header("Main Objects")]
-    public GameObject dashboardPanel;
+    [Header("Main Objects")] public GameObject dashboardPanel;
     public CanvasGroup dashboardCG;
     public Transform artifactGrid;
     public GameObject slotPrefab;
 
-    [Header("Indicator")]
-    [SerializeField] private GameObject inventoryIndicator; 
+    [Header("Indicator")] [SerializeField] private GameObject inventoryIndicator;
 
-    [Header("Animation Settings")]
-    public float fadeDuration = 0.2f;
+    [Header("Animation Settings")] public float fadeDuration = 0.2f;
     public Vector3 startScale = new Vector3(0.9f, 0.9f, 1f);
 
-    [Header("Tooltip")]
-    public GameObject tooltipGroup;
+    [Header("Tooltip")] public GameObject tooltipGroup;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descText;
     public Vector2 tooltipOffset = new Vector2(15f, -15f);
 
-    [Header("Tooltip Colors")]
-    public string hexLegendary = "#FFD000";
+    [Header("Tooltip Colors")] public string hexLegendary = "#FFD000";
     public string hexEpic = "#B591D1";
     public string hexRare = "#4AA8D8";
     public string hexNormal = "#FFFFFF";
 
-    [Header("Sound Effects")]
-    [SerializeField] private AudioClip sfxOpen;
+    [Header("Sound Effects")] [SerializeField]
+    private AudioClip sfxOpen;
+
     [SerializeField] private AudioClip sfxClose;
     [SerializeField] private AudioClip sfxHover;
 
@@ -94,7 +90,7 @@ public class DashboardUI : MonoBehaviour
         if (!inventoryIndicator || !InputStateManager.Instance) return;
 
         bool canOpen = !isOpen && InputStateManager.Instance.CurrentInputState == InputState.Normal;
-        
+
         if (inventoryIndicator.activeSelf != canOpen)
         {
             inventoryIndicator.SetActive(canOpen);
@@ -192,7 +188,7 @@ public class DashboardUI : MonoBehaviour
             child.SetParent(null);
             Destroy(child.gameObject);
         }
-        
+
         if (ArtifactManager.Instance == null) return;
 
         foreach (ArtifactData data in ArtifactManager.Instance.myArtifacts)
@@ -213,8 +209,8 @@ public class DashboardUI : MonoBehaviour
         nameText.text = data.artifactName;
 
         string colorHex = (data.grade == ArtifactGrade.Legendary) ? hexLegendary :
-                          (data.grade == ArtifactGrade.Epic) ? hexEpic :
-                          (data.grade == ArtifactGrade.Rare) ? hexRare : hexNormal;
+            (data.grade == ArtifactGrade.Epic) ? hexEpic :
+            (data.grade == ArtifactGrade.Rare) ? hexRare : hexNormal;
 
         descText.text = $"<color={colorHex}>[ {data.grade} ]</color>\n\n{data.description}";
     }

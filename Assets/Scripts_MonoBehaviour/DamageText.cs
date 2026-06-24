@@ -7,13 +7,15 @@ public class DamageText : MonoBehaviour
     private TextMeshPro textMesh;
     private Color originalColor;
 
-    [Header("Motion Settings")]
-    [SerializeField] private float moveSpeed = 2f;
+    [Header("Motion Settings")] [SerializeField]
+    private float moveSpeed = 2f;
+
     [SerializeField] private float fadeSpeed = 3f;
     [SerializeField] private float gravity = 2f;
 
-    [Header("Design Settings")]
-    [SerializeField] private Color normalColor = Color.white;
+    [Header("Design Settings")] [SerializeField]
+    private Color normalColor = Color.white;
+
     [SerializeField] private Color criticalColor = new Color(1f, 0.6f, 0f);
     [SerializeField] private float normalSize = 4f;
     [SerializeField] private float criticalSize = 6f;
@@ -24,13 +26,13 @@ public class DamageText : MonoBehaviour
     private static int globalSortingOrder = 2000;
 
     private static Queue<DamageText> pool = new Queue<DamageText>();
-    private static Transform poolContainer; 
+    private static Transform poolContainer;
 
     void Awake()
     {
         textMesh = GetComponent<TextMeshPro>();
     }
-    
+
     public static DamageText Spawn(GameObject prefab, Vector3 position)
     {
         if (poolContainer == null)
@@ -39,7 +41,7 @@ public class DamageText : MonoBehaviour
         }
 
         DamageText dt = null;
-        
+
         while (pool.Count > 0)
         {
             dt = pool.Dequeue();
@@ -56,7 +58,7 @@ public class DamageText : MonoBehaviour
             GameObject obj = Instantiate(prefab, position, Quaternion.identity, poolContainer);
             dt = obj.GetComponent<DamageText>();
         }
-        
+
         return dt;
     }
 

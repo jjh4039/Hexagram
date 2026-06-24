@@ -6,41 +6,45 @@ using TMPro;
 
 public class ConfirmUIController : MonoBehaviour
 {
-    public static ConfirmUIController Instance;            
+    public static ConfirmUIController Instance;
 
-    public bool IsOpen => _isOpen;                         
+    public bool IsOpen => _isOpen;
 
-    [Header("UI References")]
-    [SerializeField] private GameObject visualRoot;        
-    [SerializeField] private CanvasGroup visualGroup;      
-    [SerializeField] private RectTransform bgRect;         
-    
-    [Header("Text References")]
-    [SerializeField] private TextMeshProUGUI titleText;    
-    [SerializeField] private TextMeshProUGUI messageText;  
-    [SerializeField] private TextMeshProUGUI yesText;      
-    [SerializeField] private TextMeshProUGUI noText;       
+    [Header("UI References")] [SerializeField]
+    private GameObject visualRoot;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float targetBgScale = 1f;     
-    [SerializeField] private float animDuration = 0.2f;    
+    [SerializeField] private CanvasGroup visualGroup;
+    [SerializeField] private RectTransform bgRect;
 
-    [Header("Colors & Sounds")]
-    [SerializeField] private Color normalColor = Color.gray; 
+    [Header("Text References")] [SerializeField]
+    private TextMeshProUGUI titleText;
+
+    [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private TextMeshProUGUI yesText;
+    [SerializeField] private TextMeshProUGUI noText;
+
+    [Header("Animation Settings")] [SerializeField]
+    private float targetBgScale = 1f;
+
+    [SerializeField] private float animDuration = 0.2f;
+
+    [Header("Colors & Sounds")] [SerializeField]
+    private Color normalColor = Color.gray;
+
     [SerializeField] private Color selectColor = Color.white;
-    [SerializeField] private AudioClip sfxMove;            
-    [SerializeField] private AudioClip sfxConfirm;         
-    [SerializeField] private AudioClip sfxCancel;          
+    [SerializeField] private AudioClip sfxMove;
+    [SerializeField] private AudioClip sfxConfirm;
+    [SerializeField] private AudioClip sfxCancel;
 
-    private bool _isOpen;                          
-    private bool _isAnimating;                     
-    private int _currentIndex = 1;                         
+    private bool _isOpen;
+    private bool _isAnimating;
+    private int _currentIndex = 1;
 
-    private Action _onConfirmAction;                       
-    private Action _onCancelAction;                        
+    private Action _onConfirmAction;
+    private Action _onCancelAction;
 
-    private Coroutine _animCoroutine;                      
-    private bool _isSubscribed; 
+    private Coroutine _animCoroutine;
+    private bool _isSubscribed;
 
     private void Awake()
     {
@@ -62,18 +66,18 @@ public class ConfirmUIController : MonoBehaviour
     {
         string title;
         string msg;
-        Action finalConfirmAction ;
+        Action finalConfirmAction;
 
         switch (popupIndex)
         {
-            case 0: 
+            case 0:
                 title = "게임 포기";
                 msg = "정말로 이번 도전을 포기하시겠습니까?";
-                finalConfirmAction = () => 
+                finalConfirmAction = () =>
                 {
-                    additionalAction?.Invoke();             
+                    additionalAction?.Invoke();
                     Time.timeScale = 1f;
-                    
+
                     if (InputStateManager.Instance != null)
                         InputStateManager.Instance.SetInputActive(false);
 
@@ -84,29 +88,29 @@ public class ConfirmUIController : MonoBehaviour
                     PauseUIController pauseUI = FindFirstObjectByType<PauseUIController>();
                     if (pauseUI != null)
                         pauseUI.gameObject.SetActive(false);
-                    
+
                     if (GameManager.instance != null && GameManager.instance.player != null)
                     {
-                        GameManager.instance.player.OnDie(); 
+                        GameManager.instance.player.OnDie();
                     }
                 };
                 break;
-                
-            case 1: 
+
+            case 1:
                 title = "게임 종료";
                 msg = "게임을 완전히 종료하시겠습니까?";
-                finalConfirmAction = () => 
+                finalConfirmAction = () =>
                 {
-                    additionalAction?.Invoke();             
-                    #if UNITY_EDITOR
-                        UnityEditor.EditorApplication.isPlaying = false;
-                    #else
+                    additionalAction?.Invoke();
+#if UNITY_EDITOR
+                    UnityEditor.EditorApplication.isPlaying = false;
+#else
                         Application.Quit();
-                    #endif
+#endif
                 };
                 break;
-                
-            default: 
+
+            default:
                 title = "확인";
                 msg = "계속 진행하시겠습니까?";
                 finalConfirmAction = () => { additionalAction?.Invoke(); };
@@ -116,7 +120,8 @@ public class ConfirmUIController : MonoBehaviour
         ShowPopup(title, msg, finalConfirmAction);
     }
 
-    public void ShowPopup(string title, string message, Action onConfirm, Action onCancel = null, string yesStr = "예", string noStr = "아니오")
+    public void ShowPopup(string title, string message, Action onConfirm, Action onCancel = null, string yesStr = "예",
+        string noStr = "아니오")
     {
         if (_isOpen || _isAnimating) return;
 
@@ -132,7 +137,7 @@ public class ConfirmUIController : MonoBehaviour
         _currentIndex = 1;
 
         UpdateSelectionVisuals();
-        
+
         if (InputStateManager.Instance != null && !_isSubscribed)
         {
             var actions = InputStateManager.Instance.Actions.UI;
@@ -184,7 +189,8 @@ public class ConfirmUIController : MonoBehaviour
     public void SetIndexByMouse(int index)
     {
         if (!_isOpen || _currentIndex == index) return;
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
+        if (InputStateManager.Instance != null &&
+            InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
 
         _currentIndex = index;
         if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
@@ -217,7 +223,7 @@ public class ConfirmUIController : MonoBehaviour
     private void OnCloseUI(InputAction.CallbackContext ctx)
     {
         if (!_isOpen || _isAnimating) return;
-        
+
         if (sfxCancel) SoundManager.instance.PlaySFX(sfxCancel, 0.5f);
         _onCancelAction?.Invoke();
         ClosePopup();
@@ -227,9 +233,15 @@ public class ConfirmUIController : MonoBehaviour
     {
         if (yesText != null) yesText.color = (_currentIndex == 0) ? selectColor : normalColor;
         if (noText != null) noText.color = (_currentIndex == 1) ? selectColor : normalColor;
-        
-        if (yesText != null) yesText.text = (_currentIndex == 0) ? $"> {yesText.text.Replace("> ", "").Replace(" <", "")} <" : yesText.text.Replace("> ", "").Replace(" <", "");
-        if (noText != null) noText.text = (_currentIndex == 1) ? $"> {noText.text.Replace("> ", "").Replace(" <", "")} <" : noText.text.Replace("> ", "").Replace(" <", "");
+
+        if (yesText != null)
+            yesText.text = (_currentIndex == 0)
+                ? $"> {yesText.text.Replace("> ", "").Replace(" <", "")} <"
+                : yesText.text.Replace("> ", "").Replace(" <", "");
+        if (noText != null)
+            noText.text = (_currentIndex == 1)
+                ? $"> {noText.text.Replace("> ", "").Replace(" <", "")} <"
+                : noText.text.Replace("> ", "").Replace(" <", "");
     }
 
     private IEnumerator AnimateOpen()
@@ -247,10 +259,10 @@ public class ConfirmUIController : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / animDuration);
             float easedT = 1f - Mathf.Pow(1f - t, 3f);
-            
+
             bgRect.localScale = Vector3.Lerp(Vector3.one * 0.8f, Vector3.one * targetBgScale, easedT);
             if (visualGroup) visualGroup.alpha = t;
-            
+
             yield return null;
         }
 
@@ -272,10 +284,10 @@ public class ConfirmUIController : MonoBehaviour
             elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / animDuration);
             float easedT = t * t * t;
-            
+
             bgRect.localScale = Vector3.Lerp(startScale, Vector3.one * 0.8f, easedT);
             if (visualGroup) visualGroup.alpha = 1f - t;
-            
+
             yield return null;
         }
 

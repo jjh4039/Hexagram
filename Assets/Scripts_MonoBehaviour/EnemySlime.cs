@@ -3,29 +3,31 @@ using UnityEngine;
 
 public class EnemySlime : Enemy
 {
-    [Header("AI Movement")]
-    [SerializeField] private float moveSpeed = 1f;
+    [Header("AI Movement")] [SerializeField]
+    private float moveSpeed = 1f;
+
     [SerializeField] private float idleTime = 1.0f;
     [SerializeField] private float moveTime = 2.0f;
     [SerializeField] private float spriteScale = 1.4f;
 
-    [Header("AI Attack")]
-    [SerializeField] private float attackRange = 2f;
+    [Header("AI Attack")] [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackCooldown = 2.0f;
     [SerializeField] private float damage = 10f;
     [SerializeField] private float attackRadius = 1.15f;
     [SerializeField] private LayerMask targetLayer;
 
-    [Header("Attack VFX")]
-    [SerializeField] private GameObject slamEffectPrefab;
+    [Header("Attack VFX")] [SerializeField]
+    private GameObject slamEffectPrefab;
+
     [SerializeField] private GameObject rangeBackground;
     [SerializeField] private GameObject attackIndicator;
     [SerializeField] private float indicatorScale = 0.45f;
     [SerializeField] private float chargeTime = 1.0f;
     [SerializeField] private float attackDelay = 0.1f;
 
-    [Header("Hit Reaction")]
-    [SerializeField] private float knockbackForce = 5.0f;
+    [Header("Hit Reaction")] [SerializeField]
+    private float knockbackForce = 5.0f;
+
     [SerializeField] private float stunTime = 0.5f;
 
     private Transform target;
@@ -142,11 +144,11 @@ public class EnemySlime : Enemy
             if (rigid)
                 rigid.linearVelocity = dir * moveSpeed;
 
-            timer += Time.fixedDeltaTime; 
-            yield return new WaitForFixedUpdate(); 
+            timer += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
         }
 
-        if (rigid) rigid.linearVelocity = Vector2.zero; 
+        if (rigid) rigid.linearVelocity = Vector2.zero;
         if (Anim) Anim.SetBool("isMoving", false);
     }
 
@@ -172,7 +174,11 @@ public class EnemySlime : Enemy
             float chargeTimer = 0f;
             while (chargeTimer < chargeTime)
             {
-                if (isDead) { DisableIndicators(); yield break; }
+                if (isDead)
+                {
+                    DisableIndicators();
+                    yield break;
+                }
 
                 chargeTimer += Time.deltaTime;
                 float progress = chargeTimer / chargeTime;

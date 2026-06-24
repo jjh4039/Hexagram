@@ -2,14 +2,19 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 
-public enum Season { Spring, Summer, Autumn, Winter }
+public enum Season
+{
+    Spring,
+    Summer,
+    Autumn,
+    Winter
+}
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    [Header("Auto Assigned References")]
-    public Player player;
+    [Header("Auto Assigned References")] public Player player;
     public PlayerStats stats;
     public WeaponManager weaponManager;
     public Dice dice;
@@ -19,15 +24,12 @@ public class GameManager : MonoBehaviour
     public VirtualCursor cursor;
     public ShopUIController shopUIController;
 
-    [Header("Stage Settings")]
-    public GameObject currentStageObj;
+    [Header("Stage Settings")] public GameObject currentStageObj;
     public Transform stageParent;
 
-    [Header("Global Resources")]
-    public GameObject commonScrapPrefab;
+    [Header("Global Resources")] public GameObject commonScrapPrefab;
 
-    [Header("Scrap Data & UI")]
-    public int currentScrap = 0;
+    [Header("Scrap Data & UI")] public int currentScrap = 0;
     public float scrapPercentage = 1f;
 
     private float _hitStopTimer = 0f;
@@ -37,20 +39,16 @@ public class GameManager : MonoBehaviour
     private Vector3 _scrapTextOriginScale;
     private int _lastStageIndex = -1;
 
-    [Header("Season System")]
-    public Season currentSeason = Season.Spring;
+    [Header("Season System")] public Season currentSeason = Season.Spring;
     public int currentProgress = 0;
     public int maxProgress = 100;
 
-    [Header("Play Time")]
-    public float currentPlayTime = 0f;
+    [Header("Play Time")] public float currentPlayTime = 0f;
     public int totalDamageDealt;
 
-    [Header("Event System")]
-    public float eventBossHealthMultiplier = 1.0f;
+    [Header("Event System")] public float eventBossHealthMultiplier = 1.0f;
 
-    [Header("Hit Stop")]
-    private Coroutine _hitStopCoroutine;
+    [Header("Hit Stop")] private Coroutine _hitStopCoroutine;
     private float _originalFixedDeltaTime;
     private StageController _controller;
 
@@ -148,7 +146,8 @@ public class GameManager : MonoBehaviour
             {
                 if (StageMessageUI.instance)
                 {
-                    StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description, stageData.themeColor);
+                    StageMessageUI.instance.ShowEntryMessage(stageData.moduleName, stageData.description,
+                        stageData.themeColor);
                 }
             }
         }

@@ -3,8 +3,7 @@ using UnityEngine.EventSystems;
 
 public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("설정")]
-    public int highlightIndex; // 강조 표시할 주사위 면 번호
+    [Header("설정")] public int highlightIndex; // 강조 표시할 주사위 면 번호
 
     private Dice _targetDice; // 데이터 연동을 위한 주사위 참조
 
@@ -30,7 +29,7 @@ public class BalanceTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                 DiceData data = _targetDice.diceList[highlightIndex];
                 float percent = _targetDice.displayPercentages[highlightIndex];
 
-                string hexColor = $"#{data.particleColor.r:X2}{data.particleColor.g:X2}{data.particleColor.b:X2}"; 
+                string hexColor = $"#{data.particleColor.r:X2}{data.particleColor.g:X2}{data.particleColor.b:X2}";
 
                 string title = $"주사위 : < <color={hexColor}>{highlightIndex + 1} </color>>";
 

@@ -12,8 +12,9 @@ public class BitManager : MonoBehaviour
 
     [SerializeField] private Image backgroundImage; // 배경 이미지
 
-    [Header("Background Loop Settings")]
-    [SerializeField] private float bgScaleMin = 0.9f;
+    [Header("Background Loop Settings")] [SerializeField]
+    private float bgScaleMin = 0.9f;
+
     [SerializeField] private float bgScaleMax = 1.1f;
     [SerializeField] private float bgRotationRange = 3f;
     [SerializeField] private float bgAnimSpeed = 0.3f;
@@ -24,23 +25,25 @@ public class BitManager : MonoBehaviour
     [SerializeField] private ArtifactGradeColor gradeColors; // 등급별 강조 색상
     [SerializeField] private CanvasGroup mainCanvasGroup; // 전체 UI 투명도 관리
 
-    [Header("Confirm Button Settings")]
-    [SerializeField] private Image confirmButtonImage; // 확정 버튼
+    [Header("Confirm Button Settings")] [SerializeField]
+    private Image confirmButtonImage; // 확정 버튼
+
     [SerializeField] private float buttonYOffset = -155f; // 버튼 수직 위치 오프셋
 
-    [Header("Selection Arrow Settings")]
-    [SerializeField] private Image selectionArrow; // 선택 표시 화살표
+    [Header("Selection Arrow Settings")] [SerializeField]
+    private Image selectionArrow; // 선택 표시 화살표
+
     [SerializeField] private float arrowYOffset = 180f; // 카드 기준 화살표 기본 높이 오프셋
     [SerializeField] private float arrowBounceHeight = 15f; // 위아래 이동 폭
     [SerializeField] private float arrowBounceSpeed = 8f; // 바운스 속도
 
-    [Header("Animation Settings")]
-    [SerializeField] private float hoverYOffset = 15f; // 호버 시 올라가는 높이
+    [Header("Animation Settings")] [SerializeField]
+    private float hoverYOffset = 15f; // 호버 시 올라가는 높이
+
     [SerializeField] private float animationSpeed = 10f; // 애니메이션 부드러움 정도
     [SerializeField] private float introDelay = 0.3f; // 카드 순차 등장 간격
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip sfxIntro; // 등장 사운드
+    [Header("Audio")] [SerializeField] private AudioClip sfxIntro; // 등장 사운드
     [SerializeField] private AudioClip sfxSelect; // 카드 선택 사운드
     [SerializeField] private AudioClip sfxDecision; // 최종 확정 사운드
 
@@ -174,9 +177,9 @@ public class BitManager : MonoBehaviour
 
         RectTransform arrowRect = selectionArrow.rectTransform;
         RectTransform cardRect = bitChoices[_selectedIndex].rect;
-        
+
         arrowRect.position = cardRect.position;
-        
+
         Vector2 anchored = arrowRect.anchoredPosition;
         float bounce = Mathf.Sin(Time.unscaledTime * arrowBounceSpeed) * arrowBounceHeight;
         anchored.y += arrowYOffset + bounce;

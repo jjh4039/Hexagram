@@ -7,14 +7,14 @@ public class BuffTooltipManager : MonoBehaviour
 {
     public static BuffTooltipManager Instance;
 
-    [Header("UI References")]
-    [SerializeField] private GameObject tooltipObj;
+    [Header("UI References")] [SerializeField]
+    private GameObject tooltipObj;
+
     [SerializeField] private RectTransform tooltipRect;
     [SerializeField] private TextMeshProUGUI descText;
     [SerializeField] private Image backgroundImage; // 툴팁 배경 이미지
 
-    [Header("Settings")]
-    [SerializeField] private Vector2 offset = new Vector2(15f, -15f);
+    [Header("Settings")] [SerializeField] private Vector2 offset = new Vector2(15f, -15f);
     [SerializeField] private Color buffColor = new Color(0.15f, 0.15f, 0.15f, 0.95f); // 버프일 때 배경색 (어두운 회색 등)
     [SerializeField] private Color debuffColor = new Color(0.4f, 0.1f, 0.1f, 0.95f); // 디버프일 때 배경색 (어두운 붉은색 등)
 
@@ -25,6 +25,7 @@ public class BuffTooltipManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
 
         if (tooltipObj != null)

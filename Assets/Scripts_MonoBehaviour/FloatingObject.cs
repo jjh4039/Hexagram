@@ -2,11 +2,12 @@ using UnityEngine;
 
 public class FloatingObject : MonoBehaviour
 {
-    [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 0.2f; // 부유 진폭
-    [SerializeField] private float floatSpeed = 2f;       // 부유 속도
+    [Header("Floating Settings")] [SerializeField]
+    private float floatAmplitude = 0.2f; // 부유 진폭
 
-    private Vector3 _startPos;                            // 초기 위치 저장
+    [SerializeField] private float floatSpeed = 2f; // 부유 속도
+
+    private Vector3 _startPos; // 초기 위치 저장
 
     private void Start()
     {

@@ -4,25 +4,19 @@ using System.Collections.Generic;
 
 public class EnemyProjectile : MonoBehaviour
 {
-    [Header("Pool Settings")]
-    [Tooltip("프리팹별로 다른 인덱스를 설정하세요 (예: 벌=0, 엘리트벌=1, 새=2)")]
+    [Header("Pool Settings")] [Tooltip("프리팹별로 다른 인덱스를 설정하세요 (예: 벌=0, 엘리트벌=1, 새=2)")]
     public int poolIndex = 0; // 인스펙터 풀 인덱스
 
-    [Header("Damage")]
-    [SerializeField] private float damage = 10f;
+    [Header("Damage")] [SerializeField] private float damage = 10f;
+    [Header("Movement")] [SerializeField] private float speed = 8f;
+    [Header("Lifetime")] [SerializeField] private float lifeTime = 5f;
+    [Header("Spawn Scale Effect")] [SerializeField]
+    private float spawnScaleMultiplier = 1.15f;
 
-    [Header("Movement")]
-    [SerializeField] private float speed = 8f;
-
-    [Header("Lifetime")]
-    [SerializeField] private float lifeTime = 5f;
-
-    [Header("Spawn Scale Effect")]
-    [SerializeField] private float spawnScaleMultiplier = 1.15f;
     [SerializeField] private float scaleRecoverTime = 0.06f;
 
-    [Header("Hit Effect")]
-    [SerializeField] private GameObject hitEffectPrefab;
+    [Header("Hit Effect")] [SerializeField]
+    private GameObject hitEffectPrefab;
 
     private Rigidbody2D rigid;
     private Vector2 moveDir;
@@ -37,7 +31,7 @@ public class EnemyProjectile : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
     }
-    
+
     public static EnemyProjectile Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
     {
         if (!poolContainer)
@@ -55,7 +49,7 @@ public class EnemyProjectile : MonoBehaviour
         }
 
         EnemyProjectile ep = null;
-        
+
         while (poolDict[targetIndex].Count > 0)
         {
             ep = poolDict[targetIndex].Dequeue();
@@ -72,19 +66,20 @@ public class EnemyProjectile : MonoBehaviour
         {
             GameObject obj = Instantiate(prefab, position, rotation, poolContainer);
             ep = obj.GetComponent<EnemyProjectile>();
-            ep.poolIndex = targetIndex; 
+            ep.poolIndex = targetIndex;
         }
+
         return ep;
     }
 
     private void OnEnable()
     {
-        if (baseScale == Vector3.zero) 
+        if (baseScale == Vector3.zero)
             baseScale = transform.localScale;
 
-        if (lifeTimerCoroutine != null) 
+        if (lifeTimerCoroutine != null)
             StopCoroutine(lifeTimerCoroutine);
-        
+
         lifeTimerCoroutine = StartCoroutine(Co_LifeTimer());
     }
 
@@ -113,7 +108,8 @@ public class EnemyProjectile : MonoBehaviour
     void SpawnHitEffect(Vector3 hitPosition)
     {
         if (hitEffectPrefab == null) return;
-        EnemyProjectileFlash.Spawn(hitEffectPrefab, hitPosition, Quaternion.Euler(0, 0, transform.eulerAngles.z + 180f));
+        EnemyProjectileFlash.Spawn(hitEffectPrefab, hitPosition,
+            Quaternion.Euler(0, 0, transform.eulerAngles.z + 180f));
     }
 
     IEnumerator Co_RecoverScale()
@@ -166,8 +162,10 @@ public class EnemyProjectile : MonoBehaviour
                         // 텍스트 출력 후 바로 return하여 투사체가 뚫고 지나가게 함
                         stats.SpawnDamageText("DODGE", Color.cyan, 3f);
                     }
-                    return; 
+
+                    return;
                 }
+
                 player.OnDamage(damage);
             }
 
@@ -187,7 +185,7 @@ public class EnemyProjectile : MonoBehaviour
     {
         if (scaleCoroutine != null) StopCoroutine(scaleCoroutine);
         if (lifeTimerCoroutine != null) StopCoroutine(lifeTimerCoroutine);
-        
+
         rigid.linearVelocity = Vector2.zero;
         gameObject.SetActive(false);
 
@@ -195,6 +193,7 @@ public class EnemyProjectile : MonoBehaviour
         {
             poolDict[poolIndex] = new Queue<EnemyProjectile>();
         }
+
         poolDict[poolIndex].Enqueue(this);
     }
 }

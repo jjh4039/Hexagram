@@ -8,8 +8,9 @@ public class BalanceManager : MonoBehaviour
 {
     public static BalanceManager instance;
 
-    [Header("UI Fade Settings")]
-    [SerializeField] private CanvasGroup mainCanvasGroup;
+    [Header("UI Fade Settings")] [SerializeField]
+    private CanvasGroup mainCanvasGroup;
+
     [SerializeField] private CanvasGroup contentCanvasGroup;
     [SerializeField] private float fadeDuration = 0.3f;
 
@@ -17,41 +18,45 @@ public class BalanceManager : MonoBehaviour
     [SerializeField] private Image mainFaceImage;
     [SerializeField] private Sprite normalSprite;
 
-    [Header("Main Image Floating Settings")]
-    [SerializeField] private float floatSpeed = 3f;
+    [Header("Main Image Floating Settings")] [SerializeField]
+    private float floatSpeed = 3f;
+
     [SerializeField] private float floatAmplitude = 2f;
     private Vector2 _mainImageInitialPos;
     private Coroutine _floatCoroutine;
 
-    [Header("Background Loop Settings")]
-    [SerializeField] private float bgScaleMin = 0.9f;
+    [Header("Background Loop Settings")] [SerializeField]
+    private float bgScaleMin = 0.9f;
+
     [SerializeField] private float bgScaleMax = 1.1f;
     [SerializeField] private float bgRotationRange = 3f;
     [SerializeField] private float bgAnimSpeed = 0.3f;
 
-    [Header("Face Zone Settings")]
-    [SerializeField] private FaceChoice[] faceChoices;
+    [Header("Face Zone Settings")] [SerializeField]
+    private FaceChoice[] faceChoices;
 
-    [Header("Probability UI Settings (6 Texts)")]
-    [SerializeField] private TextMeshProUGUI[] probabilityTexts;
+    [Header("Probability UI Settings (6 Texts)")] [SerializeField]
+    private TextMeshProUGUI[] probabilityTexts;
+
     [SerializeField] private Color normalTextColor = new Color(0.88f, 0.88f, 0.88f);
     [SerializeField] private Color increaseTextColor = new Color(0.5f, 0.78f, 0.52f);
     [SerializeField] private Color decreaseTextColor = new Color(0.9f, 0.45f, 0.45f);
 
-    [Header("Right Info Panel Settings")]
-    [SerializeField] private GameObject infoPanelObject;
+    [Header("Right Info Panel Settings")] [SerializeField]
+    private GameObject infoPanelObject;
+
     [SerializeField] private TextMeshProUGUI faceDescText;
     [SerializeField] private Image diceIconImage;
     [SerializeField] private Image diceIconBackground;
     [SerializeField] private TextMeshProUGUI transitionProbText;
     [SerializeField] private Image confirmButtonImage;
 
-    [Header("Default Info State")]
-    [SerializeField] private string defaultDescription = "확률을 높일 주사위의 면을 선택하세요.";
-    [SerializeField] private Color defaultColor = Color.gray; 
+    [Header("Default Info State")] [SerializeField]
+    private string defaultDescription = "확률을 높일 주사위의 면을 선택하세요.";
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip sfxIntro;
+    [SerializeField] private Color defaultColor = Color.gray;
+
+    [Header("Audio")] [SerializeField] private AudioClip sfxIntro;
     [SerializeField] private AudioClip sfxSelect;
     [SerializeField] private AudioClip sfxDecision;
 
@@ -104,7 +109,7 @@ public class BalanceManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        if (sfxIntro != null && SoundManager.instance != null) 
+        if (sfxIntro != null && SoundManager.instance != null)
             SoundManager.instance.PlaySFX(sfxIntro, 0.6f, 0.1f);
 
         StopAllCoroutines();
@@ -126,6 +131,7 @@ public class BalanceManager : MonoBehaviour
                 mainCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
+
         if (mainCanvasGroup) mainCanvasGroup.alpha = 1f;
 
         elapsed = 0f;
@@ -136,6 +142,7 @@ public class BalanceManager : MonoBehaviour
                 contentCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
+
         if (contentCanvasGroup) contentCanvasGroup.alpha = 1f;
 
         _isInitialized = true;
@@ -159,7 +166,8 @@ public class BalanceManager : MonoBehaviour
         for (int i = 0; i < faceChoices.Length; i++)
         {
             if (faceChoices[i].hoverSensor &&
-                RectTransformUtility.RectangleContainsScreenPoint(faceChoices[i].hoverSensor.rectTransform, mousePos, null))
+                RectTransformUtility.RectangleContainsScreenPoint(faceChoices[i].hoverSensor.rectTransform, mousePos,
+                    null))
             {
                 newHoverIndex = i;
                 break;
@@ -191,7 +199,8 @@ public class BalanceManager : MonoBehaviour
             for (int i = 0; i < faceChoices.Length; i++)
             {
                 if (faceChoices[i].hoverSensor &&
-                    RectTransformUtility.RectangleContainsScreenPoint(faceChoices[i].hoverSensor.rectTransform, mousePos, null))
+                    RectTransformUtility.RectangleContainsScreenPoint(faceChoices[i].hoverSensor.rectTransform,
+                        mousePos, null))
                 {
                     SelectFace(i);
                     break;
@@ -206,7 +215,7 @@ public class BalanceManager : MonoBehaviour
 
         _selectedIndex = newIndex;
 
-        if (sfxSelect && SoundManager.instance) 
+        if (sfxSelect && SoundManager.instance)
             SoundManager.instance.PlaySFX(sfxSelect, 0.6f);
 
         UpdateMainImage();
@@ -252,7 +261,8 @@ public class BalanceManager : MonoBehaviour
         }
         else
         {
-            float[] predictedPercentages = GameManager.instance.dice.GetPredictedPercentages(_selectedIndex, _currentWeightPercent);
+            float[] predictedPercentages =
+                GameManager.instance.dice.GetPredictedPercentages(_selectedIndex, _currentWeightPercent);
 
             for (int i = 0; i < 6; i++)
             {
@@ -280,7 +290,8 @@ public class BalanceManager : MonoBehaviour
             DiceData currentData = GameManager.instance.dice.diceList[_selectedIndex];
 
             float currentPercent = GameManager.instance.dice.displayPercentages[_selectedIndex];
-            float[] predicted = GameManager.instance.dice.GetPredictedPercentages(_selectedIndex, _currentWeightPercent);
+            float[] predicted =
+                GameManager.instance.dice.GetPredictedPercentages(_selectedIndex, _currentWeightPercent);
             float predictedPercent = predicted[_selectedIndex];
 
             if (currentData)
@@ -303,7 +314,8 @@ public class BalanceManager : MonoBehaviour
             if (transitionProbText)
             {
                 Color highlightColor = currentData ? currentData.particleColor : increaseTextColor;
-                transitionProbText.text = $"{currentPercent:F1}% -> <color=#{ColorUtility.ToHtmlStringRGB(highlightColor)}>{predictedPercent:F1}%</color>";
+                transitionProbText.text =
+                    $"{currentPercent:F1}% -> <color=#{ColorUtility.ToHtmlStringRGB(highlightColor)}>{predictedPercent:F1}%</color>";
             }
 
             if (confirmButtonImage) confirmButtonImage.gameObject.SetActive(true);
@@ -330,13 +342,13 @@ public class BalanceManager : MonoBehaviour
     {
         if (_selectedIndex == -1) return;
 
-        if (sfxDecision && SoundManager.instance) 
+        if (sfxDecision && SoundManager.instance)
             SoundManager.instance.PlaySFX(sfxDecision, 0.7f, 0.2f);
 
         if (GameManager.instance && GameManager.instance.dice)
         {
             GameManager.instance.dice.AddPercentToFace(_selectedIndex, _currentWeightPercent);
-            
+
             if (AnalyticsManager.Instance)
             {
                 AnalyticsManager.Instance.LogBalanceSelection(_selectedIndex, _currentWeightPercent);
@@ -365,16 +377,16 @@ public class BalanceManager : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float currentAlpha = Mathf.Clamp01(1f - (elapsed / fadeDuration));
-            
+
             if (mainCanvasGroup) mainCanvasGroup.alpha = currentAlpha;
             if (contentCanvasGroup) contentCanvasGroup.alpha = currentAlpha;
-            
+
             yield return null;
         }
 
         if (mainCanvasGroup) mainCanvasGroup.alpha = 0f;
         if (contentCanvasGroup) contentCanvasGroup.alpha = 0f;
-        
+
         if (InputStateManager.Instance) InputStateManager.Instance.CloseUI();
 
         gameObject.SetActive(false);

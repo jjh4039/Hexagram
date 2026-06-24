@@ -4,56 +4,62 @@ using System.Collections.Generic;
 
 public class EnemyBoss : Enemy
 {
-    [Header("Debug / Testing")]
-    [Tooltip("0: 랜덤(1~4), 1~4: 해당 패턴만 무한 반복")]
-    [SerializeField][Range(0, 4)] private int forcePatternIndex = 0;
-    [Tooltip("체력과 상관없이 강제로 폭주(Phase 2) 패턴을 켭니다.")]
-    [SerializeField] private bool forceEnrage = false;
+    [Header("Debug / Testing")] [Tooltip("0: 랜덤(1~4), 1~4: 해당 패턴만 무한 반복")] [SerializeField] [Range(0, 4)]
+    private int forcePatternIndex = 0;
 
-    [Header("Boss Specific Stats")]
-    [SerializeField] private string bossName = "숲의 관리자";
+    [Tooltip("체력과 상관없이 강제로 폭주(Phase 2) 패턴을 켭니다.")] [SerializeField]
+    private bool forceEnrage = false;
+
+    [Header("Boss Specific Stats")] [SerializeField]
+    private string bossName = "숲의 관리자";
+
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float spriteScale = 1f;
 
-    [Header("Intro Settings")]
-    [SerializeField] private float introTriggerRadius = 10f;
+    [Header("Intro Settings")] [SerializeField]
+    private float introTriggerRadius = 10f;
+
     private bool isAwake = false;
 
-    [Header("Boss AI Logic")]
-    [Tooltip("몇 번의 공격마다 4번(각성기) 패턴을 사용할지 결정합니다.")]
-    [SerializeField] private int crossGridFrequency = 4;
-    [Tooltip("플레이어와 겹쳤을 때 빠른 방향 전환을 막는 딜레이 시간")]
-    [SerializeField] private float flipCooldown = 0.3f;
+    [Header("Boss AI Logic")] [Tooltip("몇 번의 공격마다 4번(각성기) 패턴을 사용할지 결정합니다.")] [SerializeField]
+    private int crossGridFrequency = 4;
+
+    [Tooltip("플레이어와 겹쳤을 때 빠른 방향 전환을 막는 딜레이 시간")] [SerializeField]
+    private float flipCooldown = 0.3f;
 
     private bool isFirstPattern = true;
     private int patternCounter = 0;
     private int lastPatternIndex = -1;
     private float lastFlipTime = 0f;
 
-    [Header("Phase Settings")]
-    [SerializeField] private float enragePauseTime = 2.0f;
+    [Header("Phase Settings")] [SerializeField]
+    private float enragePauseTime = 2.0f;
+
     [SerializeField] private float enrageKnockbackForce = 15f;
     private bool isEnraged = false;
     private SpriteRenderer spriteRenderer;
 
-    [Header("Aura Effect")]
-    [SerializeField] private ParticleSystem auraParticle;
+    [Header("Aura Effect")] [SerializeField]
+    private ParticleSystem auraParticle;
+
     [SerializeField] private Color normalAuraColor = new Color(1f, 1f, 1f, 0.4f);
     [SerializeField] private Color enrageAuraColor = new Color(1f, 0.2f, 0.2f, 0.6f);
     [SerializeField] private float normalAuraRate = 25f;
     [SerializeField] private float enrageAuraRate = 40f;
 
-    [Header("Global Attack Settings")]
-    [SerializeField] private float dealTime = 0.7f;
+    [Header("Global Attack Settings")] [SerializeField]
+    private float dealTime = 0.7f;
 
-    [Header("Pattern 1: Dash")]
-    [SerializeField] private float dashChargeTime = 1.0f;
+    [Header("Pattern 1: Dash")] [SerializeField]
+    private float dashChargeTime = 1.0f;
+
     [SerializeField] private float dashSpeed = 80f;
     [SerializeField] private float dashDuration = 0.5f;
     [SerializeField] private float dashRecoveryTime = 0.5f;
 
-    [Header("Pattern 1: Dash Indicator")]
-    [SerializeField] private GameObject dashMaxRangeOrigin;
+    [Header("Pattern 1: Dash Indicator")] [SerializeField]
+    private GameObject dashMaxRangeOrigin;
+
     [SerializeField] private GameObject dashCurrentRangeOrigin;
     [SerializeField] private float dashRectWidth = 2.3f;
     [SerializeField] private float dashMaxLimitLength = 23f;
@@ -61,8 +67,10 @@ public class EnemyBoss : Enemy
     [SerializeField] private Vector2 dashIndicatorOffset = new Vector2(-1f, 0f);
     [SerializeField] private float dashAimOffsetY = -1f; // 플레이어 중앙 조준을 위한 Y축 오프셋
     [SerializeField] private AnimationCurve dashSpeedCurve = AnimationCurve.Linear(0, 1, 1, 0);
-    [Header("Pattern 1: Dash Damage & Visuals")]
-    [SerializeField] private float dashDamageMultiplier = 1.5f;
+
+    [Header("Pattern 1: Dash Damage & Visuals")] [SerializeField]
+    private float dashDamageMultiplier = 1.5f;
+
     [SerializeField] private int trailPoolSize = 10;
     [SerializeField] private float trailSpawnDelay = 0.04f;
     [SerializeField] private float trailLifeTime = 0.4f;
@@ -71,26 +79,30 @@ public class EnemyBoss : Enemy
     [SerializeField] private float debrisSpawnDelay = 0.05f;
     [SerializeField] private Vector2 debrisOffset = new Vector2(0f, 0f);
 
-    [Header("Pattern 2: Point Blank AoE")]
-    [SerializeField] private float aoeChargeTime = 2.0f;
+    [Header("Pattern 2: Point Blank AoE")] [SerializeField]
+    private float aoeChargeTime = 2.0f;
+
     [SerializeField] private float hugeAoeRadius = 9f;
     [SerializeField] private float aoeDamage = 14f;
     [SerializeField] private float aoeRecoveryTime = 1.0f;
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private GameObject aoeEffectPrefab;
 
-    [Header("Pattern 2: AoE Indicator")]
-    [SerializeField] private GameObject attackMaxRangeObj;
+    [Header("Pattern 2: AoE Indicator")] [SerializeField]
+    private GameObject attackMaxRangeObj;
+
     [SerializeField] private GameObject attackRangeObj;
     [SerializeField] private float aoeVisualScale = 4.5f;
 
-    [Header("Pattern 2: Enrage Projectiles (Optional)")]
-    [SerializeField] private GameObject aoeProjectilePrefab;
+    [Header("Pattern 2: Enrage Projectiles (Optional)")] [SerializeField]
+    private GameObject aoeProjectilePrefab;
+
     [SerializeField] private float aoeProjectileSpeed = 10f;
     [SerializeField] private float aoeProjectileDamage = 12f;
 
-    [Header("Pattern 3: Multi-Lines (Earth Spikes)")]
-    [SerializeField] private float linesChargeTime = 1.5f;
+    [Header("Pattern 3: Multi-Lines (Earth Spikes)")] [SerializeField]
+    private float linesChargeTime = 1.5f;
+
     [SerializeField] private int minLines = 7;
     [SerializeField] private int maxLines = 10;
     [SerializeField] private float linesRecoveryTime = 0.5f;
@@ -102,8 +114,9 @@ public class EnemyBoss : Enemy
     [SerializeField] private float spikeMaxLimitLength = 30f;
     [SerializeField] private Vector2 spikeSpawnOffset = new Vector2(0f, -0.5f);
 
-    [Header("Pattern 4: Cross Grid (Vine)")]
-    [SerializeField] private float gridStartupDelay = 1.5f;
+    [Header("Pattern 4: Cross Grid (Vine)")] [SerializeField]
+    private float gridStartupDelay = 1.5f;
+
     [SerializeField] private float gridChargeTime = 0.5f;
     [SerializeField] private float gridTelegraphDuration = 0.8f;
     [SerializeField] private float gridTelegraphGap = 0.2f;
@@ -113,18 +126,18 @@ public class EnemyBoss : Enemy
     [SerializeField] private float vineDamage = 25f;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float gridLineWidth = 3f;
-    
-    [Header("Pattern 4: Colors (Telegraph & Sniper)")]
-    [SerializeField] private Color gridTelegraphColor = new Color(0.3f, 0.8f, 1f, 0.7f); // 하늘색 예고 장판
-    [SerializeField] private Color sniperMaxColor = new Color(1f, 0.2f, 0.2f, 0.2f);     // 저격 배경 (연한 빨강)
-    [SerializeField] private Color sniperCurColor = new Color(1f, 0.2f, 0.2f, 0.6f);     // 저격 차오름 (중간 빨강)
+
+    [Header("Pattern 4: Colors (Telegraph & Sniper)")] [SerializeField]
+    private Color gridTelegraphColor = new Color(0.3f, 0.8f, 1f, 0.7f); // 하늘색 예고 장판
+
+    [SerializeField] private Color sniperMaxColor = new Color(1f, 0.2f, 0.2f, 0.2f); // 저격 배경 (연한 빨강)
+    [SerializeField] private Color sniperCurColor = new Color(1f, 0.2f, 0.2f, 0.6f); // 저격 차오름 (중간 빨강)
 
     private Vector2 initialSpawnPos;
     [SerializeField] private float[] gridOffsetY = new float[] { 4.5f, 3f, 1.5f, 0f, -1.5f, -3f, -4.5f };
     [SerializeField] private float[] gridOffsetX = new float[] { -6f, -4.5f, -3f, -1.5f, 0f, 1.5f, 3f, 4.5f, 6f, 7.5f };
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip bossBgmIntro;
+    [Header("Sound")] [SerializeField] private AudioClip bossBgmIntro;
     [SerializeField] private AudioClip bossBgmLoop;
     [SerializeField] private float bossBgmFadeInTime = 1.5f;
     [SerializeField] private AudioClip sfxDashFire;
@@ -133,8 +146,8 @@ public class EnemyBoss : Enemy
     [SerializeField] private AudioClip sfxVineExplode;
     [SerializeField] private AudioClip sfxEnrageRoar;
 
-    [Header("Death Settings")]
-    [SerializeField] private Sprite deadStatueSprite;
+    [Header("Death Settings")] [SerializeField]
+    private Sprite deadStatueSprite;
 
     private GameObject sniperMaxInstance;
     private GameObject sniperCurrentInstance;
@@ -194,6 +207,7 @@ public class EnemyBoss : Enemy
         {
             auraParticle.Stop();
         }
+
         if (spriteRenderer != null) spriteRenderer.color = Color.gray;
 
         Transform shadowT = transform.Find("Shadow");
@@ -251,7 +265,8 @@ public class EnemyBoss : Enemy
         }
     }
 
-    private void DrawTelegraph(GameObject rect, Vector3 rayOrigin, Vector3 drawPos, Vector2 dir, float maxLength, float progress, float width)
+    private void DrawTelegraph(GameObject rect, Vector3 rayOrigin, Vector3 drawPos, Vector2 dir, float maxLength,
+        float progress, float width)
     {
         if (rect == null) return;
 
@@ -293,20 +308,14 @@ public class EnemyBoss : Enemy
         {
             StartCoroutine(CinematicManager.Instance.Co_PlayBossIntro(
                 this.transform,
-                onSunsetStart: () =>
-                {
-                    StartCoroutine(Co_WakeUpColorLerp(CinematicManager.Instance.SunsetDuration));
-                },
+                onSunsetStart: () => { StartCoroutine(Co_WakeUpColorLerp(CinematicManager.Instance.SunsetDuration)); },
                 onSunsetDone: () =>
                 {
                     if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(1.7f, 0.4f, 1f);
                     if (sfxSpikeWave != null) SoundManager.instance.PlaySFX(sfxSpikeWave, 1.2f);
                     if (Anim != null) Anim.SetTrigger("Start");
                 },
-                onFinish: () =>
-                {
-                    StartCoroutine(Co_PostCutsceneSetup());
-                }
+                onFinish: () => { StartCoroutine(Co_PostCutsceneSetup()); }
             ));
         }
         else
@@ -332,6 +341,7 @@ public class EnemyBoss : Enemy
 
             yield return null;
         }
+
         spriteRenderer.color = endColor;
         if (shadowSr != null) shadowSr.color = shadowOriginalColor;
     }
@@ -385,6 +395,7 @@ public class EnemyBoss : Enemy
             {
                 StartIntroSequence();
             }
+
             return;
         }
 
@@ -474,7 +485,11 @@ public class EnemyBoss : Enemy
 
         while (!isDead)
         {
-            if (isStunned) { yield return null; continue; }
+            if (isStunned)
+            {
+                yield return null;
+                continue;
+            }
 
             int patternIndex = 1;
 
@@ -500,8 +515,7 @@ public class EnemyBoss : Enemy
                     do
                     {
                         patternIndex = Random.Range(1, 4);
-                    }
-                    while (patternIndex == lastPatternIndex);
+                    } while (patternIndex == lastPatternIndex);
                 }
             }
 
@@ -533,6 +547,7 @@ public class EnemyBoss : Enemy
             timer += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
+
         rigid.linearVelocity = Vector2.zero;
         if (Anim != null) Anim.SetBool("isMoving", false);
     }
@@ -608,17 +623,19 @@ public class EnemyBoss : Enemy
             while (timer < currentChargeTime && !isDead)
             {
                 timer += Time.deltaTime;
-                
+
                 Vector3 currentAimTarget = target.position + new Vector3(0f, dashAimOffsetY, 0f);
                 Vector2 targetDir = (currentAimTarget - transform.position).normalized;
-                
+
                 currentDir = Vector2.Lerp(currentDir, targetDir, Time.deltaTime * dashHomingStrength);
 
                 Vector3 drawPos = transform.position + (Vector3)visualOffset;
                 float progress = timer / currentChargeTime;
 
-                DrawTelegraph(maxRectInstance, transform.position, drawPos, currentDir, currentLimitLength, 1f, dashRectWidth);
-                DrawTelegraph(currentRectInstance, transform.position, drawPos, currentDir, currentLimitLength, progress, dashRectWidth);
+                DrawTelegraph(maxRectInstance, transform.position, drawPos, currentDir, currentLimitLength, 1f,
+                    dashRectWidth);
+                DrawTelegraph(currentRectInstance, transform.position, drawPos, currentDir, currentLimitLength,
+                    progress, dashRectWidth);
 
                 LookAtDirection(currentDir.x);
                 yield return null;
@@ -699,6 +716,7 @@ public class EnemyBoss : Enemy
                 float currentScale = Mathf.Lerp(0f, aoeVisualScale, progress);
                 attackRangeObj.transform.localScale = new Vector3(currentScale, currentScale, 1f);
             }
+
             yield return null;
         }
 
@@ -759,6 +777,7 @@ public class EnemyBoss : Enemy
                 float randomAngle = Random.Range(0f, 360f);
                 dir = new Vector2(Mathf.Cos(randomAngle * Mathf.Deg2Rad), Mathf.Sin(randomAngle * Mathf.Deg2Rad));
             }
+
             lineDirections.Add(dir);
 
             RaycastHit2D hit = Physics2D.Raycast(transform.position, dir, spikeMaxLimitLength, wallLayer);
@@ -780,10 +799,13 @@ public class EnemyBoss : Enemy
             for (int i = 0; i < lineDirections.Count; i++)
             {
                 if (i < maxRects.Count)
-                    DrawTelegraph(maxRects[i], transform.position, transform.position, lineDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
+                    DrawTelegraph(maxRects[i], transform.position, transform.position, lineDirections[i],
+                        spikeMaxLimitLength, 1f, spikeRectWidth);
                 if (i < currentRects.Count)
-                    DrawTelegraph(currentRects[i], transform.position, transform.position, lineDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
+                    DrawTelegraph(currentRects[i], transform.position, transform.position, lineDirections[i],
+                        spikeMaxLimitLength, progress, spikeRectWidth);
             }
+
             yield return null;
         }
 
@@ -834,10 +856,13 @@ public class EnemyBoss : Enemy
                     {
                         Vector2 startPos = wallHitPoints[i];
                         if (i < maxRects.Count)
-                            DrawTelegraph(maxRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength, 1f, spikeRectWidth);
+                            DrawTelegraph(maxRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength,
+                                1f, spikeRectWidth);
                         if (i < currentRects.Count)
-                            DrawTelegraph(currentRects[i], startPos, startPos, reverseDirections[i], spikeMaxLimitLength, progress, spikeRectWidth);
+                            DrawTelegraph(currentRects[i], startPos, startPos, reverseDirections[i],
+                                spikeMaxLimitLength, progress, spikeRectWidth);
                     }
+
                     yield return null;
                 }
 
@@ -862,11 +887,21 @@ public class EnemyBoss : Enemy
         if (Anim != null) Anim.SetTrigger("GatherHands");
         yield return new WaitForSeconds(gridStartupDelay);
 
-        List<int> hSet1 = new List<int>(); List<int> hSet2 = new List<int>();
-        for (int i = 0; i < gridOffsetY.Length; i++) { if (i % 2 == 0) hSet1.Add(i); else hSet2.Add(i); }
+        List<int> hSet1 = new List<int>();
+        List<int> hSet2 = new List<int>();
+        for (int i = 0; i < gridOffsetY.Length; i++)
+        {
+            if (i % 2 == 0) hSet1.Add(i);
+            else hSet2.Add(i);
+        }
 
-        List<int> vSet1 = new List<int>(); List<int> vSet2 = new List<int>();
-        for (int i = 0; i < gridOffsetX.Length; i++) { if (i % 2 == 0) vSet1.Add(i); else vSet2.Add(i); }
+        List<int> vSet1 = new List<int>();
+        List<int> vSet2 = new List<int>();
+        for (int i = 0; i < gridOffsetX.Length; i++)
+        {
+            if (i % 2 == 0) vSet1.Add(i);
+            else vSet2.Add(i);
+        }
 
         yield return StartCoroutine(Co_FlashTelegraph(hSet1, null));
         yield return StartCoroutine(Co_FlashTelegraph(null, vSet1));
@@ -887,7 +922,8 @@ public class EnemyBoss : Enemy
             if (dashCurrentRangeOrigin != null)
             {
                 sniperCurrentInstance = GetTelegraph("SniperCur", dashCurrentRangeOrigin, transform.position);
-                sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(sniperCurColor.r, sniperCurColor.g, sniperCurColor.b, 0f);
+                sniperCurrentInstance.GetComponent<SpriteRenderer>().color =
+                    new Color(sniperCurColor.r, sniperCurColor.g, sniperCurColor.b, 0f);
             }
 
             // 조준 지속 시간과 완전히 차오르는 시간을 분리
@@ -895,7 +931,12 @@ public class EnemyBoss : Enemy
             float totalVisualChargeTime = trackingTime + 1f;
 
             StartCoroutine(Co_SniperTrackingRoutine(
-                (startPos, dir, len) => { lockedSniperStartPos = startPos; lockedSniperDir = dir; lockedSniperLength = len; },
+                (startPos, dir, len) =>
+                {
+                    lockedSniperStartPos = startPos;
+                    lockedSniperDir = dir;
+                    lockedSniperLength = len;
+                },
                 trackingTime,
                 totalVisualChargeTime
             ));
@@ -927,7 +968,8 @@ public class EnemyBoss : Enemy
 
                 float angle = Mathf.Atan2(lockedSniperDir.y, lockedSniperDir.x) * Mathf.Rad2Deg - 90f;
 
-                GameObject sniperVine = Instantiate(giantVinePrefab, lockedSniperStartPos, Quaternion.Euler(0, 0, angle));
+                GameObject sniperVine =
+                    Instantiate(giantVinePrefab, lockedSniperStartPos, Quaternion.Euler(0, 0, angle));
                 sniperVine.transform.localScale = new Vector3(2, 2, 1);
 
                 GiantVine vineScript = sniperVine.GetComponent<GiantVine>();
@@ -935,6 +977,7 @@ public class EnemyBoss : Enemy
                 {
                     vineScript.Fire(vineDamage * 1.5f, lockedSniperLength);
                 }
+
                 if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(0.5f, 0.4f);
             }
 
@@ -948,9 +991,9 @@ public class EnemyBoss : Enemy
 
     private (Vector2 startPos, float length) GetLineData(bool isHorizontal, int index)
     {
-        Vector2 origin = isHorizontal ?
-            new Vector2(initialSpawnPos.x, initialSpawnPos.y + gridOffsetY[index]) :
-            new Vector2(initialSpawnPos.x + gridOffsetX[index], initialSpawnPos.y);
+        Vector2 origin = isHorizontal
+            ? new Vector2(initialSpawnPos.x, initialSpawnPos.y + gridOffsetY[index])
+            : new Vector2(initialSpawnPos.x + gridOffsetX[index], initialSpawnPos.y);
 
         Vector2 dir1 = isHorizontal ? Vector2.left : Vector2.down;
         Vector2 dir2 = isHorizontal ? Vector2.right : Vector2.up;
@@ -989,6 +1032,7 @@ public class EnemyBoss : Enemy
                     sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, 0f);
                     srs.Add(sr);
                 }
+
                 markers.Add(telegraph);
             }
         }
@@ -1010,6 +1054,7 @@ public class EnemyBoss : Enemy
                     sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, 0f);
                     srs.Add(sr);
                 }
+
                 markers.Add(telegraph);
             }
         }
@@ -1020,18 +1065,24 @@ public class EnemyBoss : Enemy
         for (float t = 0; t < halfTime; t += Time.deltaTime)
         {
             float alpha = Mathf.Lerp(0f, maxAlpha, t / halfTime);
-            foreach (var sr in srs) if (sr != null) sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, alpha);
+            foreach (var sr in srs)
+                if (sr != null)
+                    sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, alpha);
             yield return null;
         }
 
         for (float t = 0; t < halfTime; t += Time.deltaTime)
         {
             float alpha = Mathf.Lerp(maxAlpha, 0f, t / halfTime);
-            foreach (var sr in srs) if (sr != null) sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, alpha);
+            foreach (var sr in srs)
+                if (sr != null)
+                    sr.color = new Color(gridTelegraphColor.r, gridTelegraphColor.g, gridTelegraphColor.b, alpha);
             yield return null;
         }
 
-        foreach (var m in markers) if (m != null) m.SetActive(false);
+        foreach (var m in markers)
+            if (m != null)
+                m.SetActive(false);
         yield return new WaitForSeconds(gridTelegraphGap);
     }
 
@@ -1105,6 +1156,7 @@ public class EnemyBoss : Enemy
                 trailObj.SetActive(true);
                 StartCoroutine(Co_FadeOutTrail(trailObj, trailSr));
             }
+
             yield return new WaitForSeconds(trailSpawnDelay);
         }
     }
@@ -1136,6 +1188,7 @@ public class EnemyBoss : Enemy
                 GameObject debris = Instantiate(dashDebrisPrefab, spawnPos, Quaternion.identity);
                 Destroy(debris, 1f);
             }
+
             yield return new WaitForSeconds(debrisSpawnDelay);
         }
     }
@@ -1151,7 +1204,8 @@ public class EnemyBoss : Enemy
             float angle = i * angleStep;
             Vector2 dir = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
 
-            EnemyProjectile projectileScript = EnemyProjectile.Spawn(aoeProjectilePrefab, transform.position, Quaternion.identity);
+            EnemyProjectile projectileScript =
+                EnemyProjectile.Spawn(aoeProjectilePrefab, transform.position, Quaternion.identity);
 
             if (projectileScript != null)
             {
@@ -1169,7 +1223,7 @@ public class EnemyBoss : Enemy
         for (int i = 1; i <= spikeCount; i++)
         {
             if (isDead) yield break;
-            
+
             Vector2 basePos = origin + dir * (i * spikeDistance);
             Vector2 spawnPos = basePos + spikeSpawnOffset;
 
@@ -1183,8 +1237,9 @@ public class EnemyBoss : Enemy
             yield return new WaitForSeconds(spikeSpawnDelay);
         }
     }
-    
-    IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, float trackingDuration, float totalChargeDuration)
+
+    IEnumerator Co_SniperTrackingRoutine(System.Action<Vector2, Vector2, float> onUpdateData, float trackingDuration,
+        float totalChargeDuration)
     {
         float timer = 0f;
 
@@ -1196,7 +1251,7 @@ public class EnemyBoss : Enemy
 
         Vector2 lockedStartPos = transform.position;
         float lockedTotalLength = 0f;
-        
+
         while (timer < trackingDuration && !isDead)
         {
             if (GameManager.instance?.player != null)
@@ -1222,9 +1277,10 @@ public class EnemyBoss : Enemy
                 onUpdateData(lockedStartPos, currentDir, lockedTotalLength);
                 UpdateSniperVisuals(lockedStartPos, currentDir, lockedTotalLength, progress);
             }
+
             yield return null;
         }
-        
+
         while (timer < totalChargeDuration && !isDead)
         {
             timer += Time.deltaTime;
@@ -1248,12 +1304,17 @@ public class EnemyBoss : Enemy
             sniperCurrentInstance.transform.position = startPos;
             sniperCurrentInstance.transform.right = dir;
 
-            sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(sniperCurColor.r, sniperCurColor.g, sniperCurColor.b, sniperCurColor.a * progress);
-            sniperCurrentInstance.GetComponent<SpriteRenderer>().size = new Vector2(totalLength * progress, gridLineWidth);
+            sniperCurrentInstance.GetComponent<SpriteRenderer>().color = new Color(sniperCurColor.r, sniperCurColor.g,
+                sniperCurColor.b, sniperCurColor.a * progress);
+            sniperCurrentInstance.GetComponent<SpriteRenderer>().size =
+                new Vector2(totalLength * progress, gridLineWidth);
         }
     }
 
-    protected override void OnHit() { if (isDead) return; }
+    protected override void OnHit()
+    {
+        if (isDead) return;
+    }
 
     protected override void Die()
     {
@@ -1306,6 +1367,7 @@ public class EnemyBoss : Enemy
             {
                 spriteRenderer.sprite = deadStatueSprite;
             }
+
             spriteRenderer.color = Color.gray;
         }
     }

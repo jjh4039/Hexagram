@@ -6,7 +6,7 @@ public class ArtifactManager : MonoBehaviour
     public static ArtifactManager Instance; // 전역 접근용 인스턴스
 
     public List<ArtifactData> myArtifacts = new List<ArtifactData>();
-    
+
     public List<ArtifactData> allArtifacts = new List<ArtifactData>();
 
     private void Awake()
@@ -37,7 +37,7 @@ public class ArtifactManager : MonoBehaviour
             DashboardUI.instance.RefreshArtifacts(); // 열려있는 UI 즉시 갱신
         }
     }
-    
+
     public void GiveRandomArtifactByGrade(ArtifactGrade grade)
     {
         if (allArtifacts == null || allArtifacts.Count == 0)
@@ -68,9 +68,9 @@ public class ArtifactManager : MonoBehaviour
         if (candidates.Count > 0)
         {
             ArtifactData selected = candidates[Random.Range(0, candidates.Count)];
-            AddArtifact(selected);  
+            AddArtifact(selected);
         }
-    }   
+    }
 
     public void OnStageEnterTrigger()
     {

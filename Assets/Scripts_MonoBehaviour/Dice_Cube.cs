@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class Dice_Cube : MonoBehaviour
 {
-    [Header("--- Roll Settings ---")]
-    [SerializeField] private float rollSpeed = 1000f;
+    [Header("--- Roll Settings ---")] [SerializeField]
+    private float rollSpeed = 1000f;
+
     [SerializeField] private float minRotationThreshold = 0.5f;
 
     private Vector3 currentAxis;
@@ -12,9 +13,12 @@ public class Dice_Cube : MonoBehaviour
     {
         Vector3 rawAxis = Random.onUnitSphere;
 
-        if (Mathf.Abs(rawAxis.x) < minRotationThreshold) rawAxis.x = minRotationThreshold * Mathf.Sign(rawAxis.x == 0 ? 1 : rawAxis.x);
-        if (Mathf.Abs(rawAxis.y) < minRotationThreshold) rawAxis.y = minRotationThreshold * Mathf.Sign(rawAxis.y == 0 ? 1 : rawAxis.y);
-        if (Mathf.Abs(rawAxis.z) < minRotationThreshold) rawAxis.z = minRotationThreshold * Mathf.Sign(rawAxis.z == 0 ? 1 : rawAxis.z);
+        if (Mathf.Abs(rawAxis.x) < minRotationThreshold)
+            rawAxis.x = minRotationThreshold * Mathf.Sign(rawAxis.x == 0 ? 1 : rawAxis.x);
+        if (Mathf.Abs(rawAxis.y) < minRotationThreshold)
+            rawAxis.y = minRotationThreshold * Mathf.Sign(rawAxis.y == 0 ? 1 : rawAxis.y);
+        if (Mathf.Abs(rawAxis.z) < minRotationThreshold)
+            rawAxis.z = minRotationThreshold * Mathf.Sign(rawAxis.z == 0 ? 1 : rawAxis.z);
 
         currentAxis = rawAxis.normalized;
     }

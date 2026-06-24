@@ -4,19 +4,20 @@ using System.Collections.Generic;
 
 public class Dice : MonoBehaviour
 {
-    [Header("UI Reference")]
-    [SerializeField] private Dice_UI diceUI;
+    [Header("UI Reference")] [SerializeField]
+    private Dice_UI diceUI;
 
-    [Header("Data Settings")]
-    [SerializeField] public DiceData[] diceList;
+    [Header("Data Settings")] [SerializeField]
+    public DiceData[] diceList;
+
     [SerializeField] public DiceData defaultData;
 
-    [Header("Probability Settings")]
-    [SerializeField] private int[] faceWeights = new int[6] { 100, 100, 100, 100, 100, 100 };
+    [Header("Probability Settings")] [SerializeField]
+    private int[] faceWeights = new int[6] { 100, 100, 100, 100, 100, 100 };
+
     [SerializeField] public float[] displayPercentages = new float[6];
 
-    [Header("History")]
-    public int lastRolledFaceIndex = -1;
+    [Header("History")] public int lastRolledFaceIndex = -1;
 
     private BuffManager _buffManager;
 
@@ -48,7 +49,7 @@ public class Dice : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.stats == null) return;
 
         PlayerStats stats = GameManager.instance.stats;
-        
+
         if (diceUI != null && !diceUI.IsRolling && stats.currentDiceCharge >= 100f)
         {
             RollDice(stats);
@@ -64,7 +65,7 @@ public class Dice : MonoBehaviour
 
         int selectedIndex = GetWeightedRandomIndex();
         bool isConsecutive = (lastRolledFaceIndex == selectedIndex && lastRolledFaceIndex != -1);
-        
+
         lastRolledFaceIndex = selectedIndex;
         DiceData selectedData = diceList[selectedIndex];
 
@@ -107,6 +108,7 @@ public class Dice : MonoBehaviour
             if (artifact.condition == targetCondition) list.Add(artifact);
             if (isConsecutive && artifact.condition == ConditionType.OnConsecutiveSameDice) list.Add(artifact);
         }
+
         return list;
     }
 

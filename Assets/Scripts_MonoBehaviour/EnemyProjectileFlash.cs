@@ -10,7 +10,7 @@ public class EnemyProjectileFlash : MonoBehaviour
     private Vector3 baseScale;
     private SpriteRenderer spriteRenderer;
     private Color startColor;
-    
+
     private static Queue<EnemyProjectileFlash> pool = new Queue<EnemyProjectileFlash>();
     private static Transform poolContainer;
 
@@ -22,13 +22,13 @@ public class EnemyProjectileFlash : MonoBehaviour
         if (spriteRenderer != null)
             startColor = spriteRenderer.color;
     }
-    
+
     public static EnemyProjectileFlash Spawn(GameObject prefab, Vector3 position, Quaternion rotation)
     {
         if (!poolContainer)
         {
             poolContainer = new GameObject("EnemyProjectileFlash_Pool").transform;
-            pool.Clear(); 
+            pool.Clear();
         }
 
         EnemyProjectileFlash epf = null;
@@ -36,7 +36,7 @@ public class EnemyProjectileFlash : MonoBehaviour
         while (pool.Count > 0)
         {
             epf = pool.Dequeue();
-            if (epf) break; 
+            if (epf) break;
         }
 
         if (epf)
@@ -50,6 +50,7 @@ public class EnemyProjectileFlash : MonoBehaviour
             GameObject obj = Instantiate(prefab, position, rotation, poolContainer);
             epf = obj.GetComponent<EnemyProjectileFlash>();
         }
+
         return epf;
     }
 

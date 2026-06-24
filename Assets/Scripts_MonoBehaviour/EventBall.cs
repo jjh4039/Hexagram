@@ -6,15 +6,14 @@ public class EventBall : MonoBehaviour, IRewardItem
     private static readonly int Off = Animator.StringToHash("Off");
     private static readonly int On = Animator.StringToHash("On");
 
-    [Header("Settings")]
-    [SerializeField] private GameObject interactEffect;
+    [Header("Settings")] [SerializeField] private GameObject interactEffect;
     [SerializeField] private Material[] outLineMaterial;
     [SerializeField] private SpriteRenderer robotRenderer;
     [SerializeField] private SpriteRenderer screenRenderer;
     [SerializeField] private Animator animator;
 
-    [Header("Collider Settings")]
-    [SerializeField] private Collider2D myInteractCollider;
+    [Header("Collider Settings")] [SerializeField]
+    private Collider2D myInteractCollider;
 
     private bool _isUsed;
 
@@ -45,9 +44,9 @@ public class EventBall : MonoBehaviour, IRewardItem
         if (EventManager.Instance == null) return;
 
         EventManager.Instance.eventOriginPos = transform.position; // Save ball pos
-        
-        EventManager.Instance.eventOriginTransform = transform; 
-        
+
+        EventManager.Instance.eventOriginTransform = transform;
+
         EventManager.Instance.GenerateRandomEvent();
 
         _isUsed = true;
@@ -58,7 +57,7 @@ public class EventBall : MonoBehaviour, IRewardItem
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        
+
         if (myInteractCollider != null && !myInteractCollider.IsTouching(other)) return;
 
         if (!_isUsed)
@@ -78,7 +77,7 @@ public class EventBall : MonoBehaviour, IRewardItem
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        
+
         if (myInteractCollider != null && myInteractCollider.IsTouching(other)) return;
 
         if (!_isUsed)

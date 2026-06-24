@@ -10,23 +10,23 @@ public class EventUIController : MonoBehaviour
 {
     public static EventUIController Instance;
 
-    [Header("Root")]
-    [SerializeField] private GameObject eventRoot;
+    [Header("Root")] [SerializeField] private GameObject eventRoot;
     [SerializeField] private Vector3 eventCameraOffset = new Vector3(0f, -2f, 0f);
 
-    [Header("Canvas Groups")]
-    [SerializeField] private CanvasGroup backgroundGroup;
+    [Header("Canvas Groups")] [SerializeField]
+    private CanvasGroup backgroundGroup;
+
     [SerializeField] private CanvasGroup eventVisualGroup;
     [SerializeField] private CanvasGroup eventContentGroup;
 
-    [Header("Panel Slide")]
-    [SerializeField] private RectTransform panelRect;
+    [Header("Panel Slide")] [SerializeField]
+    private RectTransform panelRect;
+
     [SerializeField] private float slideDistanceY = 25f;
     [SerializeField] private float openSlideDuration = 0.5f;
     [SerializeField] private float closeSlideDuration = 0.2f;
 
-    [Header("Fade")]
-    [SerializeField] private float backgroundStartAlpha = 0f;
+    [Header("Fade")] [SerializeField] private float backgroundStartAlpha = 0f;
     [SerializeField] private float backgroundEndAlpha = 1f;
     [SerializeField] private float visualStartAlpha = 0f;
     [SerializeField] private float visualEndAlpha = 1f;
@@ -34,8 +34,9 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float contentEndAlpha = 0f;
     [SerializeField] private float contentFadeDelay = 0.08f;
 
-    [Header("Roulette Text")]
-    [SerializeField] private TextMeshProUGUI riskText;
+    [Header("Roulette Text")] [SerializeField]
+    private TextMeshProUGUI riskText;
+
     [SerializeField] private TextMeshProUGUI rewardText;
     [SerializeField] private TextMeshProUGUI riskDescriptionText;
     [SerializeField] private TextMeshProUGUI rewardDescriptionText;
@@ -45,8 +46,9 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float rouletteEndInterval = 0.18f;
     [SerializeField] private float textDefaultScale = 0.63f;
 
-    [Header("Roulette Lock")]
-    [SerializeField] private int heavySlowCount = 3;
+    [Header("Roulette Lock")] [SerializeField]
+    private int heavySlowCount = 3;
+
     [SerializeField] private float heavySlowMultiplier = 1.65f;
     [SerializeField] private int finalPreviewCount = 2;
     [SerializeField] private float finalPreviewInterval = 0.1f;
@@ -56,15 +58,17 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float finalTextPopScale = 1.07f;
     [SerializeField] private float finalTextPopDuration = 0.22f;
 
-    [Header("Card Image")]
-    [SerializeField] private Image riskCardImage;
+    [Header("Card Image")] [SerializeField]
+    private Image riskCardImage;
+
     [SerializeField] private Image rewardCardImage;
 
-    [Header("Default Preview")]
-    [SerializeField] private int defaultDescriptionIndex = 0;
+    [Header("Default Preview")] [SerializeField]
+    private int defaultDescriptionIndex = 0;
 
-    [Header("Card Animation")]
-    [SerializeField] private RectTransform riskCard;
+    [Header("Card Animation")] [SerializeField]
+    private RectTransform riskCard;
+
     [SerializeField] private RectTransform rewardCard;
     [SerializeField] private CanvasGroup riskCardGroup;
     [SerializeField] private CanvasGroup rewardCardGroup;
@@ -73,16 +77,16 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float cardAnimDuration = 0.4f;
     [SerializeField] private float cardStartScale = 0.85f;
 
-    [Header("Card Inner")]
-    [SerializeField] private CanvasGroup riskTitleBoxGroup;
+    [Header("Card Inner")] [SerializeField]
+    private CanvasGroup riskTitleBoxGroup;
+
     [SerializeField] private CanvasGroup riskBodyBoxGroup;
     [SerializeField] private CanvasGroup rewardTitleBoxGroup;
     [SerializeField] private CanvasGroup rewardBodyBoxGroup;
     [SerializeField] private float innerDelay = 0.08f;
     [SerializeField] private float boxFadeDuration = 0.08f;
 
-    [Header("Destiny")]
-    [SerializeField] private CanvasGroup destinyGroup;
+    [Header("Destiny")] [SerializeField] private CanvasGroup destinyGroup;
     [SerializeField] private float destinyFadeDuration = 0.2f;
     [SerializeField] private float destinyHoverScale = 1.08f;
     [SerializeField] private float destinySelectedScale = 1.12f;
@@ -90,43 +94,47 @@ public class EventUIController : MonoBehaviour
     [SerializeField] private float destinyHoverLeaveDelay = 0.08f;
     [SerializeField] private Image[] destinyOptionImages;
 
-    [Header("Destiny Sprites")]
-    [SerializeField] private Sprite destiny0NormalSprite;
+    [Header("Destiny Sprites")] [SerializeField]
+    private Sprite destiny0NormalSprite;
+
     [SerializeField] private Sprite destiny0SelectedSprite;
     [SerializeField] private Sprite destiny1NormalSprite;
     [SerializeField] private Sprite destiny1SelectedSprite;
     [SerializeField] private Sprite destiny2NormalSprite;
     [SerializeField] private Sprite destiny2SelectedSprite;
 
-    [Header("Confirm Button")]
-    [SerializeField] private Image confirmButtonImage;
+    [Header("Confirm Button")] [SerializeField]
+    private Image confirmButtonImage;
+
     [SerializeField] private float confirmButtonDefaultScale = 0.4f;
     [SerializeField] private float confirmButtonHoverScale = 0.44f;
     [SerializeField] private float confirmButtonClickScale = 0.42f;
     [SerializeField] private float confirmButtonScaleDuration = 0.1f;
     [SerializeField] private float confirmCloseDelay = 0.02f;
 
-    [Header("Description Emphasis")]
-    [SerializeField] private float hoverDescriptionPopScale = 1.035f;
+    [Header("Description Emphasis")] [SerializeField]
+    private float hoverDescriptionPopScale = 1.035f;
+
     [SerializeField] private float hoverDescriptionPopDuration = 0.12f;
     [SerializeField] private float clickDescriptionPopScale = 1.06f;
     [SerializeField] private float clickDescriptionPopDuration = 0.2f;
 
-    [Header("Card Emphasis")]
-    [SerializeField] private float hoverCardPopScale = 1.02f;
+    [Header("Card Emphasis")] [SerializeField]
+    private float hoverCardPopScale = 1.02f;
+
     [SerializeField] private float hoverCardPopDuration = 0.12f;
     [SerializeField] private float clickCardPopScale = 1.04f;
     [SerializeField] private float clickCardPopDuration = 0.2f;
 
-    [Header("Idle Pulse")]
-    [SerializeField] private bool enableIdlePulse = true;
+    [Header("Idle Pulse")] [SerializeField]
+    private bool enableIdlePulse = true;
+
     [SerializeField] private float idlePulseAmplitude = 0.018f;
     [SerializeField] private float idlePulseSpeed = 2.2f;
     [SerializeField] private float idleCardPulseAmplitude = 0.012f;
     [SerializeField] private float idleCardPulseSpeed = 1.8f;
 
-    [Header("SFX")]
-    [SerializeField] private AudioClip sfxRouletteTick;
+    [Header("SFX")] [SerializeField] private AudioClip sfxRouletteTick;
     [SerializeField] private float sfxRouletteTickVolume = 0.9f;
     [SerializeField] private float sfxRouletteTickPitchVariation = 0.06f;
     [SerializeField] private AudioClip sfxRouletteLock;
@@ -168,7 +176,12 @@ public class EventUIController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
 
         if (panelRect == null && eventRoot != null)
@@ -507,7 +520,8 @@ public class EventUIController : MonoBehaviour
             applyFinal?.Invoke(finalSingle);
             PlaySFX(sfxRouletteLock, sfxRouletteLockVolume, sfxRouletteLockPitchVariation);
 
-            yield return StartCoroutine(PlayRouletteLockFeedback(finalImageTarget, finalTitleTarget, finalDescriptionTarget));
+            yield return StartCoroutine(PlayRouletteLockFeedback(finalImageTarget, finalTitleTarget,
+                finalDescriptionTarget));
             yield break;
         }
 
@@ -545,11 +559,13 @@ public class EventUIController : MonoBehaviour
             applyFinal?.Invoke(finalData);
             PlaySFX(sfxRouletteLock, sfxRouletteLockVolume, sfxRouletteLockPitchVariation);
 
-            yield return StartCoroutine(PlayRouletteLockFeedback(finalImageTarget, finalTitleTarget, finalDescriptionTarget));
+            yield return StartCoroutine(PlayRouletteLockFeedback(finalImageTarget, finalTitleTarget,
+                finalDescriptionTarget));
         }
     }
 
-    private IEnumerator PlayRouletteLockFeedback(RectTransform imageTarget, RectTransform titleTarget, RectTransform descriptionTarget)
+    private IEnumerator PlayRouletteLockFeedback(RectTransform imageTarget, RectTransform titleTarget,
+        RectTransform descriptionTarget)
     {
         Coroutine imageRoutine = null;
         Coroutine titleRoutine = null;
@@ -559,10 +575,12 @@ public class EventUIController : MonoBehaviour
             imageRoutine = StartCoroutine(PopScaleRoutine(imageTarget, finalImagePopScale, finalImagePopDuration, 1f));
 
         if (titleTarget != null)
-            titleRoutine = StartCoroutine(PopScaleRoutine(titleTarget, finalTextPopScale, finalTextPopDuration, textDefaultScale));
+            titleRoutine =
+                StartCoroutine(PopScaleRoutine(titleTarget, finalTextPopScale, finalTextPopDuration, textDefaultScale));
 
         if (descriptionTarget != null)
-            descriptionRoutine = StartCoroutine(PopScaleRoutine(descriptionTarget, 1.035f, finalTextPopDuration, textDefaultScale));
+            descriptionRoutine =
+                StartCoroutine(PopScaleRoutine(descriptionTarget, 1.035f, finalTextPopDuration, textDefaultScale));
 
         if (imageRoutine != null)
             yield return imageRoutine;
@@ -786,13 +804,16 @@ public class EventUIController : MonoBehaviour
         Vector2 startPos = isOpening ? _closedAnchoredPos : _openAnchoredPos;
         Vector2 endPos = isOpening ? _openAnchoredPos : _closedAnchoredPos;
 
-        float startBackgroundAlpha = isOpening ? backgroundStartAlpha : (backgroundGroup != null ? backgroundGroup.alpha : 0f);
+        float startBackgroundAlpha =
+            isOpening ? backgroundStartAlpha : (backgroundGroup != null ? backgroundGroup.alpha : 0f);
         float endBackgroundAlpha = isOpening ? backgroundEndAlpha : 0f;
 
-        float startVisualAlpha = isOpening ? visualStartAlpha : (eventVisualGroup != null ? eventVisualGroup.alpha : 0f);
+        float startVisualAlpha =
+            isOpening ? visualStartAlpha : (eventVisualGroup != null ? eventVisualGroup.alpha : 0f);
         float endVisualAlpha = isOpening ? visualEndAlpha : 0f;
 
-        float startContentAlpha = isOpening ? contentStartAlpha : (eventContentGroup != null ? eventContentGroup.alpha : 0f);
+        float startContentAlpha =
+            isOpening ? contentStartAlpha : (eventContentGroup != null ? eventContentGroup.alpha : 0f);
         float endContentAlpha = isOpening ? contentEndAlpha : 0f;
 
         panelRect.anchoredPosition = startPos;
@@ -888,10 +909,7 @@ public class EventUIController : MonoBehaviour
             else
                 trigger.triggers.Clear();
 
-            AddEventTrigger(trigger, EventTriggerType.PointerClick, () =>
-            {
-                OnClickDestinyOption(index);
-            });
+            AddEventTrigger(trigger, EventTriggerType.PointerClick, () => { OnClickDestinyOption(index); });
 
             AddEventTrigger(trigger, EventTriggerType.PointerEnter, () =>
             {

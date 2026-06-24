@@ -8,45 +8,49 @@ public class Gun : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Vector2 mouseWorldPos;
 
-    [Header("Aiming Settings")]
-    [SerializeField] private Transform muzzlePoint;
+    [Header("Aiming Settings")] [SerializeField]
+    private Transform muzzlePoint;
+
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private float laserLength = 100f;
     [SerializeField] private LayerMask obstacleLayer;
 
-    [Header("Shooting Settings")]
-    [SerializeField] private GameObject bulletPrefab;
+    [Header("Shooting Settings")] [SerializeField]
+    private GameObject bulletPrefab;
+
     [SerializeField] private float fireRate = 0.125f;
     private float nextFireTime = 0f;
 
-    [Header("Recoil Settings")]
-    [SerializeField] private float playerKnockbackForce = 3f;
+    [Header("Recoil Settings")] [SerializeField]
+    private float playerKnockbackForce = 3f;
+
     [SerializeField] private float gunRecoilDistance = 0.3f;
     [SerializeField] private float gunRecoilDuration = 0.2f;
     [SerializeField] private float minRecoilDuration = 0.05f;
 
-    [Header("VFX Settings")]
-    [SerializeField] private GameObject hitEffectPrefab; 
+    [Header("VFX Settings")] [SerializeField]
+    private GameObject hitEffectPrefab;
+
     [SerializeField] private float shakeDuration = 0.05f;
     [SerializeField] private float shakeMagnitude = 0.02f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxShoot;
+    [Header("Sound")] [SerializeField] private AudioClip sfxShoot;
     [SerializeField] private AudioClip sfxEmpty;
 
     [SerializeField] private GameObject damageTextPrefab;
     private bool isAiming = false;
 
-    [Header("Object Pool Settings")]
-    [SerializeField] private Transform poolParent; 
+    [Header("Object Pool Settings")] [SerializeField]
+    private Transform poolParent;
+
     [SerializeField] private int bulletPoolSize = 30;
     [SerializeField] private int hitEffectPoolSize = 20;
-    
+
     private static Queue<GameObject> _bulletPool = new Queue<GameObject>();
     private static Queue<GameObject> _hitEffectPool = new Queue<GameObject>();
-    private static Transform _poolContainer; 
+    private static Transform _poolContainer;
 
-    private bool _wasHoldingAttack = false; 
+    private bool _wasHoldingAttack = false;
 
     private ContactFilter2D obstacleFilter; // 트리거를 무시하기 위한 물리 필터
     private RaycastHit2D[] hitResults = new RaycastHit2D[1]; // 레이캐스트 결과 캐싱용 배열
@@ -62,7 +66,7 @@ public class Gun : MonoBehaviour
         obstacleFilter = new ContactFilter2D();
         obstacleFilter.layerMask = obstacleLayer;
         obstacleFilter.useLayerMask = true;
-        obstacleFilter.useTriggers = false; 
+        obstacleFilter.useTriggers = false;
 
         InitPools();
     }
@@ -74,8 +78,8 @@ public class Gun : MonoBehaviour
             _poolContainer = new GameObject("Gun_ObjectPool").transform;
             if (poolParent != null) _poolContainer.SetParent(poolParent);
 
-            _bulletPool.Clear(); 
-            _hitEffectPool.Clear(); 
+            _bulletPool.Clear();
+            _hitEffectPool.Clear();
         }
 
         if (_bulletPool.Count == 0 && bulletPrefab != null)
@@ -107,7 +111,7 @@ public class Gun : MonoBehaviour
             GameManager.instance.cursor.ChangeCursor(CursorType.Default);
 
         isAiming = false;
-        _wasHoldingAttack = false; 
+        _wasHoldingAttack = false;
 
         CancelInvoke("ResetKnockbackState");
         ResetKnockbackState();
@@ -125,6 +129,7 @@ public class Gun : MonoBehaviour
                 isAiming = false;
                 GameManager.instance.cursor.ChangeCursor(CursorType.Default);
             }
+
             _wasHoldingAttack = false;
             return;
         }
@@ -136,14 +141,14 @@ public class Gun : MonoBehaviour
         else if (lineRenderer != null) lineRenderer.enabled = false;
 
         HandleAimCursor();
-        
+
         TryAutoFire();
     }
 
     private bool IsHoldingAttack()
     {
         if (InputStateManager.Instance == null) return false;
-        
+
         var state = InputStateManager.Instance.CurrentInputState;
         var actions = InputStateManager.Instance.Actions;
 
@@ -157,7 +162,7 @@ public class Gun : MonoBehaviour
 
     private void TryAutoFire()
     {
-        if (weaponManager.IsSwapping || weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun) 
+        if (weaponManager.IsSwapping || weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun)
         {
             _wasHoldingAttack = false;
             return;
@@ -169,24 +174,25 @@ public class Gun : MonoBehaviour
         {
             if (Time.time >= nextFireTime)
             {
-                bool isAutoFiring = _wasHoldingAttack; 
-                ExecuteTriggerAttack(isAutoFiring); 
+                bool isAutoFiring = _wasHoldingAttack;
+                ExecuteTriggerAttack(isAutoFiring);
             }
         }
-        
+
         _wasHoldingAttack = isHolding;
     }
 
     public void TriggerAttack()
     {
         if (weaponManager.IsSwapping) return;
-        ExecuteTriggerAttack(false); 
+        ExecuteTriggerAttack(false);
     }
 
     private void ExecuteTriggerAttack(bool isAutoFiring)
     {
         float finalAtkSpeed = GetFinalAttackSpeed();
-        float interval = Mathf.Max(fireRate / finalAtkSpeed, Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
+        float interval = Mathf.Max(fireRate / finalAtkSpeed,
+            Mathf.Max(minRecoilDuration, gunRecoilDuration / finalAtkSpeed));
 
         if (Time.time < nextFireTime) return;
 
@@ -197,8 +203,8 @@ public class Gun : MonoBehaviour
                 if (sfxEmpty != null) SoundManager.instance.PlaySFX(sfxEmpty, 0.4f, 0.05f);
                 SpawnAmmoEmptyText();
             }
-            
-            nextFireTime = Time.time + interval; 
+
+            nextFireTime = Time.time + interval;
             return;
         }
 
@@ -248,14 +254,16 @@ public class Gun : MonoBehaviour
         lineRenderer.SetPosition(0, safeMuzzlePos);
 
         int hitCount = Physics2D.Raycast(safeMuzzlePos, transform.right, obstacleFilter, hitResults, laserLength);
-        
-        lineRenderer.SetPosition(1, hitCount > 0 ? hitResults[0].point : safeMuzzlePos + (Vector2)transform.right * laserLength);
+
+        lineRenderer.SetPosition(1,
+            hitCount > 0 ? hitResults[0].point : safeMuzzlePos + (Vector2)transform.right * laserLength);
     }
 
     private float GetFinalAttackSpeed()
     {
         if (GameManager.instance?.stats == null) return 1f;
-        return Mathf.Max(0.01f, GameManager.instance.stats.attackSpeed * GameManager.instance.stats.diceAttackSpeedMultiplier);
+        return Mathf.Max(0.01f,
+            GameManager.instance.stats.attackSpeed * GameManager.instance.stats.diceAttackSpeedMultiplier);
     }
 
     private void Shoot(float recoilDur)
@@ -271,8 +279,8 @@ public class Gun : MonoBehaviour
         Vector2 safeMuzzlePos = GetSafeMuzzlePosition();
 
         GameObject bulletObj = null;
-        
-        while (_bulletPool.Count > 0) 
+
+        while (_bulletPool.Count > 0)
         {
             bulletObj = _bulletPool.Dequeue();
             if (bulletObj != null) break;
@@ -280,31 +288,31 @@ public class Gun : MonoBehaviour
 
         if (bulletObj == null)
         {
-            bulletObj = Instantiate(bulletPrefab, _poolContainer); 
+            bulletObj = Instantiate(bulletPrefab, _poolContainer);
         }
 
         bulletObj.transform.position = safeMuzzlePos;
         bulletObj.transform.rotation = muzzlePoint.rotation;
-        
+
         Bullet bullet = bulletObj.GetComponent<Bullet>();
         if (bullet != null)
         {
-            float finalDamageMult = stats.finalAttackPower * stats.buffFinalDamageMultiplier; 
-            
+            float finalDamageMult = stats.finalAttackPower * stats.buffFinalDamageMultiplier;
+
             bullet.SetupCombatData(
-                stats.rangeAttackPower, 
-                stats.rangedDamageVariance, 
-                stats.GetFinalCriticalChance(), 
-                stats.GetFinalCriticalDamageMultiplier(), 
-                stats.diceDamageMultiplier, 
-                stats.diceRangedDamageMultiplier, 
-                strongMult, 
-                stats.bonusPenetration, 
+                stats.rangeAttackPower,
+                stats.rangedDamageVariance,
+                stats.GetFinalCriticalChance(),
+                stats.GetFinalCriticalDamageMultiplier(),
+                stats.diceDamageMultiplier,
+                stats.diceRangedDamageMultiplier,
+                strongMult,
+                stats.bonusPenetration,
                 finalDamageMult
             );
         }
 
-        bulletObj.SetActive(true); 
+        bulletObj.SetActive(true);
 
         if (sfxShoot != null) SoundManager.instance.PlaySFX(sfxShoot, 0.2f, 0.1f);
         Recoil(recoilDur);
@@ -313,25 +321,25 @@ public class Gun : MonoBehaviour
 
     public static void ReturnBullet(GameObject obj)
     {
-        if (obj == null) return; 
+        if (obj == null) return;
         obj.SetActive(false);
         _bulletPool.Enqueue(obj);
     }
 
     public static void SpawnHitEffect(Vector3 position, Quaternion rotation, Material mat, Color col)
     {
-        if (_hitEffectPool.Count == 0) return; 
+        if (_hitEffectPool.Count == 0) return;
 
         GameObject vfxObj = null;
 
-        while (_hitEffectPool.Count > 0) 
+        while (_hitEffectPool.Count > 0)
         {
             vfxObj = _hitEffectPool.Dequeue();
             if (vfxObj != null) break;
         }
 
-        if (vfxObj == null) return; 
-        
+        if (vfxObj == null) return;
+
         vfxObj.transform.position = position;
         vfxObj.transform.rotation = rotation * Quaternion.Euler(0f, 0f, 180f);
 
@@ -350,9 +358,10 @@ public class Gun : MonoBehaviour
 
         DelayReturner returner = vfxObj.GetComponent<DelayReturner>();
         if (returner == null) returner = vfxObj.AddComponent<DelayReturner>();
-        
-        returner.StartDelayReturn(1.0f, () => {
-            if (vfxObj != null) 
+
+        returner.StartDelayReturn(1.0f, () =>
+        {
+            if (vfxObj != null)
             {
                 vfxObj.SetActive(false);
                 _hitEffectPool.Enqueue(vfxObj);
@@ -387,6 +396,7 @@ public class Gun : MonoBehaviour
             {
                 player.rigid.linearVelocity = Vector2.zero;
             }
+
             player.isAttacking = false;
             player.isRecoiling = false;
         }
@@ -405,6 +415,7 @@ public class Gun : MonoBehaviour
             transform.localPosition = Vector3.Lerp(recoilPos, origin, elapsed / dur);
             yield return null;
         }
+
         transform.localPosition = origin;
     }
 
@@ -422,7 +433,12 @@ public class Gun : MonoBehaviour
     {
         if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Gun)
         {
-            if (isAiming) { isAiming = false; GameManager.instance.cursor.ChangeCursor(CursorType.Default); }
+            if (isAiming)
+            {
+                isAiming = false;
+                GameManager.instance.cursor.ChangeCursor(CursorType.Default);
+            }
+
             return;
         }
 
@@ -450,7 +466,7 @@ public class Gun : MonoBehaviour
     private void SpawnAmmoEmptyText()
     {
         if (damageTextPrefab == null) return;
-        
+
         DamageText dt = DamageText.Spawn(damageTextPrefab, mouseWorldPos);
         if (dt != null) dt.Setup("총알 부족!", Color.red, 2f);
     }

@@ -9,8 +9,9 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private Image cooldownFillImage;
     [SerializeField] private TextMeshProUGUI stackText;
 
-    [Header("Icon Settings")]
-    [SerializeField] private Vector3 diceIconScale = Vector3.one;
+    [Header("Icon Settings")] [SerializeField]
+    private Vector3 diceIconScale = Vector3.one;
+
     [SerializeField] private Vector3 artifactIconScale = new Vector3(0.8f, 0.8f, 1f);
 
     private ActiveBuff currentBuff;
@@ -86,6 +87,7 @@ public class BuffSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             {
                 stackText.text = $"{currentBuff.remainingStages}회";
             }
+
             stackText.color = new Color(1f, 0.3f, 0.3f, 1f);
         }
         else if (currentBuff.isInfinite)

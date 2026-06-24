@@ -3,10 +3,10 @@ using TMPro;
 
 public class CursorAmmoUI : MonoBehaviour
 {
-    [SerializeField] private VirtualCursor virtualCursor; 
-    [SerializeField] private TextMeshProUGUI ammoDisplayText; 
-    [SerializeField] private Color warningColor = Color.red; 
-    private Color normalColor; 
+    [SerializeField] private VirtualCursor virtualCursor;
+    [SerializeField] private TextMeshProUGUI ammoDisplayText;
+    [SerializeField] private Color warningColor = Color.red;
+    private Color normalColor;
 
     void Start()
     {
@@ -15,21 +15,21 @@ public class CursorAmmoUI : MonoBehaviour
 
     void Update()
     {
-        if (!GameManager.instance || !GameManager.instance.weaponManager || !GameManager.instance.stats) 
+        if (!GameManager.instance || !GameManager.instance.weaponManager || !GameManager.instance.stats)
         {
             if (ammoDisplayText) ammoDisplayText.gameObject.SetActive(false);
             return;
         }
 
-        bool isAimMode = virtualCursor && virtualCursor.CurrentCursorType == CursorType.Aim; 
-        bool isGun = GameManager.instance.weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun; 
-        
+        bool isAimMode = virtualCursor && virtualCursor.CurrentCursorType == CursorType.Aim;
+        bool isGun = GameManager.instance.weaponManager.CurrentWeapon == WeaponManager.WeaponType.Gun;
+
         ammoDisplayText.gameObject.SetActive(isGun && isAimMode);
 
         if (!isGun || !isAimMode) return;
 
-        int current = GameManager.instance.stats.currentAmmo / 100; 
-        int max = GameManager.instance.stats.maxAmmo / 100; 
+        int current = GameManager.instance.stats.currentAmmo / 100;
+        int max = GameManager.instance.stats.maxAmmo / 100;
 
         ammoDisplayText.text = $"{current} / {max}";
 

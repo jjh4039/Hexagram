@@ -5,41 +5,44 @@ using System.Collections;
 
 public class AmmoUI : MonoBehaviour
 {
-    [Header("Ammo Visuals")] 
-    public Image[] bulletPanels;
+    [Header("Ammo Visuals")] public Image[] bulletPanels;
     public TextMeshProUGUI[] ammoText;
 
-    [Header("Ammo Sprites (New)")] 
-    [SerializeField] private Sprite normalAmmoSprite;
+    [Header("Ammo Sprites (New)")] [SerializeField]
+    private Sprite normalAmmoSprite;
+
     [SerializeField] private Sprite maxAmmoSprite;
 
-    [Header("Scrap Visuals")] 
-    [SerializeField] private RectTransform scrapGroup;
+    [Header("Scrap Visuals")] [SerializeField]
+    private RectTransform scrapGroup;
+
     [SerializeField] private TextMeshProUGUI scrapText;
     [SerializeField] private float scrapMoveDistance = 50f;
-    
+
     private Vector2 _scrapOriginPos;
     private Vector3 _scrapTextOriginScale;
     private Coroutine _scrapPunchRoutine;
 
-    [Header("Ammo Status Colors")] 
-    [SerializeField] private Color emptyTextColor = Color.red; // 0~99
+    [Header("Ammo Status Colors")] [SerializeField]
+    private Color emptyTextColor = Color.red; // 0~99
+
     [SerializeField] private Color normalTextColor = Color.white; // 100~499
     [SerializeField] private Color maxAmmoTextColor = new Color(1f, 0.5f, 0f); // 500
 
-    [Header("Case Visuals")] 
-    [SerializeField] private Image[] caseImages;
+    [Header("Case Visuals")] [SerializeField]
+    private Image[] caseImages;
+
     [SerializeField] private Color caseNormalColor = new Color(0, 0, 0, 0.5f);
     [SerializeField] private Color caseAimingColor = new Color(0, 0, 0, 0.8f);
 
-    [Header("Aiming Animation")] 
-    [SerializeField] private float normalScale = 1.0f;
+    [Header("Aiming Animation")] [SerializeField]
+    private float normalScale = 1.0f;
+
     [SerializeField] private float aimingScale = 1.2f;
     [SerializeField] private float animDuration = 0.2f;
     [SerializeField] private RectTransform uiRoot;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxAmmoFull;
+    [Header("Sound")] [SerializeField] private AudioClip sfxAmmoFull;
 
     private Coroutine _scaleCoroutine;
     private bool _lastAimingState;
@@ -87,6 +90,7 @@ public class AmmoUI : MonoBehaviour
                     SoundManager.instance.PlaySFX(sfxAmmoFull, 0.8f);
                 }
             }
+
             _lastAmmoCount = currentAmmo;
         }
 
@@ -134,16 +138,16 @@ public class AmmoUI : MonoBehaviour
         Color startCaseColor = caseImages.Length > 0 ? caseImages[0].color : Color.white;
         Color targetCaseColor = isAiming ? caseAimingColor : caseNormalColor;
         float elapsed = 0f;
-        
+
         while (elapsed < animDuration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / animDuration;
-            float curve = 1f - Mathf.Pow(1f - t, 3); 
-            
+            float curve = 1f - Mathf.Pow(1f - t, 3);
+
             uiRoot.localScale = Vector3.Lerp(startScale, targetScale, curve);
             if (scrapGroup) scrapGroup.anchoredPosition = Vector2.Lerp(startScrapPos, targetScrapPos, curve);
-            
+
             foreach (var img in caseImages)
             {
                 if (img) img.color = Color.Lerp(startCaseColor, targetCaseColor, curve);
@@ -155,7 +159,8 @@ public class AmmoUI : MonoBehaviour
         uiRoot.localScale = targetScale;
         if (scrapGroup) scrapGroup.anchoredPosition = targetScrapPos;
         foreach (var img in caseImages)
-            if (img) img.color = targetCaseColor;
+            if (img)
+                img.color = targetCaseColor;
     }
 
     private void UpdateScrapVisuals()

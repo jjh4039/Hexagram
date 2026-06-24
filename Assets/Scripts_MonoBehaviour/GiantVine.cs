@@ -3,8 +3,9 @@ using System.Collections;
 
 public class GiantVine : MonoBehaviour
 {
-    [Header("Vine Settings")]
-    [SerializeField] private float damage = 30f;
+    [Header("Vine Settings")] [SerializeField]
+    private float damage = 30f;
+
     [SerializeField] private float pierceSpeed = 0.05f;
     [SerializeField] private float duration = 0.4f;
 
@@ -20,17 +21,16 @@ public class GiantVine : MonoBehaviour
         if (sr != null)
         {
             sr.color = new Color(1, 1, 1, 0);
-            // 인스펙터에 설정된 초기 Width를 고정값으로 기억합니다.
             fixedWidth = sr.size.x;
             sr.size = new Vector2(fixedWidth, 0f);
         }
+
         if (col != null) col.enabled = false;
     }
 
     public void Fire(float dmg, float targetLength)
     {
         this.damage = dmg;
-        // 스케일이 2배라면, 실제 그려져야 할 Sprite의 Size는 절반이어야 딱 맞습니다.
         float adjustedLength = targetLength / transform.localScale.y;
         StartCoroutine(Co_Strike(adjustedLength));
     }
@@ -46,7 +46,6 @@ public class GiantVine : MonoBehaviour
             timer += Time.deltaTime;
             float currentLength = Mathf.Lerp(0f, targetLength, timer / pierceSpeed);
 
-            // 가로 폭(fixedWidth)은 유지하고 세로 길이만 늘림
             if (sr != null) sr.size = new Vector2(fixedWidth, currentLength);
 
             if (col is BoxCollider2D box)
@@ -54,6 +53,7 @@ public class GiantVine : MonoBehaviour
                 box.size = new Vector2(fixedWidth, currentLength);
                 box.offset = new Vector2(0, currentLength / 2f);
             }
+
             yield return null;
         }
 
@@ -75,6 +75,7 @@ public class GiantVine : MonoBehaviour
             if (sr != null) sr.color = new Color(1, 1, 1, alpha);
             yield return null;
         }
+
         Destroy(gameObject);
     }
 

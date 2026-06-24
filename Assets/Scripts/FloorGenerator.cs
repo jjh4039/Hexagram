@@ -5,10 +5,9 @@ using System.Collections.Generic;
 public class FloorGenerator : MonoBehaviour
 {
     public Tilemap targetTilemap;
-    
-    [Header("Base Floor Settings")]
-    public List<TileBase> baseTiles;      // 기본 바닥 타일들
-    
+
+    [Header("Base Floor Settings")] public List<TileBase> baseTiles; // 기본 바닥 타일들
+
     [System.Serializable]
     public struct DecorativeTile
     {
@@ -17,17 +16,16 @@ public class FloorGenerator : MonoBehaviour
         [Range(0, 100)] public float chance;
     }
 
-    [Header("Decoration Settings")]
-    public List<DecorativeTile> decorations; // 장식 타일들
+    [Header("Decoration Settings")] public List<DecorativeTile> decorations; // 장식 타일들
 
     [ContextMenu("Generate Over Painted Tiles")]
     public void GenerateOverPainted()
     {
         if (targetTilemap == null || baseTiles == null || baseTiles.Count == 0) return;
-        
+
         targetTilemap.CompressBounds();
         BoundsInt bounds = targetTilemap.cellBounds;
-        
+
         for (int x = bounds.xMin; x < bounds.xMax; x++)
         {
             for (int y = bounds.yMin; y < bounds.yMax; y++)
@@ -47,6 +45,7 @@ public class FloorGenerator : MonoBehaviour
                             break;
                         }
                     }
+
                     targetTilemap.SetTile(pos, tileToPlace);
                 }
             }

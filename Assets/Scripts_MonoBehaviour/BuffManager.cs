@@ -6,7 +6,7 @@ using UnityEngine;
 public enum StageDebuffType
 {
     None,
-        DiceEffectHalf,
+    DiceEffectHalf,
     TakeMoreDamage,
     CannotHeal
 }
@@ -346,9 +346,9 @@ public class BuffManager : MonoBehaviour
                 switch (buff.buffData.effectType)
                 {
                     case DiceEffectType.AttackBuff: stats.diceDamageMultiplier += finalEffectValue / 100f; break;
-                    case DiceEffectType.CritDamageBuff: 
-                        stats.diceCritDamageBonus += finalEffectValue / 100f; 
-                        
+                    case DiceEffectType.CritDamageBuff:
+                        stats.diceCritDamageBonus += finalEffectValue / 100f;
+
                         float finalSecondaryValue = buff.buffData.secondaryValue * buff.stackCount;
                         if (stats.isDiceEffectHalved) finalSecondaryValue *= 0.5f;
                         stats.diceCritChanceBonus += finalSecondaryValue / 100f;
@@ -359,17 +359,18 @@ public class BuffManager : MonoBehaviour
                         break;
                     case DiceEffectType.RangedMegaBuff: rangedDiceTotal += finalEffectValue; break;
                     case DiceEffectType.StrongAttackBuff: stats.diceStrongAttackStacks += buff.remainingCount; break;
-                    
+
                     case DiceEffectType.Heal:
                         if (!buff.instantApplied)
                         {
                             float healAmount = stats.maxHealth * (finalEffectValue / 100f);
-                            int finalHealInt = Mathf.Max(1, Mathf.RoundToInt(healAmount)); 
+                            int finalHealInt = Mathf.Max(1, Mathf.RoundToInt(healAmount));
 
                             stats.Heal(finalHealInt);
 
                             buff.instantApplied = true;
                         }
+
                         break;
                 }
             }

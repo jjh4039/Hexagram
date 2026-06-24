@@ -5,16 +5,13 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("--- Settings ---")]
-    public GameObject enemyPrefab;
+    [Header("--- Settings ---")] public GameObject enemyPrefab;
     public GameObject warningPrefab;
     public float spawnDelay = 1f;
 
-    [Header("--- Effects ---")]
-    public GameObject spawnEffectPrefab;
+    [Header("--- Effects ---")] public GameObject spawnEffectPrefab;
 
-    [Header("--- Wave Info ---")]
-    public int waveNumber = 1;
+    [Header("--- Wave Info ---")] public int waveNumber = 1;
 
     private static Queue<GameObject> warningPool = new Queue<GameObject>();
     private static Queue<GameObject> spawnEffectPool = new Queue<GameObject>();
@@ -32,7 +29,7 @@ public class EnemySpawner : MonoBehaviour
         if (poolContainer == null)
         {
             poolContainer = new GameObject("SpawnerEffect_Pool").transform;
-            warningPool.Clear(); 
+            warningPool.Clear();
             spawnEffectPool.Clear();
         }
 
@@ -41,7 +38,7 @@ public class EnemySpawner : MonoBehaviour
         while (pool.Count > 0)
         {
             obj = pool.Dequeue();
-            if (obj) break; 
+            if (obj) break;
         }
 
         if (obj)
@@ -55,13 +52,14 @@ public class EnemySpawner : MonoBehaviour
         {
             obj = Instantiate(prefab, pos, Quaternion.identity, parentObj ? parentObj : poolContainer);
         }
+
         return obj;
     }
 
     private void ReturnToPool(GameObject obj, Queue<GameObject> pool)
     {
-        if (!obj) return; 
-        
+        if (!obj) return;
+
         obj.SetActive(false);
         if (poolContainer) obj.transform.SetParent(poolContainer);
         pool.Enqueue(obj);
@@ -82,7 +80,7 @@ public class EnemySpawner : MonoBehaviour
             if (spawnEffectPrefab)
             {
                 GameObject spawnEffect = GetFromPool(spawnEffectPrefab, spawnEffectPool, transform.position);
-                StartCoroutine(Co_DelayReturn(spawnEffect, spawnEffectPool, 1.5f)); 
+                StartCoroutine(Co_DelayReturn(spawnEffect, spawnEffectPool, 1.5f));
             }
 
             Enemy enemyScript = spawnedObj.GetComponent<Enemy>();

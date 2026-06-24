@@ -3,43 +3,39 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [Header("Stats")]
-    [SerializeField] protected float maxHealth = 4000f;
+    [Header("Stats")] [SerializeField] protected float maxHealth = 4000f;
     [SerializeField] protected float currentHealth;
-    [SerializeField] protected float contactDamage = 10f; 
+    [SerializeField] protected float contactDamage = 10f;
 
-    [Header("Effect")]
-    [SerializeField] private GameObject damageTextPrefab;
+    [Header("Effect")] [SerializeField] private GameObject damageTextPrefab;
     [SerializeField] private GameObject shadowObject;
 
-    [Header("HpBar")]
-    [SerializeField] protected Transform hpBarRoot;
+    [Header("HpBar")] [SerializeField] protected Transform hpBarRoot;
     [SerializeField] private Transform hpBarFill;
     [SerializeField] private GameObject hpBarObject;
     private float _initialScaleX;
     private SpriteRenderer[] _hpBarSprites;
 
-    [Header("Hit Flash")]
-    [SerializeField] private Material flashMaterial;
+    [Header("Hit Flash")] [SerializeField] private Material flashMaterial;
     protected Material OriginalMaterial;
     private SpriteRenderer _sr;
     private Coroutine _flashRoutine;
 
     [SerializeField] private float hitStopDuration = 0.02f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxHit;
+    [Header("Sound")] [SerializeField] private AudioClip sfxHit;
 
-    [Header("Drop Settings")]
-    [SerializeField] private GameObject scrapPrefab;
-    [SerializeField][Range(0, 100)] private int dropChance = 100;
+    [Header("Drop Settings")] [SerializeField]
+    private GameObject scrapPrefab;
+
+    [SerializeField] [Range(0, 100)] private int dropChance = 100;
 
     protected Animator Anim;
     private Collider2D _col;
     protected bool isDead = false;
 
     public bool IsDead => isDead;
-    public float ContactDamage => contactDamage; 
+    public float ContactDamage => contactDamage;
 
     protected virtual void Awake()
     {
@@ -80,7 +76,7 @@ public class Enemy : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damage;
-        
+
         if (isCritical)
         {
             if (GameManager.instance != null)
@@ -123,8 +119,8 @@ public class Enemy : MonoBehaviour
     private IEnumerator FlashRoutine()
     {
         _sr.material = flashMaterial;
-        yield return new WaitForSecondsRealtime(0.08f); 
-        
+        yield return new WaitForSecondsRealtime(0.08f);
+
         if (_sr != null) _sr.material = OriginalMaterial;
         _flashRoutine = null;
     }
@@ -177,7 +173,7 @@ public class Enemy : MonoBehaviour
 
             foreach (SpriteRenderer s in _hpBarSprites)
             {
-                if (s != null && s.gameObject != null) 
+                if (s != null && s.gameObject != null)
                 {
                     Color c = s.color;
                     s.color = new Color(c.r, c.g, c.b, alpha);

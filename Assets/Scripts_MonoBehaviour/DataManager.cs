@@ -15,7 +15,7 @@ public class DataManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
             savePath = Application.persistentDataPath + "/SaveData.json";
-            
+
             LoadGame();
             ApplyScreenMode(); // 시스템에 화면 설정 강제 적용
         }
@@ -54,21 +54,37 @@ public class DataManager : MonoBehaviour
 
     private void ApplyScreenMode()
     {
-        FullScreenMode mode = FullScreenMode.Windowed;                  
-        if (data.screenMode == 1) mode = FullScreenMode.FullScreenWindow;     
-        else if (data.screenMode == 2) mode = FullScreenMode.ExclusiveFullScreen; 
+        FullScreenMode mode = FullScreenMode.Windowed;
+        if (data.screenMode == 1) mode = FullScreenMode.FullScreenWindow;
+        else if (data.screenMode == 2) mode = FullScreenMode.ExclusiveFullScreen;
 
         int width = 1920;
         int height = 1080;
 
-        if (data.resolution == 0) { width = 1280; height = 720; }
-        else if (data.resolution == 1) { width = 1920; height = 1080; }
-        else if (data.resolution == 2) { width = 2560; height = 1440; }
-        else if (data.resolution == 3) { width = 3840; height = 2160; } 
+        if (data.resolution == 0)
+        {
+            width = 1280;
+            height = 720;
+        }
+        else if (data.resolution == 1)
+        {
+            width = 1920;
+            height = 1080;
+        }
+        else if (data.resolution == 2)
+        {
+            width = 2560;
+            height = 1440;
+        }
+        else if (data.resolution == 3)
+        {
+            width = 3840;
+            height = 2160;
+        }
 
         if (mode == FullScreenMode.FullScreenWindow)
         {
-            Resolution nativeRes = Screen.resolutions[Screen.resolutions.Length - 1]; 
+            Resolution nativeRes = Screen.resolutions[Screen.resolutions.Length - 1];
             width = nativeRes.width;
             height = nativeRes.height;
         }

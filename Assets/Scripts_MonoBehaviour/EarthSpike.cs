@@ -3,14 +3,15 @@ using System.Collections;
 
 public class EarthSpike : MonoBehaviour
 {
-    [Header("Spike Settings")]
-    [SerializeField] private float damage = 10f;
+    [Header("Spike Settings")] [SerializeField]
+    private float damage = 10f;
+
     [SerializeField] private float colliderEnableDelay = 0.15f;
     [SerializeField] private float colliderActiveTime = 0.2f;
     [SerializeField] private float destroyTime = 1.0f;
 
-    [Header("Visual Effects")]
-    [SerializeField] private GameObject debrisPrefab; // 흙먼지 파티클 프리팹
+    [Header("Visual Effects")] [SerializeField]
+    private GameObject debrisPrefab; // 흙먼지 파티클 프리팹
 
     private Collider2D col;
 
@@ -27,7 +28,7 @@ public class EarthSpike : MonoBehaviour
     }
 
     private IEnumerator Co_SpikeRoutine()
-    { 
+    {
         yield return new WaitForSeconds(colliderEnableDelay);
         if (debrisPrefab != null)
         {

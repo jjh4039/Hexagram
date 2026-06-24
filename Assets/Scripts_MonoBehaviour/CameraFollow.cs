@@ -6,39 +6,35 @@ public class CameraFollow : MonoBehaviour
 {
     public static CameraFollow Instance;
 
-    [Header("Target")]
-    public Transform player;
+    [Header("Target")] public Transform player;
 
-    [Header("Weapon Link (For Aiming)")]
-    public WeaponManager weaponManager;
+    [Header("Weapon Link (For Aiming)")] public WeaponManager weaponManager;
 
-    [Header("Pixel Perfect Camera")]
-    public Behaviour pixelCam;
+    [Header("Pixel Perfect Camera")] public Behaviour pixelCam;
 
-    [Header("Settings")]
-    [Range(1f, 10f)] public float smoothSpeed = 5f;
+    [Header("Settings")] [Range(1f, 10f)] public float smoothSpeed = 5f;
     [Range(0.01f, 0.5f)] public float mouseInfluence = 0.05f;
     public float maxMouseOffset = 1.0f;
 
-    [Header("Aim & Zoom Settings")]
-    [SerializeField] private float aimMouseInfluence = 0.15f;
+    [Header("Aim & Zoom Settings")] [SerializeField]
+    private float aimMouseInfluence = 0.15f;
+
     [SerializeField] private float aimMaxMouseOffset = 2.0f;
     [SerializeField] private float aimZoomMultiplier = 0.95f;
     [SerializeField] private float aimTransitionSpeed = 5f;
 
-    [Header("Cinematic Settings")]
-    public bool isCinematicFocus;
+    [Header("Cinematic Settings")] public bool isCinematicFocus;
     public bool isCinematicZoom;
     [SerializeField] private float cinematicZoomMultiplier = 0.8f;
     [SerializeField] private float cinematicZoomSpeed = 2.0f;
 
-    [Header("Shake Settings")]
-    [SerializeField] private float shakeDecaySpeed = 5f;
+    [Header("Shake Settings")] [SerializeField]
+    private float shakeDecaySpeed = 5f;
+
     [SerializeField] private float uiOffsetSmoothSpeed = 10f;
     [SerializeField] private float shakeFrequency = 35f;
 
-    [Header("Bounds Settings")]
-    public bool useBounds;
+    [Header("Bounds Settings")] public bool useBounds;
     private Bounds _currentBounds;
     public float boundsPadding = 1.5f;
 
@@ -108,12 +104,15 @@ public class CameraFollow : MonoBehaviour
         {
             _shakeTimer -= Time.unscaledDeltaTime;
 
-            float x = (Mathf.PerlinNoise(_shakeSeedX + Time.unscaledTime * shakeFrequency, 0f) - 0.5f) * 2f * _currentShakeMagnitude;
-            float y = (Mathf.PerlinNoise(0f, _shakeSeedY + Time.unscaledTime * shakeFrequency) - 0.5f) * 2f * _currentShakeMagnitude;
+            float x = (Mathf.PerlinNoise(_shakeSeedX + Time.unscaledTime * shakeFrequency, 0f) - 0.5f) * 2f *
+                      _currentShakeMagnitude;
+            float y = (Mathf.PerlinNoise(0f, _shakeSeedY + Time.unscaledTime * shakeFrequency) - 0.5f) * 2f *
+                      _currentShakeMagnitude;
 
             _shakeOffset = new Vector3(x, y, 0);
 
-            _currentShakeMagnitude = Mathf.MoveTowards(_currentShakeMagnitude, 0f, Time.unscaledDeltaTime * _currentShakeDecay);
+            _currentShakeMagnitude =
+                Mathf.MoveTowards(_currentShakeMagnitude, 0f, Time.unscaledDeltaTime * _currentShakeDecay);
         }
         else
         {
@@ -130,7 +129,8 @@ public class CameraFollow : MonoBehaviour
 
         if (isUIState && !isCinematicFocus)
         {
-            _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, Vector3.zero, aimTransitionSpeed * Time.unscaledDeltaTime);
+            _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, Vector3.zero,
+                aimTransitionSpeed * Time.unscaledDeltaTime);
         }
 
         if (Mouse.current == null && !isCinematicFocus) return;
@@ -148,6 +148,7 @@ public class CameraFollow : MonoBehaviour
                 _dynamicBaseOrthoSize = _cam.orthographicSize;
             }
         }
+
         _wasAiming = isAiming || isCinematicZoom;
 
         if (pixelCam)
@@ -196,7 +197,8 @@ public class CameraFollow : MonoBehaviour
         bool isTrackingRealPlayer = (GameManager.instance && player == GameManager.instance.player.transform);
 
         // UI 상태가 아닐 때만 마우스 추적 활성화
-        if (isTrackingRealPlayer && !isCinematicFocus && !isUIState && Mouse.current != null && _uiOffset == Vector3.zero)
+        if (isTrackingRealPlayer && !isCinematicFocus && !isUIState && Mouse.current != null &&
+            _uiOffset == Vector3.zero)
         {
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
             Vector3 mouseWorldPos = _cam.ScreenToWorldPoint(mouseScreenPos);
@@ -209,7 +211,8 @@ public class CameraFollow : MonoBehaviour
 
         if (!isUIState)
         {
-            _smoothedMouseOffset = Vector3.Lerp(_smoothedMouseOffset, targetMouseOffset, aimTransitionSpeed * Time.deltaTime);
+            _smoothedMouseOffset =
+                Vector3.Lerp(_smoothedMouseOffset, targetMouseOffset, aimTransitionSpeed * Time.deltaTime);
         }
 
         if (useBounds && _cam != null)
@@ -252,6 +255,7 @@ public class CameraFollow : MonoBehaviour
         {
             player = GameManager.instance.player.transform;
         }
+
         smoothSpeed = (_originalSmoothSpeed > 2) ? _originalSmoothSpeed : 5f;
     }
 
@@ -267,10 +271,26 @@ public class CameraFollow : MonoBehaviour
         _currentShakeMagnitude = 0f;
     }
 
-    public void SetUIOffset(Vector3 offset) { _uiOffset = offset; }
-    public void ResetUIOffset() { _uiOffset = Vector3.zero; }
-    public void SetCameraBounds(Bounds bounds) { _currentBounds = bounds; useBounds = true; }
-    public void ClearCameraBounds() { useBounds = false; }
+    public void SetUIOffset(Vector3 offset)
+    {
+        _uiOffset = offset;
+    }
+
+    public void ResetUIOffset()
+    {
+        _uiOffset = Vector3.zero;
+    }
+
+    public void SetCameraBounds(Bounds bounds)
+    {
+        _currentBounds = bounds;
+        useBounds = true;
+    }
+
+    public void ClearCameraBounds()
+    {
+        useBounds = false;
+    }
 
     public void SetInstantCustomZoom(float targetSize)
     {

@@ -3,8 +3,8 @@ using UnityEngine.InputSystem;
 
 public class Balance : MonoBehaviour, IRewardItem
 {
-    [Header("Item Settings")]
-    [SerializeField] private float weightPercent = 5f;
+    [Header("Item Settings")] [SerializeField]
+    private float weightPercent = 5f;
 
     [SerializeField] private Material[] outLineMaterial;
     private SpriteRenderer spriteRenderer;
@@ -65,9 +65,9 @@ public class Balance : MonoBehaviour, IRewardItem
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (spriteRenderer != null && outLineMaterial.Length > 1) 
+            if (spriteRenderer != null && outLineMaterial.Length > 1)
                 spriteRenderer.material = outLineMaterial[1];
-            
+
             if (keyGuide != null) keyGuide.SetActive(true);
 
             if (InputStateManager.Instance != null)
@@ -83,10 +83,10 @@ public class Balance : MonoBehaviour, IRewardItem
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            
-            if (spriteRenderer != null && outLineMaterial.Length > 0) 
+
+            if (spriteRenderer != null && outLineMaterial.Length > 0)
                 spriteRenderer.material = outLineMaterial[0];
-            
+
             if (keyGuide != null) keyGuide.SetActive(false);
 
             UnsubscribeInputs();

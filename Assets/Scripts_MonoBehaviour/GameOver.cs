@@ -8,52 +8,58 @@ using UnityEngine.UI;
 
 public class GameOver : MonoBehaviour
 {
-    [Header("Sequence Delays")]
-    [SerializeField] private float delayA = 1.0f;
+    [Header("Sequence Delays")] [SerializeField]
+    private float delayA = 1.0f;
+
     [SerializeField] private float delayB = 0.5f;
     [SerializeField] private float delayD = 0.3f;
     [SerializeField] private float delayC = 0.5f;
     [SerializeField] private float delayE = 0.8f;
     [SerializeField] private float countDelay = 0.05f;
 
-    [Header("UI Objects (Left Texts)")]
-    [SerializeField] private GameObject text0Obj;
+    [Header("UI Objects (Left Texts)")] [SerializeField]
+    private GameObject text0Obj;
+
     [SerializeField] private GameObject text1Obj;
     [SerializeField] private GameObject text2Obj;
     [SerializeField] private GameObject text3Obj;
 
-    [Header("UI Objects (Right Texts)")]
-    [SerializeField] private GameObject textAObj;
+    [Header("UI Objects (Right Texts)")] [SerializeField]
+    private GameObject textAObj;
+
     [SerializeField] private GameObject textBObj;
     [SerializeField] private GameObject textCObj;
     [SerializeField] private GameObject spacePromptObj;
 
-    [Header("Result Value Texts")]
-    [SerializeField] private TextMeshProUGUI progressResultText; 
+    [Header("Result Value Texts")] [SerializeField]
+    private TextMeshProUGUI progressResultText;
+
     [SerializeField] private TextMeshProUGUI timeResultText;
     [SerializeField] private TextMeshProUGUI damageResultText;
     [SerializeField] private TextMeshProUGUI currentOwnedGemText;
 
-    [Header("Text Components For Counting")]
-    [SerializeField] private TextMeshProUGUI timeRewardText;
+    [Header("Text Components For Counting")] [SerializeField]
+    private TextMeshProUGUI timeRewardText;
+
     [SerializeField] private TextMeshProUGUI damageRewardText;
     [SerializeField] private TextMeshProUGUI totalGemText;
     [SerializeField] private TextMeshProUGUI spacePromptText;
 
-    [Header("Settlement Variables")]
-    public int rewardFromTime = 0;
+    [Header("Settlement Variables")] public int rewardFromTime = 0;
     public int rewardFromDamage = 0;
     public int totalGainedReward = 0;
     public int currentOwnedGems = 0;
 
-    [Header("Sound Clips")]
-    [SerializeField] private AudioClip sfxStart;
+    [Header("Sound Clips")] [SerializeField]
+    private AudioClip sfxStart;
+
     [SerializeField] private AudioClip sfxReveal;
     [SerializeField] private AudioClip sfxValue;
     [SerializeField] private AudioClip sfxCounting;
 
-    [Header("Transition Settings")]
-    [SerializeField] private Image fadeOutImage;
+    [Header("Transition Settings")] [SerializeField]
+    private Image fadeOutImage;
+
     [SerializeField] private float fadeOutDuration = 1.0f;
 
     private bool isCalculationDone = false;
@@ -85,7 +91,9 @@ public class GameOver : MonoBehaviour
         totalGainedReward = 0;
 
         GameObject[] allObjs = { text0Obj, text1Obj, text2Obj, text3Obj, textAObj, textBObj, textCObj, spacePromptObj };
-        foreach (var obj in allObjs) if (obj != null) obj.SetActive(false);
+        foreach (var obj in allObjs)
+            if (obj != null)
+                obj.SetActive(false);
 
         if (fadeOutImage != null)
         {
@@ -102,7 +110,7 @@ public class GameOver : MonoBehaviour
 
             Season currentSeason = GameManager.instance.currentSeason;
             int progress = GameManager.instance.currentProgress;
-            
+
             rewardFromTime = Mathf.Min(Mathf.FloorToInt(playTime / 180f), 10);
             rewardFromDamage = damage / 800;
 
@@ -125,6 +133,7 @@ public class GameOver : MonoBehaviour
                     case Season.Autumn: seasonName = "가을"; break;
                     case Season.Winter: seasonName = "겨울"; break;
                 }
+
                 progressResultText.text = $"{seasonName} - {progress}%";
             }
 
@@ -147,26 +156,59 @@ public class GameOver : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(delayA);
 
-        if (text0Obj != null) { text0Obj.SetActive(true); PlayRevealSFX(); }
+        if (text0Obj != null)
+        {
+            text0Obj.SetActive(true);
+            PlayRevealSFX();
+        }
+
         yield return new WaitForSecondsRealtime(delayB);
 
-        if (text1Obj != null) { text1Obj.SetActive(true); PlayRevealSFX(); }
+        if (text1Obj != null)
+        {
+            text1Obj.SetActive(true);
+            PlayRevealSFX();
+        }
+
         yield return new WaitForSecondsRealtime(delayB);
 
-        if (text2Obj != null) { text2Obj.SetActive(true); PlayRevealSFX(); }
+        if (text2Obj != null)
+        {
+            text2Obj.SetActive(true);
+            PlayRevealSFX();
+        }
+
         yield return new WaitForSecondsRealtime(delayB);
 
-        if (text3Obj != null) { text3Obj.SetActive(true); PlayRevealSFX(); }
+        if (text3Obj != null)
+        {
+            text3Obj.SetActive(true);
+            PlayRevealSFX();
+        }
 
         yield return new WaitForSecondsRealtime(delayD);
 
-        if (textAObj != null) { textAObj.SetActive(true); PlayValueSFX(); }
+        if (textAObj != null)
+        {
+            textAObj.SetActive(true);
+            PlayValueSFX();
+        }
+
         yield return new WaitForSecondsRealtime(delayC);
 
-        if (textBObj != null) { textBObj.SetActive(true); PlayValueSFX(); }
+        if (textBObj != null)
+        {
+            textBObj.SetActive(true);
+            PlayValueSFX();
+        }
+
         yield return new WaitForSecondsRealtime(delayC);
 
-        if (textCObj != null) { textCObj.SetActive(true); PlayValueSFX(); }
+        if (textCObj != null)
+        {
+            textCObj.SetActive(true);
+            PlayValueSFX();
+        }
 
         yield return new WaitForSecondsRealtime(delayE);
 
@@ -269,7 +311,7 @@ public class GameOver : MonoBehaviour
         }
 
         Time.timeScale = 1f;
-        
+
         if (TransitionManager.Instance != null)
         {
             TransitionManager.Instance.SetBlackScreen(true);

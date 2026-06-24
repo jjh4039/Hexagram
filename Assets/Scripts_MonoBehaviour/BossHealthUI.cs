@@ -7,20 +7,22 @@ public class BossHealthUI : MonoBehaviour
 {
     public static BossHealthUI Instance;
 
-    [Header("UI Components")]
-    [SerializeField] private CanvasGroup bossCanvasGroup;
+    [Header("UI Components")] [SerializeField]
+    private CanvasGroup bossCanvasGroup;
+
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI hpText;
 
-    [Header("Sliders (Layered)")]
-    [SerializeField] private Slider mainSlider;     
-    [SerializeField] private Slider flashSlider;    
-    [SerializeField] private Slider bufferSlider1;  
-    [SerializeField] private Slider bufferSlider2;  
+    [Header("Sliders (Layered)")] [SerializeField]
+    private Slider mainSlider;
+
+    [SerializeField] private Slider flashSlider;
+    [SerializeField] private Slider bufferSlider1;
+    [SerializeField] private Slider bufferSlider2;
 
     private float _maxHp;
     private Coroutine _bufferCoroutine;
-    private Coroutine _flashCoroutine; 
+    private Coroutine _flashCoroutine;
 
     private float _currentTargetFill = 1f;
     private bool _isIntroFilling = false;
@@ -49,7 +51,7 @@ public class BossHealthUI : MonoBehaviour
     private IEnumerator Co_IntroFill()
     {
         float elapsed = 0f;
-        float duration = 1.5f; 
+        float duration = 1.5f;
 
         while (elapsed < duration)
         {
@@ -83,7 +85,7 @@ public class BossHealthUI : MonoBehaviour
     public void UpdateBossHealth(float currentHp)
     {
         float targetFill = currentHp / _maxHp;
-        _currentTargetFill = targetFill; 
+        _currentTargetFill = targetFill;
 
         if (hpText)
             hpText.text = $"{Mathf.Max(0, currentHp):N0} / {_maxHp:N0}";
@@ -101,7 +103,7 @@ public class BossHealthUI : MonoBehaviour
 
     private IEnumerator Co_FlashEffect(float target)
     {
-        flashSlider.value = target + 0.005f; 
+        flashSlider.value = target + 0.005f;
         yield return new WaitForSeconds(0.1f);
         flashSlider.value = target;
     }
@@ -114,6 +116,7 @@ public class BossHealthUI : MonoBehaviour
             bufferSlider2.value = Mathf.Lerp(bufferSlider2.value, target, Time.deltaTime * 2f);
             yield return null;
         }
+
         bufferSlider1.value = target;
         bufferSlider2.value = target;
     }

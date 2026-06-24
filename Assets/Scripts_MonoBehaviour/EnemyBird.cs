@@ -4,47 +4,47 @@ using UnityEngine;
 
 public class EnemyBird : Enemy
 {
-    [Header("Elite Settings")]
-    [SerializeField] private bool isElite = false; 
+    [Header("Elite Settings")] [SerializeField]
+    private bool isElite = false;
 
-    [Header("Movement")]
-    [SerializeField] private float moveSpeed = 2.5f;
+    [Header("Movement")] [SerializeField] private float moveSpeed = 2.5f;
     [SerializeField] private float spriteScale = 1.2f;
 
-    [Header("Attack")]
-    [SerializeField] private float attackRange = 6f;
+    [Header("Attack")] [SerializeField] private float attackRange = 6f;
     [SerializeField] private float attackCooldown = 2f;
     [SerializeField] private float chargeTime = 1f;
     [SerializeField] private float attackDelay = 0.1f;
 
-    [Header("Rectangle Indicator (World Space)")]
-    [SerializeField] private GameObject maxRangeRectPrefab;
+    [Header("Rectangle Indicator (World Space)")] [SerializeField]
+    private GameObject maxRangeRectPrefab;
+
     [SerializeField] private GameObject currentRectPrefab;
     [SerializeField] private float rectWidth = 0.05f;
     [SerializeField] private float rectLength = 1.5f;
 
-    [Header("Spawn Point")]
-    [SerializeField] private Transform headPoint;
+    [Header("Spawn Point")] [SerializeField]
+    private Transform headPoint;
 
-    [Header("Projectile")]
-    [SerializeField] private GameObject projectilePrefab;
+    [Header("Projectile")] [SerializeField]
+    private GameObject projectilePrefab;
+
     [SerializeField] private float projectileSpeed = 10f;
-    [SerializeField] private float projectileDamage = 15f; 
+    [SerializeField] private float projectileDamage = 15f;
 
-    [Header("Homing")]
-    [SerializeField] private float homingStrength = 5f;
+    [Header("Homing")] [SerializeField] private float homingStrength = 5f;
 
-    [Header("Hit Reaction")]
-    [SerializeField] private float knockbackForce = 1.5f;
+    [Header("Hit Reaction")] [SerializeField]
+    private float knockbackForce = 1.5f;
+
     [SerializeField] private float stunTime = 0.25f;
 
-    [Header("Muzzle Flash")]
-    [SerializeField] private GameObject projectileFlashPrefab;
+    [Header("Muzzle Flash")] [SerializeField]
+    private GameObject projectileFlashPrefab;
+
     [SerializeField] private float flashDistance = 0.3f;
     [SerializeField] private float fireRecoilForce = 0.6f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxFire;
+    [Header("Sound")] [SerializeField] private AudioClip sfxFire;
 
     private Transform target;
     private Rigidbody2D rigid;
@@ -80,7 +80,7 @@ public class EnemyBird : Enemy
         {
             projectileDamage *= GameManager.instance.stats.enemyStatMultiplier;
         }
-        
+
         StartCoroutine(Co_BirdAI());
     }
 
@@ -175,6 +175,7 @@ public class EnemyBird : Enemy
                     maxRectInstances.Add(Instantiate(maxRangeRectPrefab, telegraphContainer));
                     currentRectInstances.Add(Instantiate(currentRectPrefab, telegraphContainer));
                 }
+
                 maxRectInstances[i].SetActive(true);
                 currentRectInstances[i].SetActive(true);
             }
@@ -271,12 +272,14 @@ public class EnemyBird : Enemy
             if (projectileFlashPrefab != null)
             {
                 Vector3 flashPos = headPoint.position + (Vector3)(dir.normalized * flashDistance);
-                EnemyProjectileFlash.Spawn(projectileFlashPrefab, flashPos, Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg));
+                EnemyProjectileFlash.Spawn(projectileFlashPrefab, flashPos,
+                    Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg));
             }
 
-            EnemyProjectile projectile = EnemyProjectile.Spawn(projectilePrefab, headPoint.position, Quaternion.identity);
+            EnemyProjectile projectile =
+                EnemyProjectile.Spawn(projectilePrefab, headPoint.position, Quaternion.identity);
             if (projectile != null)
-                projectile.Initialize(dir, projectileSpeed, projectileDamage); 
+                projectile.Initialize(dir, projectileSpeed, projectileDamage);
         }
 
         if (rigid != null)
@@ -334,10 +337,12 @@ public class EnemyBird : Enemy
     void ClearRectangles()
     {
         foreach (var rect in maxRectInstances)
-            if (rect != null) rect.SetActive(false);
+            if (rect != null)
+                rect.SetActive(false);
 
         foreach (var rect in currentRectInstances)
-            if (rect != null) rect.SetActive(false);
+            if (rect != null)
+                rect.SetActive(false);
     }
 
     protected override void Die()

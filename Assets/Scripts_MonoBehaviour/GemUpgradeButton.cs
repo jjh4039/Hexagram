@@ -4,17 +4,16 @@ using UnityEngine.UI;
 using System;
 
 [RequireComponent(typeof(Image))]
-public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler,
+    IPointerExitHandler
 {
     public Action OnClicked;
 
-    [Header("Color Settings")]
-    public Color baseColor = new Color(142f / 255f, 223f / 255f, 233f / 255f, 1f); // 기본 색상
+    [Header("Color Settings")] public Color baseColor = new Color(142f / 255f, 223f / 255f, 233f / 255f, 1f); // 기본 색상
 
-    [Header("Auto Click Settings")]
-    public float autoClickInitialDelay = 0.4f;  // 연사 대기 시간
-    public float autoClickStartRate = 0.15f;    // 연사 초기 간격
-    public float autoClickMinRate = 0.06f;      // 연사 최대 속도
+    [Header("Auto Click Settings")] public float autoClickInitialDelay = 0.4f; // 연사 대기 시간
+    public float autoClickStartRate = 0.15f; // 연사 초기 간격
+    public float autoClickMinRate = 0.06f; // 연사 최대 속도
     public float autoClickAcceleration = 0.85f; // 연사 가속도
 
     private Color _hoverColor = Color.white;
@@ -23,11 +22,11 @@ public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     private Image _image;
     private bool _isInteractable = true;
     private bool _isHovering = false;
-    
-    private bool _isHolding = false;            // 꾹 누름 상태
-    private float _holdTimer = 0f;              // 연사 타이머
-    private float _currentRate = 0f;            // 적용중인 연사 간격
-    private bool _isFirstDelay = false;         // 최초 대기 상태
+
+    private bool _isHolding = false; // 꾹 누름 상태
+    private float _holdTimer = 0f; // 연사 타이머
+    private float _currentRate = 0f; // 적용중인 연사 간격
+    private bool _isFirstDelay = false; // 최초 대기 상태
 
     private void Awake()
     {
@@ -35,7 +34,7 @@ public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         _disabledColor = new Color(baseColor.r, baseColor.g, baseColor.b, 0.02f);
         UpdateVisual();
     }
-    
+
     private void OnValidate()
     {
         _disabledColor = new Color(baseColor.r, baseColor.g, baseColor.b, 0.02f);
@@ -46,8 +45,8 @@ public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     public void SetInteractable(bool state)
     {
         _isInteractable = state;
-        if (!_isInteractable) _isHolding = false; 
-        
+        if (!_isInteractable) _isHolding = false;
+
         UpdateVisual();
     }
 
@@ -55,7 +54,7 @@ public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         if (!_isInteractable || eventData.button != PointerEventData.InputButton.Left) return;
 
-        OnClicked?.Invoke(); 
+        OnClicked?.Invoke();
 
         _isHolding = true;
         _isFirstDelay = true;
@@ -84,7 +83,7 @@ public class GemUpgradeButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     {
         if (!_isHolding || !_isInteractable) return;
 
-        _holdTimer += Time.unscaledDeltaTime; 
+        _holdTimer += Time.unscaledDeltaTime;
 
         if (_isFirstDelay)
         {

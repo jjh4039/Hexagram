@@ -44,28 +44,30 @@ public class EventManager : MonoBehaviour
 {
     public static EventManager Instance;
 
-    [Header("Event Data Pool")] 
-    [SerializeField] private List<RiskData> riskDataList = new List<RiskData>();
+    [Header("Event Data Pool")] [SerializeField]
+    private List<RiskData> riskDataList = new List<RiskData>();
+
     [SerializeField] private List<RewardData> rewardDataList = new List<RewardData>();
 
-    [Header("Current Selection")] 
-    [SerializeField] private EventSelectionData currentEventSelection = new EventSelectionData();
+    [Header("Current Selection")] [SerializeField]
+    private EventSelectionData currentEventSelection = new EventSelectionData();
 
-    [Header("References")] 
-    [SerializeField] private EventUIController eventUIController;
+    [Header("References")] [SerializeField]
+    private EventUIController eventUIController;
 
-    [Header("Reward Prefabs")] 
-    [SerializeField] private GameObject balancePrefab;
+    [Header("Reward Prefabs")] [SerializeField]
+    private GameObject balancePrefab;
 
-    [Header("Activation Feedback")] 
-    [SerializeField] private TextMeshProUGUI activationText;
+    [Header("Activation Feedback")] [SerializeField]
+    private TextMeshProUGUI activationText;
+
     [SerializeField] private float textFadeDuration = 0.2f;
     [SerializeField] private float textDisplayDuration = 1f;
 
     public EventSelectionData CurrentEventSelection => currentEventSelection;
 
     public Vector3 eventOriginPos;
-    
+
     [HideInInspector] public Transform eventOriginTransform;
 
     private Coroutine _activationTextRoutine;
@@ -109,7 +111,7 @@ public class EventManager : MonoBehaviour
 
         ApplyRisk(currentEventSelection.selectedRisk, intensityLevel);
         ApplyReward(currentEventSelection.selectedReward, intensityLevel);
-        
+
         // GameAnalytics 6번 정보 전송 (이벤트)
         if (AnalyticsManager.Instance != null)
         {
@@ -235,9 +237,9 @@ public class EventManager : MonoBehaviour
                 if (balancePrefab != null)
                 {
                     Vector3 spawnPos = eventOriginPos + new Vector3(0, -2.5f, 0);
-                    
+
                     GameObject balanceObj = Instantiate(balancePrefab, spawnPos, Quaternion.identity);
-                    
+
                     if (eventOriginTransform != null)
                     {
                         balanceObj.transform.SetParent(eventOriginTransform, true);

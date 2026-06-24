@@ -3,10 +3,11 @@ using UnityEngine.UI;
 
 public class DashUI : MonoBehaviour
 {
-    [Header("UI References")]
-    [SerializeField] private Image[] dashFillImages;
+    [Header("UI References")] [SerializeField]
+    private Image[] dashFillImages;
+
     [SerializeField] private Color chargingColor = new Color(1, 1, 1, 0.5f); // 충전 중 색상
-    [SerializeField] private Color fullColor = Color.white;                 // 완충 색상
+    [SerializeField] private Color fullColor = Color.white; // 완충 색상
 
     void Update()
     {

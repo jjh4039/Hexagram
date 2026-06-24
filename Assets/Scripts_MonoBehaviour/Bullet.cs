@@ -2,12 +2,10 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [Header("Settings")]
-    public float speed = 50f;
+    [Header("Settings")] public float speed = 50f;
     public float lifeTime = 2f;
 
-    [Header("VFX")]
-    [SerializeField] private float damageMultiplier = 1.0f;
+    [Header("VFX")] [SerializeField] private float damageMultiplier = 1.0f;
 
     private Rigidbody2D rigid;
     private SpriteRenderer spriteRenderer;
@@ -25,8 +23,8 @@ public class Bullet : MonoBehaviour
     private float cachedDiceDamageMultiplier = 1f;
     private float cachedDiceRangedDamageMultiplier = 1f;
     private float cachedStrongAttackMultiplier = 1f;
-    private float cachedFinalDamageMultiplier = 1f; 
-    
+    private float cachedFinalDamageMultiplier = 1f;
+
     private int currentPenetration = 0; // 남은 관통 횟수
 
     private Coroutine lifeTimerCoroutine;
@@ -53,7 +51,7 @@ public class Bullet : MonoBehaviour
         myColor = color;
         myMaterial = material;
     }
-    
+
     public void SetupCombatData(
         float rangeAttackPower,
         float rangedVariance,
@@ -73,9 +71,9 @@ public class Bullet : MonoBehaviour
         cachedDiceDamageMultiplier = diceDamageMultiplier;
         cachedDiceRangedDamageMultiplier = diceRangedDamageMultiplier;
         cachedStrongAttackMultiplier = strongAttackMultiplier;
-        
-        currentPenetration = penetration; 
-        cachedFinalDamageMultiplier = finalDamageMultiplier; 
+
+        currentPenetration = penetration;
+        cachedFinalDamageMultiplier = finalDamageMultiplier;
     }
 
     private void OnEnable()
@@ -84,7 +82,7 @@ public class Bullet : MonoBehaviour
 
         if (spriteRenderer != null) spriteRenderer.enabled = true;
         if (col != null) col.enabled = true;
-        
+
         if (rigid != null)
         {
             rigid.bodyType = RigidbodyType2D.Dynamic;
@@ -100,7 +98,7 @@ public class Bullet : MonoBehaviour
         TrailRenderer trail = GetComponentInChildren<TrailRenderer>();
         if (trail != null)
         {
-            trail.Clear(); 
+            trail.Clear();
             trail.emitting = true;
         }
 
@@ -125,7 +123,7 @@ public class Bullet : MonoBehaviour
                 CalculateAndDealDamage(enemy);
                 SpawnHitEffect(transform.position);
             }
-            
+
             if (currentPenetration > 0)
             {
                 currentPenetration--;
@@ -179,12 +177,12 @@ public class Bullet : MonoBehaviour
     private System.Collections.IEnumerator Co_DelayReturnToPool()
     {
         float timer = 0f;
-        while(timer < 0.5f)
+        while (timer < 0.5f)
         {
             timer += Time.unscaledDeltaTime;
             yield return null;
         }
-        
+
         Gun.ReturnBullet(this.gameObject);
     }
 

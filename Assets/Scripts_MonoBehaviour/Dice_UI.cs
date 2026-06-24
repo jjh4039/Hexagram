@@ -8,48 +8,53 @@ using ChocDino.UIFX;
 
 public class Dice_UI : MonoBehaviour
 {
-    [Header("Sound Settings")]
-    [SerializeField] private AudioClip rollSound;
+    [Header("Sound Settings")] [SerializeField]
+    private AudioClip rollSound;
+
     [SerializeField] private AudioClip resultSound;
 
-    [Header("UI References")]
-    [SerializeField] private Image diceFillImage;
+    [Header("UI References")] [SerializeField]
+    private Image diceFillImage;
+
     [SerializeField] private Image gaugeFillImage;
     [SerializeField] private Image keyGuideImage;
     [SerializeField] private TextMeshProUGUI diceCountText;
     [SerializeField] private GameObject maxText;
 
-    [Header("Artifact Feedback UI")]
-    [SerializeField] private GameObject artifactContainerBox;    
-    [SerializeField] private Transform artifactIconParent;       
-    [SerializeField] private GameObject artifactIconPrefab;      
+    [Header("Artifact Feedback UI")] [SerializeField]
+    private GameObject artifactContainerBox;
+
+    [SerializeField] private Transform artifactIconParent;
+    [SerializeField] private GameObject artifactIconPrefab;
     [SerializeField] private GameObject plusIconPrefab;
 
-    [Header("Sprites")]
-    [SerializeField] private Sprite[] diceSprites;
+    [Header("Sprites")] [SerializeField] private Sprite[] diceSprites;
     [SerializeField] private Sprite[] gaugeSprites;
     [SerializeField] private Sprite[] keyGuideSprites;
 
-    [Header("Text Colors")]
-    [SerializeField] private Color textNormalColor = Color.white;
+    [Header("Text Colors")] [SerializeField]
+    private Color textNormalColor = Color.white;
+
     [SerializeField] private Color textMaxColor = Color.yellow;
 
-    [Header("Roll Animation Settings")]
-    [SerializeField] private GameObject dice3DObject;
+    [Header("Roll Animation Settings")] [SerializeField]
+    private GameObject dice3DObject;
+
     [SerializeField] private GameObject diceObject;
     [SerializeField] private Image resultDiceImage;
     [SerializeField] private TextMeshProUGUI resultDiceText;
 
-    [Space(10)]
-    [SerializeField] private CanvasGroup fadeInGroup;
+    [Space(10)] [SerializeField] private CanvasGroup fadeInGroup;
     [SerializeField] private CanvasGroup fadeOutGroup;
 
-    [Header("Dice Visual Data")]
-    [SerializeField] private Sprite[] resultDiceSprites;
+    [Header("Dice Visual Data")] [SerializeField]
+    private Sprite[] resultDiceSprites;
+
     [SerializeField] private GlowFilter glowFilter;
 
-    [Header("Burst Particle Settings")]
-    [SerializeField] private RectTransform canvasRect;
+    [Header("Burst Particle Settings")] [SerializeField]
+    private RectTransform canvasRect;
+
     [SerializeField] private int burstCount = 6;
 
     private PlayerStats stats;
@@ -101,13 +106,14 @@ public class Dice_UI : MonoBehaviour
         UpdateGaugeFill(isMax);
         UpdateText(isMax);
     }
-    
+
     private void OnDestroy()
     {
         StopAllCoroutines();
     }
 
-    public void PlayRollAnimation(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
+    public void PlayRollAnimation(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts,
+        Action onResultShown)
     {
         if (isRolling) return;
         StartCoroutine(SingleRollRoutine(data, diceIndex, triggeredArtifacts, onResultShown));
@@ -145,7 +151,8 @@ public class Dice_UI : MonoBehaviour
         }
     }
 
-    private IEnumerator SingleRollRoutine(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts, Action onResultShown)
+    private IEnumerator SingleRollRoutine(DiceData data, int diceIndex, List<ArtifactData> triggeredArtifacts,
+        Action onResultShown)
     {
         isRolling = true;
 
@@ -159,8 +166,10 @@ public class Dice_UI : MonoBehaviour
 
         if (diceObject != null)
         {
-            yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale, originalDiceObjectScale * 1.2f, 10f));
-            yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale * 1.2f, Vector3.zero, 8f));
+            yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale,
+                originalDiceObjectScale * 1.2f, 10f));
+            yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale * 1.2f, Vector3.zero,
+                8f));
         }
 
         if (dice3DObject != null)
@@ -255,8 +264,10 @@ public class Dice_UI : MonoBehaviour
 
         if (diceObject != null)
         {
-            yield return StartCoroutine(ScaleObject(diceObject.transform, Vector3.zero, originalDiceObjectScale * 1.2f, 10f));
-            yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale * 1.2f, originalDiceObjectScale, 15f));
+            yield return StartCoroutine(ScaleObject(diceObject.transform, Vector3.zero, originalDiceObjectScale * 1.2f,
+                10f));
+            yield return StartCoroutine(ScaleObject(diceObject.transform, originalDiceObjectScale * 1.2f,
+                originalDiceObjectScale, 15f));
         }
 
         isRolling = false;
