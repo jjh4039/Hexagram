@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 
 public class SettingClickZone : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 {
-    [SerializeField] private SettingUIController controller; 
-    [SerializeField] private int targetIndex;                // 이 UI가 담당하는 설정 번호
+    [SerializeField] private SettingUIController controller;
+    [SerializeField] private int targetIndex; // 이 UI가 담당하는 설정 번호
 
     private RectTransform _rectTransform;
 

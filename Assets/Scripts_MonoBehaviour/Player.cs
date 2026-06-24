@@ -5,39 +5,41 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
-    [Header("Components")]
-    [SerializeField] public Rigidbody2D rigid;
+    [Header("Components")] [SerializeField]
+    public Rigidbody2D rigid;
+
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Animator anim;
     [SerializeField] private PlayerStats stats;
 
-    [Header("Manager Link")]
-    [SerializeField] public BuffManager buffManager;
+    [Header("Manager Link")] [SerializeField]
+    public BuffManager buffManager;
+
     [SerializeField] private WeaponManager weaponManager;
 
-    [Header("Input Control")]
-    public bool canControl = true;
+    [Header("Input Control")] public bool canControl = true;
 
     public Vector2 mouseWorldPos { get; set; }
     private Vector2 _moveInput;
 
     public PlayerInput Input => InputStateManager.Instance.Actions;
 
-    [Header("State")]
-    public bool isAttacking = false;
+    [Header("State")] public bool isAttacking = false;
     public bool isKnockedBack = false;
     public bool isRecoiling = false;
     public bool isTutorial = false;
     public bool IsDashing => _isDashing;
 
-    [Header("Hit And Invincibility")]
-    [SerializeField] public bool isInvincible = false;
+    [Header("Hit And Invincibility")] [SerializeField]
+    public bool isInvincible = false;
+
     [SerializeField] private float invincibleTime = 0.8f;
     [SerializeField] private float blinkSpeed = 0.2f;
     [SerializeField] private float bodyContactDamage = 5f;
 
-    [Header("Hit Feedback")]
-    [SerializeField] private Material flashMaterial;
+    [Header("Hit Feedback")] [SerializeField]
+    private Material flashMaterial;
+
     [SerializeField] private float flashDuration = 0.1f;
     [SerializeField] private float hitShakeDuration = 0.2f;
     [SerializeField] private float hitShakeMagnitude = 0.15f;
@@ -45,23 +47,27 @@ public class Player : MonoBehaviour
 
     private Material _originalMaterial;
 
-    [Header("Contact Damage Settings")]
-    [SerializeField] private float contactCheckRadius = 0.3f;
+    [Header("Contact Damage Settings")] [SerializeField]
+    private float contactCheckRadius = 0.3f;
+
     [SerializeField] private LayerMask enemyLayer;
     private ContactFilter2D _contactFilter;
     private readonly Collider2D[] _contactResults = new Collider2D[8];
 
-    [Header("Dash Settings")]
-    [SerializeField] private float dashSpeed = 15f;
+    [Header("Dash Settings")] [SerializeField]
+    private float dashSpeed = 15f;
+
     [SerializeField] private float dashDuration = 0.1f;
 
-    [Header("Dash Visuals")]
-    [SerializeField] private float ghostInterval = 0.03f;
+    [Header("Dash Visuals")] [SerializeField]
+    private float ghostInterval = 0.03f;
+
     [SerializeField] private float ghostFadeTime = 0.4f;
     [SerializeField] private Color ghostColor = new Color(0.6f, 0.6f, 1f, 0.4f);
 
-    [Header("Object Pool Settings")]
-    [SerializeField] private Transform poolParent;
+    [Header("Object Pool Settings")] [SerializeField]
+    private Transform poolParent;
+
     [SerializeField] private int ghostPoolSize = 20;
     [SerializeField] private int dustPoolSize = 5;
 
@@ -70,19 +76,17 @@ public class Player : MonoBehaviour
     private Queue<GameObject> _dustPool = new Queue<GameObject>();
     private Transform _dustPoolContainer;
 
-    [Header("Effects")]
-    [SerializeField] private GameObject dashDustPrefab;
+    [Header("Effects")] [SerializeField] private GameObject dashDustPrefab;
     [SerializeField] private float shakeDuration = 0.05f;
     [SerializeField] private float shakeMagnitude = 0.02f;
 
-    [Header("Strong Attack")]
-    [SerializeField] public float defaultStrongAttackMultiplier = 2f;
+    [Header("Strong Attack")] [SerializeField]
+    public float defaultStrongAttackMultiplier = 2f;
 
     private bool _isDashing = false;
     private float _lastDashTime = -99f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxDash;
+    [Header("Sound")] [SerializeField] private AudioClip sfxDash;
     [SerializeField] private AudioClip sfxHit;
 
     private Color paleRed = new Color(1f, 0.3f, 0.3f, 1f);
@@ -156,22 +160,21 @@ public class Player : MonoBehaviour
         if (newState == InputState.UI)
         {
             _moveInput = Vector2.zero;
-            // ★ 수정: 대시나 넉백 중일 때는 코루틴이 물리력을 관리하게 두고 여기서 건드리지 않습니다.
-            if (!_isDashing && !isKnockedBack) 
+            // 대시나 넉백 중일 때는 코루틴이 물리력을 관리
+            if (!_isDashing && !isKnockedBack)
             {
                 rigid.linearVelocity = Vector2.zero;
             }
         }
-        // ★ 수정: UI를 껐다고 해서 강제로 isInvincible = false로 만들면 대시 무적이 풀리는 치명적 버그가 발생하므로 삭제!
     }
 
     private void OnAttack(InputAction.CallbackContext context)
     {
-        if (InputStateManager.Instance.CurrentInputState == InputState.UI) return; 
-        
+        if (InputStateManager.Instance.CurrentInputState == InputState.UI) return;
+
         bool isNormalMap = context.action.actionMap.name == "Normal";
         bool isCombatMap = context.action.actionMap.name == "Combat";
-        
+
         if (isNormalMap && InputStateManager.Instance.CurrentInputState != InputState.Normal) return;
         if (isCombatMap && InputStateManager.Instance.CurrentInputState != InputState.Combat) return;
 
@@ -185,7 +188,7 @@ public class Player : MonoBehaviour
 
         bool isNormalMap = context.action.actionMap.name == "Normal";
         bool isCombatMap = context.action.actionMap.name == "Combat";
-        
+
         if (isNormalMap && InputStateManager.Instance.CurrentInputState != InputState.Normal) return;
         if (isCombatMap && InputStateManager.Instance.CurrentInputState != InputState.Combat) return;
 
@@ -258,6 +261,7 @@ public class Player : MonoBehaviour
                 _isDashing = false;
                 isInvincible = false;
             }
+
             isKnockedBack = false;
             rigid.linearVelocity = Vector2.zero;
             return;
@@ -280,6 +284,7 @@ public class Player : MonoBehaviour
         {
             return buffManager.TryConsumeStrongAttack(out strongAttackMultiplier);
         }
+
         strongAttackMultiplier = 1f;
         return false;
     }
@@ -446,17 +451,14 @@ public class Player : MonoBehaviour
         if (CameraFollow.Instance != null) CameraFollow.Instance.HitShake(shakeDuration, shakeMagnitude);
 
         StartCoroutine(DashGhostRoutine());
-        
+
         float scaledTimer = 0f;
         float realTimer = 0f;
-
-        // ★ 제한시간을 1.0초로 넉넉하게 변경하여 정상적인 슬로우 모션을 방해하지 않게 함
+        
         while (scaledTimer < dashDuration && realTimer < 1.0f)
         {
-            // ★ 핵심 버그 수정: UI 진입(일시정지) 시 폭주하는 시간(스파이크)을 0.1초로 제한하여 대시가 증발하는 것을 방지
             float safeUnscaledDelta = Mathf.Min(Time.unscaledDeltaTime, 0.1f);
-
-            // UI 모드가 아닐 때만 물리력 및 시간 증가 적용 (UI 모드 중 대시 헛돎 방지)
+            
             if (InputStateManager.Instance.CurrentInputState != InputState.UI)
             {
                 rigid.linearVelocity = dashDir * dashSpeed;
@@ -485,6 +487,7 @@ public class Player : MonoBehaviour
             {
                 CreateGhost();
             }
+
             yield return new WaitForSeconds(ghostInterval);
         }
     }
@@ -619,6 +622,7 @@ public class Player : MonoBehaviour
                 }
             }
         }
+
         if (_dustPoolContainer != null)
         {
             foreach (Transform child in _dustPoolContainer)
@@ -660,11 +664,11 @@ public class Player : MonoBehaviour
             string season = GameManager.instance.currentSeason.ToString();
             string progress = "Progress_" + GameManager.instance.currentProgress.ToString();
             int damageScore = GameManager.instance.totalDamageDealt;
-            
+
             AnalyticsManager.Instance.LogPlayerDeath(season, progress, damageScore);
             AnalyticsManager.Instance.LogDiceBuildState(GameManager.instance.dice.displayPercentages);
         }
-        
+
         Debug.Log("Player: Dead");
     }
 

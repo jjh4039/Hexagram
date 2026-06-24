@@ -3,7 +3,11 @@ using UnityEngine.EventSystems;
 
 public class ShopHoverAreaRelay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    public enum HoverAreaType { Main, Reroll }
+    public enum HoverAreaType
+    {
+        Main,
+        Reroll
+    }
 
     [SerializeField] private ShopStatOptionHoverSystem parentSystem;
     [SerializeField] private HoverAreaType areaType;
@@ -19,14 +23,14 @@ public class ShopHoverAreaRelay : MonoBehaviour, IPointerEnterHandler, IPointerE
         if (parentSystem != null)
             parentSystem.SetHover(areaType, false);
     }
-    
+
     public void OnPointerClick(PointerEventData eventData)
     {
         if (parentSystem == null || eventData.button != PointerEventData.InputButton.Left) return;
 
         if (areaType == HoverAreaType.Main)
         {
-            parentSystem.OnClickMain();   // 메인 클릭 -> 구매 실행
+            parentSystem.OnClickMain(); // 메인 클릭 -> 구매 실행
         }
         else if (areaType == HoverAreaType.Reroll)
         {

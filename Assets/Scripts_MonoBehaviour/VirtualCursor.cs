@@ -4,29 +4,28 @@ using UnityEngine.UI;
 
 public enum CursorType
 {
-    Default,   
-    Aim,   
+    Default,
+    Aim,
 }
 
 public class VirtualCursor : MonoBehaviour
 {
-    private RectTransform _rectTransform; 
-    private Image _cursorImage; 
+    private RectTransform _rectTransform;
+    private Image _cursorImage;
 
-    [Header("Cursor Settings")]
-    [Tooltip("0: Default, 1: Aim")]
-    [SerializeField] private Sprite[] cursorSprites; 
+    [Header("Cursor Settings")] [Tooltip("0: Default, 1: Aim")] [SerializeField]
+    private Sprite[] cursorSprites;
 
-    public CursorType CurrentCursorType { get; private set; } 
+    public CursorType CurrentCursorType { get; private set; }
 
     private void Awake()
     {
         _rectTransform = GetComponent<RectTransform>();
         _cursorImage = GetComponent<Image>();
 
-        Cursor.visible = false;                       
-        Cursor.lockState = CursorLockMode.Confined;          
-        
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
+
         if (_cursorImage != null) _cursorImage.enabled = true;
 
         ChangeCursor(CursorType.Default);
@@ -34,7 +33,7 @@ public class VirtualCursor : MonoBehaviour
 
     private void Update()
     {
-        Vector2 mouseScreenPos = Vector2.zero; 
+        Vector2 mouseScreenPos = Vector2.zero;
 
         if (InputStateManager.Instance)
         {
@@ -47,13 +46,13 @@ public class VirtualCursor : MonoBehaviour
                 mouseScreenPos = actions.Combat.Look.ReadValue<Vector2>();
             else if (Mouse.current != null)
             {
-                mouseScreenPos = Mouse.current.position.ReadValue(); 
+                mouseScreenPos = Mouse.current.position.ReadValue();
                 ChangeCursor(default);
             }
         }
         else if (Mouse.current != null)
         {
-            mouseScreenPos = Mouse.current.position.ReadValue(); 
+            mouseScreenPos = Mouse.current.position.ReadValue();
         }
 
         if (_rectTransform)
@@ -69,7 +68,7 @@ public class VirtualCursor : MonoBehaviour
     public void ChangeCursor(CursorType type)
     {
         if (!_cursorImage || cursorSprites.Length == 0) return;
-        CurrentCursorType = type; 
+        CurrentCursorType = type;
 
         switch (type)
         {

@@ -2,76 +2,67 @@ using UnityEngine;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Survival Stats")]
-    public int maxHealth = 30;
+    [Header("Survival Stats")] public int maxHealth = 30;
     public int currentHealth;
 
-    [Header("Resource Stats")]
-    public int maxAmmo = 500;
+    [Header("Resource Stats")] public int maxAmmo = 500;
     public int currentAmmo = 0;
     public float ammoRechargeRate = 10f;
 
-    [Header("Dice Charge Stats")]
-    public float maxDiceCharge = 300f;
+    [Header("Dice Charge Stats")] public float maxDiceCharge = 300f;
     public float currentDiceCharge = 100f;
     public float dicePassiveChargeRate = 5f;
     public float diceHitChargeAmount = 2f;
     public float finalDicePower = 1f;
 
-    [Header("Attack Power Stats")]
-    public float meleeAttackPower = 10f;
+    [Header("Attack Power Stats")] public float meleeAttackPower = 10f;
     public float rangeAttackPower = 14f;
     public float finalAttackPower = 1f;
 
-    [Header("Critical Stats")]
-    [Range(0f, 1f)] public float criticalChance = 0.2f;
+    [Header("Critical Stats")] [Range(0f, 1f)]
+    public float criticalChance = 0.2f;
+
     public float criticalDamageMultiplier = 1.5f;
 
-    [Header("Movement Stats")]
-    public float moveSpeed = 5f;
+    [Header("Movement Stats")] public float moveSpeed = 5f;
 
-    [Header("Attack Speed Stats")]
-    public float attackSpeed = 1.0f;
+    [Header("Attack Speed Stats")] public float attackSpeed = 1.0f;
 
-    [Header("Dash Stats")]
-    public int maxDashStacks = 3;
+    [Header("Dash Stats")] public int maxDashStacks = 3;
     public float currentDashStacks = 3f;
     public float dashRechargeRate = 1f;
 
-    [Header("Damage Variance")]
-    [Range(0f, 0.5f)] public float meleeDamageVariance = 0.2f;
+    [Header("Damage Variance")] [Range(0f, 0.5f)]
+    public float meleeDamageVariance = 0.2f;
+
     [Range(0f, 0.5f)] public float rangedDamageVariance = 0.1f;
 
-    [Header("Dice Runtime Multipliers")]
-    public float diceDamageMultiplier = 1.0f;
+    [Header("Dice Runtime Multipliers")] public float diceDamageMultiplier = 1.0f;
     public float diceMoveSpeedMultiplier = 1.0f;
     public float diceAttackSpeedMultiplier = 1.0f;
     public float diceChargeSpeedMultiplier = 1.0f;
     public float diceCritDamageBonus = 0f;
     public float diceRangedDamageMultiplier = 1.0f;
     public int diceStrongAttackStacks = 0;
-    public float diceCritChanceBonus = 0f; 
+    public float diceCritChanceBonus = 0f;
 
     public float buffFinalDamageMultiplier = 1.0f;
 
-    [Header("Event Debuff States")]
-    public bool cannotHeal = false;
+    [Header("Event Debuff States")] public bool cannotHeal = false;
     public float takeMoreDamageMultiplier = 1.0f;
     public bool isDiceEffectHalved = false;
 
-    [Header("Visual Feedback")]
-    public GameObject damageTextPrefab;
+    [Header("Visual Feedback")] public GameObject damageTextPrefab;
 
-    [Header("Meta Progression Settings")]
-    public int metaHealthPerLevel = 1;            
-    public float metaAttackPerLevel = 0.2f;         
-    public float metaChargeSpeedPercent = 0.03f;   
-    public int metaPierceStep = 3;                 
-    public float metaDifficultyPercent = 0.05f;     
+    [Header("Meta Progression Settings")] public int metaHealthPerLevel = 1;
+    public float metaAttackPerLevel = 0.2f;
+    public float metaChargeSpeedPercent = 0.03f;
+    public int metaPierceStep = 3;
+    public float metaDifficultyPercent = 0.05f;
 
-    [HideInInspector] public int bonusPenetration = 0;       
-    [HideInInspector] public float enemyStatMultiplier = 1f; 
-    [HideInInspector] public float metaAmmoGainMultiplier = 1f; 
+    [HideInInspector] public int bonusPenetration = 0;
+    [HideInInspector] public float enemyStatMultiplier = 1f;
+    [HideInInspector] public float metaAmmoGainMultiplier = 1f;
 
     private float _ammoRechargeTimer = 0f;
     private BuffManager _buffManager;
@@ -99,13 +90,13 @@ public class PlayerStats : MonoBehaviour
 
         float chargeSpeedBonus = 1f + (data.upgradeBulletLevel * metaChargeSpeedPercent);
         ammoRechargeRate *= chargeSpeedBonus;
-        metaAmmoGainMultiplier = chargeSpeedBonus; 
-        
+        metaAmmoGainMultiplier = chargeSpeedBonus;
+
         bonusPenetration = data.upgradeBulletLevel / metaPierceStep;
 
         float difficultyBonus = data.difficultyLevel * metaDifficultyPercent;
         enemyStatMultiplier = 1f + difficultyBonus;
-        
+
         if (GameManager.instance != null)
         {
             GameManager.instance.scrapPercentage += difficultyBonus;
@@ -150,10 +141,20 @@ public class PlayerStats : MonoBehaviour
                     maxHealth += hpBonus;
                     if (!cannotHeal) currentHealth += hpBonus;
                 }
+
                 break;
             case ArtifactEffectType.AttackPower:
-                if (isPercent) { meleeAttackPower *= multiplier; rangeAttackPower *= multiplier; }
-                else { meleeAttackPower += flatAmount; rangeAttackPower += flatAmount; }
+                if (isPercent)
+                {
+                    meleeAttackPower *= multiplier;
+                    rangeAttackPower *= multiplier;
+                }
+                else
+                {
+                    meleeAttackPower += flatAmount;
+                    rangeAttackPower += flatAmount;
+                }
+
                 break;
             case ArtifactEffectType.FinalDamage:
                 if (isPercent) finalAttackPower *= multiplier;
@@ -169,7 +170,8 @@ public class PlayerStats : MonoBehaviour
                 ammoRechargeRate = isPercent ? ammoRechargeRate * multiplier : ammoRechargeRate + flatAmount;
                 break;
             case ArtifactEffectType.DiceSpeed:
-                dicePassiveChargeRate = isPercent ? dicePassiveChargeRate * multiplier : dicePassiveChargeRate + flatAmount;
+                dicePassiveChargeRate =
+                    isPercent ? dicePassiveChargeRate * multiplier : dicePassiveChargeRate + flatAmount;
                 break;
             case ArtifactEffectType.CritChance:
                 criticalChance += flatAmount;
@@ -185,7 +187,7 @@ public class PlayerStats : MonoBehaviour
 
     public void ApplyShopStat(ShopStatOptionHoverSystem.ShopStatType type, float percentValue)
     {
-        float decimalValue = percentValue / 100f; 
+        float decimalValue = percentValue / 100f;
 
         switch (type)
         {
@@ -194,19 +196,20 @@ public class PlayerStats : MonoBehaviour
                 rangeAttackPower *= (1f + decimalValue);
                 break;
             case ShopStatOptionHoverSystem.ShopStatType.AttackSpeed:
-                attackSpeed += decimalValue; 
+                attackSpeed += decimalValue;
                 break;
             case ShopStatOptionHoverSystem.ShopStatType.MoveSpeed:
                 moveSpeed *= (1f + decimalValue);
                 break;
             case ShopStatOptionHoverSystem.ShopStatType.CritChance:
-                criticalChance += decimalValue; 
+                criticalChance += decimalValue;
                 break;
             case ShopStatOptionHoverSystem.ShopStatType.CritDamage:
-                criticalDamageMultiplier += decimalValue; 
+                criticalDamageMultiplier += decimalValue;
                 break;
         }
-        SpawnDamageText("STAT UP!", Color.yellow, 4f); 
+
+        SpawnDamageText("STAT UP!", Color.yellow, 4f);
     }
 
     private void Update()
@@ -218,16 +221,16 @@ public class PlayerStats : MonoBehaviour
     private void UpdateDiceCharge()
     {
         if (currentDiceCharge >= maxDiceCharge) return;
-        
+
         bool isTutorial = false;
         if (GameManager.instance != null && GameManager.instance.player != null)
         {
             isTutorial = GameManager.instance.player.isTutorial;
         }
-        
+
         if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentPhase != GamePhase.InCombat)
         {
-            if (!isTutorial) return; 
+            if (!isTutorial) return;
         }
 
         currentDiceCharge += dicePassiveChargeRate * diceChargeSpeedMultiplier * Time.deltaTime;
@@ -248,16 +251,20 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    public float GetFinalMeleeDamage() => meleeAttackPower * diceDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
-    public float GetFinalRangedDamage() => rangeAttackPower * diceDamageMultiplier * diceRangedDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
+    public float GetFinalMeleeDamage() =>
+        meleeAttackPower * diceDamageMultiplier * (finalAttackPower * buffFinalDamageMultiplier);
+
+    public float GetFinalRangedDamage() => rangeAttackPower * diceDamageMultiplier * diceRangedDamageMultiplier *
+                                           (finalAttackPower * buffFinalDamageMultiplier);
+
     public float GetFinalMoveSpeed() => moveSpeed * diceMoveSpeedMultiplier;
-    
-    public float GetFinalAttackSpeed() 
+
+    public float GetFinalAttackSpeed()
     {
         float speed = attackSpeed * diceAttackSpeedMultiplier;
         return Mathf.Clamp(speed, 0.1f, 2.0f);
     }
-    
+
     public float GetFinalChargeSpeed() => ammoRechargeRate * diceChargeSpeedMultiplier;
     public float GetFinalDiceChargeRate() => dicePassiveChargeRate * diceChargeSpeedMultiplier;
 
@@ -270,7 +277,7 @@ public class PlayerStats : MonoBehaviour
         diceCritDamageBonus = 0f;
         diceRangedDamageMultiplier = 1.0f;
         diceStrongAttackStacks = 0;
-        diceCritChanceBonus = 0f; // ★ 임시 치명타 확률 초기화
+        diceCritChanceBonus = 0f;
 
         buffFinalDamageMultiplier = 1.0f;
 
@@ -280,8 +287,7 @@ public class PlayerStats : MonoBehaviour
     }
 
     public float GetFinalCriticalDamageMultiplier() => criticalDamageMultiplier + diceCritDamageBonus;
-    
-    // ★ 추가: 최종 치명타 확률 산출 (기본스탯 + 주사위스탯)
+
     public float GetFinalCriticalChance() => criticalChance + diceCritChanceBonus;
 
     public void AddDiceCharge(float amount)
@@ -302,7 +308,7 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (amount <= 0) return; 
+        if (amount <= 0) return;
 
         if (_buffManager != null)
         {
@@ -311,6 +317,7 @@ public class PlayerStats : MonoBehaviour
                 SpawnDamageText("GUARD!", Color.mediumSeaGreen, 3f);
                 return;
             }
+
             _buffManager.RemoveGlassCannonBuff();
         }
 
@@ -330,9 +337,9 @@ public class PlayerStats : MonoBehaviour
     {
         if (cannotHeal) return;
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
-        SpawnDamageText($"+{amount}", Color.green, 3f); 
+        SpawnDamageText($"+{amount}", Color.green, 3f);
     }
-    
+
     public void SpawnDamageText(string message, Color color, float size)
     {
         if (!damageTextPrefab) return;

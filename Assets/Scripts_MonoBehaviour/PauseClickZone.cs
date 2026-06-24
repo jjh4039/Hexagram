@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 public class PauseClickZone : MonoBehaviour, IPointerEnterHandler, IPointerMoveHandler, IPointerClickHandler
 {
-    [SerializeField] private PauseUIController controller;   
+    [SerializeField] private PauseUIController controller;
     [SerializeField] private int targetIndex;
 
     public void OnPointerEnter(PointerEventData eventData)

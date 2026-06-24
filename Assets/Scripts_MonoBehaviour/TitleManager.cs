@@ -6,52 +6,59 @@ using UnityEngine.SceneManagement;
 
 public class TitleManager : MonoBehaviour
 {
-    [Header("Scene Transition")]
-    [SerializeField] private string tutorialSceneName = "Tutorial"; 
-    [SerializeField] private string mainSceneName = "Main";         
-    [SerializeField] private float sceneFadeDuration = 2f; 
+    [Header("Scene Transition")] [SerializeField]
+    private string tutorialSceneName = "Tutorial";
+
+    [SerializeField] private string mainSceneName = "Main";
+    [SerializeField] private float sceneFadeDuration = 2f;
     [SerializeField] private AudioClip startSound;
 
-    [Header("UI Reference")]
-    [SerializeField] private CanvasGroup titleLogo;
+    [Header("UI Reference")] [SerializeField]
+    private CanvasGroup titleLogo;
+
     [SerializeField] private RectTransform titleRect;
     [SerializeField] private CanvasGroup textGroup;
-    [SerializeField] private RectTransform background; 
+    [SerializeField] private RectTransform background;
     [SerializeField] private TextMeshProUGUI[] menuTexts;
     [SerializeField] private GameObject[] cursorIcons;
     [SerializeField] private SettingUIController settingUI;
-    [SerializeField] private TotalGems totalGemsUI; 
-    
-    [SerializeField] private CanvasGroup topUIGroup; 
-    [SerializeField] private CanvasGroup guideTextGroup; 
+    [SerializeField] private TotalGems totalGemsUI;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float logoFadeDuration = 1.5f;   
-    [SerializeField] private float delayBetween = 0.2f;     
-    [SerializeField] private float textFadeDuration = 0.5f;  
+    [SerializeField] private CanvasGroup topUIGroup;
+    [SerializeField] private CanvasGroup guideTextGroup;
 
-    [Header("Idle Floating Settings")]
-    [SerializeField] private float floatSpeed = 2f;
+    [Header("Animation Settings")] [SerializeField]
+    private float logoFadeDuration = 1.5f;
+
+    [SerializeField] private float delayBetween = 0.2f;
+    [SerializeField] private float textFadeDuration = 0.5f;
+
+    [Header("Idle Floating Settings")] [SerializeField]
+    private float floatSpeed = 2f;
+
     [SerializeField] private float floatAmount = 3f;
 
-    [Header("Parallax Settings")]
-    [SerializeField] private float parallaxLimit = 20f;
+    [Header("Parallax Settings")] [SerializeField]
+    private float parallaxLimit = 20f;
+
     [SerializeField] private float parallaxSmooth = 3f;
     [SerializeField] private float autoPanSpeed = 0.5f;
     [SerializeField] private float autoPanAmount = 20f;
 
-    [Header("Color Settings")]
-    [SerializeField] private Color normalColor = Color.gray;
+    [Header("Color Settings")] [SerializeField]
+    private Color normalColor = Color.gray;
+
     [SerializeField] private Color highlightColor = Color.white;
 
-    [Header("Sound Settings")]
-    [SerializeField] private AudioClip titleBGM; 
-    [SerializeField] private float bgmFadeDuration = 1f; 
+    [Header("Sound Settings")] [SerializeField]
+    private AudioClip titleBGM;
+
+    [SerializeField] private float bgmFadeDuration = 1f;
     [SerializeField] private AudioClip moveSound;
     [SerializeField] private AudioClip selectSound;
 
     private int _currentIndex = 0;
-    private Vector2 _bgOriginPos; 
+    private Vector2 _bgOriginPos;
     private float _baseY;
     private bool _isInputActive = false;
     private bool _isFloatingActive = false;
@@ -66,9 +73,9 @@ public class TitleManager : MonoBehaviour
 
         if (titleLogo != null) titleLogo.alpha = 0f;
         if (textGroup != null) textGroup.alpha = 0f;
-        if (topUIGroup != null) topUIGroup.alpha = 0f; 
-        if (guideTextGroup != null) guideTextGroup.alpha = 0f; 
-        
+        if (topUIGroup != null) topUIGroup.alpha = 0f;
+        if (guideTextGroup != null) guideTextGroup.alpha = 0f;
+
         if (titleRect != null) _baseY = titleRect.anchoredPosition.y;
 
         if (TransitionManager.Instance != null)
@@ -86,9 +93,9 @@ public class TitleManager : MonoBehaviour
             var actions = InputStateManager.Instance.Actions.UI;
             actions.MoveUI.performed += OnMoveInput;
             actions.Select.performed += OnSelectInput;
-            actions.Toggle.performed += OnToggleInput; 
+            actions.Toggle.performed += OnToggleInput;
 
-            InputStateManager.Instance.OnInputDeviceChanged += HandleDeviceChanged; 
+            InputStateManager.Instance.OnInputDeviceChanged += HandleDeviceChanged;
         }
 
         if (SoundManager.instance != null && titleBGM != null)
@@ -112,7 +119,8 @@ public class TitleManager : MonoBehaviour
                 actions.Select.performed -= OnSelectInput;
                 actions.Toggle.performed -= OnToggleInput;
             }
-            InputStateManager.Instance.OnInputDeviceChanged -= HandleDeviceChanged; 
+
+            InputStateManager.Instance.OnInputDeviceChanged -= HandleDeviceChanged;
         }
     }
 
@@ -120,18 +128,18 @@ public class TitleManager : MonoBehaviour
     {
         HandleParallaxBackground();
         HandleIdleFloating();
-        UpdateGuideTextVisibility(); 
+        UpdateGuideTextVisibility();
     }
 
     private void HandleDeviceChanged(InputDeviceType device)
     {
-        if (device == InputDeviceType.Keyboard) UpdateMenuVisuals(); 
+        if (device == InputDeviceType.Keyboard) UpdateMenuVisuals();
     }
 
     private void UpdateGuideTextVisibility()
     {
-        bool shouldShow = _isInputActive && 
-                          (settingUI == null || !settingUI.IsOpen) && 
+        bool shouldShow = _isInputActive &&
+                          (settingUI == null || !settingUI.IsOpen) &&
                           (totalGemsUI == null || !totalGemsUI.IsOpen);
 
         if (guideTextGroup != null)
@@ -143,14 +151,14 @@ public class TitleManager : MonoBehaviour
             }
             else
             {
-                guideTextGroup.alpha = 0f; 
+                guideTextGroup.alpha = 0f;
             }
         }
 
         if (topUIGroup != null)
         {
             bool topShouldShow = _isInputActive && (settingUI == null || !settingUI.IsOpen);
-            topUIGroup.alpha = topShouldShow ? 1f : 0f; 
+            topUIGroup.alpha = topShouldShow ? 1f : 0f;
         }
     }
 
@@ -188,7 +196,8 @@ public class TitleManager : MonoBehaviour
         if (!background) return;
 
         Vector2 mouseOffset = Vector2.zero;
-        if (Mouse.current != null && InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Mouse) 
+        if (Mouse.current != null && InputStateManager.Instance != null &&
+            InputStateManager.Instance.CurrentDevice == InputDeviceType.Mouse)
         {
             Vector2 mousePos = Mouse.current.position.ReadValue();
             mouseOffset.x = (mousePos.x - (Screen.width / 2f)) / (Screen.width / 2f) * parallaxLimit;
@@ -200,7 +209,8 @@ public class TitleManager : MonoBehaviour
 
         Vector2 targetPos = _bgOriginPos + new Vector2(mouseOffset.x + autoX, mouseOffset.y + autoY);
 
-        background.anchoredPosition = Vector2.Lerp(background.anchoredPosition, targetPos, Time.deltaTime * parallaxSmooth);
+        background.anchoredPosition =
+            Vector2.Lerp(background.anchoredPosition, targetPos, Time.deltaTime * parallaxSmooth);
     }
 
     private void HandleIdleFloating()
@@ -215,7 +225,7 @@ public class TitleManager : MonoBehaviour
 
     private void OnToggleInput(InputAction.CallbackContext context)
     {
-        if (!_isInputActive) return; 
+        if (!_isInputActive) return;
         if (settingUI != null && settingUI.IsOpen) return;
 
         if (totalGemsUI != null)
@@ -229,7 +239,7 @@ public class TitleManager : MonoBehaviour
     {
         if (!_isInputActive) return;
         if (settingUI != null && settingUI.IsOpen) return;
-        if (totalGemsUI != null && totalGemsUI.IsOpen) return; 
+        if (totalGemsUI != null && totalGemsUI.IsOpen) return;
 
         Vector2 moveDir = context.ReadValue<Vector2>();
 
@@ -241,7 +251,7 @@ public class TitleManager : MonoBehaviour
     {
         if (!_isInputActive) return;
         if (settingUI != null && settingUI.IsOpen) return;
-        if (totalGemsUI != null && totalGemsUI.IsOpen) return; 
+        if (totalGemsUI != null && totalGemsUI.IsOpen) return;
 
         ExecuteMenu();
     }
@@ -251,7 +261,8 @@ public class TitleManager : MonoBehaviour
         if (!_isInputActive || _currentIndex == index) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (totalGemsUI != null && totalGemsUI.IsOpen) return;
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return; 
+        if (InputStateManager.Instance != null &&
+            InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
 
         _currentIndex = index;
         PlayMoveSound();
@@ -307,7 +318,7 @@ public class TitleManager : MonoBehaviour
 
         if (_currentIndex == 0)
         {
-            _isInputActive = false; 
+            _isInputActive = false;
             StartCoroutine(TransitionToGame());
         }
         else if (_currentIndex == 1)
@@ -335,21 +346,21 @@ public class TitleManager : MonoBehaviour
         {
             SoundManager.instance.StopBGM(sceneFadeDuration);
         }
-        
+
         // GameAnalytics 2번 정보 전송 (주사위 보석)
         if (DataManager.instance != null && DataManager.instance.data != null && AnalyticsManager.Instance != null)
         {
             GameData d = DataManager.instance.data;
             AnalyticsManager.Instance.LogUpgradeLoadout(
-                d.upgradeHealthLevel, 
-                d.upgradeAttackLevel, 
-                d.upgradeBulletLevel, 
+                d.upgradeHealthLevel,
+                d.upgradeAttackLevel,
+                d.upgradeBulletLevel,
                 d.difficultyLevel
             );
         }
-        
+
         string targetScene = tutorialSceneName;
-        
+
         if (DataManager.instance && DataManager.instance.data != null)
         {
             targetScene = DataManager.instance.data.isTutorialClear ? mainSceneName : tutorialSceneName;

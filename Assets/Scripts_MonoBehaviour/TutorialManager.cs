@@ -9,35 +9,30 @@ public class TutorialManager : MonoBehaviour
 {
     public static TutorialManager Instance;
 
-    [Header("Scene Transition")] 
-    public string nextSceneName = "Main";
+    [Header("Scene Transition")] public string nextSceneName = "Main";
 
-    [Header("Screen Fade")] 
-    public Image fadeImage;
+    [Header("Screen Fade")] public Image fadeImage;
 
     [Header("Intro Cutscene & Text Animator")]
-    public float initialDelay = 2.0f;              
+    public float initialDelay = 2.0f;
+
     public TextMeshProUGUI introText;
 
-    [Header("Skip UI Settings")] 
-    public GameObject skipNoticeContainer;
+    [Header("Skip UI Settings")] public GameObject skipNoticeContainer;
     public RectTransform skipFillMask;
     public float skipHoldTime = 2f;
 
-    [Header("Speech Bubbles")] 
-    public CanvasGroup[] speechBubbles;
+    [Header("Speech Bubbles")] public CanvasGroup[] speechBubbles;
     public TextMeshProUGUI[] speechTexts;
     public float bubbleAnimDuration = 0.18f;
     public float bubbleStartScale = 0.98f;
     public float bubbleEndScale = 0.98f;
     public float bubbleMoveOffset = 5f;
 
-    [Header("Audio")] 
-    public AudioClip introTypingSound;
+    [Header("Audio")] public AudioClip introTypingSound;
     public AudioClip dialogueTypingSound;
 
-    [Header("BGM")] 
-    public AudioClip bgm1Loop;
+    [Header("BGM")] public AudioClip bgm1Loop;
     public AudioClip bgm2Intro;
     public AudioClip bgm2Loop;
 
@@ -91,8 +86,7 @@ public class TutorialManager : MonoBehaviour
 
         StartCoroutine(Co_PlayIntro());
     }
-
-    // ★ 추가: 코루틴 누수 에러 방어
+    
     private void OnDestroy()
     {
         StopAllCoroutines();
@@ -156,7 +150,7 @@ public class TutorialManager : MonoBehaviour
     private IEnumerator Co_PlayIntro()
     {
         isCutsceneActive = true;
-        canSkip = false; 
+        canSkip = false;
         introTimer = 0f;
 
         if (InputStateManager.Instance != null)
@@ -184,8 +178,8 @@ public class TutorialManager : MonoBehaviour
 
         yield return new WaitForSeconds(initialDelay);
 
-        introTimer = 0f; 
-        canSkip = true; 
+        introTimer = 0f;
+        canSkip = true;
         if (skipNoticeContainer != null) skipNoticeContainer.SetActive(true);
 
         yield return new WaitForSeconds(1f);

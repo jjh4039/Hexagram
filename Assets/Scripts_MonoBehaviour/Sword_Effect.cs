@@ -22,7 +22,7 @@ public class Sword_Effect : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private CapsuleCollider2D capsule;
 
-    private float cachedFinalBaseDamage = 0f; 
+    private float cachedFinalBaseDamage = 0f;
     private float cachedMeleeVariance = 0f;
     private float cachedCriticalChance = 0f;
     private float cachedCriticalDamageMultiplier = 1.5f;
@@ -45,10 +45,10 @@ public class Sword_Effect : MonoBehaviour
 
         PlayerStats stats = GameManager.instance.stats;
 
-        cachedFinalBaseDamage = stats.GetFinalMeleeDamage(); 
+        cachedFinalBaseDamage = stats.GetFinalMeleeDamage();
         cachedMeleeVariance = stats.meleeDamageVariance;
         cachedCriticalChance = stats.GetFinalCriticalChance();
-        
+
         cachedCriticalDamageMultiplier = stats.GetFinalCriticalDamageMultiplier();
         cachedStrongAttackMultiplier = strongAttackMultiplier;
     }
@@ -101,7 +101,7 @@ public class Sword_Effect : MonoBehaviour
         float baseDamage =
             cachedFinalBaseDamage *
             damageMultiplier *
-            cachedStrongAttackMultiplier; 
+            cachedStrongAttackMultiplier;
 
         for (int i = 0; i < hitCount; i++)
         {
@@ -134,7 +134,7 @@ public class Sword_Effect : MonoBehaviour
                 yield break;
 
             SpawnHitEffect(enemy, isCritical);
-            
+
             if (stats.currentAmmo < stats.maxAmmo)
             {
                 int finalAmmoGain = stats.GetFinalMeleeAmmoGain(ammoGain);

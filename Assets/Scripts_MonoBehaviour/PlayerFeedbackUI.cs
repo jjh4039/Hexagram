@@ -4,37 +4,36 @@ using TMPro;
 
 public class PlayerFeedbackUI : MonoBehaviour
 {
-    public static PlayerFeedbackUI Instance { get; private set; } 
+    public static PlayerFeedbackUI Instance { get; private set; }
 
-    [Header("UI References")]
-    [SerializeField] private TMP_Text feedbackText; 
+    [Header("UI References")] [SerializeField]
+    private TMP_Text feedbackText;
 
-    [Header("Messages")]
-    [SerializeField]
-    private string[] warningMessages = new string[]
+    [Header("Messages")] [SerializeField] private string[] warningMessages = new string[]
     {
-        "전투 중에는 열 수 없습니다.",            // 0
-        "전투 중에는 획득할 수 없습니다.",          // 1
+        "전투 중에는 열 수 없습니다.", // 0
+        "전투 중에는 획득할 수 없습니다.", // 1
         "아티팩트를 더 이상 획득할 수 없습니다. (최대 10)", // 2
-        "수정구가 힘을 잃어 사용할 수 없습니다.",       // 3
-        "보상을 먼저 획득해야 합니다.",            // 4
-        "정화 작업 완료까지 경로가 차단됩니다.",        // 5
-        "고철이 부족합니다.",                  // 6
-        "회복 불가 상태이므로 구매할 수 없습니다."      // ★ 7: 새로 추가됨
+        "수정구가 힘을 잃어 사용할 수 없습니다.", // 3
+        "보상을 먼저 획득해야 합니다.", // 4
+        "정화 작업 완료까지 경로가 차단됩니다.", // 5
+        "고철이 부족합니다.", // 6
+        "회복 불가 상태이므로 구매할 수 없습니다." // 7
     };
 
-    [Header("Animation Settings")]
-    [SerializeField] private float fadeInTime = 0.105f;  
-    [SerializeField] private float displayTime = 2f; 
-    [SerializeField] private float fadeOutTime = 0.2f; 
-    [SerializeField] private float floatSpeed = 0f;  
+    [Header("Animation Settings")] [SerializeField]
+    private float fadeInTime = 0.105f;
 
-    [Header("Sound Settings")]
-    [SerializeField] private AudioClip warningSound;   
+    [SerializeField] private float displayTime = 2f;
+    [SerializeField] private float fadeOutTime = 0.2f;
+    [SerializeField] private float floatSpeed = 0f;
 
-    private Coroutine _currentRoutine; 
-    private float _remainTime;         
-    private Vector3 _startLocalPos;    
+    [Header("Sound Settings")] [SerializeField]
+    private AudioClip warningSound;
+
+    private Coroutine _currentRoutine;
+    private float _remainTime;
+    private Vector3 _startLocalPos;
 
     private void Awake()
     {
@@ -76,10 +75,10 @@ public class PlayerFeedbackUI : MonoBehaviour
             StopCoroutine(_currentRoutine);
             feedbackText.transform.localPosition = _startLocalPos;
             Color c = feedbackText.color;
-            c.a = 1f; 
+            c.a = 1f;
             feedbackText.color = c;
         }
-        
+
         _currentRoutine = StartCoroutine(FadeAndFloatRoutine());
     }
 
@@ -95,6 +94,7 @@ public class PlayerFeedbackUI : MonoBehaviour
                 feedbackText.color = color;
                 yield return null;
             }
+
             color.a = 1f;
             feedbackText.color = color;
         }

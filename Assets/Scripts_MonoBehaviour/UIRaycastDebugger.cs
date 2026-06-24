@@ -8,11 +8,11 @@ using UnityEngine.UI;
 public class UIRaycastDebugger : MonoBehaviour
 {
     [SerializeField] private GraphicRaycaster raycaster; // 캔버스의 레이캐스터
-    [SerializeField] private EventSystem eventSystem;    // 이벤트를 처리할 시스템
+    [SerializeField] private EventSystem eventSystem; // 이벤트를 처리할 시스템
 
-    private PointerEventData pointerData;                 // 마우스 위치 데이터 (재사용)
+    private PointerEventData pointerData; // 마우스 위치 데이터 (재사용)
     private readonly List<RaycastResult> results = new(); // 레이캐스트 결과를 담을 리스트
-    private readonly StringBuilder pathBuilder = new();   // 문자열 조합용 빌더 (메모리 누수 방지)
+    private readonly StringBuilder pathBuilder = new(); // 문자열 조합용 빌더 (메모리 누수 방지)
 
     private void Start()
     {
@@ -25,7 +25,6 @@ public class UIRaycastDebugger : MonoBehaviour
 
     private void Update()
     {
-        // 빌드된 게임(.exe)에서는 이 아래 코드가 아예 컴파일되지 않아 메모리를 1%도 쓰지 않습니다.
 #if UNITY_EDITOR
         if (raycaster == null || eventSystem == null || pointerData == null)
             return;

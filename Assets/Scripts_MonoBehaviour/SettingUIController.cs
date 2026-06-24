@@ -6,44 +6,49 @@ using TMPro;
 
 public class SettingUIController : MonoBehaviour
 {
-    public bool IsOpen => _isOpen;                           
+    public bool IsOpen => _isOpen;
 
-    [Header("UI References")]
-    [SerializeField] private GameObject visualRoot;          
-    [SerializeField] private CanvasGroup visualGroup;        
-    [SerializeField] private RectTransform bgRect;           
-    [SerializeField] private TextMeshProUGUI[] menuTexts;    
-    [SerializeField] private TextMeshProUGUI[] valueTexts;   
-    [SerializeField] private Slider[] volumeSliders;         
+    [Header("UI References")] [SerializeField]
+    private GameObject visualRoot;
 
-    [Header("Arrow Buttons")]
-    [SerializeField] private GameObject[] leftArrows;        // 인덱스에 맞춘 좌측 화살표 오브젝트 배열
-    [SerializeField] private GameObject[] rightArrows;       // 인덱스에 맞춘 우측 화살표 오브젝트 배열
+    [SerializeField] private CanvasGroup visualGroup;
+    [SerializeField] private RectTransform bgRect;
+    [SerializeField] private TextMeshProUGUI[] menuTexts;
+    [SerializeField] private TextMeshProUGUI[] valueTexts;
+    [SerializeField] private Slider[] volumeSliders;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float targetBgHeight = 600f;    
-    [SerializeField] private float bgExpandDuration = 0.25f; 
+    [Header("Arrow Buttons")] [SerializeField]
+    private GameObject[] leftArrows; // 인덱스에 맞춘 좌측 화살표 오브젝트 배열
 
-    [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 10f;     
-    [SerializeField] private float floatSpeed = 2f;          
+    [SerializeField] private GameObject[] rightArrows; // 인덱스에 맞춘 우측 화살표 오브젝트 배열
 
-    [Header("Colors & Sounds")]
-    [SerializeField] private Color normalColor = Color.gray; 
+    [Header("Animation Settings")] [SerializeField]
+    private float targetBgHeight = 600f;
+
+    [SerializeField] private float bgExpandDuration = 0.25f;
+
+    [Header("Floating Settings")] [SerializeField]
+    private float floatAmplitude = 10f;
+
+    [SerializeField] private float floatSpeed = 2f;
+
+    [Header("Colors & Sounds")] [SerializeField]
+    private Color normalColor = Color.gray;
+
     [SerializeField] private Color selectColor = Color.white;
-    [SerializeField] private AudioClip sfxMove;              
-    [SerializeField] private AudioClip sfxAdjust;            
-    [SerializeField] private AudioClip sfxClose;             
+    [SerializeField] private AudioClip sfxMove;
+    [SerializeField] private AudioClip sfxAdjust;
+    [SerializeField] private AudioClip sfxClose;
 
-    private bool _isOpen;                            
-    private bool _isAnimating;                       
-    private int _currentIndex;                           
-    private bool _isRefreshingUI;                    // 코드에 의한 UI 갱신 시 슬라이더 이벤트 무시
+    private bool _isOpen;
+    private bool _isAnimating;
+    private int _currentIndex;
+    private bool _isRefreshingUI; // 코드에 의한 UI 갱신 시 슬라이더 이벤트 무시
 
-    private Coroutine _animCoroutine;                        
-    private Vector2 _bgOriginAnchoredPos;                    
+    private Coroutine _animCoroutine;
+    private Vector2 _bgOriginAnchoredPos;
 
-    private int[] _currentValues = new int[6];               
+    private int[] _currentValues = new int[6];
 
     private readonly string[] _screenModes = { "창 모드", "테두리 없음", "전체 화면" };
     private readonly string[] _resolutions = { "1280 x 720", "1920 x 1080", "2560 x 1440", "3840 x 2160" };
@@ -54,8 +59,8 @@ public class SettingUIController : MonoBehaviour
         if (visualRoot != null) visualRoot.SetActive(false);
         if (bgRect != null) _bgOriginAnchoredPos = bgRect.anchoredPosition;
 
-        LoadSettingsData();                                  
-        InitializeSliders();                                 
+        LoadSettingsData();
+        InitializeSliders();
 
         if (InputStateManager.Instance != null)
         {
@@ -89,8 +94,8 @@ public class SettingUIController : MonoBehaviour
         for (int i = 0; i < volumeSliders.Length; i++)
         {
             if (volumeSliders[i] == null) continue;
-            
-            int index = i; 
+
+            int index = i;
             volumeSliders[i].onValueChanged.AddListener((val) => OnSliderDragged(index, val));
         }
     }
@@ -99,16 +104,16 @@ public class SettingUIController : MonoBehaviour
     {
         if (!_isOpen || _isAnimating || _isRefreshingUI) return;
 
-        SetIndexByMouse(index);                              
+        SetIndexByMouse(index);
 
         int intVal = Mathf.RoundToInt(val);
         if (_currentValues[index] != intVal)
         {
             _currentValues[index] = intVal;
             if (sfxAdjust) SoundManager.instance.PlaySFX(sfxAdjust, 0.5f);
-            
+
             UpdateValueText(index);
-            ApplySettingToSystem(index, _currentValues[index]); 
+            ApplySettingToSystem(index, _currentValues[index]);
             SaveSettingsData();
         }
     }
@@ -127,12 +132,12 @@ public class SettingUIController : MonoBehaviour
         }
         else
         {
-            _currentValues[0] = 5; 
-            _currentValues[1] = 5; 
-            _currentValues[2] = 5; 
-            _currentValues[3] = 1; 
-            _currentValues[4] = 1; 
-            _currentValues[5] = 1; 
+            _currentValues[0] = 5;
+            _currentValues[1] = 5;
+            _currentValues[2] = 5;
+            _currentValues[3] = 1;
+            _currentValues[4] = 1;
+            _currentValues[5] = 1;
         }
 
         for (int i = 0; i < 6; i++)
@@ -153,7 +158,7 @@ public class SettingUIController : MonoBehaviour
         data.resolution = _currentValues[4];
         data.vSync = _currentValues[5];
 
-        DataManager.instance.SaveGame();                     
+        DataManager.instance.SaveGame();
     }
 
     private void ApplySettingToSystem(int index, int value)
@@ -188,30 +193,43 @@ public class SettingUIController : MonoBehaviour
         FullScreenMode targetMode = FullScreenMode.Windowed;
         if (_currentValues[3] == 1) targetMode = FullScreenMode.FullScreenWindow;
         else if (_currentValues[3] == 2) targetMode = FullScreenMode.ExclusiveFullScreen;
-        
+
         int width = 1920;
         int height = 1080;
         switch (_currentValues[4])
         {
-            case 0: width = 1280; height = 720; break;
-            case 1: width = 1920; height = 1080; break;
-            case 2: width = 2560; height = 1440; break;
-            case 3: width = 3840; height = 2160; break;
+            case 0:
+                width = 1280;
+                height = 720;
+                break;
+            case 1:
+                width = 1920;
+                height = 1080;
+                break;
+            case 2:
+                width = 2560;
+                height = 1440;
+                break;
+            case 3:
+                width = 3840;
+                height = 2160;
+                break;
         }
-        
+
         if (targetMode == FullScreenMode.FullScreenWindow)
         {
             Resolution native = Screen.resolutions[Screen.resolutions.Length - 1];
             width = native.width;
             height = native.height;
         }
-        
-        if (Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen && targetMode != FullScreenMode.ExclusiveFullScreen)
+
+        if (Screen.fullScreenMode == FullScreenMode.ExclusiveFullScreen &&
+            targetMode != FullScreenMode.ExclusiveFullScreen)
         {
             Screen.SetResolution(1280, 720, FullScreenMode.Windowed);
             yield return new WaitForSecondsRealtime(0.2f);
         }
-        
+
         Screen.SetResolution(width, height, targetMode);
 
         QualitySettings.vSyncCount = _currentValues[5];
@@ -241,7 +259,7 @@ public class SettingUIController : MonoBehaviour
         _currentIndex = 0;
 
         UpdateAllVisuals();
-        
+
         if (_animCoroutine != null) StopCoroutine(_animCoroutine);
         _animCoroutine = StartCoroutine(AnimateOpen());
     }
@@ -254,28 +272,29 @@ public class SettingUIController : MonoBehaviour
         _animCoroutine = StartCoroutine(AnimateClose());
     }
 
-    private void ChangeSelection(int dir)                    
+    private void ChangeSelection(int dir)
     {
         _currentIndex = (_currentIndex + dir + menuTexts.Length) % menuTexts.Length;
         if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
         UpdateSelectionVisuals();
     }
 
-    public void SetIndexByMouse(int index)                   
+    public void SetIndexByMouse(int index)
     {
         if (!_isOpen || _isAnimating || _currentIndex == index) return;
-        
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
+
+        if (InputStateManager.Instance != null &&
+            InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
 
         _currentIndex = index;
         if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
         UpdateSelectionVisuals();
     }
 
-    public void AdjustValue(int dir)                         
+    public void AdjustValue(int dir)
     {
         if (!_isOpen || _isAnimating) return;
-        
+
         bool valueChanged = false;
 
         switch (_currentIndex)
@@ -290,16 +309,18 @@ public class SettingUIController : MonoBehaviour
 
             case 3:
                 int prevMode = _currentValues[_currentIndex];
-                _currentValues[_currentIndex] = (_currentValues[_currentIndex] + dir + _screenModes.Length) % _screenModes.Length;
+                _currentValues[_currentIndex] =
+                    (_currentValues[_currentIndex] + dir + _screenModes.Length) % _screenModes.Length;
                 if (prevMode != _currentValues[_currentIndex]) valueChanged = true;
                 break;
 
             case 4:
                 int prevRes = _currentValues[_currentIndex];
-                _currentValues[_currentIndex] = Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, _resolutions.Length - 1);
+                _currentValues[_currentIndex] =
+                    Mathf.Clamp(_currentValues[_currentIndex] + dir, 0, _resolutions.Length - 1);
                 if (prevRes != _currentValues[_currentIndex]) valueChanged = true;
                 break;
-            
+
             case 5:
                 _currentValues[_currentIndex] = (_currentValues[_currentIndex] == 0) ? 1 : 0;
                 valueChanged = true;
@@ -312,8 +333,8 @@ public class SettingUIController : MonoBehaviour
             UpdateValueText(_currentIndex);
             UpdateSlider(_currentIndex);
 
-            ApplySettingToSystem(_currentIndex, _currentValues[_currentIndex]); 
-            SaveSettingsData();                                                 
+            ApplySettingToSystem(_currentIndex, _currentValues[_currentIndex]);
+            SaveSettingsData();
         }
     }
 
@@ -333,10 +354,10 @@ public class SettingUIController : MonoBehaviour
         {
             if (menuTexts[i] == null) continue;
             bool isSelected = (i == _currentIndex);
-            
+
             menuTexts[i].color = isSelected ? selectColor : normalColor;
-            
-            if (i < valueTexts.Length && valueTexts[i] != null) 
+
+            if (i < valueTexts.Length && valueTexts[i] != null)
             {
                 valueTexts[i].color = isSelected ? selectColor : normalColor;
                 UpdateValueText(i);
@@ -392,10 +413,10 @@ public class SettingUIController : MonoBehaviour
     private void UpdateSlider(int index)
     {
         if (index > 2 || volumeSliders.Length <= index || volumeSliders[index] == null) return;
-        
-        _isRefreshingUI = true;                              
+
+        _isRefreshingUI = true;
         volumeSliders[index].value = _currentValues[index];
-        _isRefreshingUI = false;                             
+        _isRefreshingUI = false;
     }
 
     private IEnumerator AnimateOpen()
@@ -414,7 +435,7 @@ public class SettingUIController : MonoBehaviour
             float t = Mathf.Clamp01(elapsed / bgExpandDuration);
             float easedT = 1f - Mathf.Pow(1f - t, 3f);
             bgRect.sizeDelta = new Vector2(bgRect.sizeDelta.x, Mathf.Lerp(0f, targetBgHeight, easedT));
-            
+
             if (visualGroup != null) visualGroup.alpha = t;
             yield return null;
         }
@@ -438,7 +459,7 @@ public class SettingUIController : MonoBehaviour
             float t = Mathf.Clamp01(elapsed / bgExpandDuration);
             float easedT = t * t * t;
             bgRect.sizeDelta = new Vector2(bgRect.sizeDelta.x, Mathf.Lerp(startHeight, 0f, easedT));
-            
+
             if (visualGroup != null) visualGroup.alpha = 1f - t;
             yield return null;
         }

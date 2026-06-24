@@ -4,23 +4,23 @@ using UnityEngine.InputSystem;
 
 public class ScrapPile : MonoBehaviour, IRewardItem
 {
-    [Header("Scrap Settings")]
-    [SerializeField] private GameObject scrapPrefab;     // 생성할 스크랩 프리팹
-    [SerializeField] private int minScrapCount = 10;     // 최소 드롭 개수
-    [SerializeField] private int maxScrapCount = 20;     // 최대 드롭 개수
-    [SerializeField] private int scrapBaseValue = 1;     // 생성될 스크랩의 기본 가치
+    [Header("Scrap Settings")] [SerializeField]
+    private GameObject scrapPrefab; // 생성할 스크랩 프리팹
 
-    [Header("Effects")]
-    [SerializeField] private AudioClip burstSound;       // 파괴 시 재생할 사운드
-    [SerializeField] private float floatHeight = 1.0f;   // 떠오르는 높이
+    [SerializeField] private int minScrapCount = 10; // 최소 드롭 개수
+    [SerializeField] private int maxScrapCount = 20; // 최대 드롭 개수
+    [SerializeField] private int scrapBaseValue = 1; // 생성될 스크랩의 기본 가치
+
+    [Header("Effects")] [SerializeField] private AudioClip burstSound; // 파괴 시 재생할 사운드
+    [SerializeField] private float floatHeight = 1.0f; // 떠오르는 높이
     [SerializeField] private float burstDuration = 0.5f; // 사라지는 시간
 
     [SerializeField] private Material[] outLineMaterial; // 아웃라인 머티리얼
-    private SpriteRenderer spriteRenderer;               // 자녀 객체의 렌더러
-    public GameObject keyGuide;                          // 상호작용 키 가이드
+    private SpriteRenderer spriteRenderer; // 자녀 객체의 렌더러
+    public GameObject keyGuide; // 상호작용 키 가이드
 
-    private bool isPlayerInRange = false;                // 플레이어 범위 진입
-    private bool _isCollected = false;                   // 획득 완료 상태
+    private bool isPlayerInRange = false; // 플레이어 범위 진입
+    private bool _isCollected = false; // 획득 완료 상태
 
     public bool IsCollected => _isCollected;
 
@@ -47,7 +47,7 @@ public class ScrapPile : MonoBehaviour, IRewardItem
 
     private void BurstScraps()
     {
-        _isCollected = true; 
+        _isCollected = true;
 
         if (burstSound != null && SoundManager.instance != null)
         {
@@ -60,7 +60,7 @@ public class ScrapPile : MonoBehaviour, IRewardItem
             for (int i = 0; i < dropCount; i++)
             {
                 GameObject obj = Instantiate(scrapPrefab, transform.position, Quaternion.identity);
-                
+
                 // 생성된 스크랩에 인스펙터에서 설정한 기본 가치를 전달합니다.
                 if (obj.TryGetComponent<Scrap>(out Scrap scrap))
                 {
@@ -90,7 +90,7 @@ public class ScrapPile : MonoBehaviour, IRewardItem
         Vector3 startPos = visualTransform.localPosition;
         Vector3 endPos = startPos + new Vector3(0, floatHeight, 0);
         Vector3 startScale = visualTransform.localScale;
-        
+
         Color startColor = spriteRenderer.color;
 
         float timer = 0f;
@@ -100,9 +100,9 @@ public class ScrapPile : MonoBehaviour, IRewardItem
             float t = timer / burstDuration;
 
             visualTransform.localPosition = Vector3.Lerp(startPos, endPos, t);
-            
+
             visualTransform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
-            
+
             Color c = startColor;
             c.a = Mathf.Lerp(startColor.a, 0f, t);
             spriteRenderer.color = c;
@@ -110,7 +110,7 @@ public class ScrapPile : MonoBehaviour, IRewardItem
             yield return null;
         }
 
-        Destroy(gameObject); 
+        Destroy(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D other)

@@ -5,37 +5,42 @@ using TMPro;
 
 public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    [Header("References")]
-    [SerializeField] private CanvasGroup slotBackgroundGroup;
+    [Header("References")] [SerializeField]
+    private CanvasGroup slotBackgroundGroup;
+
     [SerializeField] private RectTransform artifactRect;
     [SerializeField] private Image artifactImage;
 
-    [Header("Purchase Logic")]
-    [SerializeField] private TextMeshProUGUI priceText;       
-    [SerializeField] private GameObject soldOutOverlay;       
-    [SerializeField] private GameObject priceContainer; // ★ 추가: 구매 시 통째로 비활성화시킬 가격 오브젝트
+    [Header("Purchase Logic")] [SerializeField]
+    private TextMeshProUGUI priceText;
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip sfxHover; // ★ 추가: 마우스 호버 시 효과음
+    [SerializeField] private GameObject soldOutOverlay;
+    [SerializeField] private GameObject priceContainer;
 
-    [Header("Grade Visuals")]
-    [SerializeField] private Image slotFrameImage; 
-    [SerializeField] private Color commonColor = new Color(1f, 1f, 1f, 1f); 
-    [SerializeField] private Color rareColor = new Color(0.6f, 0.87f, 1f, 1f); 
-    [SerializeField] private Color epicColor = new Color(0.81f, 0.43f, 0.98f, 1f); 
-    [SerializeField] private Color legendaryColor = new Color(0.6f, 1f, 0.43f, 1f); 
+    [Header("Audio")] [SerializeField] private AudioClip sfxHover;
 
-    [Header("Slot Alpha")]
-    [SerializeField] private float normalSlotAlpha = 0.2f;
+    [Header("Grade Visuals")] [SerializeField]
+    private Image slotFrameImage;
+
+    [SerializeField] private Color commonColor = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private Color rareColor = new Color(0.6f, 0.87f, 1f, 1f);
+    [SerializeField] private Color epicColor = new Color(0.81f, 0.43f, 0.98f, 1f);
+    [SerializeField] private Color legendaryColor = new Color(0.6f, 1f, 0.43f, 1f);
+
+    [Header("Slot Alpha")] [SerializeField]
+    private float normalSlotAlpha = 0.2f;
+
     [SerializeField] private float hoverSlotAlpha = 0.5f;
 
-    [Header("Artifact Motion")]
-    [SerializeField] private float hoverScale = 1.03f;
+    [Header("Artifact Motion")] [SerializeField]
+    private float hoverScale = 1.03f;
+
     [SerializeField] private float floatOffsetY = 2f;
     [SerializeField] private float transitionDuration = 0.12f;
 
-    [Header("Artifact Color")]
-    [SerializeField] private Color normalColor = Color.white;
+    [Header("Artifact Color")] [SerializeField]
+    private Color normalColor = Color.white;
+
     [SerializeField] private Color hoverColor = new Color(1.08f, 1.08f, 1.08f, 1f);
 
     public ArtifactData CurrentArtifact { get; private set; }
@@ -65,13 +70,13 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         CurrentArtifact = data;
         _isSoldOut = false;
-        _onPurchaseClick = onPurchaseClick; 
+        _onPurchaseClick = onPurchaseClick;
 
         if (artifactImage != null) artifactImage.sprite = data.icon;
         if (priceText != null) priceText.text = data.basePrice.ToString();
-        
+
         if (soldOutOverlay != null) soldOutOverlay.SetActive(false);
-        if (priceContainer != null) priceContainer.SetActive(true); // ★ 추가: 생성 시 가격표 다시 표시
+        if (priceContainer != null) priceContainer.SetActive(true);
 
         if (slotFrameImage != null) slotFrameImage.color = GetGradeColor(data.grade);
     }
@@ -82,13 +87,12 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
         _isHovering = false;
 
         if (soldOutOverlay != null) soldOutOverlay.SetActive(true);
-        if (priceContainer != null) priceContainer.SetActive(false); // ★ 추가: 구매 시 가격표 숨김
+        if (priceContainer != null) priceContainer.SetActive(false);
         if (ShopTooltipUI.Instance != null) ShopTooltipUI.Instance.HideTooltip();
-        
+
         if (artifactImage != null) artifactImage.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
     }
 
-    // ★ 추가: 보유 스크랩에 맞춰 가격 텍스트 색상을 업데이트하는 함수
     public void UpdatePriceColor(int currentScrap)
     {
         if (_isSoldOut || CurrentArtifact == null || priceText == null) return;
@@ -112,10 +116,14 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
         Vector3 targetScale = _isHovering ? _artifactBaseScale * hoverScale : _artifactBaseScale;
         artifactRect.localScale = Vector3.Lerp(artifactRect.localScale, targetScale, Time.unscaledDeltaTime * speed);
 
-        Vector2 targetPos = _isHovering ? _artifactBaseAnchoredPos + new Vector2(0f, floatOffsetY) : _artifactBaseAnchoredPos;
-        artifactRect.anchoredPosition = Vector2.Lerp(artifactRect.anchoredPosition, targetPos, Time.unscaledDeltaTime * speed);
+        Vector2 targetPos = _isHovering
+            ? _artifactBaseAnchoredPos + new Vector2(0f, floatOffsetY)
+            : _artifactBaseAnchoredPos;
+        artifactRect.anchoredPosition =
+            Vector2.Lerp(artifactRect.anchoredPosition, targetPos, Time.unscaledDeltaTime * speed);
 
-        artifactImage.color = Color.Lerp(artifactImage.color, _isHovering ? hoverColor : normalColor, Time.unscaledDeltaTime * speed);
+        artifactImage.color = Color.Lerp(artifactImage.color, _isHovering ? hoverColor : normalColor,
+            Time.unscaledDeltaTime * speed);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -123,7 +131,6 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
         if (_isSoldOut || CurrentArtifact == null) return;
         _isHovering = true;
 
-        // ★ 추가: 호버 시 효과음 재생
         if (sfxHover != null && SoundManager.instance != null)
         {
             SoundManager.instance.PlaySFX(sfxHover, 0.4f, 0.1f);
@@ -166,7 +173,7 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
     private void OnDisable()
     {
         if (ShopTooltipUI.Instance != null) ShopTooltipUI.Instance.HideTooltip();
-        
+
         _isHovering = false;
         if (slotBackgroundGroup != null) slotBackgroundGroup.alpha = normalSlotAlpha;
         if (artifactRect != null)
@@ -174,6 +181,7 @@ public class ShopHoverSystem : MonoBehaviour, IPointerEnterHandler, IPointerExit
             artifactRect.localScale = _artifactBaseScale;
             artifactRect.anchoredPosition = _artifactBaseAnchoredPos;
         }
+
         if (artifactImage != null && !_isSoldOut) artifactImage.color = normalColor;
     }
 

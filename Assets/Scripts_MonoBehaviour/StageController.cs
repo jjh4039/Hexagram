@@ -1,33 +1,29 @@
 using UnityEngine;
-using UnityEngine.Tilemaps; // ★ 추가됨
+using UnityEngine.Tilemaps;
 using System.Collections;
 using System.Collections.Generic;
 
 public class StageController : MonoBehaviour
 {
-    [Header("Stage Type")]
-    public bool isSafeStage = false;
+    [Header("Stage Type")] public bool isSafeStage = false;
     public bool isBossStage = false;
-
-    // ★ 추가: 보스 맵 프리팹에서 타일맵들을 직접 끌어다 놓을 배열
-    [Header("Boss Stage Settings")]
-    public Tilemap[] bossStageTilemaps;
+    
+    [Header("Boss Stage Settings")] public Tilemap[] bossStageTilemaps;
 
     [Header("Start Room Settings (Intro)")]
     public bool isStartingRoom = false;
+
     public float startFadeDelay = 0.5f;
     public string startTitleText = "시스템 가동";
     public string startDescText = "모듈 테스트를 시작합니다.";
     public Color startTitleColor = Color.cyan;
 
-    [Header("Settings")]
-    public Transform spawnPoint;
+    [Header("Settings")] public Transform spawnPoint;
     public GameObject barrierEla;
     public Statue statue;
     public Collider2D stageBounds;
 
-    [Header("Reward Settings")]
-    public GameObject rewardPrefab;
+    [Header("Reward Settings")] public GameObject rewardPrefab;
     public Transform rewardSpawnPoint;
     public int moduleRewardCount = 1;
 
@@ -68,8 +64,7 @@ public class StageController : MonoBehaviour
             {
                 SoundManager.instance.StopBGM(1.5f);
             }
-
-            // ★ 추가: 보스 스테이지라면, 시작할 때 시네마틱 매니저에게 타일맵 정보를 넘겨줍니다.
+            
             if (CinematicManager.Instance != null && bossStageTilemaps != null && bossStageTilemaps.Length > 0)
             {
                 CinematicManager.Instance.SetEnvironmentTilemaps(bossStageTilemaps);
@@ -207,7 +202,8 @@ public class StageController : MonoBehaviour
     {
         if (rewardPrefab != null && rewardSpawnPoint != null)
         {
-            GameObject rewardObj = Instantiate(rewardPrefab, rewardSpawnPoint.position, Quaternion.identity, rewardSpawnPoint);
+            GameObject rewardObj = Instantiate(rewardPrefab, rewardSpawnPoint.position, Quaternion.identity,
+                rewardSpawnPoint);
 
             CurrentRewardTransform = rewardObj.transform;
             CurrentRewardItem = rewardObj.GetComponent<IRewardItem>();
@@ -236,7 +232,8 @@ public class StageController : MonoBehaviour
 
         if (!isSafeStage)
         {
-            if (GameManager.instance != null && GameManager.instance.player != null && GameManager.instance.player.buffManager != null)
+            if (GameManager.instance != null && GameManager.instance.player != null &&
+                GameManager.instance.player.buffManager != null)
             {
                 GameManager.instance.player.buffManager.OnStageCleared();
                 Debug.Log("전투 스테이지 클리어: 디버프 지속 횟수 차감");
@@ -247,7 +244,7 @@ public class StageController : MonoBehaviour
         {
             string seasonName = GameManager.instance.currentSeason.ToString(); // 현재 클리어한 계절
             int clearTime = Mathf.RoundToInt(GameManager.instance.currentPlayTime); // 걸린 시간 초 단위 변환
-            
+
             int currentHp = GameManager.instance.stats.currentHealth; // 현재 체력
             int maxHp = GameManager.instance.stats.maxHealth; // 최대 체력
             int remainHpPercent = Mathf.RoundToInt(((float)currentHp / maxHp) * 100f); // 남은 체력 퍼센트 계산
@@ -259,7 +256,8 @@ public class StageController : MonoBehaviour
         GameObject player = GameManager.instance.player.gameObject;
 
         if (GuideArrow.Instance != null && player != null)
-            GuideArrow.Instance.ActivateArrow(player.transform, CurrentRewardTransform, CurrentRewardItem, statueTarget);
+            GuideArrow.Instance.ActivateArrow(player.transform, CurrentRewardTransform, CurrentRewardItem,
+                statueTarget);
 
         if (InputStateManager.Instance) InputStateManager.Instance.ChangeGamePhase(GamePhase.SafeZone);
     }
@@ -269,4 +267,4 @@ public class StageController : MonoBehaviour
         if (statue == null) return null;
         return statue.arrowTargetPos != null ? statue.arrowTargetPos : statue.transform;
     }
-}   
+}

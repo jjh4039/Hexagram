@@ -4,24 +4,29 @@ using UnityEngine;
 // 플레이어의 무기 교체 및 공격 명령을 분배하는 매니저
 public class WeaponManager : MonoBehaviour
 {
-    [Header("Weapon Objects")]
-    [SerializeField] private GameObject swordObject;           // 검 객체
-    [SerializeField] private GameObject gunObject;             // 총 객체
+    [Header("Weapon Objects")] [SerializeField]
+    private GameObject swordObject; // 검 객체
 
-    [Header("Visual Settings")]
-    [SerializeField] private SpriteRenderer swordRenderer;     // 검 렌더러
-    [SerializeField] private SpriteRenderer gunRenderer;       // 총 렌더러
-    [SerializeField] private Transform swordSpriteTransform;   // 검 이미지 트랜스폼
-    [SerializeField] private Transform gunSpriteTransform;     // 총 이미지 트랜스폼
+    [SerializeField] private GameObject gunObject; // 총 객체
 
-    [Space]
-    [SerializeField] private float swapDuration = 0.05f;       
+    [Header("Visual Settings")] [SerializeField]
+    private SpriteRenderer swordRenderer; // 검 렌더러
+
+    [SerializeField] private SpriteRenderer gunRenderer; // 총 렌더러
+    [SerializeField] private Transform swordSpriteTransform; // 검 이미지 트랜스폼
+    [SerializeField] private Transform gunSpriteTransform; // 총 이미지 트랜스폼
+
+    [Space] [SerializeField] private float swapDuration = 0.05f;
 
     public bool IsAiming => CurrentWeapon == WeaponType.Gun && !IsSwapping;
 
-    public enum WeaponType { Sword, Gun }
+    public enum WeaponType
+    {
+        Sword,
+        Gun
+    }
 
-    public bool IsSwapping { get; private set; }               // 현재 교체 중인지
+    public bool IsSwapping { get; private set; } // 현재 교체 중인지
     public WeaponType CurrentWeapon { get; private set; } = WeaponType.Sword; // 현재 든 무기
 
     private Coroutine swapCoroutine;
@@ -30,8 +35,8 @@ public class WeaponManager : MonoBehaviour
     private Vector3 swordOriginPos;
     private Vector3 swordTargetPos;
 
-    private Sword cachedSword;                                 // 검 컴포넌트 캐싱
-    private Gun cachedGun;                                     // 총 컴포넌트 캐싱
+    private Sword cachedSword; // 검 컴포넌트 캐싱
+    private Gun cachedGun; // 총 컴포넌트 캐싱
 
     private void Start()
     {
@@ -60,13 +65,14 @@ public class WeaponManager : MonoBehaviour
     private void Update()
     {
         if (GameManager.instance.player == null || InputStateManager.Instance == null) return;
-        
+
         // 제어 불가능하거나 UI 모드일 때는 스왑 로직 정지
-        if (!GameManager.instance.player.canControl || InputStateManager.Instance.CurrentInputState == InputState.UI) return;
+        if (!GameManager.instance.player.canControl ||
+            InputStateManager.Instance.CurrentInputState == InputState.UI) return;
 
         if (IsSwapping) return;
 
-        // [수정] 매니저를 통해 조준 키(우클릭) 상태를 확인
+        // 매니저를 통해 조준 키(우클릭) 상태를 확인
         bool isHoldingAim = CheckAimInput();
 
         if (isHoldingAim && CurrentWeapon == WeaponType.Sword)
@@ -89,7 +95,7 @@ public class WeaponManager : MonoBehaviour
 
         if (state == InputState.Normal) return actions.Normal.Aim.ReadValue<float>() > 0.5f;
         if (state == InputState.Combat) return actions.Combat.Aim.ReadValue<float>() > 0.5f;
-        
+
         return false;
     }
 
@@ -117,8 +123,10 @@ public class WeaponManager : MonoBehaviour
             SetAlpha(swordRenderer, 1f - t);
             SetAlpha(gunRenderer, t);
 
-            if (gunSpriteTransform != null) gunSpriteTransform.localPosition = Vector3.Lerp(gunOriginPos, gunTargetPos, t);
-            if (swordSpriteTransform != null) swordSpriteTransform.localPosition = Vector3.Lerp(swordTargetPos, swordOriginPos, t);
+            if (gunSpriteTransform != null)
+                gunSpriteTransform.localPosition = Vector3.Lerp(gunOriginPos, gunTargetPos, t);
+            if (swordSpriteTransform != null)
+                swordSpriteTransform.localPosition = Vector3.Lerp(swordTargetPos, swordOriginPos, t);
 
             yield return null;
         }
@@ -126,7 +134,7 @@ public class WeaponManager : MonoBehaviour
         SetAlpha(swordRenderer, 0f);
         SetAlpha(gunRenderer, 1f);
         if (gunSpriteTransform != null) gunSpriteTransform.localPosition = gunTargetPos;
-        
+
         swordObject.SetActive(false);
         IsSwapping = false;
     }
@@ -147,8 +155,10 @@ public class WeaponManager : MonoBehaviour
             SetAlpha(swordRenderer, t);
             SetAlpha(gunRenderer, 1f - t);
 
-            if (gunSpriteTransform != null) gunSpriteTransform.localPosition = Vector3.Lerp(gunTargetPos, gunOriginPos, t);
-            if (swordSpriteTransform != null) swordSpriteTransform.localPosition = Vector3.Lerp(swordOriginPos, swordTargetPos, t);
+            if (gunSpriteTransform != null)
+                gunSpriteTransform.localPosition = Vector3.Lerp(gunTargetPos, gunOriginPos, t);
+            if (swordSpriteTransform != null)
+                swordSpriteTransform.localPosition = Vector3.Lerp(swordOriginPos, swordTargetPos, t);
 
             yield return null;
         }
@@ -166,7 +176,7 @@ public class WeaponManager : MonoBehaviour
         if (IsSwapping) return;
 
         if (swapCoroutine != null) StopCoroutine(swapCoroutine);
-        
+
         if (CurrentWeapon == WeaponType.Sword) swapCoroutine = StartCoroutine(SwapToGun());
         else swapCoroutine = StartCoroutine(SwapToSword());
     }

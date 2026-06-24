@@ -12,11 +12,10 @@ public class MapManager : MonoBehaviour
     public class StageProbability
     {
         public StageData stageData;
-        [Range(0, 100)] public float weight = 10f;         // 등장 확률 가중치
+        [Range(0, 100)] public float weight = 10f; // 등장 확률 가중치
     }
 
-    [Header("Stage Pool Settings")]
-    public List<StageProbability> stagePool;
+    [Header("Stage Pool Settings")] public List<StageProbability> stagePool;
 
     public StageData bossStageData;
     private StageData _lastSelectedStage;
@@ -24,10 +23,9 @@ public class MapManager : MonoBehaviour
     private StageData[] currentNodes = new StageData[3];
     private int _selectedIndex = 1;
     private bool _isBossStageMode = false;
-    private bool _isSelecting = false;                     // 선택이 확정되어 연출 중인지 확인하는 플래그
+    private bool _isSelecting = false; // 선택이 확정되어 연출 중인지 확인하는 플래그
 
-    [Header("UI References")]
-    public GameObject mapVisualRoot;
+    [Header("UI References")] public GameObject mapVisualRoot;
     public RectTransform stageTextRect;
     public CanvasGroup dynamicTextCanvasGroup;
     public TextMeshProUGUI stageTitleText;
@@ -36,38 +34,36 @@ public class MapManager : MonoBehaviour
     public TextMeshProUGUI totalProgressText;
     private CanvasGroup _stageTextCanvasGroup;
 
-    [Header("Text Settings")]
-    [Tooltip("일반 모드일 때 텍스트의 위치 (0:왼쪽, 1:중앙, 2:오른쪽)")]
-    public Vector2[] normalTextPositions = new Vector2[3] { new Vector2(-160, 0), new Vector2(0, 0), new Vector2(160, 0) };
-    [Tooltip("보스 모드일 때 텍스트의 위치")]
-    public Vector2 bossTextPosition = Vector2.zero;
+    [Header("Text Settings")] [Tooltip("일반 모드일 때 텍스트의 위치 (0:왼쪽, 1:중앙, 2:오른쪽)")]
+    public Vector2[] normalTextPositions = new Vector2[3]
+        { new Vector2(-160, 0), new Vector2(0, 0), new Vector2(160, 0) };
 
-    public float normalTextScale = 1.0f;                   // 일반 모드 텍스트 스케일
-    public float bossTextScale = 1.2f;                     // 보스 모드 텍스트 스케일
+    [Tooltip("보스 모드일 때 텍스트의 위치")] public Vector2 bossTextPosition = Vector2.zero;
 
-    [Header("Visual Elements")]
-    public Image[] nodeVisuals;
+    public float normalTextScale = 1.0f; // 일반 모드 텍스트 스케일
+    public float bossTextScale = 1.2f; // 보스 모드 텍스트 스케일
+
+    [Header("Visual Elements")] public Image[] nodeVisuals;
     public Image[] lineVisuals;
     private CanvasGroup[] _nodeCanvasGroups;
 
-    [Header("Boss Visual Elements")]
-    public Image bossNodeVisual;
+    [Header("Boss Visual Elements")] public Image bossNodeVisual;
     public Image bossLineVisual;
 
     private CanvasGroup _bossNodeCanvasGroup;
     private Vector2 _bossNodeOriginPos;
     private Vector2 _bossLineOriginPos;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float textFadeSpeed = 4f;
+    [Header("Animation Settings")] [SerializeField]
+    private float textFadeSpeed = 4f;
+
     [SerializeField] private float lerpSpeed = 18f;
     [SerializeField] private float floatAmount = 9f;
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private float nodeFadeSpeed = 3f;
     [SerializeField] private float scanInterval = 0.15f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxSelect;
+    [Header("Sound")] [SerializeField] private AudioClip sfxSelect;
     [SerializeField] private AudioClip sfxScan;
     [SerializeField] private AudioClip sfxCount;
 
@@ -84,7 +80,7 @@ public class MapManager : MonoBehaviour
     private bool _isMoving = false;
     private const float MOVEMENT_THRESHOLD = 0.5f;
 
-    private bool _needsNewNodes = true;                    // 맵 갱신이 필요한지 확인하는 상태 플래그
+    private bool _needsNewNodes = true; // 맵 갱신이 필요한지 확인하는 상태 플래그
 
     private void Awake()
     {
@@ -153,7 +149,8 @@ public class MapManager : MonoBehaviour
 
     private void OnNavigateInput(InputAction.CallbackContext ctx)
     {
-        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode || _isSelecting) return;
+        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _isScanning || _isBossStageMode ||
+            _isSelecting) return;
 
         Vector2 direction = ctx.ReadValue<Vector2>();
         if (direction.x < -0.5f) ChangeSelection(-1);
@@ -194,7 +191,6 @@ public class MapManager : MonoBehaviour
         {
             float halfFade = fadeDuration * 0.5f;
 
-            // ★ 수정: TransitionManager를 사용하여 글로벌 페이드 연동
             if (TransitionManager.Instance != null)
                 yield return StartCoroutine(TransitionManager.Instance.Co_FadeToBlack(halfFade));
 
@@ -242,7 +238,8 @@ public class MapManager : MonoBehaviour
         };
 
         if (totalProgressText)
-            totalProgressText.text = $"진행도 : <color=#80FF80>{seasonName}_{GameManager.instance.currentProgress}%</color>";
+            totalProgressText.text =
+                $"진행도 : <color=#80FF80>{seasonName}_{GameManager.instance.currentProgress}%</color>";
 
         if (_isBossStageMode)
         {
@@ -373,6 +370,7 @@ public class MapManager : MonoBehaviour
 
                 yield return null;
             }
+
             if (_bossNodeCanvasGroup) _bossNodeCanvasGroup.alpha = 1f;
             if (bossLineVisual) bossLineVisual.color = _inactiveColor;
 
@@ -427,12 +425,14 @@ public class MapManager : MonoBehaviour
         {
             if (bossNodeVisual)
             {
-                Vector2 targetNodePos = (!_isScanning) ? _bossNodeOriginPos + Vector2.up * floatAmount : _bossNodeOriginPos;
+                Vector2 targetNodePos =
+                    (!_isScanning) ? _bossNodeOriginPos + Vector2.up * floatAmount : _bossNodeOriginPos;
 
                 if (Vector2.Distance(bossNodeVisual.rectTransform.anchoredPosition, targetNodePos) > MOVEMENT_THRESHOLD)
                 {
                     isAnyNodeMoving = true;
-                    bossNodeVisual.rectTransform.anchoredPosition = Vector2.Lerp(bossNodeVisual.rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
+                    bossNodeVisual.rectTransform.anchoredPosition = Vector2.Lerp(
+                        bossNodeVisual.rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
                 }
                 else
                 {
@@ -446,7 +446,8 @@ public class MapManager : MonoBehaviour
                     if (parentScaleY == 0) parentScaleY = 1f;
                     float compensatedOffset = currentYOffset / parentScaleY;
 
-                    bossLineVisual.rectTransform.anchoredPosition = _bossLineOriginPos - new Vector2(0, compensatedOffset);
+                    bossLineVisual.rectTransform.anchoredPosition =
+                        _bossLineOriginPos - new Vector2(0, compensatedOffset);
                 }
             }
         }
@@ -462,7 +463,8 @@ public class MapManager : MonoBehaviour
                 if (Vector2.Distance(nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos) > MOVEMENT_THRESHOLD)
                 {
                     isAnyNodeMoving = true;
-                    nodeVisuals[i].rectTransform.anchoredPosition = Vector2.Lerp(nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
+                    nodeVisuals[i].rectTransform.anchoredPosition = Vector2.Lerp(
+                        nodeVisuals[i].rectTransform.anchoredPosition, targetNodePos, Time.deltaTime * lerpSpeed);
                 }
                 else
                 {
@@ -476,7 +478,8 @@ public class MapManager : MonoBehaviour
                     if (parentScaleY == 0) parentScaleY = 1f;
                     float compensatedOffset = currentYOffset / parentScaleY;
 
-                    lineVisuals[i].rectTransform.anchoredPosition = _lineOriginPos[i] - new Vector2(0, compensatedOffset);
+                    lineVisuals[i].rectTransform.anchoredPosition =
+                        _lineOriginPos[i] - new Vector2(0, compensatedOffset);
                 }
             }
         }
@@ -488,7 +491,8 @@ public class MapManager : MonoBehaviour
 
         if (!_isScanning && dynamicTextCanvasGroup != null)
         {
-            dynamicTextCanvasGroup.alpha = Mathf.MoveTowards(dynamicTextCanvasGroup.alpha, 1f, Time.deltaTime * textFadeSpeed);
+            dynamicTextCanvasGroup.alpha =
+                Mathf.MoveTowards(dynamicTextCanvasGroup.alpha, 1f, Time.deltaTime * textFadeSpeed);
         }
     }
 
@@ -540,7 +544,8 @@ public class MapManager : MonoBehaviour
 
     private void UpdateUITexts()
     {
-        if (currentNodes == null || currentNodes.Length <= _selectedIndex || currentNodes[_selectedIndex] == null) return;
+        if (currentNodes == null || currentNodes.Length <= _selectedIndex ||
+            currentNodes[_selectedIndex] == null) return;
 
         StageData data = currentNodes[_selectedIndex];
 
@@ -560,7 +565,8 @@ public class MapManager : MonoBehaviour
 
     private void OnEnterStage()
     {
-        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _fadeCoroutine != null || _isScanning || _isSelecting) return;
+        if (mapVisualRoot == null || !mapVisualRoot.activeSelf || _fadeCoroutine != null || _isScanning ||
+            _isSelecting) return;
         if (currentNodes.Length == 0 || currentNodes[_selectedIndex] == null) return;
 
         _isSelecting = true;

@@ -10,34 +10,34 @@ public class SoundManager : MonoBehaviour
     public struct BgmVolumeData
     {
         public AudioClip clip;
-        [Range(0f, 2f)] public float volumeMultiplier; 
+        [Range(0f, 2f)] public float volumeMultiplier;
     }
 
-    [Header("--- Settings ---")]
-    [Range(0f, 1f)] public float masterVolume = 0.5f;
+    [Header("--- Settings ---")] [Range(0f, 1f)]
+    public float masterVolume = 0.5f;
 
     [Range(0f, 1f)] public float bgmVolume = 0.2f;
     [Range(0f, 1f)] public float sfxVolume = 1f;
 
-    [Header("--- Background Music ---")]
-    [SerializeField] private AudioSource bgmSource;
+    [Header("--- Background Music ---")] [SerializeField]
+    private AudioSource bgmSource;
+
     [SerializeField] private AudioSource bgmLoopSource;
 
-    [Header("--- BGM Volume Tuning ---")]
-    public List<BgmVolumeData> bgmTuningList;
-    private float currentBgmMultiplier = 1f; 
+    [Header("--- BGM Volume Tuning ---")] public List<BgmVolumeData> bgmTuningList;
+    private float currentBgmMultiplier = 1f;
 
-    [Header("--- SFX Pooling ---")]
-    [SerializeField] private int poolSize = 20;
+    [Header("--- SFX Pooling ---")] [SerializeField]
+    private int poolSize = 20;
 
     private List<AudioSource> sfxPool;
     private Dictionary<AudioClip, float> lastPlayTimes = new Dictionary<AudioClip, float>();
     private const float MIN_SFX_INTERVAL = 0.05f;
 
-    private Coroutine bgmFadeRoutine; 
-    
-    // ★ 추가: 페이드 진행 중 환경설정 슬라이더 충돌 방지용 플래그
-    private bool isBgmFading = false; 
+    private Coroutine bgmFadeRoutine;
+
+    // 페이드 진행 중 환경설정 슬라이더 충돌 방지용 플래그
+    private bool isBgmFading = false;
 
     private void Awake()
     {
@@ -90,7 +90,7 @@ public class SoundManager : MonoBehaviour
         if (source != null)
         {
             source.gameObject.SetActive(true);
-            source.Stop(); 
+            source.Stop();
 
             source.volume = masterVolume * sfxVolume * volumeScale;
             source.pitch = 1f + Random.Range(-pitchVariation, pitchVariation);
@@ -106,13 +106,13 @@ public class SoundManager : MonoBehaviour
     {
         if (loopClip == null) return;
 
-        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); 
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine);
         isBgmFading = false; // 강제 중단 시 플래그 초기화
 
         bgmSource.Stop();
         if (bgmLoopSource != null) bgmLoopSource.Stop();
 
-        currentBgmMultiplier = 1f; 
+        currentBgmMultiplier = 1f;
         foreach (var bgmData in bgmTuningList)
         {
             if (bgmData.clip == loopClip)
@@ -124,12 +124,12 @@ public class SoundManager : MonoBehaviour
 
         float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier;
 
-        // ★ 수정: 인트로가 없을 때도 자연스럽게 페이드 인 적용
+        // 인트로가 없을 때도 자연스럽게 페이드 인 적용
         if (introClip == null)
         {
             bgmSource.clip = loopClip;
             bgmSource.loop = true;
-            
+
             if (fadeInDuration > 0f)
             {
                 bgmSource.volume = 0f;
@@ -150,24 +150,24 @@ public class SoundManager : MonoBehaviour
 
             bgmSource.clip = introClip;
             bgmSource.loop = false;
-            
+
             if (fadeInDuration > 0f)
             {
-                bgmSource.volume = 0f; 
+                bgmSource.volume = 0f;
                 bgmFadeRoutine = StartCoroutine(Co_FadeInBGM(bgmSource, fadeInDuration));
             }
             else
             {
                 bgmSource.volume = finalVolume;
             }
-            
+
             bgmSource.PlayScheduled(startTime);
 
             if (bgmLoopSource != null)
             {
                 bgmLoopSource.clip = loopClip;
                 bgmLoopSource.loop = true;
-                bgmLoopSource.volume = finalVolume; 
+                bgmLoopSource.volume = finalVolume;
                 bgmLoopSource.PlayScheduled(startTime + introDuration);
             }
         }
@@ -175,7 +175,7 @@ public class SoundManager : MonoBehaviour
 
     public void StopBGM(float fadeOutDuration = 1f)
     {
-        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine); 
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine);
         bgmFadeRoutine = StartCoroutine(Co_FadeOutBGM(fadeOutDuration));
     }
 
@@ -190,6 +190,7 @@ public class SoundManager : MonoBehaviour
             source.volume = Mathf.Lerp(0f, currentTargetVolume, timer / duration);
             yield return null;
         }
+
         source.volume = masterVolume * bgmVolume * currentBgmMultiplier;
         isBgmFading = false;
     }
@@ -217,12 +218,13 @@ public class SoundManager : MonoBehaviour
             bgmSource.volume = 0f;
             bgmSource.Stop();
         }
-        
+
         if (bgmLoopSource != null)
         {
             bgmLoopSource.volume = 0f;
             bgmLoopSource.Stop();
         }
+
         isBgmFading = false;
     }
 
@@ -263,11 +265,11 @@ public class SoundManager : MonoBehaviour
     public void SetBGMVolume(float volume)
     {
         bgmVolume = volume;
-        
-        // ★ 핵심: 현재 페이드 인/아웃 중이라면, 코루틴이 알아서 처리하게 냅두고 강제로 덮어씌우지 않음 (충돌 방지)
-        if (isBgmFading) return; 
 
-        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier; 
+        // 현재 페이드 인/아웃 중이라면, 코루틴이 알아서 처리하게 냅두고 강제로 덮어씌우지 않음
+        if (isBgmFading) return;
+
+        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier;
         if (bgmSource != null) bgmSource.volume = finalVolume;
         if (bgmLoopSource != null) bgmLoopSource.volume = finalVolume;
     }
@@ -281,10 +283,10 @@ public class SoundManager : MonoBehaviour
     {
         masterVolume = volume;
 
-        // ★ 핵심: 페이드 중이면 BGM 소스는 건드리지 않음 (SFX는 적용됨)
-        if (isBgmFading) return; 
+        // 페이드 중이면 BGM 소스는 건드리지 않음 (SFX는 적용됨)
+        if (isBgmFading) return;
 
-        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier; 
+        float finalVolume = masterVolume * bgmVolume * currentBgmMultiplier;
         if (bgmSource != null) bgmSource.volume = finalVolume;
         if (bgmLoopSource != null) bgmLoopSource.volume = finalVolume;
     }

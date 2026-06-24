@@ -5,45 +5,57 @@ using UnityEngine.UI;
 
 public class ShopStatOptionHoverSystem : MonoBehaviour
 {
-    public enum ShopStatType { AttackPower, AttackSpeed, MoveSpeed, CritChance, CritDamage }
+    public enum ShopStatType
+    {
+        AttackPower,
+        AttackSpeed,
+        MoveSpeed,
+        CritChance,
+        CritDamage
+    }
 
-    [Header("Main References")]
-    [SerializeField] private RectTransform caseRect;
+    [Header("Main References")] [SerializeField]
+    private RectTransform caseRect;
+
     [SerializeField] private Image caseImage;
     [SerializeField] private TextMeshProUGUI descriptionText;
-    [SerializeField] private GameObject soldOutOverlay; 
+    [SerializeField] private GameObject soldOutOverlay;
 
-    [Header("Price References")]
-    [SerializeField] private GameObject priceContainer; 
-    [SerializeField] private TextMeshProUGUI priceText; 
+    [Header("Price References")] [SerializeField]
+    private GameObject priceContainer;
 
-    [Header("Reroll References")]
-    [SerializeField] private RectTransform rerollRect;
+    [SerializeField] private TextMeshProUGUI priceText;
+
+    [Header("Reroll References")] [SerializeField]
+    private RectTransform rerollRect;
+
     [SerializeField] private Image rerollImage;
-    
-    [Header("Audio")]
-    [SerializeField] private AudioClip sfxHover;
+
+    [Header("Audio")] [SerializeField] private AudioClip sfxHover;
     [SerializeField] private AudioClip sfxPurchase;
     [SerializeField] private AudioClip sfxReroll;
 
-    [Header("Main Motion")]
-    [SerializeField] private float mainHoverScale = 1.015f;
+    [Header("Main Motion")] [SerializeField]
+    private float mainHoverScale = 1.015f;
+
     [SerializeField] private float transitionDuration = 0.05f;
 
-    [Header("Main Color")]
-    [SerializeField] private Color normalCaseColor = new Color(0.62f, 0.62f, 0.62f, 1f);
+    [Header("Main Color")] [SerializeField]
+    private Color normalCaseColor = new Color(0.62f, 0.62f, 0.62f, 1f);
+
     [SerializeField] private Color hoverCaseColor = new Color(0.6f, 0.93f, 1f, 1f);
-    [SerializeField] private Color soldOutCaseColor = new Color(0.3f, 0.3f, 0.3f, 1f); 
+    [SerializeField] private Color soldOutCaseColor = new Color(0.3f, 0.3f, 0.3f, 1f);
     [SerializeField] private Color normalTextColor = new Color(0.92f, 0.92f, 0.92f, 1f);
     [SerializeField] private Color hoverTextColor = Color.white;
 
-    [Header("Reroll Motion")]
-    [SerializeField] private float rerollHoverScale = 1.05f;
+    [Header("Reroll Motion")] [SerializeField]
+    private float rerollHoverScale = 1.05f;
 
-    [Header("Reroll Color")]
-    [SerializeField] private Color normalRerollColor = new Color(0.75f, 0.75f, 0.75f, 1f);
+    [Header("Reroll Color")] [SerializeField]
+    private Color normalRerollColor = new Color(0.75f, 0.75f, 0.75f, 1f);
+
     [SerializeField] private Color hoverRerollColor = Color.white;
-    [SerializeField] private Color usedRerollColor = new Color(0.4f, 0.4f, 0.4f, 1f); 
+    [SerializeField] private Color usedRerollColor = new Color(0.4f, 0.4f, 0.4f, 1f);
 
     private bool _isMainHovering;
     private bool _isRerollHovering;
@@ -56,11 +68,10 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
     private ShopStatType _currentStatType;
     private int _currentStatValue;
 
-    private Action _onScrapSpent; 
+    private Action _onScrapSpent;
 
     public void SetHover(ShopHoverAreaRelay.HoverAreaType areaType, bool isHovering)
     {
-        // ★ 핵심 수정: Sold Out이거나 이미 리롤을 썼다면 소리 및 Hover 상태 진입을 완벽 차단
         if (_isSoldOut) return;
         if (areaType == ShopHoverAreaRelay.HoverAreaType.Reroll && _hasRerolled) return;
 
@@ -112,33 +123,33 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
         switch (_currentStatType)
         {
             case ShopStatType.AttackPower:
-                _currentStatValue = UnityEngine.Random.Range(5, 11); 
+                _currentStatValue = UnityEngine.Random.Range(5, 11);
                 statName = "공격력";
                 hexColor = "#FF4949";
                 break;
             case ShopStatType.AttackSpeed:
-                _currentStatValue = UnityEngine.Random.Range(3, 11); 
+                _currentStatValue = UnityEngine.Random.Range(3, 11);
                 statName = "공격 속도";
                 hexColor = "#FFD100";
                 break;
             case ShopStatType.MoveSpeed:
-                _currentStatValue = UnityEngine.Random.Range(3, 11); 
+                _currentStatValue = UnityEngine.Random.Range(3, 11);
                 statName = "이동 속도";
                 hexColor = "#3CD2F8";
                 break;
             case ShopStatType.CritChance:
-                _currentStatValue = UnityEngine.Random.Range(3, 8); 
+                _currentStatValue = UnityEngine.Random.Range(3, 8);
                 statName = "치명타 확률";
                 hexColor = "#FF8C00";
                 break;
             case ShopStatType.CritDamage:
-                _currentStatValue = UnityEngine.Random.Range(5, 11); 
+                _currentStatValue = UnityEngine.Random.Range(5, 11);
                 statName = "치명타 피해";
                 hexColor = "#FF33CC";
                 break;
         }
 
-        _currentPrice = UnityEngine.Random.Range(100, 201); 
+        _currentPrice = UnityEngine.Random.Range(100, 201);
 
         if (descriptionText != null)
             descriptionText.text = $"{statName} <color={hexColor}>+{_currentStatValue}%</color>";
@@ -156,9 +167,9 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
         _hasRerolled = true;
         _isRerollHovering = false;
-        
+
         GenerateRandomStat();
-        _onScrapSpent?.Invoke(); 
+        _onScrapSpent?.Invoke();
     }
 
     public void OnClickMain()
@@ -181,16 +192,17 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
             if (AnalyticsManager.Instance != null)
             {
-                AnalyticsManager.Instance.LogShopPurchase("Stat", _currentStatType.ToString(), _currentPrice); // 스탯 구매 로그 전송
+                AnalyticsManager.Instance.LogShopPurchase("Stat", _currentStatType.ToString(),
+                    _currentPrice); // 스탯 구매 로그 전송
             }
 
             SetSoldOut();
-            _onScrapSpent?.Invoke(); 
+            _onScrapSpent?.Invoke();
         }
         else
         {
             if (PlayerFeedbackUI.Instance != null)
-                PlayerFeedbackUI.Instance.ShowWarning(6); 
+                PlayerFeedbackUI.Instance.ShowWarning(6);
         }
     }
 
@@ -246,13 +258,17 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
 
         if (rerollRect != null)
         {
-            Vector3 targetScale = (_isRerollHovering && !isRerollDisabled) ? _rerollBaseScale * rerollHoverScale : _rerollBaseScale;
+            Vector3 targetScale = (_isRerollHovering && !isRerollDisabled)
+                ? _rerollBaseScale * rerollHoverScale
+                : _rerollBaseScale;
             rerollRect.localScale = Vector3.Lerp(rerollRect.localScale, targetScale, Time.unscaledDeltaTime * speed);
         }
 
         if (rerollImage != null)
         {
-            Color targetColor = isRerollDisabled ? usedRerollColor : (_isRerollHovering ? hoverRerollColor : normalRerollColor);
+            Color targetColor = isRerollDisabled
+                ? usedRerollColor
+                : (_isRerollHovering ? hoverRerollColor : normalRerollColor);
             rerollImage.color = Color.Lerp(rerollImage.color, targetColor, Time.unscaledDeltaTime * speed);
         }
     }
@@ -273,7 +289,7 @@ public class ShopStatOptionHoverSystem : MonoBehaviour
         if (caseImage != null) caseImage.color = _isSoldOut ? soldOutCaseColor : normalCaseColor;
         if (descriptionText != null) descriptionText.color = normalTextColor;
         if (rerollRect != null) rerollRect.localScale = _rerollBaseScale;
-        if (rerollImage != null) 
+        if (rerollImage != null)
         {
             rerollImage.color = (_isSoldOut || _hasRerolled) ? usedRerollColor : normalRerollColor;
             Color c = rerollImage.color;

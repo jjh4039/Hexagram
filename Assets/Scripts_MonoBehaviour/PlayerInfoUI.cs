@@ -5,14 +5,13 @@ using System.Collections;
 
 public class PlayerInfoUI : MonoBehaviour
 {
-    public Slider healthSlider; 
-    public TextMeshProUGUI healthText; 
-    
-    [Header("SafeZone UI Settings")]
-    public TextMeshProUGUI safeZoneText; 
+    public Slider healthSlider;
+    public TextMeshProUGUI healthText;
+
+    [Header("SafeZone UI Settings")] public TextMeshProUGUI safeZoneText;
     [SerializeField] private float fadeDuration = 0.6f; // 페이드 속도
     public bool isTutorial = false;
-    
+
     private Coroutine fadeCoroutine;
 
     private void Start()
@@ -20,7 +19,7 @@ public class PlayerInfoUI : MonoBehaviour
         if (InputStateManager.Instance != null)
         {
             InputStateManager.Instance.OnGamePhaseChanged += HandleGamePhaseChanged;
-            
+
             // 튜토리얼 중이면 무조건 비표시 처리
             bool isSafe = (InputStateManager.Instance.CurrentPhase == GamePhase.SafeZone) && !isTutorial;
             if (safeZoneText != null)
@@ -38,7 +37,7 @@ public class PlayerInfoUI : MonoBehaviour
         if (safeZoneText != null)
         {
             bool isSafe = (newPhase == GamePhase.SafeZone) && !isTutorial;
-            
+
             if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
             fadeCoroutine = StartCoroutine(Co_FadeText(isSafe));
         }
@@ -51,7 +50,7 @@ public class PlayerInfoUI : MonoBehaviour
             InputStateManager.Instance.OnGamePhaseChanged -= HandleGamePhaseChanged;
         }
     }
-    
+
     private IEnumerator Co_FadeText(bool fadeIn)
     {
         float targetAlpha = fadeIn ? 1f : 0f;

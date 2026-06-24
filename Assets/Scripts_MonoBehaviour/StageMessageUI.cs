@@ -8,17 +8,20 @@ public class StageMessageUI : MonoBehaviour
 {
     public static StageMessageUI instance;
 
-    [Header("--- Entry UI (Start) ---")]
-    [SerializeField] private CanvasGroup entryGroup;
+    [Header("--- Entry UI (Start) ---")] [SerializeField]
+    private CanvasGroup entryGroup;
+
     [SerializeField] private TextMeshProUGUI entryTitle;
     [SerializeField] private TextMeshProUGUI entryDesc;
 
-    [Header("--- Clear UI (End) ---")]
-    [SerializeField] private CanvasGroup clearGroup;
+    [Header("--- Clear UI (End) ---")] [SerializeField]
+    private CanvasGroup clearGroup;
+
     [SerializeField] private TextMeshProUGUI clearText;
 
-    [Header("--- Reward UI (New) ---")]
-    [SerializeField] private CanvasGroup rewardGroup;
+    [Header("--- Reward UI (New) ---")] [SerializeField]
+    private CanvasGroup rewardGroup;
+
     [SerializeField] private RewardItem[] rewardItems;
     [SerializeField] private float rewardSlideDistance = 50f;
     [SerializeField] private float rewardInterval = 0.15f;
@@ -26,22 +29,22 @@ public class StageMessageUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI pendingCountText;
 
-    [Header("--- Enemy Count UI (New) ---")]
-    [SerializeField] private CanvasGroup enemyCountGroup;
+    [Header("--- Enemy Count UI (New) ---")] [SerializeField]
+    private CanvasGroup enemyCountGroup;
+
     [SerializeField] private TextMeshProUGUI enemyCountText;
 
-    [Header("Reward Juicy Settings")]
-    [SerializeField] private AnimationCurve appearanceCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [Header("Reward Juicy Settings")] [SerializeField]
+    private AnimationCurve appearanceCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     [SerializeField] private float punchScaleAmount = 1.15f;
 
-    [Header("Settings")]
-    [SerializeField] private float startDelay = 0.55f;
+    [Header("Settings")] [SerializeField] private float startDelay = 0.55f;
     [SerializeField] private float fadeInTime = 0.5f;
     [SerializeField] private float waitTime = 1.0f;
     [SerializeField] private float fadeOutTime = 0.5f;
 
-    [Header("Sound")]
-    [SerializeField] private AudioClip sfxClear;
+    [Header("Sound")] [SerializeField] private AudioClip sfxClear;
     [SerializeField] private AudioClip sfxDecision;
 
     [System.Serializable]
@@ -74,7 +77,8 @@ public class StageMessageUI : MonoBehaviour
         _currentDisplayedRewards = new ModuleData[rewardItems.Length];
 
         for (int i = 0; i < rewardItems.Length; i++)
-            if (rewardItems[i].rect != null) originalScales[i] = rewardItems[i].rect.localScale;
+            if (rewardItems[i].rect != null)
+                originalScales[i] = rewardItems[i].rect.localScale;
 
         if (enemyCountText != null)
             enemyCountOriginScale = enemyCountText.rectTransform.localScale;
@@ -221,6 +225,7 @@ public class StageMessageUI : MonoBehaviour
                 StartCoroutine(AnimateRewardItem(rewardItems[i], i));
                 yield return new WaitForSecondsRealtime(rewardInterval);
             }
+
             canSelectReward = true;
         }
     }
@@ -268,6 +273,7 @@ public class StageMessageUI : MonoBehaviour
             item.rect.localScale = Vector3.LerpUnclamped(originalScales[index] * 0.8f, originalScales[index], curveT);
             yield return null;
         }
+
         item.group.alpha = 1f;
         item.rect.anchoredPosition = endPos;
         item.rect.localScale = originalScales[index];
@@ -308,7 +314,7 @@ public class StageMessageUI : MonoBehaviour
         {
             GameManager.instance.stats.ApplyModuleReward(_currentDisplayedRewards[index]);
         }
-        
+
         if (AnalyticsManager.Instance != null)
         {
             string chosenEffect = _currentDisplayedRewards[index].effectType.ToString();
@@ -347,7 +353,8 @@ public class StageMessageUI : MonoBehaviour
             isUIStateRequestedByMe = false;
 
             // 혹시라도 0.4초 사이에 인벤토리가 켜져서 시간이 멈춘 상태라면 CloseUI를 호출하지 않는 2차 안전장치
-            if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI && Time.timeScale > 0f)
+            if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentInputState == InputState.UI &&
+                Time.timeScale > 0f)
             {
                 InputStateManager.Instance.CloseUI();
             }
@@ -365,6 +372,7 @@ public class StageMessageUI : MonoBehaviour
             target.localScale = Vector3.Lerp(startScale, peakScale, timer / 0.1f);
             yield return null;
         }
+
         timer = 0f;
         while (timer < 0.1f)
         {
@@ -402,6 +410,7 @@ public class StageMessageUI : MonoBehaviour
             if (pendingCountText != null) pendingCountText.alpha = 1 - t;
             yield return null;
         }
+
         ResetAllUI();
     }
 
@@ -457,6 +466,7 @@ public class StageMessageUI : MonoBehaviour
             enemyCountText.color = Color.Lerp(originColor, punchColor, curve);
             yield return null;
         }
+
         enemyCountText.rectTransform.localScale = enemyCountOriginScale;
         enemyCountText.color = originColor;
     }
@@ -471,6 +481,7 @@ public class StageMessageUI : MonoBehaviour
             group.alpha = timer / fadeInTime;
             yield return null;
         }
+
         group.alpha = 1f;
     }
 
@@ -489,6 +500,7 @@ public class StageMessageUI : MonoBehaviour
             group.alpha = 1f - (timer / fadeOutTime);
             yield return null;
         }
+
         group.alpha = 0f;
     }
 
@@ -506,6 +518,10 @@ public class StageMessageUI : MonoBehaviour
 
     private void StopCurrentCoroutine()
     {
-        if (currentCoroutine != null) { StopCoroutine(currentCoroutine); currentCoroutine = null; }
+        if (currentCoroutine != null)
+        {
+            StopCoroutine(currentCoroutine);
+            currentCoroutine = null;
+        }
     }
 }

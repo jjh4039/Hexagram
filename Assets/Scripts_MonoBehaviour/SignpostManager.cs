@@ -5,7 +5,11 @@ using System.Collections;
 
 public class SignpostManager : MonoBehaviour
 {
-    public enum InteractType { Signpost, Debris }
+    public enum InteractType
+    {
+        Signpost,
+        Debris
+    }
 
     [System.Serializable]
     public class SignpostData
@@ -22,23 +26,18 @@ public class SignpostManager : MonoBehaviour
         [HideInInspector] public SpriteRenderer spriteRenderer; // 스프라이트 렌더러
     }
 
-    [Header("Interactable Arrays")] 
-    public SignpostData[] signposts; // 표지판 데이터 리스트
+    [Header("Interactable Arrays")] public SignpostData[] signposts; // 표지판 데이터 리스트
     public SignpostData[] debrisList; // 잔해 데이터 리스트
 
-    [Header("Material Settings")] 
-    public Material[] signpostMaterials; // 강조용 머터리얼 배열
+    [Header("Material Settings")] public Material[] signpostMaterials; // 강조용 머터리얼 배열
 
-    [Header("Animation Settings")] 
-    public float animDuration = 0.3f; // 애니메이션 지속 시간
+    [Header("Animation Settings")] public float animDuration = 0.3f; // 애니메이션 지속 시간
     public float slideOffset = 0.8f; // 슬라이드 이동 거리
 
-    [Header("Animation Curves")] 
-    public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // 페이드 곡선
+    [Header("Animation Curves")] public AnimationCurve fadeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // 페이드 곡선
     public AnimationCurve moveCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // 이동 곡선
 
-    [Header("Camera Settings")] 
-    public float cameraUpOffset = 2.0f; // 표지판 카메라 상승 값
+    [Header("Camera Settings")] public float cameraUpOffset = 2.0f; // 표지판 카메라 상승 값
     public float cameraDownOffset = 2.0f; // 잔해 카메라 하강 값
 
     private int activeInteractCount = 0; // 활성화된 상호작용 개수
@@ -94,7 +93,7 @@ public class SignpostManager : MonoBehaviour
             }
 
             // 컷신 종료 후 지정된 시간(0.5초) 동안은 상호작용 지연 (카메라 튀는 현상 방지)
-            if (Time.time - lastCutsceneTime < postCutsceneDelay) return; 
+            if (Time.time - lastCutsceneTime < postCutsceneDelay) return;
         }
 
         CheckArrayUpdate(signposts, InteractType.Signpost);

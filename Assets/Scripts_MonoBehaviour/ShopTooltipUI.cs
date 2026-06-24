@@ -13,36 +13,39 @@ public class ShopTooltipUI : MonoBehaviour
 
     public static ShopTooltipUI Instance { get; private set; }
 
-    [Header("Root")]
-    [SerializeField] private RectTransform tooltipRect;
+    [Header("Root")] [SerializeField] private RectTransform tooltipRect;
     [SerializeField] private CanvasGroup canvasGroup;
 
-    [Header("Texts")]
-    [SerializeField] private TextMeshProUGUI titleText;
+    [Header("Texts")] [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI descriptionText;
 
-    [Header("Background")]
-    [SerializeField] private Image backgroundImage;
+    [Header("Background")] [SerializeField]
+    private Image backgroundImage;
+
     [SerializeField] private Color defaultBackgroundColor = new Color(0.23f, 0.07f, 0.28f, 1f);
 
-    [Header("Anchor Positions")]
-    [SerializeField] private Vector2 topLeftAnchoredPos = new Vector2(-210f, 110f);
+    [Header("Anchor Positions")] [SerializeField]
+    private Vector2 topLeftAnchoredPos = new Vector2(-210f, 110f);
+
     [SerializeField] private Vector2 bottomLeftAnchoredPos = new Vector2(-210f, -120f);
 
-    [Header("Show Motion")]
-    [SerializeField] private float showDuration = 0.12f;
+    [Header("Show Motion")] [SerializeField]
+    private float showDuration = 0.12f;
+
     [SerializeField] private Vector2 showStartOffset = new Vector2(3f, -5f);
 
-    [Header("Hide Motion")]
-    [SerializeField] private float hideDuration = 0.08f;
+    [Header("Hide Motion")] [SerializeField]
+    private float hideDuration = 0.08f;
+
     [SerializeField] private Vector2 hideOffset = Vector2.zero;
 
-    [Header("Swap Motion")]
-    [SerializeField] private float swapDuration = 0.08f;
+    [Header("Swap Motion")] [SerializeField]
+    private float swapDuration = 0.08f;
+
     [SerializeField] private Vector2 swapOffset = new Vector2(4f, -1f);
 
-    [Header("Hide Delay")]
-    [SerializeField] private float hideDelay = 0.03f;
+    [Header("Hide Delay")] [SerializeField]
+    private float hideDelay = 0.03f;
 
     private Coroutine _routine;
     private bool _isVisible;

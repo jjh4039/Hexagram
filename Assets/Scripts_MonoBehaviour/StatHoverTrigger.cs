@@ -1,18 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 
 public class StatHoverTrigger : MonoBehaviour
 {
-    [Header("Detection Area")]
-    public GameObject hoverArea; 
+    [Header("Detection Area")] public GameObject hoverArea;
 
-    [Header("Hover UI (Alpha Control)")]
-    public Image selectImage; 
+    [Header("Hover UI (Alpha Control)")] public Image selectImage;
 
-    [Header("Tooltip Info")]
-    public string statTitle;               
-    [TextArea] public string statDesc;     
+    [Header("Tooltip Info")] public string statTitle;
+    [TextArea] public string statDesc;
 
     private void Start()
     {
@@ -43,13 +40,13 @@ public class StatHoverTrigger : MonoBehaviour
 
     private void OnHoverEnter()
     {
-        SetSelectAlpha(1f); 
+        SetSelectAlpha(1f);
         if (DashboardUI.instance != null) DashboardUI.instance.ShowTooltipCommon(statTitle, statDesc);
     }
 
     private void OnHoverExit()
     {
-        SetSelectAlpha(0f); 
+        SetSelectAlpha(0f);
         if (DashboardUI.instance != null) DashboardUI.instance.HideTooltip();
     }
 

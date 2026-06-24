@@ -3,22 +3,19 @@ using UnityEngine.InputSystem;
 
 public class Statue : MonoBehaviour
 {
-    [Header("Settings")]
-    public GameObject interactEffect;          // 상호작용 가능 안내 UI
-    public Material[] outLineMaterial;         // 외곽선 머티리얼 배열
+    [Header("Settings")] public GameObject interactEffect; // 상호작용 가능 안내 UI
+    public Material[] outLineMaterial; // 외곽선 머티리얼 배열
     public SpriteRenderer statueWomanRenderer; // 석상 스프라이트 렌더러
-    public Transform arrowTargetPos;           // 화살표가 가리킬 정확한 목표 위치
+    public Transform arrowTargetPos; // 화살표가 가리킬 정확한 목표 위치
 
-    [Header("Tutorial Cutscene")]
-    public bool isTutorial = false;
+    [Header("Tutorial Cutscene")] public bool isTutorial = false;
     public Transform cutsceneCameraTarget;
 
-    [Header("Main Boss Cutscene")]
-    public bool isFirstBossStatue = false;     // ★ 추가: 첫 번째 보스 처치 후 등장하는 석상 여부
+    [Header("Main Boss Cutscene")] public bool isFirstBossStatue = false; // 보스 처치 후 등장하는 석상 여부
 
-    private bool isPlayerNearby = false;       // 플레이어 접근 여부
-    private bool isActivated = false;          // 활성화 상태 여부
-    private IRewardItem targetReward;          // 확인해야 할 보상 아이템
+    private bool isPlayerNearby = false; // 플레이어 접근 여부
+    private bool isActivated = false; // 활성화 상태 여부
+    private IRewardItem targetReward; // 확인해야 할 보상 아이템
 
     private void Start()
     {
@@ -56,10 +53,11 @@ public class Statue : MonoBehaviour
                 Transform targetTransform = cutsceneCameraTarget != null ? cutsceneCameraTarget : this.transform;
                 TutorialManager.Instance.StartFinalCutscene(targetTransform);
             }
+
             return;
         }
 
-        // ★ 신규: 첫 번째 보스 컷신 연동
+        // 첫 번째 보스 컷신 연동
         if (isFirstBossStatue)
         {
             if (MainManager.Instance != null && !MainManager.Instance.IsCutsceneActive)
@@ -71,6 +69,7 @@ public class Statue : MonoBehaviour
                 Transform targetTransform = cutsceneCameraTarget != null ? cutsceneCameraTarget : this.transform;
                 MainManager.Instance.StartFirstBossCutscene(targetTransform);
             }
+
             return; // 컷신을 틀었으므로 맵 이동 무시
         }
 
@@ -100,7 +99,7 @@ public class Statue : MonoBehaviour
         {
             isPlayerNearby = true;
 
-            // ★ 수정: 활성화되어 있거나 특수 석상일 때만 효과 켜기
+            // 활성화되어 있거나 특수 석상일 때만 효과 켜기
             if (isActivated || isTutorial || isFirstBossStatue)
             {
                 // 컷신 진행 중에는 효과 켜지 않기

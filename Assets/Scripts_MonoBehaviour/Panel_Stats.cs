@@ -3,11 +3,9 @@ using TMPro;
 
 public class Panel_Stats : MonoBehaviour
 {
-    [Header("Player Reference")]
-    public PlayerStats playerStats; // 참조할 플레이어 스탯
+    [Header("Player Reference")] public PlayerStats playerStats; // 참조할 플레이어 스탯
 
-    [Header("10 Stat Texts")]
-    public TextMeshProUGUI hpText;
+    [Header("10 Stat Texts")] public TextMeshProUGUI hpText;
     public TextMeshProUGUI moveSpeedText;
     public TextMeshProUGUI meleeAtkText;
     public TextMeshProUGUI rangedAtkText;
@@ -28,7 +26,7 @@ public class Panel_Stats : MonoBehaviour
         if (playerStats == null) return;
 
         hpText.text = $"{playerStats.currentHealth} / {playerStats.maxHealth}";
-        
+
         // "0.#" 포맷을 사용하여 정수면 깔끔하게, 소수점이 있으면 1자리까지만 표기합니다.
         moveSpeedText.text = $"{(playerStats.moveSpeed / 5f * 100f).ToString("0.#")}%";
 

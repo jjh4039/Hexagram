@@ -9,16 +9,15 @@ public class Sword : MonoBehaviour
 
     [SerializeField] private GameObject[] slashEffects;
 
-    [Header("Timing Settings")]
-    [SerializeField] private float activeDuration = 0.25f;
+    [Header("Timing Settings")] [SerializeField]
+    private float activeDuration = 0.25f;
+
     [SerializeField] private float inputBufferTime = 0.5f;
 
-    [Header("Stats")]
-    [SerializeField] private float attackMoveSpeedMultiplier = 0.25f;
+    [Header("Stats")] [SerializeField] private float attackMoveSpeedMultiplier = 0.25f;
     public float AttackMoveSpeedMultiplier => attackMoveSpeedMultiplier;
 
-    [Header("Audio")]
-    [SerializeField] private AudioClip sfxSlash;
+    [Header("Audio")] [SerializeField] private AudioClip sfxSlash;
 
     private float nextAttackUnlockTime = 0f;
     private float lastInputTime = -10f;
@@ -32,8 +31,7 @@ public class Sword : MonoBehaviour
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         anim = GetComponentInChildren<Animator>();
     }
-
-    // ★ 버그 킬러: 검이 꺼질 때 (무기 교체 시) 증발할 뻔한 Invoke를 대신 실행해 강제 청소합니다.
+    
     private void OnDisable()
     {
         CancelInvoke("ResetAttackStatus");
@@ -99,7 +97,8 @@ public class Sword : MonoBehaviour
         if (weaponManager.CurrentWeapon != WeaponManager.WeaponType.Sword)
             return;
 
-        if (GameManager.instance != null && GameManager.instance.player != null && GameManager.instance.player.IsDashing)
+        if (GameManager.instance != null && GameManager.instance.player != null &&
+            GameManager.instance.player.IsDashing)
             return;
 
         if (comboStep >= 3)

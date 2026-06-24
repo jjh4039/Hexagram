@@ -14,7 +14,7 @@ public class ShopRobot : MonoBehaviour
     [SerializeField] private Animator animator;                
 
     [Header("Collider Settings")]
-    [SerializeField] private Collider2D myInteractCollider; // ★ 추가: 로봇 본체의 전용 감지 콜라이더
+    [SerializeField] private Collider2D myInteractCollider; 
 
     private ShopUIController _shopUIController;                
     private bool _isPlayerNearby;                              
@@ -62,7 +62,7 @@ public class ShopRobot : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        // ★ 핵심: 자식인 Balance에 닿아서 이벤트가 올라온 경우를 차단 (진짜 내 콜라이더에 닿았는가?)
+        // 자식인 Balance에 닿아서 이벤트가 올라온 경우를 차단 (진짜 내 콜라이더에 닿았는가?)
         if (myInteractCollider != null && !myInteractCollider.IsTouching(other)) return;
 
         _isPlayerNearby = true;
@@ -80,8 +80,7 @@ public class ShopRobot : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        // ★ 핵심: Balance에서 나갔을 때 Exit 이벤트가 발생하는 것을 방어 
-        // (플레이어가 로봇 본체 콜라이더 안에 여전히 머물고 있다면 무시)
+        // Balance에서 나갔을 때 Exit 이벤트가 발생하는 것을 방어 
         if (myInteractCollider != null && myInteractCollider.IsTouching(other)) return;
 
         _isPlayerNearby = false;

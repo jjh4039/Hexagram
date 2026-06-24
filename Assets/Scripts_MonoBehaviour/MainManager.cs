@@ -34,7 +34,7 @@ public class MainManager : MonoBehaviour
     [Header("Ending Settings")] public TextMeshProUGUI endingDifficultyText;
     public TextMeshProUGUI endingText1;
     public TextMeshProUGUI endingText2;
-    public TextMeshProUGUI testerText; 
+    public TextMeshProUGUI testerText;
     public string titleSceneName = "Title";
 
     private bool isCutsceneActive = false;
@@ -77,7 +77,7 @@ public class MainManager : MonoBehaviour
             SoundManager.instance.PlayBGM(mainBgmLoop, mainBgmIntro, bgmFadeInDuration);
         }
 
-        // ★ 모든 엔딩 텍스트들을 시작할 때 투명하게(Alpha 0) 세팅
+        // 모든 엔딩 텍스트들을 시작할 때 투명하게 세팅
         SetTextAlphaZero(endingDifficultyText);
         SetTextAlphaZero(endingText1);
         SetTextAlphaZero(endingText2);
@@ -183,7 +183,7 @@ public class MainManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(1.0f);
-        
+
         if (endingText1 != null && endingText2 != null)
         {
             if (endingDifficultyText != null && DataManager.instance != null &&
@@ -193,14 +193,14 @@ public class MainManager : MonoBehaviour
                 yield return StartCoroutine(Co_FadeText(endingDifficultyText, 0f, 1f, 1.5f));
                 yield return new WaitForSeconds(1f);
             }
-            
+
             endingText1.text = "헥사그램 베타 테스트가 최종 종료되었습니다";
             yield return StartCoroutine(Co_FadeText(endingText1, 0f, 1f, 1.5f));
             yield return new WaitForSeconds(1f);
-            
+
             endingText2.text = "지금까지 플레이해주신 모든 분들께 깊이 감사드립니다.";
             yield return StartCoroutine(Co_FadeText(endingText2, 0f, 1f, 1.5f));
-            
+
             if (testerText != null)
             {
                 testerText.text = "<size=120%><color=#FFDF75>Special Thanks (Beta Tester)</color></size>\n\n" +
@@ -215,7 +215,7 @@ public class MainManager : MonoBehaviour
                 yield return StartCoroutine(Co_FadeText(testerText, 0f, 1f, 2.0f));
                 yield return new WaitForSeconds(4.0f);
             }
-            
+
             if (endingDifficultyText != null) StartCoroutine(Co_FadeText(endingDifficultyText, 1f, 0f, 1.5f));
             if (testerText != null) StartCoroutine(Co_FadeText(testerText, 1f, 0f, 1.5f));
             Coroutine fade1 = StartCoroutine(Co_FadeText(endingText1, 1f, 0f, 1.5f));

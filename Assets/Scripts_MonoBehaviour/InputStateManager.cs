@@ -2,7 +2,11 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum InputDeviceType { Keyboard, Mouse }
+public enum InputDeviceType
+{
+    Keyboard,
+    Mouse
+}
 
 public class InputStateManager : MonoBehaviour
 {
@@ -12,25 +16,26 @@ public class InputStateManager : MonoBehaviour
     private PlayerInput inputActions;
     private bool _isForceMouseMode = false; // 마우스 모드 강제 유지 플래그
 
-    [Header("Current State")]
-    [SerializeField] private GamePhase currentPhase = GamePhase.SafeZone;
+    [Header("Current State")] [SerializeField]
+    private GamePhase currentPhase = GamePhase.SafeZone;
+
     [SerializeField] private InputState currentInputState = InputState.Normal;
 
     public GamePhase CurrentPhase => currentPhase;
     public InputState CurrentInputState => currentInputState;
-    public InputDeviceType CurrentDevice { get; private set; } = InputDeviceType.Mouse; 
+    public InputDeviceType CurrentDevice { get; private set; } = InputDeviceType.Mouse;
 
     public event Action<InputState> OnInputStateChanged;
     public event Action<GamePhase> OnGamePhaseChanged;
-    public event Action<InputDeviceType> OnInputDeviceChanged; 
+    public event Action<InputDeviceType> OnInputDeviceChanged;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); 
-            
+            DontDestroyOnLoad(gameObject);
+
             inputActions = new PlayerInput();
             inputActions.Enable();
 
@@ -39,13 +44,13 @@ public class InputStateManager : MonoBehaviour
                 inputActions.Normal.Disable();
                 inputActions.Combat.Disable();
                 inputActions.UI.Disable();
-                
+
                 if (currentInputState == InputState.Normal) inputActions.Normal.Enable();
                 else if (currentInputState == InputState.Combat) inputActions.Combat.Enable();
                 else if (currentInputState == InputState.UI) inputActions.UI.Enable();
             }
 
-            InputSystem.onActionChange += OnInputActionChange; 
+            InputSystem.onActionChange += OnInputActionChange;
         }
         else
         {
@@ -55,16 +60,16 @@ public class InputStateManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Instance == this && inputActions != null) 
+        if (Instance == this && inputActions != null)
         {
             inputActions.Disable();
-            InputSystem.onActionChange -= OnInputActionChange; 
+            InputSystem.onActionChange -= OnInputActionChange;
         }
     }
 
     private void OnInputActionChange(object obj, InputActionChange change)
     {
-        if (change == InputActionChange.ActionPerformed) 
+        if (change == InputActionChange.ActionPerformed)
         {
             InputAction action = (InputAction)obj;
             InputDevice device = action.activeControl.device;
@@ -75,7 +80,7 @@ public class InputStateManager : MonoBehaviour
 
             if (_isForceMouseMode) newDevice = InputDeviceType.Mouse; // 강제 상태면 무조건 마우스로 덮어쓰기
 
-            if (newDevice != CurrentDevice) 
+            if (newDevice != CurrentDevice)
             {
                 CurrentDevice = newDevice;
                 OnInputDeviceChanged?.Invoke(CurrentDevice);
@@ -87,7 +92,7 @@ public class InputStateManager : MonoBehaviour
     {
         if (currentInputState == newState) return;
         currentInputState = newState;
-        
+
         if (newState == InputState.UI)
         {
             inputActions.Normal.Disable();
@@ -133,7 +138,7 @@ public class InputStateManager : MonoBehaviour
     {
         if (isActive)
         {
-            if (currentInputState == InputState.UI) 
+            if (currentInputState == InputState.UI)
             {
                 inputActions.UI.Enable();
             }
@@ -150,17 +155,15 @@ public class InputStateManager : MonoBehaviour
             inputActions.UI.Disable();
         }
     }
-    
+
     public void SetForceMouseMode(bool isForced)
     {
         _isForceMouseMode = isForced;
-    
+
         if (isForced && CurrentDevice != InputDeviceType.Mouse)
         {
             CurrentDevice = InputDeviceType.Mouse;
             OnInputDeviceChanged?.Invoke(CurrentDevice);
         }
     }
-
-
 }

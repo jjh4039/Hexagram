@@ -5,42 +5,45 @@ using TMPro;
 
 public class PauseUIController : MonoBehaviour
 {
-    [Header("Settings")]
-    [Tooltip("체크 시 튜토리얼 모드로 간주하고 게임 포기 버튼을 비활성화합니다")]
-    [SerializeField] private bool isTutorialMode = false; 
+    [Header("Settings")] [Tooltip("체크 시 튜토리얼 모드로 간주하고 게임 포기 버튼을 비활성화합니다")] [SerializeField]
+    private bool isTutorialMode = false;
 
-    [Header("UI References")]
-    [SerializeField] private GameObject pauseRoot;           
-    [SerializeField] private RectTransform bgRect;           
-    [SerializeField] private CanvasGroup textGroup;          
-    [SerializeField] private TextMeshProUGUI[] menuTexts;    
-    [SerializeField] private TextMeshProUGUI progressText;   
-    [SerializeField] private TextMeshProUGUI playTimeText;   
-    [SerializeField] private SettingUIController settingUI;  
+    [Header("UI References")] [SerializeField]
+    private GameObject pauseRoot;
 
-    [Header("Animation Settings")]
-    [SerializeField] private float targetBgHeight = 400f;    
-    [SerializeField] private float bgExpandDuration = 0.25f; 
-    [SerializeField] private float textFadeDuration = 0.2f;  
+    [SerializeField] private RectTransform bgRect;
+    [SerializeField] private CanvasGroup textGroup;
+    [SerializeField] private TextMeshProUGUI[] menuTexts;
+    [SerializeField] private TextMeshProUGUI progressText;
+    [SerializeField] private TextMeshProUGUI playTimeText;
+    [SerializeField] private SettingUIController settingUI;
 
-    [Header("Floating Settings")]
-    [SerializeField] private float floatAmplitude = 10f;     
-    [SerializeField] private float floatSpeed = 2f;          
+    [Header("Animation Settings")] [SerializeField]
+    private float targetBgHeight = 400f;
 
-    [Header("Colors & Sounds")]
-    [SerializeField] private Color normalColor = Color.gray; 
+    [SerializeField] private float bgExpandDuration = 0.25f;
+    [SerializeField] private float textFadeDuration = 0.2f;
+
+    [Header("Floating Settings")] [SerializeField]
+    private float floatAmplitude = 10f;
+
+    [SerializeField] private float floatSpeed = 2f;
+
+    [Header("Colors & Sounds")] [SerializeField]
+    private Color normalColor = Color.gray;
+
     [SerializeField] private Color selectColor = Color.white;
-    [SerializeField] private Color disableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f); 
-    [SerializeField] private AudioClip sfxMove;              
-    [SerializeField] private AudioClip sfxSubmit;            
-    [SerializeField] private AudioClip sfxOpen;              
+    [SerializeField] private Color disableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+    [SerializeField] private AudioClip sfxMove;
+    [SerializeField] private AudioClip sfxSubmit;
+    [SerializeField] private AudioClip sfxOpen;
 
-    private bool _isPaused = false;                          
-    private bool _isAnimating = false;                       
-    private int _currentIndex = 0;                           
+    private bool _isPaused = false;
+    private bool _isAnimating = false;
+    private int _currentIndex = 0;
 
-    private Coroutine _animCoroutine;                        
-    private Vector2 _bgOriginAnchoredPos;                    
+    private Coroutine _animCoroutine;
+    private Vector2 _bgOriginAnchoredPos;
 
     private void Start()
     {
@@ -85,7 +88,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnPauseToggleInput(InputAction.CallbackContext ctx)
     {
-        if (!gameObject.activeInHierarchy) return; 
+        if (!gameObject.activeInHierarchy) return;
 
         if (TutorialManager.Instance != null && TutorialManager.Instance.IsCutsceneActive) return;
 
@@ -99,7 +102,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnNavigate(InputAction.CallbackContext ctx)
     {
-        if (!gameObject.activeInHierarchy) return; 
+        if (!gameObject.activeInHierarchy) return;
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
@@ -117,7 +120,7 @@ public class PauseUIController : MonoBehaviour
 
     private void OnCloseUI(InputAction.CallbackContext ctx)
     {
-        if (!gameObject.activeInHierarchy) return; 
+        if (!gameObject.activeInHierarchy) return;
         if (!_isPaused || _isAnimating) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
@@ -166,13 +169,13 @@ public class PauseUIController : MonoBehaviour
 
     public void SetIndexByMouse(int index)
     {
-        // ★ _isAnimating 검사를 제거하여, UI가 켜지는 순간부터 즉각적으로 마우스 좌표를 허용합니다.
         if (!_isPaused || _currentIndex == index) return;
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
         if (isTutorialMode && index == 2) return;
-        
-        if (InputStateManager.Instance != null && InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
+
+        if (InputStateManager.Instance != null &&
+            InputStateManager.Instance.CurrentDevice == InputDeviceType.Keyboard) return;
 
         _currentIndex = index;
         if (sfxMove) SoundManager.instance.PlaySFX(sfxMove, 0.5f);
@@ -204,7 +207,7 @@ public class PauseUIController : MonoBehaviour
         {
             if (progressText != null) progressText.text = "진행도 : 튜토리얼";
             if (playTimeText != null) playTimeText.text = "PlayTime : -- m -- s";
-            return; 
+            return;
         }
 
         if (GameManager.instance == null) return;
@@ -233,8 +236,8 @@ public class PauseUIController : MonoBehaviour
 
     public void ExecuteSelection()
     {
-        if (!gameObject.activeInHierarchy) return; 
-        if (!_isPaused || _isAnimating) return; // ★ 애니메이션 중 클릭 오작동 방지
+        if (!gameObject.activeInHierarchy) return;
+        if (!_isPaused || _isAnimating) return; // 애니메이션 중 클릭 오작동 방지
         if (settingUI != null && settingUI.IsOpen) return;
         if (ConfirmUIController.Instance != null && ConfirmUIController.Instance.IsOpen) return;
         if (isTutorialMode && _currentIndex == 2) return;
@@ -243,23 +246,25 @@ public class PauseUIController : MonoBehaviour
 
         switch (_currentIndex)
         {
-            case 0: 
-                ResumeGame(); 
+            case 0:
+                ResumeGame();
                 break;
-            case 1: 
-                if (settingUI != null) settingUI.OpenSettings(); 
+            case 1:
+                if (settingUI != null) settingUI.OpenSettings();
                 break;
-            case 2: 
+            case 2:
                 if (ConfirmUIController.Instance != null)
                 {
                     ConfirmUIController.Instance.ShowPopupByIndex(0, () => { Time.timeScale = 1f; });
                 }
+
                 break;
-            case 3: 
+            case 3:
                 if (ConfirmUIController.Instance != null)
                 {
                     ConfirmUIController.Instance.ShowPopupByIndex(1, () => { Time.timeScale = 1f; });
                 }
+
                 break;
         }
     }
@@ -282,6 +287,7 @@ public class PauseUIController : MonoBehaviour
             bgRect.sizeDelta = new Vector2(bgRect.sizeDelta.x, Mathf.Lerp(0f, targetBgHeight, easedT));
             yield return null;
         }
+
         bgRect.sizeDelta = new Vector2(bgRect.sizeDelta.x, targetBgHeight);
 
         elapsed = 0f;
@@ -291,6 +297,7 @@ public class PauseUIController : MonoBehaviour
             textGroup.alpha = Mathf.Clamp01(elapsed / textFadeDuration);
             yield return null;
         }
+
         textGroup.alpha = 1f;
 
         _isAnimating = false;
@@ -309,6 +316,7 @@ public class PauseUIController : MonoBehaviour
             textGroup.alpha = 1f - Mathf.Clamp01(elapsed / textFadeDuration);
             yield return null;
         }
+
         textGroup.alpha = 0f;
 
         elapsed = 0f;
